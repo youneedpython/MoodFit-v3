@@ -150,7 +150,57 @@ Task를 완료할 때 관련 상태와 작업 기록을 함께 갱신한다.
 
 ---
 
-## 9. UI/UX 규칙
+## 9. Prompt 기록 규칙
+
+프로젝트의 주요 작업 지시는 `prompts/` 디렉터리에 기록한다.
+
+다음 유형은 Prompt 기록 대상이다.
+
+- Requirements Review
+- Human Decision 반영
+- Plan 생성 또는 변경
+- Task 생성
+- 주요 Feature 구현
+- Architecture 변경
+- API Contract 변경
+- Verification 구성
+- CI/CD 구성
+- GitHub Actions Bot 구성
+- 중요한 오류 수정
+
+일상적인 질문이나 단순 설명 요청은 기록하지 않는다.
+
+Prompt 파일은 실행 순서를 확인할 수 있도록 번호를 사용한다.
+
+Prompt 기록에는 가능한 경우 다음 내용을 포함한다.
+
+- 목적
+- 실행 단계
+- 사용 Context
+- 실제 Prompt
+- 기대 산출물
+- Human Approval 여부
+- 결과 또는 상태
+- Related Commit
+
+Prompt 기록은 프로젝트의 요구사항 Source of Truth를 대체하지 않는다.
+
+역할은 다음과 같이 구분한다.
+
+```text
+AGENTS.md
+→ Agent 작업 규칙
+
+docs/
+→ 프로젝트 요구사항, 계획, 상태, 결정
+
+prompts/
+→ Human이 Agent에게 내린 주요 실행 지시
+```
+
+---
+
+## 10. UI/UX 규칙
 
 MoodFit v3는 단순 입력 Form 형태의 데모 UI를 목표로 하지 않는다.
 
@@ -168,7 +218,7 @@ MoodFit v3는 단순 입력 Form 형태의 데모 UI를 목표로 하지 않는�
 
 ---
 
-## 10. 보안 및 설정 규칙
+## 11. 보안 및 설정 규칙
 
 다음 정보는 Repository에 직접 Commit하지 않는다.
 
@@ -182,7 +232,7 @@ MoodFit v3는 단순 입력 Form 형태의 데모 UI를 목표로 하지 않는�
 
 ---
 
-## 11. Git / Commit 규칙
+## 12. Git / Commit 규칙
 
 Codex는 사용자의 명시적인 지시 없이 `git commit`, `git push`, 강제 Push, History Rewrite를 수행하지 않는다.
 
@@ -205,7 +255,7 @@ Commit은 의미 있는 작업 단위가 완료되고 검증된 시점에 수행
 
 ---
 
-## 12. 완료 보고 규칙
+## 13. 완료 보고 규칙
 
 Codex는 작업을 마친 후 최소한 다음을 보고한다.
 
