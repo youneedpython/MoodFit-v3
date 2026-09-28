@@ -16,7 +16,7 @@
 - Core MVP는 단일 사용자 환경을 기준으로 한다.
 - Dashboard Metric은 Heart Rate, Respiratory Rate, Sleep Score, Stress Level, Energy Level 5개를 기준으로 한다.
 - Trend는 외부 Chart Library 없이 CSS 또는 SVG 기반 단순 Component로 시작한다.
-- 기술의 정확한 Version은 아직 확정하지 않는다.
+- 기술의 정확한 Version은 Gate A에서 Human Approved 되었으며, `docs/09-DECISIONS.md`의 DEC-015를 따른다.
 - Wellness Analysis Rule은 아직 확정하지 않는다.
 - 초기 Local Verification과 CI는 외부 MySQL 연결 없이 실행 가능해야 한다.
 - Feature가 추가될 때마다 Local Verification과 CI의 검증 범위를 함께 확장한다.
@@ -61,23 +61,27 @@ Milestone 0 완료 후
 Milestone 1 시작 전
 ```
 
-승인 전 제안해야 할 항목:
+승인 대상 항목:
 
 - React Version 후보와 선택 이유
+- React DOM Version 후보와 선택 이유
 - Vite Version 후보와 선택 이유
+- TypeScript Version 후보와 선택 이유
 - Node.js Version 후보와 선택 이유
 - Spring Boot Version 후보와 선택 이유
 - Gradle Version 후보와 선택 이유
 - React Router Version 후보와 선택 이유
 - Vitest Version 후보와 선택 이유
 - React Testing Library Version 후보와 선택 이유
+- @testing-library/dom Version 후보와 선택 이유
+- jsdom Version 후보와 선택 이유
 
 규칙:
 
-- Human Approval 전에는 Frontend 프로젝트를 생성하지 않는다.
-- Human Approval 전에는 Backend 프로젝트를 생성하지 않는다.
-- Human Approval 전에는 npm 또는 Gradle 프로젝트를 초기화하지 않는다.
-- 승인된 Version은 이후 `docs/09-DECISIONS.md`에 반영한다.
+- Gate A는 Human Approved 되었으며, 승인된 Version은 `docs/09-DECISIONS.md`의 DEC-015에 반영되어 있다.
+- Gate A 승인 전에는 Frontend 프로젝트를 생성하지 않는다.
+- Gate A 승인 전에는 Backend 프로젝트를 생성하지 않는다.
+- Gate A 승인 전에는 npm 또는 Gradle 프로젝트를 초기화하지 않는다.
 
 ### Gate B — Wellness Analysis Rule 승인
 
@@ -171,18 +175,18 @@ Milestone 6 시작 전
 
 - 계획이 승인된 결정과 충돌하지 않는지 문서 검토
 - Recommendation Refresh가 Core MVP에 포함되지 않았는지 확인
-- 기술 Version과 Wellness Rule이 확정되지 않았는지 확인
+- 기술 Version은 Gate A에서 확정되었고 Wellness Rule은 아직 확정되지 않았는지 확인
 - Local Verification과 CI가 Project Bootstrap 직후로 배치되었는지 확인
 
 Human Approval Gate:
 
-- Gate A 준비
+- Gate A 완료
 - 계획 자체에 대한 Human Approval 필요
 
 완료 조건:
 
 - Human이 `docs/06-PLAN.md`를 승인한다.
-- 다음 단계에서 Project Bootstrap 전 Gate A를 진행할 수 있다.
+- 다음 단계에서 Gate A 승인 결과를 기준으로 Project Bootstrap Task를 정의할 수 있다.
 
 ### Milestone 1 — Project Bootstrap
 
@@ -744,15 +748,6 @@ Human Approval Gate:
   - Food Recommendation Rule
   - Music Recommendation Rule
   - Rule Boundary / Edge Case
-- DEC-015 기술 버전
-  - React
-  - Vite
-  - Spring Boot
-  - Gradle
-  - Node.js
-  - React Router
-  - Vitest
-  - React Testing Library
 
 ---
 
@@ -760,7 +755,6 @@ Human Approval Gate:
 
 - Wellness Analysis Rule이 승인되기 전에는 Backend Core 구현이 지연될 수 있다.
 - Temperature 처리 정책과 Rule Boundary / Edge Case가 승인되기 전에는 분석 관련 Test를 확정할 수 없다.
-- 정확한 기술 Version 승인 전에는 Project Bootstrap을 시작할 수 없다.
 - MySQL Integration Test가 필요해질 경우 초기 CI Database Strategy를 재검토해야 한다.
 - API Contract 또는 DB Schema 변경이 발생하면 Frontend Type과 Test 계획도 함께 갱신해야 한다.
 - 외부 Chart Library 없이 Trend를 구현하므로 표현 범위를 MVP 수준으로 제한해야 한다.
@@ -773,8 +767,8 @@ Human Approval Gate:
 
 Human이 이 계획을 승인하면 다음 순서로 진행한다.
 
-1. Gate A를 위한 기술 Version 후보와 선택 이유를 제안한다.
-2. Gate A 승인 후 Project Bootstrap Task를 정의한다.
+1. Gate A 승인 결과를 기준으로 Project Bootstrap Task를 정의한다.
+2. Project Bootstrap Task 승인 후 Project Bootstrap을 진행한다.
 3. Project Bootstrap 직후 Initial Local Verification Harness Task를 정의한다.
 4. Initial Local Verification Harness 성공 후 Initial GitHub Actions CI Task를 정의한다.
 5. `docs/07-TASKS.md`는 계획 승인 이후 별도 지시에 따라 생성한다.

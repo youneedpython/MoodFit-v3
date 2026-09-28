@@ -417,45 +417,47 @@ Pending Human Approval
 
 ## DEC-015 기술 버전
 
-### 현재 상태
+### 결정
 
-다음 기술 사용은 확정되어 있다.
+Gate A Human Review를 통해 Project Bootstrap에 사용할 기술 Version을 다음과 같이 확정한다.
 
 ```text
-Frontend
-React
-TypeScript
-Vite
+Frontend Runtime
+Node.js 24.21.0
+
+Frontend Core
+React 19.3.0
+React DOM 19.3.0
+Vite 8.3.1
+TypeScript 6.0.2
+React Router 8.4.0
+
+Frontend Test
+Vitest 5.0.2
+React Testing Library 16.3.3
+@testing-library/dom 10.4.2
+jsdom 30.1.1
 
 Backend
 Java 21
-Spring Boot
-Gradle Wrapper
-
-Database
-MySQL
+Spring Boot 3.5.16
+Gradle Wrapper 8.14.5
 ```
 
-다음 정확한 Version은 아직 확정하지 않는다.
+### Version 고정 정책
 
-```text
-React
-Vite
-Spring Boot
-Gradle
-Node.js
-React Router
-Vitest
-React Testing Library
-```
-
-Codex는 `06-PLAN.md`에서 Project Bootstrap에 사용할
-Version 후보와 이유를 제안해야 한다.
-
-Human Approval 후 프로젝트를 초기화한다.
+- React와 React DOM은 동일 Version으로 유지한다.
+- React Router 8에서는 `react-router` `8.4.0`을 사용한다.
+- `react-router-dom`은 설치하지 않는다.
+- TypeScript는 Vite `8.3.1` 공식 React + TypeScript Template 기준의 `6.0.2`를 사용한다.
+- `package.json`의 직접 Dependency는 Core MVP 재현성을 위해 정확한 Version으로 고정한다.
+- `package-lock.json`은 Repository에 Commit한다.
+- Gradle Wrapper Version은 `8.14.5`로 고정한다.
+- Spring Boot Plugin Version은 `3.5.16`으로 고정한다.
+- GitHub Actions에서도 Node.js `24.21.0`과 Java `21`을 사용한다.
 
 ### 상태
 
 ```text
-Pending Human Approval
+Human Approved
 ```
