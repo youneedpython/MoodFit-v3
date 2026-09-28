@@ -152,7 +152,7 @@ Harness Engineering
 ### Backend
 
 - Java 21
-- Spring Boot 3.x
+- Spring Boot
 - Gradle Wrapper
 - Spring Data JPA
 - Bean Validation
@@ -182,6 +182,7 @@ Harness Engineering
 - Music Recommendation
 - History 조회
 - 최근 7일 Trend
+- 단일 사용자 환경
 - MySQL 저장
 - Frontend / Backend Test
 - 반복 가능한 Local Verification Script
@@ -202,6 +203,7 @@ Harness Engineering
 - 결제
 - Push Notification
 - AWS 배포
+- Recommendation Refresh
 
 필요한 경우 후속 Milestone에서 별도로 검토한다.
 

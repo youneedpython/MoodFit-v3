@@ -37,7 +37,7 @@ MoodFit v3의 Frontend, Backend, Database 책임과 목표 디렉터리 구조�
 │ MySQL                           │
 │                                 │
 │ Wellness Check-in               │
-│ Recommendation History          │
+│ Check-in scoped Recommendation  │
 └─────────────────────────────────┘
 ```
 
@@ -69,7 +69,7 @@ frontend/
 └── src/
     ├── app/
     │   ├── App.tsx
-    │   └── router.tsx        # Routing 방식 승인 후 필요 시 생성
+    │   └── router.tsx        # React Router 기반 화면 전환
     │
     ├── components/
     │   ├── Button/
@@ -170,8 +170,9 @@ backend/
 
 추천 정보는 Check-in 결과와 연결된다.
 
-초기 구현에서는 음식/음악 추천을 Check-in 저장과 함께 관리할 수 있다.
-정확한 Entity 분리 여부는 구현 계획에서 검토한다.
+초기 MVP에서는 Recommendation을 독립적인 핵심 Aggregate로 설계하지 않는다.
+음식/음악 추천은 Wellness Check-in 분석 결과에 종속된 데이터로 관리한다.
+정확한 JPA Mapping 방식은 Domain 구현 전에 검토한다.
 
 ---
 
@@ -249,7 +250,8 @@ MySQL
 - Daily Check-in의 핵심 입력/제출 흐름 또는 이에 준하는 핵심 Component
 - Loading / Error / Empty 중 핵심 상태 표현
 
-Frontend Test 도구는 PLAN 단계에서 후보와 이유를 제안하고 Human Approval 후 확정한다.
+Frontend Test 도구는 Human Approved 결정에 따라 Vitest와 React Testing Library를 사용한다.
+정확한 Package Version은 Project Bootstrap 전 확인하고 Human Approval 후 확정한다.
 
 ### Backend 최소 검증 대상
 
@@ -289,12 +291,17 @@ Backend Test / Build
 
 로컬 개발에 필요한 DB 접속 정보와 환경별 설정은 Source Code에 실제 Secret 값으로 고정하지 않는다.
 
+- 기본 Local 개발 Port는 Frontend `5173`, Backend `8080`, MySQL `3306`을 사용한다.
+- Frontend 개발 환경에서는 `/api` 요청을 `http://localhost:8080`으로 Proxy하는 방식을 우선한다.
 - 민감값은 환경변수를 우선 사용한다.
+- DB 접속 정보는 `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` 같은 환경변수로 관리한다.
 - 예시 설정이 필요하면 `.env.example` 또는 안전한 예시 값을 사용한다.
 - 실제 `.env` 및 개인 로컬 설정 파일은 `.gitignore` 대상이다.
 - CI에서 Secret이 필요한 단계가 생기면 GitHub Secrets 사용을 검토한다.
 
-MySQL을 사용하는 실제 실행 프로필과 Test 환경 분리 방식은 Project Bootstrap/PLAN 단계에서 확정한다.
+초기 GitHub Actions CI에서는 별도의 MySQL Service Container를 실행하지 않는다.
+초기 자동 Test는 Backend Unit Test, Controller Validation Test, Frontend Component Test, Frontend Build, Backend Build를 중심으로 구성한다.
+Repository / Database Integration Test가 필요해지는 경우 별도의 Test DB 전략을 다시 결정한다.
 
 ---
 
@@ -306,6 +313,7 @@ GitHub Actions는 다음 순서로 도입한다.
 2. Local Verification Script 구성
 3. GitHub Actions CI 구성
 4. CI 성공 확인
-5. GitHub Actions Bot 추가
+5. Core Feature 구현 및 검증
+6. GitHub Actions Bot 추가
 
 Bot은 초기에는 Source Code를 자동 수정하지 않고 검증 결과 또는 자동화 기록을 남기는 역할부터 시작한다.

@@ -13,7 +13,7 @@ API Contract 변경은 Human Approval 대상이다.
 
 - Base Path: `/api`
 - Content-Type: `application/json`
-- 날짜/시간: ISO-8601 형식
+- 날짜/시간: Backend 기준 타입은 `Instant`, API 전달 형식은 ISO-8601
 - Validation Error는 4xx 응답
 - Server Error는 5xx 응답
 - Frontend는 HTTP Status를 무시하지 않는다.
@@ -87,7 +87,7 @@ POST /api/check-ins
 ```json
 {
   "id": 101,
-  "recordedAt": "2026-09-28T12:00:00+09:00",
+  "recordedAt": "2026-09-28T03:00:00Z",
   "mood": {
     "code": "CALM",
     "label": "평온함"
@@ -139,12 +139,19 @@ GET /api/check-ins/latest
 
 ### 기록 없음
 
-초기 정책은 다음 중 하나로 구현 계획에서 확정한다.
+저장된 Check-in이 존재하지 않는 경우 다음을 반환한다.
 
-- `404 Not Found`
-- `204 No Content`
+```http
+404 Not Found
+```
 
-Codex가 임의로 확정하지 않고 PLAN 단계에서 제안한다.
+예상 Error Code:
+
+```text
+CHECKIN_NOT_FOUND
+```
+
+Frontend는 이를 일반 Error 화면이 아니라 Dashboard Empty State로 처리한다.
 
 ---
 
@@ -162,8 +169,8 @@ GET /api/check-ins/history?days=7
 |---|---|---|
 | days | 조회 기간(일) | 7 |
 
-초기 MVP에서는 최대 조회 범위를 제한한다.
-정확한 최대값은 구현 계획에서 확정한다.
+최대 조회 기간은 30일로 제한한다.
+30일을 초과하는 값은 Validation Error로 처리한다.
 
 ### Response — 200 OK
 
@@ -173,7 +180,7 @@ GET /api/check-ins/history?days=7
   "items": [
     {
       "id": 101,
-      "recordedAt": "2026-09-28T12:00:00+09:00",
+      "recordedAt": "2026-09-28T03:00:00Z",
       "mood": {
         "code": "CALM",
         "label": "평온함"
@@ -198,23 +205,16 @@ History 화면에 필요한 최소 정보만 반환하는 것을 우선한다.
 
 ## 7. 추천 새로고침
 
-v1에서 시각적으로만 존재했던 `추천 새로고침` 동작을 v3에서는 실제 기능으로 연결한다.
+Recommendation Refresh 기능은 Core MVP에서 제외한다.
+초기 MVP에서는 Check-in 생성 시 분석 결과와 Recommendation을 함께 생성하고 저장한다.
 
-초기 API 초안:
+다음 API는 Core MVP에서 구현하지 않는다.
 
 ```http
 POST /api/check-ins/{id}/recommendations/refresh
 ```
 
-### 목적
-
-기존 Check-in 입력값은 유지하면서 추천 후보를 다시 생성한다.
-
-### Response
-
-최신 Recommendation과 함께 상세 Check-in Response를 반환하는 방식을 우선 검토한다.
-
-정확한 구현 방식은 `06-PLAN.md`에서 복잡도와 필요성을 검토한 뒤 확정한다.
+Recommendation Refresh는 Core MVP 완료 이후 Post-MVP Task에서 다시 검토한다.
 
 ---
 
@@ -252,10 +252,11 @@ Error Response 형식은 Frontend Error UX와 함께 유지한다.
 
 다음 항목은 아직 승인되지 않았으며 Codex가 구현 전에 대안을 제안해야 한다.
 
-- 최신 Check-in이 없을 때 `404`와 `204` 중 어떤 응답을 사용할지
-- History `days`의 최대 허용값
-- Recommendation을 별도 Entity/Table로 분리할지 여부
-- 추천 새로고침 시 기존 추천을 교체할지, 이력을 남길지
-- 날짜/시간 저장 기준을 `Instant`, `OffsetDateTime` 등 어떤 방식으로 통일할지
+- Wellness Score 계산식
+- Mood 판정 기준
+- 입력 Metric의 가중치
+- Weather 영향 규칙
+- Food Recommendation Rule
+- Music Recommendation Rule
 
 위 결정이 API Contract 또는 DB Schema에 영향을 주면 Human Approval 후 `09-DECISIONS.md`에 기록한다.

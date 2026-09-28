@@ -125,11 +125,13 @@ v1의 Body Metric, Weather, Food, Music Data는 모두 Component 내부 정적 �
 
 v3에서는 Backend API를 통해 실제 저장/조회되는 데이터와 연결한다.
 
-### 5.2 추천 새로고침 기능 실제 구현
+### 5.2 추천 새로고침 기능 Post-MVP 검토
 
 v1의 `추천 새로고침` 버튼은 시각적으로 존재하지만 실제 이벤트가 연결되어 있지 않다.
 
-v3에서는 추천 재생성 또는 최신 Check-in 기준 재조회 등 실제 행동으로 연결한다.
+v3 Core MVP에서는 Recommendation Refresh를 구현하지 않는다.
+초기 MVP에서는 Check-in 생성 시 분석 결과와 Recommendation을 함께 생성하고 저장한다.
+추천 새로고침은 Core MVP 완료 이후 Post-MVP Task에서 다시 검토한다.
 
 ### 5.3 입력 경험 분리
 

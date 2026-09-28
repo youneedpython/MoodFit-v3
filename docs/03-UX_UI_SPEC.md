@@ -31,7 +31,8 @@ MoodFit
 └── History
 ```
 
-초기 구현은 SPA를 기준으로 하되, Routing Library 사용 여부는 PLAN 단계에서 제안하고 Human Approval 후 확정한다.
+초기 구현은 SPA를 기준으로 하며, 화면 전환에는 Human Approved 결정에 따라 React Router를 사용한다.
+정확한 Package Version은 Project Bootstrap 전 확인하고 Human Approval 후 확정한다.
 
 ---
 
@@ -86,8 +87,9 @@ Food Recommendation과 Music Recommendation을 구분한다.
 
 최근 7일 Wellness Score 변화를 표시한다.
 
-Chart Library 추가는 자동으로 결정하지 않는다.
-필요 시 대안을 제안하고 Human Approval 후 Dependency를 추가한다.
+Core MVP에서는 외부 Chart Library를 추가하지 않는다.
+Trend는 CSS 또는 SVG 기반의 단순한 Component로 시작한다.
+외부 Chart Library가 필요한 경우 별도의 Human Approval을 받는다.
 
 ### 상태
 

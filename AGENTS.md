@@ -20,6 +20,7 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 4. `docs/03-UX_UI_SPEC.md`
 5. `docs/04-ARCHITECTURE.md`
 6. `docs/05-API_SPEC.md`
+7. `docs/09-DECISIONS.md`
 
 `docs/06-PLAN.md`, `docs/07-TASKS.md`가 생성된 이후에는 해당 문서도 반드시 확인한다.
 
@@ -53,9 +54,10 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 - `docs/03-UX_UI_SPEC.md`: 화면, 상태, 상호작용 요구사항
 - `docs/04-ARCHITECTURE.md`: 기술 책임과 목표 구조
 - `docs/05-API_SPEC.md`: Frontend/Backend 간 API Contract
-- 향후 `docs/09-DECISIONS.md`: 승인된 결정의 최종 기록
+- `docs/09-DECISIONS.md`: Human Review를 통해 승인된 제품·기술·아키텍처 결정의 최종 기록
 
-세부 문서가 상위 개념 문서보다 구체적인 내용을 정의할 수 있지만, 서로 모순되는 요구사항을 임의로 선택해서 구현하지 않는다.
+세부 문서가 상위 개념 문서보다 구체적인 내용을 정의할 수 있지만, `docs/09-DECISIONS.md`에 승인된 결정이 있는 경우 해당 결정을 우선한다.
+서로 모순되는 요구사항을 임의로 선택해서 구현하지 않는다.
 구현 결과에 영향을 주는 충돌이 발견되면 작업을 중단하고 충돌 항목, 가능한 대안, 추천안을 보고한 뒤 Human Approval을 기다린다.
 
 ---
