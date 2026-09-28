@@ -26,11 +26,31 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **Harness Definition / Human Review** 단계입니다.
+현재 Repository는 **TASK-001 — Project Bootstrap 실행 준비** 단계입니다.
 
-아직 Frontend / Backend 구현을 시작하지 않습니다.
+Status:
 
-프로젝트 목적, v1 UI 참고 기준, UI/UX 요구사항, 아키텍처, API Contract를 문서로 검토·정리한 뒤 첫 Harness Checkpoint를 Commit하고, 그 다음 Codex가 구현 계획을 작성합니다.
+```text
+READY
+```
+
+완료된 Harness 단계는 다음과 같습니다.
+
+```text
+Requirements Review
+    ↓
+Decision Sync
+    ↓
+Implementation Plan
+    ↓
+Gate A Technology Version Approval
+    ↓
+Task Definition
+    ↓
+Gate C Bootstrap Dependency Approval
+```
+
+현재는 실제 Project Bootstrap 실행 직전이며, 사용자의 명시적인 TASK-001 실행 지시를 기다리는 상태입니다.
 
 ## 초기 구조
 
@@ -39,12 +59,18 @@ today-v3/
 ├── AGENTS.md
 ├── README.md
 ├── .gitignore
-└── docs/
-    ├── 01-PROJECT.md
-    ├── 02-V1-REFERENCE.md
-    ├── 03-UX_UI_SPEC.md
-    ├── 04-ARCHITECTURE.md
-    └── 05-API_SPEC.md
+├── docs/
+│   ├── 01-PROJECT.md
+│   ├── 02-V1-REFERENCE.md
+│   ├── 03-UX_UI_SPEC.md
+│   ├── 04-ARCHITECTURE.md
+│   ├── 05-API_SPEC.md
+│   ├── 06-PLAN.md
+│   ├── 07-TASKS.md
+│   └── 09-DECISIONS.md
+└── prompts/
+    ├── README.md
+    └── 01 ~ 07 Prompt History
 ```
 
 ## v1 / v2 / v3 비교
@@ -62,14 +88,15 @@ today-v3/
 - Database: MySQL
 - CI: GitHub Actions
 
-세부 버전과 추가 라이브러리는 구현 계획 검토와 Human Approval 후 확정합니다.
+정확한 기술 Version과 Bootstrap Dependency는 이미 Human Approved 상태입니다.
+Version 결정은 `docs/09-DECISIONS.md`의 DEC-015를 따르고,
+Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. 초기 문서 Human Review 완료
-2. Harness Definition 첫 Commit
-3. Codex에게 문서 전체 검토 요청
-4. Codex가 `docs/06-PLAN.md` 초안 작성
-5. Human Review / Approval
-6. `docs/07-TASKS.md` 생성
-7. 프로젝트 Skeleton 구현 시작
+1. TASK-001 Project Bootstrap 실행
+2. TASK-001 Test / Build Verification
+3. `docs/08-WORK_LOG.md` 최초 생성 및 TASK-001 작업 기록
+4. TASK-001 Human Review
+5. TASK-001 DONE
+6. TASK-002 Initial Local Verification Harness 준비

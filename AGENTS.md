@@ -28,19 +28,35 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 ## 3. 현재 단계 규칙
 
-현재 단계는 **Harness Definition** 단계이다.
+현재 단계는 **TASK Execution 준비 단계**이다.
 
-따라서 아직 다음 작업을 수행하지 않는다.
+Current Task:
 
-- Frontend 프로젝트 생성
-- Backend 프로젝트 생성
-- npm 패키지 설치
-- Gradle 프로젝트 생성
-- DB Schema 생성
-- GitHub Actions Workflow 생성
-- 실제 기능 코드 구현
+```text
+TASK-001 — Project Bootstrap
+```
 
-현재 단계에서는 문서와 규칙을 정의하고, 문서 간 충돌·누락을 검토하는 데 집중한다.
+Status:
+
+```text
+READY
+```
+
+Gate A, DEC-015, DEC-016 Human Approval이 완료되어 TASK-001을 실행할 수 있는 상태이다.
+
+단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
+
+Task 실행 시에는 다음 규칙을 따른다.
+
+- `docs/07-TASKS.md`의 Current Task를 확인한다.
+- READY 상태의 Current Task만 실행할 수 있다.
+- 필요한 Human Approval / Gate가 완료되었는지 확인한다.
+- 사용자의 명시적인 실행 지시가 있어야 Task를 시작한다.
+- Task 시작 시 해당 Task만 IN_PROGRESS로 변경한다.
+- BLOCKED Task는 실행하지 않는다.
+- Task 범위를 벗어난 작업은 수행하지 않는다.
+- 새로운 승인되지 않은 Dependency가 필요하면 Gate C를 적용한다.
+- DEC-014 Wellness Analysis Rule은 승인 전 구현하지 않는다.
 
 ---
 

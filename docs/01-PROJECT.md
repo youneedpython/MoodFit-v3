@@ -167,7 +167,9 @@ Harness Engineering
 - GitHub
 - GitHub Actions
 
-> 정확한 세부 버전과 추가 Dependency는 Project Bootstrap 전에 확인하고 Human Approval을 거쳐 확정한다.
+> Project Bootstrap 기술 Version은 `docs/09-DECISIONS.md`의 DEC-015를 따른다.
+> Bootstrap Dependency Set은 `docs/09-DECISIONS.md`의 DEC-016을 따른다.
+> 이후 새로운 Dependency가 필요하면 Gate C를 적용한다.
 
 ---
 

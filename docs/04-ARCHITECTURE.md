@@ -4,8 +4,10 @@
 
 MoodFit v3의 Frontend, Backend, Database 책임과 목표 디렉터리 구조를 정의한다.
 
-현재 단계에서는 실제 `frontend/`, `backend/` 디렉터리를 생성하지 않는다.
-`06-PLAN.md` 승인 이후 Project Bootstrap Task에서 생성한다.
+PLAN, Gate A, Bootstrap Dependency Gate C가 승인 완료되었다.
+TASK-001 Project Bootstrap은 READY 상태이다.
+`frontend/`, `backend/` 디렉터리는 TASK-001 실행 시 생성한다.
+사용자의 명시적인 TASK-001 실행 지시 전에는 생성하지 않는다.
 
 ---
 
@@ -250,8 +252,9 @@ MySQL
 - Daily Check-in의 핵심 입력/제출 흐름 또는 이에 준하는 핵심 Component
 - Loading / Error / Empty 중 핵심 상태 표현
 
-Frontend Test 도구는 Human Approved 결정에 따라 Vitest와 React Testing Library를 사용한다.
-정확한 Package Version은 Project Bootstrap 전 확인하고 Human Approval 후 확정한다.
+Frontend Test 기술 및 Version은 `docs/09-DECISIONS.md`의 DEC-015를 따른다.
+Bootstrap Support Dependency는 `docs/09-DECISIONS.md`의 DEC-016을 따른다.
+추가 Test Dependency가 필요하면 Gate C를 적용한다.
 
 ### Backend 최소 검증 대상
 

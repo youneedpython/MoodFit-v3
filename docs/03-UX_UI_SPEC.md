@@ -32,7 +32,8 @@ MoodFit
 ```
 
 초기 구현은 SPA를 기준으로 하며, 화면 전환에는 Human Approved 결정에 따라 React Router를 사용한다.
-정확한 Package Version은 Project Bootstrap 전 확인하고 Human Approval 후 확정한다.
+정확한 Version과 Package 정책은 `docs/09-DECISIONS.md`의 DEC-015를 따른다.
+Core MVP에서는 `react-router` `8.4.0`을 사용하고 `react-router-dom`은 사용하지 않는다.
 
 ---
 

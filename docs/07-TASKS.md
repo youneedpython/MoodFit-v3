@@ -262,6 +262,7 @@ TASK-001 실행 후 예상되는 산출물은 다음과 같다.
 frontend/
 backend/
 .env.example
+docs/08-WORK_LOG.md
 ```
 
 Frontend 예상 산출물:
@@ -284,6 +285,15 @@ Backend 예상 산출물:
 - 최소 Test/Build 실행 기반
 
 단, 실제 생성 명령이나 파일 생성은 이번 Task 정의 단계에서는 실행하지 않는다.
+
+Work Log 예상 산출물:
+
+- TASK-001 구현과 Verification이 완료되면 Human Review 전에 `docs/08-WORK_LOG.md`를 최초 생성한다.
+- TASK-001에서 수행한 작업을 기록한다.
+- Test / Build 결과를 기록한다.
+- 발생한 오류와 해결 내용이 있으면 기록한다.
+- TASK 상태를 REVIEW로 전환하기 전에 WORK_LOG를 갱신한다.
+- 현재 시점에는 `docs/08-WORK_LOG.md`를 생성하지 않는다.
 
 ### Verification
 
@@ -329,6 +339,7 @@ TASK-001은 다음 조건을 모두 충족해야 완료할 수 있다.
 - 외부 MySQL 없이 초기 검증 성공
 - Secret 미포함
 - Feature 구현 미포함
+- TASK-001 작업 결과가 `docs/08-WORK_LOG.md`에 기록되어 있음
 - Human Review 완료
 
 ### Human Approval
