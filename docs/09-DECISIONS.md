@@ -461,3 +461,105 @@ Gradle Wrapper 8.14.5
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-016 Bootstrap Dependency Set
+
+### 결정
+
+TASK-001 Project Bootstrap에서 사용할 최소 Bootstrap Dependency / Plugin Set을 Gate C Human Review를 통해 승인한다.
+
+### Frontend Bootstrap Support Dependency
+
+다음 Dependency는 `devDependency`로 사용한다.
+
+```text
+@vitejs/plugin-react 6.1.1
+@types/react 19.3.0
+@types/react-dom 19.3.0
+@types/node 24.13.6
+```
+
+### Backend Bootstrap Plugin / Dependency
+
+다음 Gradle Plugin을 사용한다.
+
+```text
+org.springframework.boot Gradle Plugin 3.5.16
+io.spring.dependency-management Plugin 1.1.7
+```
+
+다음 Spring Boot Starter를 사용한다.
+
+```text
+spring-boot-starter-web
+  - implementation
+  - Version은 Spring Boot 3.5.16 dependency management 사용
+
+spring-boot-starter-validation
+  - implementation
+  - Version은 Spring Boot 3.5.16 dependency management 사용
+
+spring-boot-starter-test
+  - testImplementation
+  - Version은 Spring Boot 3.5.16 dependency management 사용
+```
+
+### Gradle Dependency Management 정책
+
+- Spring Boot Gradle Plugin `3.5.16`을 사용한다.
+- `io.spring.dependency-management` Plugin `1.1.7`을 사용한다.
+- Spring Boot가 제공하는 dependency management를 사용한다.
+- 위 Spring Boot Starter에는 개별 Version을 직접 작성하지 않는다.
+- 별도의 Gradle native BOM 방식은 이번 Project Bootstrap에서 사용하지 않는다.
+
+### Frontend Test Script 정책
+
+Frontend `test` script는 watch mode가 아니라 CI와 Local Verification에서 종료 가능한 방식으로 설정한다.
+
+```text
+test → vitest run
+```
+
+### Vite Development Proxy 정책
+
+Vite 개발 환경에서 `/api` 요청은 Backend local server로 Proxy한다.
+
+```text
+/api
+  ↓
+http://localhost:8080
+```
+
+### TASK-001 제외 Dependency
+
+TASK-001에서는 다음 Frontend Tooling / Dependency를 추가하지 않는다.
+
+```text
+oxlint
+ESLint
+Prettier
+추가 Testing Utility
+추가 UI Library
+```
+
+TASK-001에서는 다음 Backend Dependency를 추가하지 않는다.
+
+```text
+Spring Data JPA
+MySQL Connector
+Database Migration Tool
+Lombok
+Security
+OAuth
+Actuator
+```
+
+필요성이 발생하면 후속 Task에서 Gate C를 통해 별도로 검토한다.
+
+### 상태
+
+```text
+Human Approved
+```
