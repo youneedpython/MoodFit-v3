@@ -72,4 +72,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 |---|---|---|---|
 | 01 | Requirements Review | Harness Review | 완료 |
 | 02 | Decision Sync | Human Decision 반영 | 완료 |
-| 03 | Plan Create | Planning | 실행 예정 |
+| 03 | Plan Create | Planning | Human Review 중 |

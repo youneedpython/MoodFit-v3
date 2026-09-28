@@ -145,7 +145,7 @@ Human Review와 Approval을 받아야 한다.
 
 ## 상태
 
-실행 예정
+실행 완료 / Human Review 중
 
 ## Related Commit
 
