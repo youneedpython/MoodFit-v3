@@ -26,13 +26,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-003 — Initial GitHub Actions CI 진행 중** 단계입니다.
+현재 Repository는 **TASK-003 — Initial GitHub Actions CI 완료** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-003 — Initial GitHub Actions CI
-IN_PROGRESS
+TASK-004 — Backend Domain / API Skeleton
+READY (실행 지시 대기)
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -63,8 +63,8 @@ TASK-003 Initial GitHub Actions CI
 
 Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification과 Human Review가 완료되었습니다.
 `scripts/verify.ps1`, `scripts/verify.sh` Local Verification Harness가 구성되었고 성공/실패 경로 검증과 Human Review가 완료되었습니다.
-TASK-003 Initial GitHub Actions CI의 Gate C Human Approval이 완료되었으며(DEC-017), 현재 Workflow 구현과 Local Verification을 진행 중입니다.
-Remote GitHub Actions Verification은 commit/push 후 확인해야 합니다.
+DEC-017 기준 GitHub Actions CI(`.github/workflows/ci.yml`)가 구성되었고, Remote CI에서 `frontend` / `backend` Job이 모두 성공했으며 Human Review가 완료되었습니다.
+현재는 사용자의 명시적인 TASK-004 실행 지시를 기다리는 상태입니다.
 
 ## 현재 구조
 
@@ -120,9 +120,7 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-003 Workflow 구현 완료
-2. Local Verification
-3. Human 확인
-4. Commit / Push
-5. GitHub Actions Remote CI 실행 결과 확인
-6. TASK-003 Human Review
+1. TASK-004 Backend Domain / API Skeleton 실행
+2. 필요 시 Dependency / API Contract Gate C 검토
+3. Local Verification 및 Remote CI 확인
+4. TASK-004 Human Review

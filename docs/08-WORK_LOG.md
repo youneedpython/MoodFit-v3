@@ -220,7 +220,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS
+DONE
 
 ### 작업 내용
 
@@ -316,13 +316,34 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 
 ### Remote GitHub Actions Verification
 
-```text
-Pending — Commit / Push 후 확인 필요
-```
+Codex 작업 시점에는 git commit과 git push를 수행하지 않아 Remote CI를 실행할 수 없었다.
+Human 확인 후 commit `7c8c5e7`을 `main`에 push하여 최초 Remote CI를 실행했다.
 
-이번 Codex 작업에서는 git commit과 git push를 수행하지 않았다.
-따라서 Remote GitHub Actions CI는 아직 실행할 수 없다.
+- Workflow run: https://github.com/youneedpython/today-v3/actions/runs/36529263245
+- Trigger: `push` to `main`
+- 결과: PASS (`success`)
+
+| Job | 결과 | 소요 시간 | 실행 Step |
+|---|---|---|---|
+| `frontend` | success | 약 11초 | Checkout, Setup Node.js, `npm ci`, `npm test`, `npm run build` |
+| `backend` | success | 약 47초 | Checkout, Setup Java, Setup Gradle, `./gradlew test`, `./gradlew build` |
+
+- `gradle/actions/setup-gradle@v6` 단계에서 Gradle Wrapper 검증을 포함해 성공했다.
+- Cache 미사용 상태에서도 초기 CI 실행 시간은 약 1분 이내였다.
+- Local Verification과 동일한 Frontend Test / Build, Backend Test / Build 범위가 Remote CI에서 성공했다.
+
+Remote CI Verification 완료 후 TASK-003 상태를 REVIEW로 변경했다.
+
+### Human Review
+
+검토 일자: 2026-09-29
+
+- `.github/workflows/ci.yml`이 DEC-017 항목과 일치함을 확인했다.
+- Workflow YAML 구문과 Job / Trigger 구조를 확인했다.
+- `backend/gradlew`, `scripts/verify.sh`가 Git에서 LF / executable bit `100755`로 추적됨을 확인했다.
+- Remote CI의 `frontend`, `backend` Job이 모두 success임을 확인했다.
+- Human Review 승인 후 TASK-003 상태를 DONE으로 변경했다.
 
 ### 결과
 
-Remote CI Verification 대기
+Human Review 완료 / DONE
