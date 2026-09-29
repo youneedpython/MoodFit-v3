@@ -79,3 +79,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 07 | Pre-Bootstrap Sync | Documentation Sync | 완료 |
 | 08 | Spring Boot Version Re-review | Technology Re-review | 완료 |
 | 09 | TASK-001 Project Bootstrap | Implementation | 완료 |
+| 10 | TASK-002 Local Verification Harness | Verification 구성 | 완료 |

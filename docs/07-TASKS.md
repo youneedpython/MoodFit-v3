@@ -33,7 +33,7 @@ DONE
 
 ## 3. Current Task
 
-TASK-002 — Initial Local Verification Harness
+TASK-003 — Initial GitHub Actions CI
 
 Status:
 
@@ -41,9 +41,9 @@ Status:
 BLOCKED
 ```
 
-TASK-001 Project Bootstrap은 Verification과 Human Review를 완료하여 DONE 상태이다.
-TASK-002는 선행 Task 조건을 충족했지만, 실행 전 Human Approval을 기다리는 상태이다.
-Human Approval 전에는 TASK-002를 시작하지 않는다.
+TASK-001 Project Bootstrap과 TASK-002 Initial Local Verification Harness는 DONE 상태이다.
+TASK-003은 선행 Task 조건을 충족했지만, 실행 전 Gate C Human Approval을 기다리는 상태이다.
+Gate C 승인 전에는 TASK-003을 시작하지 않는다.
 
 ---
 
@@ -52,8 +52,8 @@ Human Approval 전에는 TASK-002를 시작하지 않는다.
 | Task | Milestone | 작업 | 상태 | Dependency | Human Approval |
 |---|---|---|---|---|---|
 | TASK-001 | Milestone 1 | Project Bootstrap | DONE | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
-| TASK-002 | Milestone 2 | Initial Local Verification Harness | BLOCKED | TASK-001 완료 (충족), Human Approval 대기 | 필요 |
-| TASK-003 | Milestone 3 | Initial GitHub Actions CI | BLOCKED | TASK-002 완료, Local Verification 성공 | Gate C 필요 |
+| TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
+| TASK-003 | Milestone 3 | Initial GitHub Actions CI | BLOCKED | TASK-002 완료 (충족), Local Verification 성공 (충족), Gate C 대기 | Gate C 필요 |
 | TASK-004 | Milestone 4 | Backend Domain / API Skeleton | BLOCKED | TASK-001, TASK-002, TASK-003 완료 | Gate C 조건부 |
 | TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | BLOCKED | TASK-004 완료, DEC-014 후보 Rule 제안 준비 | Gate B 필요 |
 | TASK-006 | Milestone 6 | Backend Domain / API Core | BLOCKED | TASK-004 완료, TASK-005 완료, Gate B 승인 | Gate C 조건부 |
@@ -362,11 +362,11 @@ TASK-001 실행 승인과 완료 후 Human Review가 모두 완료되었다.
 ### 상태
 
 ```text
-BLOCKED
+DONE
 ```
 
-선행 Task인 TASK-001은 DONE 상태이다.
-TASK-002 실행 전 Human Approval을 기다린다.
+TASK-002는 Local Verification Harness 구현, Human Review 보완, 재검증, Human Review를 완료했다.
+작업 결과와 Verification 기록은 `docs/08-WORK_LOG.md`를 따른다.
 
 ### 목적
 
@@ -395,7 +395,7 @@ Project Bootstrap 직후 반복 가능한 로컬 검증 절차를 구성한다.
 
 ### Human Approval 또는 Gate
 
-- TASK-002 실행 전 Human Approval 필요
+- TASK-002 실행 전 Human Approval 완료
 - 검증 도구 추가 Dependency가 필요하면 Gate C 적용
 - Database Integration Test가 필요하면 Gate C에서 Test DB 전략 승인 필요
 
@@ -414,6 +414,9 @@ Project Bootstrap 직후 반복 가능한 로컬 검증 절차를 구성한다.
 ```text
 BLOCKED
 ```
+
+선행 Task인 TASK-002는 DONE 상태이다.
+TASK-003 실행 전 Gate C Human Approval을 기다린다.
 
 ### 목적
 
@@ -928,8 +931,8 @@ BLOCKED
 
 다음 Task는 실행 전 Human Approval 또는 Gate 확인이 필요하다.
 
-- TASK-001: Project Bootstrap 실행 전 Human Approval 필요
-- TASK-002: Verification Script 생성 전 Human Approval 필요
+- TASK-001: Project Bootstrap 실행 전 Human Approval 완료
+- TASK-002: Verification Script 생성 전 Human Approval 완료
 - TASK-003: GitHub Actions CI 생성이므로 Gate C 필요
 - TASK-005: Wellness Analysis Rule 확정을 위한 Gate B 필요
 - TASK-006: Gate B 승인 후 실행 가능, 변경 발생 시 Gate C 필요

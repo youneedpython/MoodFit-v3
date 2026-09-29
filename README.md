@@ -26,13 +26,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-001 — Project Bootstrap 완료** 단계입니다.
+현재 Repository는 **TASK-002 — Initial Local Verification Harness 완료** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-002 — Initial Local Verification Harness
-BLOCKED (Human Approval 대기)
+TASK-003 — Initial GitHub Actions CI
+BLOCKED (Gate C Human Approval 대기)
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -55,10 +55,13 @@ Pre-Bootstrap Sync
 Spring Boot Version Re-review
     ↓
 TASK-001 Project Bootstrap
+    ↓
+TASK-002 Initial Local Verification Harness
 ```
 
 Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification과 Human Review가 완료되었습니다.
-현재는 TASK-002 실행에 대한 Human Approval을 기다리는 상태입니다.
+`scripts/verify.ps1`, `scripts/verify.sh` Local Verification Harness가 구성되었고 성공/실패 경로 검증과 Human Review가 완료되었습니다.
+현재는 TASK-003 실행을 위한 Gate C Human Approval을 기다리는 상태입니다.
 
 ## 현재 구조
 
@@ -72,6 +75,9 @@ today-v3/
 │   └── React + TypeScript + Vite Skeleton
 ├── backend/
 │   └── Spring Boot + Gradle Wrapper Skeleton
+├── scripts/
+│   ├── verify.ps1
+│   └── verify.sh
 ├── docs/
 │   ├── 01-PROJECT.md
 │   ├── 02-V1-REFERENCE.md
@@ -84,7 +90,7 @@ today-v3/
 │   └── 09-DECISIONS.md
 └── prompts/
     ├── README.md
-    └── 01 ~ 09 Prompt History
+    └── 01 ~ 10 Prompt History
 ```
 
 ## v1 / v2 / v3 비교
@@ -108,8 +114,7 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-002 Initial Local Verification Harness 실행 Human Approval
-2. `scripts/verify.ps1`, `scripts/verify.sh` 구성
-3. TASK-002 Verification 및 Work Log 기록
-4. TASK-002 Human Review
-5. TASK-003 Initial GitHub Actions CI 준비
+1. TASK-003 Initial GitHub Actions CI Gate C 검토 및 Human Approval
+2. GitHub Actions CI Workflow 구성
+3. TASK-003 Verification 및 Work Log 기록
+4. TASK-003 Human Review

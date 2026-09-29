@@ -114,3 +114,102 @@ Node.js Version 확인:
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-002 — Initial Local Verification Harness
+
+### 상태
+
+DONE
+
+### 작업 내용
+
+- `scripts/verify.ps1` 생성
+- `scripts/verify.sh` 생성
+- Frontend Test / Build 검증 절차 구성
+- Backend Test / Build 검증 절차 구성
+- 실패 시 종료 코드가 전파되도록 구성
+
+### Verification
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`
+  - PASS
+  - Frontend `npm test` PASS
+  - Frontend `npm run build` PASS
+  - Backend `gradlew.bat test` PASS
+  - Backend `gradlew.bat build` PASS
+- `bash scripts/verify.sh`
+  - PASS
+  - Frontend `npm test` PASS
+  - Frontend `npm run build` PASS
+  - Backend test PASS
+  - Backend build PASS
+
+### 검증 범위
+
+- 초기 Frontend Test / Build를 포함한다.
+- 초기 Backend Test / Build를 포함한다.
+- 아직 존재하지 않는 Feature Test는 실패 조건으로 강제하지 않는다.
+- 외부 MySQL 연결 없이 실행된다.
+- 새로운 Dependency는 추가하지 않았다.
+
+### 오류 및 해결
+
+- 오류: 최초 `bash scripts/verify.sh` 실행 시 WSL 계열 Bash 환경에서 Java가 PATH에 없어 Backend Gradle 단계가 실패했다.
+- 원인: PowerShell 환경에서는 Java 21이 사용 가능하지만, 해당 Bash 환경에서는 `java` command가 노출되지 않았다.
+- 해결: `verify.sh`에서 Java가 없는 Windows Bash/WSL 환경이면 `cmd.exe /C gradlew.bat`를 통해 Windows Java 환경의 Gradle Wrapper를 호출하도록 보완했다.
+- 재검증: `bash scripts/verify.sh`를 다시 실행해 성공했다.
+
+### Human Review 보완
+
+Human Review에서 `verify.ps1`의 PowerShell native command 실패 전파 문제가 발견되었다.
+
+보완 내용:
+
+- `$ErrorActionPreference = "Stop"`만으로는 Windows PowerShell 5.1에서 native command의 non-zero exit code를 안정적으로 예외 처리하지 못할 수 있음을 반영했다.
+- `Invoke-NativeStep` helper를 추가했다.
+- 각 native command 실행 직후 `$LASTEXITCODE`를 명시적으로 확인하도록 수정했다.
+- Frontend 검증에서는 `npm.cmd`를 명시적으로 사용하도록 수정했다.
+- 실패한 단계가 있으면 즉시 중단하고 `verify.ps1` 자체가 non-zero exit code를 반환하도록 수정했다.
+- 모든 단계가 성공한 경우에만 `Local verification passed.`를 출력하도록 유지했다.
+
+재검증 결과:
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`
+  - PASS
+  - Frontend `npm test` PASS
+  - Frontend `npm run build` PASS
+  - Backend `gradlew.bat test` PASS
+  - Backend `gradlew.bat build` PASS
+- `bash scripts/verify.sh`
+  - PASS
+  - 기존 WSL / Windows Bash 보완 경로 유지
+  - Frontend Test / Build PASS
+  - Backend Test / Build PASS
+
+PowerShell 실패 경로 검증:
+
+- 임시 디렉터리에 non-zero exit code를 반환하는 가짜 `npm.cmd`를 만들었다.
+- 해당 임시 디렉터리를 현재 PowerShell Process의 `PATH` 앞에 추가한 뒤 `verify.ps1`을 실행했다.
+- Frontend test 단계에서 즉시 실패했다.
+- Frontend build / Backend test / Backend build 단계로 진행하지 않았다.
+- `verify.ps1` process exit code는 `1`이었다.
+- 실패 유도용 임시 디렉터리와 파일은 검증 후 제거했다.
+- Repository 파일에는 테스트용 임시 변경을 남기지 않았다.
+
+### Human Review
+
+검토 일자: 2026-09-29
+
+- `verify.ps1`, `verify.sh`의 성공 경로와 실패 경로를 재검증했다.
+- `verify.ps1` 성공 경로: exit code `0`
+- `verify.ps1` 성공 경로(stdout/stderr pipe 연결): Gradle stderr 경고로 인한 오탐 없이 exit code `0`
+- `verify.ps1` 실패 경로: 가짜 `npm.cmd`(exit `7`)로 Frontend test 단계에서 즉시 중단, 이후 단계 미실행, exit code `1`
+- `verify.sh` 성공 경로(Git Bash): exit code `0`
+- `verify.sh` 실패 경로: 가짜 `npm`(exit `5`)로 첫 단계에서 즉시 중단, 원래 exit code `5` 전파
+- 실패 유도용 임시 파일은 검증 후 제거했고 Repository 변경은 없었다.
+
+### 결과
+
+Human Review 완료 / DONE

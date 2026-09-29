@@ -30,12 +30,12 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 Project Bootstrap은 DONE 상태이다.
+TASK-001 Project Bootstrap, TASK-002 Initial Local Verification Harness는 DONE 상태이다.
 
 Current Task:
 
 ```text
-TASK-002 — Initial Local Verification Harness
+TASK-003 — Initial GitHub Actions CI
 ```
 
 Status:
@@ -44,7 +44,7 @@ Status:
 BLOCKED
 ```
 
-선행 Task인 TASK-001은 완료되었지만, TASK-002는 실행 전 Human Approval을 기다리는 상태이다.
+선행 Task인 TASK-002는 완료되었지만, TASK-003은 실행 전 Gate C Human Approval을 기다리는 상태이다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 
