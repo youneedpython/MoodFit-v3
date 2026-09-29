@@ -5,11 +5,10 @@
 MoodFit v3의 Frontend, Backend, Database 책임과 목표 디렉터리 구조를 정의한다.
 
 PLAN, Gate A, Bootstrap Dependency Gate C가 승인 완료되었다.
-TASK-001 Project Bootstrap은 READY 상태이다.
-`frontend/`, `backend/` 디렉터리는 TASK-001 실행 시 생성한다.
-사용자의 명시적인 TASK-001 실행 지시 전에는 생성하지 않는다.
+TASK-001 Project Bootstrap은 DONE 상태이다.
+`frontend/`, `backend/` 디렉터리는 TASK-001에서 최소 Skeleton으로 생성되었다.
 
-Spring Boot Version Re-review 결과에 따라 Backend는 Spring Boot `4.1.1` 기준으로 Bootstrap한다.
+Spring Boot Version Re-review 결과에 따라 Backend는 Spring Boot `4.1.1` 기준으로 Bootstrap되었다.
 Baseline은 Spring Framework 7, Jakarta EE 11, Tomcat 11을 따른다.
 
 ---

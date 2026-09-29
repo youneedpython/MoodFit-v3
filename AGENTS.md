@@ -28,21 +28,23 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 ## 3. 현재 단계 규칙
 
-현재 단계는 **TASK Execution 준비 단계**이다.
+현재 단계는 **TASK Execution 단계**이다.
+
+TASK-001 Project Bootstrap은 DONE 상태이다.
 
 Current Task:
 
 ```text
-TASK-001 — Project Bootstrap
+TASK-002 — Initial Local Verification Harness
 ```
 
 Status:
 
 ```text
-READY
+BLOCKED
 ```
 
-Gate A, DEC-015, DEC-016 Human Approval이 완료되어 TASK-001을 실행할 수 있는 상태이다.
+선행 Task인 TASK-001은 완료되었지만, TASK-002는 실행 전 Human Approval을 기다리는 상태이다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

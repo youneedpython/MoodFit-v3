@@ -26,12 +26,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-001 — Project Bootstrap 실행 준비** 단계입니다.
+현재 Repository는 **TASK-001 — Project Bootstrap 완료** 단계입니다.
 
-Status:
+Current Task:
 
 ```text
-READY
+TASK-002 — Initial Local Verification Harness
+BLOCKED (Human Approval 대기)
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -52,17 +53,25 @@ Gate C Bootstrap Dependency Approval
 Pre-Bootstrap Sync
     ↓
 Spring Boot Version Re-review
+    ↓
+TASK-001 Project Bootstrap
 ```
 
-현재는 실제 Project Bootstrap 실행 직전이며, 사용자의 명시적인 TASK-001 실행 지시를 기다리는 상태입니다.
+Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification과 Human Review가 완료되었습니다.
+현재는 TASK-002 실행에 대한 Human Approval을 기다리는 상태입니다.
 
-## 초기 구조
+## 현재 구조
 
 ```text
 today-v3/
 ├── AGENTS.md
 ├── README.md
 ├── .gitignore
+├── .env.example
+├── frontend/
+│   └── React + TypeScript + Vite Skeleton
+├── backend/
+│   └── Spring Boot + Gradle Wrapper Skeleton
 ├── docs/
 │   ├── 01-PROJECT.md
 │   ├── 02-V1-REFERENCE.md
@@ -71,10 +80,11 @@ today-v3/
 │   ├── 05-API_SPEC.md
 │   ├── 06-PLAN.md
 │   ├── 07-TASKS.md
+│   ├── 08-WORK_LOG.md
 │   └── 09-DECISIONS.md
 └── prompts/
     ├── README.md
-    └── 01 ~ 08 Prompt History
+    └── 01 ~ 09 Prompt History
 ```
 
 ## v1 / v2 / v3 비교
@@ -85,10 +95,10 @@ today-v3/
 | v2 | Markdown 명세 기반 Full-stack 구현 + GitHub Actions CI |
 | v3 | Harness 기반 계획·Task·검증·기록 중심 개발 |
 
-## 예정 기술 스택
+## 기술 스택
 
-- Frontend: React + TypeScript + Vite
-- Backend: Java 21 + Spring Boot + Gradle Wrapper
+- Frontend: Node.js 24.21.0 + React 19.3.0 + TypeScript 6.0.2 + Vite 8.3.1
+- Backend: Java 21 + Spring Boot 4.1.1 + Gradle Wrapper 8.14.5
 - Database: MySQL
 - CI: GitHub Actions
 
@@ -98,9 +108,8 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-001 Project Bootstrap 실행
-2. TASK-001 Test / Build Verification
-3. `docs/08-WORK_LOG.md` 최초 생성 및 TASK-001 작업 기록
-4. TASK-001 Human Review
-5. TASK-001 DONE
-6. TASK-002 Initial Local Verification Harness 준비
+1. TASK-002 Initial Local Verification Harness 실행 Human Approval
+2. `scripts/verify.ps1`, `scripts/verify.sh` 구성
+3. TASK-002 Verification 및 Work Log 기록
+4. TASK-002 Human Review
+5. TASK-003 Initial GitHub Actions CI 준비
