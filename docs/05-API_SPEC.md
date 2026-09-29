@@ -165,12 +165,16 @@ GET /api/check-ins/history?days=7
 
 ### Query Parameter
 
-| 이름 | 설명 | 기본값 |
-|---|---|---|
-| days | 조회 기간(일) | 7 |
+| 이름 | 설명 | 기본값 | 허용 범위 |
+|---|---|---|---|
+| days | 조회 기간(일) | 7 | 1 ~ 30 (정수) |
 
-최대 조회 기간은 30일로 제한한다.
-30일을 초과하는 값은 Validation Error로 처리한다.
+조회 기간은 최소 1일, 최대 30일로 제한한다.
+다음 값은 `400 Bad Request` / `VALIDATION_ERROR`로 처리한다.
+
+- 1 미만의 값 (예: `0`, `-5`)
+- 30을 초과하는 값 (예: `31`)
+- 정수가 아닌 값 (예: `abc`)
 
 ### Response — 200 OK
 
@@ -233,6 +237,8 @@ Recommendation Refresh는 Core MVP 완료 이후 Post-MVP Task에서 다시 검�
 ```
 
 Error Response 형식은 Frontend Error UX와 함께 유지한다.
+
+요청 형식 오류(JSON 문법 오류, 없는 enum 값, 타입 오류)도 `VALIDATION_ERROR` 형식으로 응답한다.
 
 ---
 

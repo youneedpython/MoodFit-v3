@@ -347,3 +347,145 @@ Remote CI Verification 완료 후 TASK-003 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-004 — Backend Domain / API Skeleton
+
+### 상태
+
+IN_PROGRESS
+
+### 작업 내용
+
+- TASK-004 시작
+- `docs/05-API_SPEC.md`와 `docs/09-DECISIONS.md` 기준 Backend API Skeleton 구성
+- `POST /api/check-ins` Request DTO와 Validation 구성
+- `GET /api/check-ins/latest` Empty State `404 CHECKIN_NOT_FOUND` 처리 구성
+- `GET /api/check-ins/history` 기본 `days=7`, 최대 `30` Validation 구성
+- Error Response 구조 구성
+- Controller / Service / Repository boundary 구성
+- Controller Validation Test와 API 동작 Test 추가
+
+### Backend 구현 범위
+
+- Controller: `CheckinController`
+- Service boundary: `CheckinService`, `CheckinServiceSkeleton`
+- Repository boundary: `repository/package-info.java`
+- Request DTO: `CreateCheckinRequest`, `WeatherCondition`
+- Response DTO: `CheckinResponse`, `HistoryResponse`, `HistoryItemResponse`, `MoodResponse`, `MetricsResponse`, `WeatherResponse`, `FoodRecommendationResponse`, `MusicRecommendationResponse`, `ErrorResponse`
+- Exception: `CheckinNotFoundException`, `PendingImplementationException`, `GlobalExceptionHandler`
+
+### 제외한 항목
+
+- Wellness Score 계산
+- Mood 판정
+- Weather / Temperature 영향 규칙
+- Food Recommendation Rule
+- Music Recommendation Rule
+- Entity
+- Spring Data JPA
+- MySQL Connector
+- Database Integration Test
+- Auth / User / JWT / OAuth
+- Frontend Feature
+- scripts 변경
+- GitHub Actions Workflow 변경
+
+### Endpoint 동작 상태
+
+- `GET /api/check-ins/latest`
+  - 실행 가능
+  - 저장된 Check-in이 없는 Skeleton 상태에서 `404 CHECKIN_NOT_FOUND` 반환
+- `GET /api/check-ins/history`
+  - 실행 가능
+  - 기본 `days=7`과 빈 `items` 구조 반환
+  - `days > 30`이면 `VALIDATION_ERROR` 반환
+- `POST /api/check-ins`
+  - Request Validation은 실행 가능
+  - Valid 요청의 저장, 분석, 추천 생성은 DEC-014와 TASK-006 전까지 보류
+  - 현재 valid 요청은 `NOT_IMPLEMENTED` 응답으로 보류 상태를 명시
+
+### Backend Verification
+
+- `.\gradlew.bat test`
+  - 1차 FAIL
+  - 원인: Spring Boot 4.1의 MockMvc 자동 구성 패키지가 기존 `org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc`가 아니라 `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`에 위치함
+  - 해결: 승인된 `spring-boot-starter-webmvc-test` 범위 안에서 import만 Spring Boot 4 구조로 수정
+- `.\gradlew.bat test`
+  - PASS
+  - 결과: Backend Controller Test와 Application Context Test 성공
+- `.\gradlew.bat build`
+  - PASS
+  - 결과: Backend build 성공
+
+### Local Verification
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`
+  - PASS
+  - Frontend `npm test` PASS
+  - Frontend `npm run build` PASS
+  - Backend `gradlew.bat test` PASS
+  - Backend `gradlew.bat build` PASS
+
+### Contract 확인
+
+- Endpoint path는 API Spec과 동일하게 유지했다.
+- Request field는 API Spec과 동일하게 유지했다.
+- Response DTO field는 API Spec 구조를 따른다.
+- Latest empty 정책 `404 CHECKIN_NOT_FOUND`를 유지했다.
+- History 기본값 `7`, 최대값 `30` 정책을 유지했다.
+- Backend time 표현은 `Instant` 기반 DTO로 유지했다.
+- DTO와 Entity는 분리되어 있으며 Entity를 생성하지 않았다.
+- Recommendation Refresh는 구현하지 않았다.
+- Auth/User 구조는 추가하지 않았다.
+- Wellness Analysis Rule은 구현하지 않았다.
+
+### Human Review 보완
+
+Human Review에서 API 입력 Validation 누락 2건이 발견되어 보완했다.
+
+발견 내용(실제 서버 실행 후 요청으로 확인):
+
+- `GET /api/check-ins/history?days=0`, `days=-5`가 `200 OK`로 처리되었다.
+- 알 수 없는 `weather` Enum 값, JSON 구문 오류, 숫자 필드의 문자열 값, `days=abc` 요청이 `ErrorResponse`가 아닌 Spring 기본 Error 형식(`timestamp` / `status` / `error`)으로 응답되었다.
+
+보완 내용:
+
+- `CheckinController`의 `days` parameter에 `@Min(1)`을 추가했다.
+- `GlobalExceptionHandler`에 `HttpMessageNotReadableException` 처리를 추가했다.
+  - `VALIDATION_ERROR`로 응답한다.
+  - Jackson 오류 path에서 field 이름을 확인할 수 있으면 `fieldErrors`에 포함한다.
+- `GlobalExceptionHandler`에 `MethodArgumentTypeMismatchException` 처리를 추가했다.
+  - `VALIDATION_ERROR`로 응답하고 parameter 이름을 `fieldErrors`에 포함한다.
+- `CheckinControllerTests`에 Test 6건을 추가했다.
+  - `days=0`, `days=-5` Validation Error
+  - `days=abc` Validation Error
+  - 알 수 없는 `weather` 값 Validation Error
+  - 숫자 필드 문자열 값 Validation Error
+  - JSON 구문 오류 Validation Error
+- 새로운 Dependency는 추가하지 않았다. Jackson 3는 `spring-boot-starter-webmvc`를 통해 이미 포함되어 있다.
+- `days` 최소값 `1`은 기존 API Spec에 명시되어 있지 않았으므로 Human Approval을 받아 `docs/05-API_SPEC.md`와 DEC-004에 허용 범위 `1 ~ 30`을 추가했다.
+- 요청 형식 오류(JSON 문법 오류, 없는 enum 값, 타입 오류)의 `VALIDATION_ERROR` 응답 정책도 Human Approval을 받아 `docs/05-API_SPEC.md` 8절에 추가했다.
+
+재검증 결과:
+
+- `.\gradlew.bat test`
+  - PASS
+  - `CheckinControllerTests` 10건, `MoodFitApplicationTests` 1건 성공
+- `powershell -ExecutionPolicy Bypass -File .\scriptserify.ps1`
+  - PASS
+- 실제 서버 실행 후 요청 확인
+  - 알 수 없는 `weather`, JSON 구문 오류, 숫자 필드 문자열 값: `400 VALIDATION_ERROR`
+  - `days=0`, `days=-5`, `days=31`, `days=abc`: `400 VALIDATION_ERROR`
+  - `days=1`, 기본값 `7`: `200 OK`
+  - `latest`: `404 CHECKIN_NOT_FOUND`
+  - valid `POST`: `501 NOT_IMPLEMENTED` (TASK-006 전까지 보류 상태 유지)
+
+### Remote CI Verification
+
+Pending — Commit / Push 후 확인 필요
+
+### 결과
+
+Remote CI Verification 대기 / Human Review 대기

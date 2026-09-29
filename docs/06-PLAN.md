@@ -329,7 +329,7 @@ API Contract와 Domain 경계를 먼저 잡고, Wellness Rule 구현 전에도 �
 - Repository 구조
 - Error Response 구조
 - `GET /api/check-ins/latest`의 Empty State `404 Not Found` 처리 구조
-- `GET /api/check-ins/history?days=7`의 기본 7일 / 최대 30일 Validation 구조
+- `GET /api/check-ins/history?days=7`의 기본 7일 / 허용 범위 1~30일 Validation 구조
 - Local Verification / CI 검증 범위 확장
 
 검증 방법:
@@ -425,7 +425,7 @@ Human Approval Gate:
 - Rule Boundary / Edge Case Test
 - Request Validation Test
 - Latest Empty State `404` Test
-- History `days` 최대 30 Validation Test
+- History `days` 허용 범위 1~30 Validation Test
 - Backend Test/Build
 - Local Verification 실행
 - CI 실행 결과 확인
@@ -607,7 +607,7 @@ Human Approval Gate:
 검증 방법:
 
 - History API 조회 Test
-- `days` 기본값 7 / 최대 30 Validation 확인
+- `days` 기본값 7 / 허용 범위 1~30 Validation 확인
 - Trend Component 렌더링 Test
 - 외부 Chart Library가 추가되지 않았는지 확인
 - Frontend Test/Build

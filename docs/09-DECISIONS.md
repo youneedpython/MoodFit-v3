@@ -108,13 +108,18 @@ History 조회 기본값은 7일로 한다.
 default = 7
 ```
 
-최대 조회 기간은 30일로 제한한다.
+조회 기간은 최소 1일, 최대 30일로 제한한다.
 
 ```text
+min = 1
 max = 30
 ```
 
-30일을 초과하는 값은 Validation Error로 처리한다.
+1 미만, 30 초과, 정수가 아닌 값은 Validation Error로 처리한다.
+
+### 변경 이력
+
+- 2026-09-29: TASK-004 Human Review에서 최소값 명세 누락이 확인되어 `min = 1`을 추가했다. (Human Approved)
 
 ### 상태
 
