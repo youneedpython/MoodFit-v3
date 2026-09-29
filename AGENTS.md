@@ -41,10 +41,10 @@ TASK-003 — Initial GitHub Actions CI
 Status:
 
 ```text
-BLOCKED
+READY
 ```
 
-선행 Task인 TASK-002는 완료되었지만, TASK-003은 실행 전 Gate C Human Approval을 기다리는 상태이다.
+TASK-003 Gate C Human Approval이 완료되었으며, 승인된 CI 구성은 `docs/09-DECISIONS.md`의 DEC-017을 따른다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

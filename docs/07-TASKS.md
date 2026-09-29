@@ -38,12 +38,12 @@ TASK-003 — Initial GitHub Actions CI
 Status:
 
 ```text
-BLOCKED
+READY
 ```
 
 TASK-001 Project Bootstrap과 TASK-002 Initial Local Verification Harness는 DONE 상태이다.
-TASK-003은 선행 Task 조건을 충족했지만, 실행 전 Gate C Human Approval을 기다리는 상태이다.
-Gate C 승인 전에는 TASK-003을 시작하지 않는다.
+TASK-003 Gate C Human Approval이 완료되었으며, 승인된 CI 구성은 `docs/09-DECISIONS.md`의 DEC-017을 따른다.
+단, TASK-003 실행 전 별도 Human 지시가 필요하다.
 
 ---
 
@@ -53,7 +53,7 @@ Gate C 승인 전에는 TASK-003을 시작하지 않는다.
 |---|---|---|---|---|---|
 | TASK-001 | Milestone 1 | Project Bootstrap | DONE | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
-| TASK-003 | Milestone 3 | Initial GitHub Actions CI | BLOCKED | TASK-002 완료 (충족), Local Verification 성공 (충족), Gate C 대기 | Gate C 필요 |
+| TASK-003 | Milestone 3 | Initial GitHub Actions CI | READY | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
 | TASK-004 | Milestone 4 | Backend Domain / API Skeleton | BLOCKED | TASK-001, TASK-002, TASK-003 완료 | Gate C 조건부 |
 | TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | BLOCKED | TASK-004 완료, DEC-014 후보 Rule 제안 준비 | Gate B 필요 |
 | TASK-006 | Milestone 6 | Backend Domain / API Core | BLOCKED | TASK-004 완료, TASK-005 완료, Gate B 승인 | Gate C 조건부 |
@@ -412,11 +412,12 @@ Project Bootstrap 직후 반복 가능한 로컬 검증 절차를 구성한다.
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
 선행 Task인 TASK-002는 DONE 상태이다.
-TASK-003 실행 전 Gate C Human Approval을 기다린다.
+Gate C Human Approval이 완료되었으며 승인된 CI 구성은 DEC-017을 Source of Truth로 사용한다.
+TASK-003 실행 전 별도 Human 지시가 필요하다.
 
 ### 목적
 
@@ -443,6 +444,8 @@ TASK-003 실행 전 Gate C Human Approval을 기다린다.
 ### Human Approval 또는 Gate
 
 - CI/CD Workflow 생성이므로 Gate C 적용
+  - Gate C Human Approved: DEC-017
+- DEC-017에 없는 Action, Cache, Permission, Trigger 변경이 필요하면 Gate C 재검토
 - MySQL Service Container 또는 Test DB 전략 필요 시 Gate C 적용
 
 ### 완료 조건

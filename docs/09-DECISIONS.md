@@ -588,3 +588,84 @@ Actuator
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-017 Initial GitHub Actions CI
+
+### 결정
+
+TASK-003 Initial GitHub Actions CI 구현 전 Gate C Human Review를 통해
+초기 CI Workflow 구성을 다음과 같이 승인한다.
+
+검토 근거는 `prompts/11-TASK-003-CI-GATE-C-REVIEW.md`를 따른다.
+
+### Workflow
+
+```text
+Workflow file: .github/workflows/ci.yml
+Runner: ubuntu-latest
+Trigger: push to main + pull_request to main
+Job 구조: frontend / backend 분리
+Permissions: contents: read
+```
+
+### GitHub Actions
+
+```text
+actions/checkout@v7
+actions/setup-node@v7
+actions/setup-java@v6
+gradle/actions/setup-gradle@v6
+```
+
+공식 GitHub Action만 사용한다.
+Action은 Major Version Tag로 지정한다.
+
+### Frontend Job
+
+```text
+Node.js 24.21.0 (actions/setup-node, package-manager-cache: false)
+npm ci
+npm test
+npm run build
+```
+
+- `working-directory`는 `frontend`를 사용한다.
+
+### Backend Job
+
+```text
+Java 21 (actions/setup-java, distribution: temurin)
+gradle/actions/setup-gradle@v6 (cache-disabled: true)
+./gradlew test
+./gradlew build
+```
+
+- `working-directory`는 `backend`를 사용한다.
+- Repository의 Gradle Wrapper를 사용하며 System Gradle을 별도로 설치하지 않는다.
+- `gradle/actions/setup-gradle`은 Gradle Wrapper jar 검증(`validate-wrappers` 기본값 `true`)을 위해 사용한다.
+- `cache-disabled: true`로 Gradle cache를 사용하지 않는다.
+- `backend/gradlew`는 Git에서 executable bit `100755`로 추적되므로 `chmod +x` step은 추가하지 않는다.
+
+### Cache 정책
+
+- 초기 CI에서는 npm cache와 Gradle cache를 모두 사용하지 않는다.
+- CI 실행 시간이 문제로 확인되면 Gate C에서 Cache 도입을 별도로 검토한다.
+
+### Verification 범위
+
+- TASK-002 Local Verification과 동일한 Frontend Test / Build, Backend Test / Build만 수행한다.
+- CI만의 별도 Feature Test, E2E Test, Lint, Deploy는 추가하지 않는다.
+- `continue-on-error: true`를 사용하지 않으며 실패를 숨기지 않는다.
+
+### Database 정책
+
+- DEC-009에 따라 초기 CI에서 MySQL Service Container를 사용하지 않는다.
+- Database Integration Test가 필요해지면 Gate C에서 Test DB 전략을 별도로 검토한다.
+
+### 상태
+
+```text
+Human Approved
+```

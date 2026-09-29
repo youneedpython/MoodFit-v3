@@ -32,7 +32,7 @@ Current Task:
 
 ```text
 TASK-003 — Initial GitHub Actions CI
-BLOCKED (Gate C Human Approval 대기)
+READY (Gate C Human Approved, DEC-017)
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -61,7 +61,7 @@ TASK-002 Initial Local Verification Harness
 
 Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification과 Human Review가 완료되었습니다.
 `scripts/verify.ps1`, `scripts/verify.sh` Local Verification Harness가 구성되었고 성공/실패 경로 검증과 Human Review가 완료되었습니다.
-현재는 TASK-003 실행을 위한 Gate C Human Approval을 기다리는 상태입니다.
+TASK-003 Initial GitHub Actions CI의 Gate C Human Approval이 완료되었으며(DEC-017), 사용자의 명시적인 TASK-003 실행 지시를 기다리는 상태입니다.
 
 ## 현재 구조
 
@@ -114,7 +114,7 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-003 Initial GitHub Actions CI Gate C 검토 및 Human Approval
-2. GitHub Actions CI Workflow 구성
+1. TASK-003 Initial GitHub Actions CI 실행
+2. DEC-017 기준 GitHub Actions CI Workflow 구성
 3. TASK-003 Verification 및 Work Log 기록
 4. TASK-003 Human Review
