@@ -26,13 +26,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-002 — Initial Local Verification Harness 완료** 단계입니다.
+현재 Repository는 **TASK-003 — Initial GitHub Actions CI 진행 중** 단계입니다.
 
 Current Task:
 
 ```text
 TASK-003 — Initial GitHub Actions CI
-READY (Gate C Human Approved, DEC-017)
+IN_PROGRESS
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -57,11 +57,14 @@ Spring Boot Version Re-review
 TASK-001 Project Bootstrap
     ↓
 TASK-002 Initial Local Verification Harness
+    ↓
+TASK-003 Initial GitHub Actions CI
 ```
 
 Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification과 Human Review가 완료되었습니다.
 `scripts/verify.ps1`, `scripts/verify.sh` Local Verification Harness가 구성되었고 성공/실패 경로 검증과 Human Review가 완료되었습니다.
-TASK-003 Initial GitHub Actions CI의 Gate C Human Approval이 완료되었으며(DEC-017), 사용자의 명시적인 TASK-003 실행 지시를 기다리는 상태입니다.
+TASK-003 Initial GitHub Actions CI의 Gate C Human Approval이 완료되었으며(DEC-017), 현재 Workflow 구현과 Local Verification을 진행 중입니다.
+Remote GitHub Actions Verification은 commit/push 후 확인해야 합니다.
 
 ## 현재 구조
 
@@ -71,6 +74,9 @@ today-v3/
 ├── README.md
 ├── .gitignore
 ├── .env.example
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── frontend/
 │   └── React + TypeScript + Vite Skeleton
 ├── backend/
@@ -90,7 +96,7 @@ today-v3/
 │   └── 09-DECISIONS.md
 └── prompts/
     ├── README.md
-    └── 01 ~ 10 Prompt History
+    └── 01 ~ 12 Prompt History
 ```
 
 ## v1 / v2 / v3 비교
@@ -114,7 +120,9 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-003 Initial GitHub Actions CI 실행
-2. DEC-017 기준 GitHub Actions CI Workflow 구성
-3. TASK-003 Verification 및 Work Log 기록
-4. TASK-003 Human Review
+1. TASK-003 Workflow 구현 완료
+2. Local Verification
+3. Human 확인
+4. Commit / Push
+5. GitHub Actions Remote CI 실행 결과 확인
+6. TASK-003 Human Review

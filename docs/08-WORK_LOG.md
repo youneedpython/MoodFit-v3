@@ -213,3 +213,116 @@ PowerShell 실패 경로 검증:
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-003 — Initial GitHub Actions CI
+
+### 상태
+
+IN_PROGRESS
+
+### 작업 내용
+
+- TASK-003 시작
+- DEC-017 기준 GitHub Actions CI 구성 사용
+- `.github/workflows/ci.yml` 생성
+- Frontend CI Job 구성
+- Backend CI Job 구성
+- Cache 미사용 정책 반영
+- MySQL Service Container 미사용 정책 반영
+
+### Workflow 구성
+
+- Workflow name: `CI`
+- Workflow path: `.github/workflows/ci.yml`
+- Trigger: `push` to `main`, `pull_request` to `main`
+- Permissions: `contents: read`
+- Runner: `ubuntu-latest`
+- Jobs: `frontend`, `backend`
+
+Frontend Job:
+
+- `actions/checkout@v7`
+- `actions/setup-node@v7`
+- Node.js `24.21.0`
+- `package-manager-cache: false`
+- `npm ci`
+- `npm test`
+- `npm run build`
+
+Backend Job:
+
+- `actions/checkout@v7`
+- `actions/setup-java@v6`
+- Temurin Java `21`
+- `gradle/actions/setup-gradle@v6`
+- `cache-disabled: true`
+- `./gradlew test`
+- `./gradlew build`
+
+제외 항목:
+
+- npm cache 미사용
+- Gradle cache 미사용
+- MySQL Service Container 미사용
+- Docker 미사용
+- Deploy 미사용
+- `continue-on-error` 미사용
+- `chmod +x` step 미사용
+
+### Local Verification
+
+실행 명령:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
+```
+
+결과:
+
+- PASS
+- Frontend `npm test` PASS
+- Frontend `npm run build` PASS
+- Backend `gradlew.bat test` PASS
+- Backend `gradlew.bat build` PASS
+
+### Workflow 정적 확인
+
+- Workflow path가 `.github/workflows/ci.yml`임을 확인했다.
+- `push` main trigger 존재를 확인했다.
+- `pull_request` main trigger 존재를 확인했다.
+- `permissions: contents: read` 존재를 확인했다.
+- `frontend`, `backend` Job 분리를 확인했다.
+- `ubuntu-latest` 사용을 확인했다.
+- `actions/checkout@v7` 사용을 확인했다.
+- `actions/setup-node@v7` 사용을 확인했다.
+- Node.js `24.21.0` 사용을 확인했다.
+- `package-manager-cache: false` 사용을 확인했다.
+- `npm ci`, `npm test`, `npm run build` 사용을 확인했다.
+- `actions/setup-java@v6` 사용을 확인했다.
+- Temurin Java `21` 사용을 확인했다.
+- `gradle/actions/setup-gradle@v6` 사용을 확인했다.
+- `cache-disabled: true` 사용을 확인했다.
+- `./gradlew test`, `./gradlew build` 사용을 확인했다.
+- MySQL Service Container가 없음을 확인했다.
+- `continue-on-error`가 없음을 확인했다.
+- `chmod` step이 없음을 확인했다.
+
+### git diff --check
+
+- PASS
+- 출력: line ending warning만 있었고 whitespace error는 없었다.
+
+### Remote GitHub Actions Verification
+
+```text
+Pending — Commit / Push 후 확인 필요
+```
+
+이번 Codex 작업에서는 git commit과 git push를 수행하지 않았다.
+따라서 Remote GitHub Actions CI는 아직 실행할 수 없다.
+
+### 결과
+
+Remote CI Verification 대기

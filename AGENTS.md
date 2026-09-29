@@ -41,10 +41,13 @@ TASK-003 — Initial GitHub Actions CI
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-003 Gate C Human Approval이 완료되었으며, 승인된 CI 구성은 `docs/09-DECISIONS.md`의 DEC-017을 따른다.
+현재 CI Workflow를 구현 중이다.
+Remote CI Verification은 commit/push 이후 수행한다.
+TASK-004는 시작하지 않는다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

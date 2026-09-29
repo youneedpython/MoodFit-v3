@@ -38,12 +38,13 @@ TASK-003 — Initial GitHub Actions CI
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 Project Bootstrap과 TASK-002 Initial Local Verification Harness는 DONE 상태이다.
 TASK-003 Gate C Human Approval이 완료되었으며, 승인된 CI 구성은 `docs/09-DECISIONS.md`의 DEC-017을 따른다.
-단, TASK-003 실행 전 별도 Human 지시가 필요하다.
+TASK-003은 Human 실행 승인을 받아 현재 GitHub Actions CI Workflow를 구현 중이다.
+Remote CI Verification은 commit/push 이후 수행한다.
 
 ---
 
@@ -53,7 +54,7 @@ TASK-003 Gate C Human Approval이 완료되었으며, 승인된 CI 구성은 `do
 |---|---|---|---|---|---|
 | TASK-001 | Milestone 1 | Project Bootstrap | DONE | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
-| TASK-003 | Milestone 3 | Initial GitHub Actions CI | READY | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
+| TASK-003 | Milestone 3 | Initial GitHub Actions CI | IN_PROGRESS | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved, Remote CI Verification 대기 예정 | Gate C 승인 완료 |
 | TASK-004 | Milestone 4 | Backend Domain / API Skeleton | BLOCKED | TASK-001, TASK-002, TASK-003 완료 | Gate C 조건부 |
 | TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | BLOCKED | TASK-004 완료, DEC-014 후보 Rule 제안 준비 | Gate B 필요 |
 | TASK-006 | Milestone 6 | Backend Domain / API Core | BLOCKED | TASK-004 완료, TASK-005 완료, Gate B 승인 | Gate C 조건부 |
@@ -412,12 +413,13 @@ Project Bootstrap 직후 반복 가능한 로컬 검증 절차를 구성한다.
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 선행 Task인 TASK-002는 DONE 상태이다.
 Gate C Human Approval이 완료되었으며 승인된 CI 구성은 DEC-017을 Source of Truth로 사용한다.
-TASK-003 실행 전 별도 Human 지시가 필요하다.
+TASK-003은 Human 실행 승인을 받아 현재 진행 중이다.
+Remote CI Verification은 commit/push 이후 확인한다.
 
 ### 목적
 
