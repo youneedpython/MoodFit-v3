@@ -48,6 +48,10 @@ Gate A Technology Version Approval
 Task Definition
     ↓
 Gate C Bootstrap Dependency Approval
+    ↓
+Pre-Bootstrap Sync
+    ↓
+Spring Boot Version Re-review
 ```
 
 현재는 실제 Project Bootstrap 실행 직전이며, 사용자의 명시적인 TASK-001 실행 지시를 기다리는 상태입니다.
@@ -70,7 +74,7 @@ today-v3/
 │   └── 09-DECISIONS.md
 └── prompts/
     ├── README.md
-    └── 01 ~ 07 Prompt History
+    └── 01 ~ 08 Prompt History
 ```
 
 ## v1 / v2 / v3 비교

@@ -79,6 +79,7 @@ Milestone 1 시작 전
 규칙:
 
 - Gate A는 Human Approved 되었으며, 승인된 Version은 `docs/09-DECISIONS.md`의 DEC-015에 반영되어 있다.
+- Spring Boot Version Re-review 결과 Spring Boot는 `4.1.1`로 Human Approved 되었으며, Gradle Wrapper `8.14.5`는 유지한다.
 - Gate A 승인 전에는 Frontend 프로젝트를 생성하지 않는다.
 - Gate A 승인 전에는 Backend 프로젝트를 생성하지 않는다.
 - Gate A 승인 전에는 npm 또는 Gradle 프로젝트를 초기화하지 않는다.

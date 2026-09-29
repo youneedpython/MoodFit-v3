@@ -42,7 +42,7 @@ READY
 ```
 
 TASK-001은 아직 실행하지 않는다.
-Gate C — Bootstrap Dependency Set Human Approval이 완료되었으므로 실행 가능한 상태이다.
+Spring Boot Version Re-review Human Approval이 완료되었으므로 실행 가능한 상태이다.
 단, TASK-001 실행 전 별도 Human 지시가 필요하다.
 
 ---
@@ -51,7 +51,7 @@ Gate C — Bootstrap Dependency Set Human Approval이 완료되었으므로 실�
 
 | Task | Milestone | 작업 | 상태 | Dependency | Human Approval |
 |---|---|---|---|---|---|
-| TASK-001 | Milestone 1 | Project Bootstrap | READY | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved | 승인 완료 |
+| TASK-001 | Milestone 1 | Project Bootstrap | READY | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | BLOCKED | TASK-001 완료 | 필요 |
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | BLOCKED | TASK-002 완료, Local Verification 성공 | Gate C 필요 |
 | TASK-004 | Milestone 4 | Backend Domain / API Skeleton | BLOCKED | TASK-001, TASK-002, TASK-003 완료 | Gate C 조건부 |
@@ -74,13 +74,14 @@ Gate C — Bootstrap Dependency Set Human Approval이 완료되었으므로 실�
 READY
 ```
 
-Gate C 승인 완료:
+Spring Boot Version Re-review 승인 완료:
 
 ```text
-Gate C — Bootstrap Dependency Set Human Approved
+Spring Boot 4.1.1 Human Approved
 ```
 
 TASK-001은 실행 가능한 상태이지만, 이번 문서 동기화 작업에서는 실행하지 않는다.
+TASK-001 실행 전 별도 Human 지시가 필요하다.
 
 ### 목적
 
@@ -122,7 +123,7 @@ Frontend Test
 Backend
 
 - Java 21
-- Spring Boot 3.5.16
+- Spring Boot 4.1.1
 - Gradle Wrapper 8.14.5
 
 ### 작업 범위
@@ -148,7 +149,7 @@ Backend에서는 최소한 다음 기반을 준비하는 Task로 정의한다.
 
 - `backend/` Project 생성
 - Java 21
-- Spring Boot 3.5.16
+- Spring Boot 4.1.1
 - Gradle Wrapper 8.14.5
 - 기본 Test 가능 상태
 - 기본 Build 가능 상태
@@ -216,16 +217,18 @@ Backend Bootstrap:
 
 | Dependency / Plugin | 추천 Version | 유형 | TASK-001 필요 여부 | 이유 | Compatibility |
 |---|---:|---|---|---|---|
-| `org.springframework.boot` Gradle Plugin | 3.5.16 | Gradle plugin | 필요 | Spring Boot Application 빌드와 Boot task 제공 | DEC-015 Spring Boot 3.5.16과 일치 |
-| `io.spring.dependency-management` Gradle Plugin | 1.1.7 | Gradle plugin | 필요 | Spring Boot BOM 기반으로 Starter Version을 직접 지정하지 않게 함 | Spring Boot 3.5.16 BOM의 dependency-management-plugin Version과 일치 |
-| `spring-boot-starter-web` | Spring Boot BOM 관리 | implementation | 필요 | 기본 REST API Skeleton과 embedded web server 기반 | Spring Boot 3.5.16 Managed Dependency |
-| `spring-boot-starter-validation` | Spring Boot BOM 관리 | implementation | 필요 | Request DTO Bean Validation 기반 | Spring Boot 3.5.16 Managed Dependency |
-| `spring-boot-starter-test` | Spring Boot BOM 관리 | testImplementation | 필요 | 기본 Backend Test/JUnit 기반 | Spring Boot 3.5.16 Managed Dependency |
+| `org.springframework.boot` Gradle Plugin | 4.1.1 | Gradle plugin | 필요 | Spring Boot Application 빌드와 Boot task 제공 | DEC-015 Spring Boot 4.1.1과 일치 |
+| `io.spring.dependency-management` Gradle Plugin | 1.1.7 | Gradle plugin | 필요 | Spring Boot dependency management 기반으로 Starter Version을 직접 지정하지 않게 함 | DEC-016 승인 정책과 일치 |
+| `spring-boot-starter-webmvc` | Spring Boot BOM 관리 | implementation | 필요 | Spring Web MVC 기반 REST API Skeleton과 embedded web server 기반 | Spring Boot 4.1.1 Managed Dependency |
+| `spring-boot-starter-validation` | Spring Boot BOM 관리 | implementation | 필요 | Request DTO Bean Validation 기반 | Spring Boot 4.1.1 Managed Dependency |
+| `spring-boot-starter-webmvc-test` | Spring Boot BOM 관리 | testImplementation | 필요 | Spring MVC Test와 `spring-boot-starter-test` 포함 테스트 기반 | Spring Boot 4.1.1 Managed Dependency |
 
 Backend 제외 Dependency:
 
 | Dependency / Plugin | TASK-001 포함 여부 | 이유 | 후속 검토 |
 |---|---|---|---|
+| `spring-boot-starter-web` | 제외 | Spring Boot 4에서 deprecated이며 `spring-boot-starter-webmvc`를 사용하기로 승인됨 | Web stack 변경 필요 시 Gate C 검토 |
+| `spring-boot-starter-test` | 제외 | `spring-boot-starter-webmvc-test`가 포함하므로 직접 중복 선언하지 않음 | 테스트 starter 정책 변경 필요 시 Gate C 검토 |
 | Spring Data JPA | 제외 | TASK-001은 Skeleton 단계이며 Entity/Repository/Core 구현 전 | Backend Core 또는 DB 저장 구조 확정 시 Gate C 검토 |
 | MySQL Connector | 제외 | 초기 Test/Build는 외부 MySQL 없이 성공해야 함 | Database Integration Test 또는 실제 DB 연결 시 Gate C 검토 |
 | Database Migration Tool | 제외 | 초기 Schema/Migration 정책 미확정 | DB Schema 변경 단계에서 Gate C 검토 |
@@ -236,10 +239,10 @@ Backend 제외 Dependency:
 
 Gradle Dependency Management 정책:
 
-- Spring Boot Gradle Plugin `3.5.16`을 사용한다.
+- Spring Boot Gradle Plugin `4.1.1`을 사용한다.
 - `io.spring.dependency-management` Plugin `1.1.7`을 사용한다.
 - Spring Boot가 제공하는 dependency management를 사용한다.
-- Starter Dependency에는 별도 Version을 직접 지정하지 않고 Spring Boot `3.5.16` BOM 관리에 맡긴다.
+- Starter Dependency에는 별도 Version을 직접 지정하지 않고 Spring Boot `4.1.1` dependency management에 맡긴다.
 - 별도의 Gradle native BOM 방식은 이번 Project Bootstrap에서 사용하지 않는다.
 
 ### Test Script 정책
@@ -313,8 +316,12 @@ Frontend:
 Backend:
 
 - Java 21 기준인가
-- Spring Boot 3.5.16인가
+- Spring Boot 4.1.1인가
 - Gradle Wrapper 8.14.5인가
+- `spring-boot-starter-webmvc`를 사용하는가
+- `spring-boot-starter-web`을 사용하지 않는가
+- `spring-boot-starter-validation`을 사용하는가
+- `spring-boot-starter-webmvc-test`를 사용하는가
 - `./gradlew test` 또는 Windows의 `gradlew.bat test`가 성공하는가
 - `./gradlew build` 또는 `gradlew.bat build`가 성공하는가
 - Port 8080 설정이 반영되는가
@@ -944,4 +951,5 @@ BLOCKED
   - Music Recommendation Rule
   - Rule Boundary / Edge Case
 
-DEC-015 기술 Version은 Gate A에서 Human Approved 되었으므로 Pending Decision이 아니다.
+DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
+DEC-016 Bootstrap Dependency Set은 Gate C와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

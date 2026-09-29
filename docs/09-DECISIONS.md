@@ -419,7 +419,8 @@ Pending Human Approval
 
 ### 결정
 
-Gate A Human Review를 통해 Project Bootstrap에 사용할 기술 Version을 다음과 같이 확정한다.
+Gate A와 Spring Boot Version Re-review Human Review를 통해
+현재 Project Bootstrap에 사용할 기술 Version을 다음과 같이 확정한다.
 
 ```text
 Frontend Runtime
@@ -440,7 +441,7 @@ jsdom 30.1.1
 
 Backend
 Java 21
-Spring Boot 3.5.16
+Spring Boot 4.1.1
 Gradle Wrapper 8.14.5
 ```
 
@@ -453,8 +454,25 @@ Gradle Wrapper 8.14.5
 - `package.json`의 직접 Dependency는 Core MVP 재현성을 위해 정확한 Version으로 고정한다.
 - `package-lock.json`은 Repository에 Commit한다.
 - Gradle Wrapper Version은 `8.14.5`로 고정한다.
-- Spring Boot Plugin Version은 `3.5.16`으로 고정한다.
+- Spring Boot Plugin Version은 `4.1.1`로 고정한다.
 - GitHub Actions에서도 Node.js `24.21.0`과 Java `21`을 사용한다.
+
+### Backend Baseline
+
+Spring Boot Version Re-review Human Approval에 따라 MoodFit v3는 Spring Boot `4.1.1`의 기본 기술 Stack을 수용한다.
+
+```text
+Spring Framework 7
+Jakarta EE 11
+Servlet 6.1
+Tomcat 11
+Hibernate Validator 9
+Jackson 3 기본 Stack
+JUnit 6 기본 Stack
+```
+
+Jackson 2 compatibility path는 TASK-001에서 사용하지 않는다.
+향후 실제 호환성 문제가 발생하면 Gate C에서 별도로 검토한다.
 
 ### 상태
 
@@ -468,7 +486,8 @@ Human Approved
 
 ### 결정
 
-TASK-001 Project Bootstrap에서 사용할 최소 Bootstrap Dependency / Plugin Set을 Gate C Human Review를 통해 승인한다.
+TASK-001 Project Bootstrap에서 사용할 현재 최소 Bootstrap Dependency / Plugin Set을
+Gate C와 Spring Boot Version Re-review Human Review를 통해 승인한다.
 
 ### Frontend Bootstrap Support Dependency
 
@@ -486,29 +505,35 @@ TASK-001 Project Bootstrap에서 사용할 최소 Bootstrap Dependency / Plugin 
 다음 Gradle Plugin을 사용한다.
 
 ```text
-org.springframework.boot Gradle Plugin 3.5.16
+org.springframework.boot Gradle Plugin 4.1.1
 io.spring.dependency-management Plugin 1.1.7
 ```
 
 다음 Spring Boot Starter를 사용한다.
 
 ```text
-spring-boot-starter-web
+spring-boot-starter-webmvc
   - implementation
-  - Version은 Spring Boot 3.5.16 dependency management 사용
+  - Version은 Spring Boot 4.1.1 dependency management 사용
 
 spring-boot-starter-validation
   - implementation
-  - Version은 Spring Boot 3.5.16 dependency management 사용
+  - Version은 Spring Boot 4.1.1 dependency management 사용
 
-spring-boot-starter-test
+spring-boot-starter-webmvc-test
   - testImplementation
-  - Version은 Spring Boot 3.5.16 dependency management 사용
+  - Version은 Spring Boot 4.1.1 dependency management 사용
 ```
+
+TASK-001에서는 `spring-boot-starter-web`을 사용하지 않는다.
+이 Starter는 Spring Boot 4에서 deprecated이므로 사용하지 않는다.
+
+TASK-001에서는 `spring-boot-starter-test`를 직접 선언하지 않는다.
+`spring-boot-starter-webmvc-test`가 `spring-boot-starter-test`를 포함하므로 중복 직접 Dependency를 만들지 않는다.
 
 ### Gradle Dependency Management 정책
 
-- Spring Boot Gradle Plugin `3.5.16`을 사용한다.
+- Spring Boot Gradle Plugin `4.1.1`을 사용한다.
 - `io.spring.dependency-management` Plugin `1.1.7`을 사용한다.
 - Spring Boot가 제공하는 dependency management를 사용한다.
 - 위 Spring Boot Starter에는 개별 Version을 직접 작성하지 않는다.

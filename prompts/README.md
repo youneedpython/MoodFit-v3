@@ -72,8 +72,9 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 |---|---|---|---|
 | 01 | Requirements Review | Harness Review | 완료 |
 | 02 | Decision Sync | Human Decision 반영 | 완료 |
-| 03 | Plan Create | Planning | Human Review 완료 |
+| 03 | Plan Create | Planning | 완료 |
 | 04 | Gate A Tech Versions | Technology Version Review | 완료 |
 | 05 | Tasks Create | Task Definition | 완료 |
 | 06 | TASK-001 Bootstrap Dependency Review | Gate C Dependency Review | 완료 |
-| 07 | Pre-Bootstrap Sync | Documentation Sync | Human Review 중 |
+| 07 | Pre-Bootstrap Sync | Documentation Sync | 완료 |
+| 08 | Spring Boot Version Re-review | Technology Re-review | 완료 |

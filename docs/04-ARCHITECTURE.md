@@ -9,6 +9,9 @@ TASK-001 Project Bootstrap은 READY 상태이다.
 `frontend/`, `backend/` 디렉터리는 TASK-001 실행 시 생성한다.
 사용자의 명시적인 TASK-001 실행 지시 전에는 생성하지 않는다.
 
+Spring Boot Version Re-review 결과에 따라 Backend는 Spring Boot `4.1.1` 기준으로 Bootstrap한다.
+Baseline은 Spring Framework 7, Jakarta EE 11, Tomcat 11을 따른다.
+
 ---
 
 ## 2. 전체 구조
@@ -26,7 +29,7 @@ TASK-001 Project Bootstrap은 READY 상태이다.
                 ↓
 ┌─────────────────────────────────┐
 │ Backend                         │
-│ Java 21 + Spring Boot           │
+│ Java 21 + Spring Boot 4.1.1     │
 │                                 │
 │ Controller                      │
 │ Service                         │

@@ -194,4 +194,5 @@ Gate A Human Review가 완료되었고 다음 Version 조합이 최종 승인되
 
 ## Related Commit
 
-Pending
+- 819ef5f — Gate A 기술 버전 승인 반영 (docs/06-PLAN.md, docs/09-DECISIONS.md)
+- 7260af3 — Prompt 04 기록 파일 추가
