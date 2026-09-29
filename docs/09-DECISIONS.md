@@ -674,3 +674,49 @@ gradle/actions/setup-gradle@v6 (cache-disabled: true)
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-018 GitHub Milestone 자동 Close
+
+### 결정
+
+`docs/07-TASKS.md`에서 DONE 상태가 된 Task의 GitHub Milestone을
+GitHub Actions로 자동 Close한다.
+
+TASK-012 GitHub Actions Bot 범위 중 Milestone 상태 동기화만 먼저 도입하는 것을 Gate C Human Review로 승인한다.
+
+### Workflow
+
+```text
+Workflow file: .github/workflows/milestones.yml
+Trigger:
+  - push to main (docs/07-TASKS.md 또는 milestones.yml 변경 시)
+  - workflow_dispatch (수동 실행)
+Runner: ubuntu-latest
+Permissions: contents: read, issues: write
+Actions: actions/checkout@v7
+Token: GitHub 제공 github.token (별도 Secret 없음)
+Tool: Runner 기본 설치 gh CLI (새 Action 추가 없음)
+```
+
+### 동작 규칙
+
+- Source of Truth는 `docs/07-TASKS.md`의 전체 Task 목록 표이다.
+- `TASK-00N`과 `Milestone N`은 1:1로 대응한다.
+- 상태가 `DONE`인 Task의 Milestone 중 열려 있는 Milestone만 Close한다.
+- Milestone은 제목이 `Milestone N:`으로 시작하는 것으로 식별한다.
+- DONE이 아닌 상태로 되돌아간 Task의 Milestone을 다시 Open하지 않는다.
+- Milestone 생성은 이 Workflow의 범위가 아니며 `scripts/create-milestones.js`로 수행한다.
+
+### 범위 제한
+
+- Source Code, 문서, Git History를 수정하지 않는다.
+- 기존 `.github/workflows/ci.yml`의 동작과 권한(`contents: read`)은 변경하지 않는다.
+- Issue / PR Comment, Label, Release 등 다른 GitHub 자동화는 TASK-012에서 Gate C로 별도 검토한다.
+
+### 상태
+
+```text
+Human Approved
+```

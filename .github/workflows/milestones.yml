@@ -1,0 +1,56 @@
+name: Sync Milestones
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - docs/07-TASKS.md
+      - .github/workflows/milestones.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  close-done-milestones:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Close milestones of DONE tasks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          # docs/07-TASKS.md 전체 Task 목록 표: | Task | Milestone | 작업 | 상태 | ...
+          done_numbers=$(grep -E '^\| TASK-[0-9]+ \| Milestone [0-9]+ \|' docs/07-TASKS.md \
+            | awk -F'|' '{ status = $5; gsub(/ /, "", status); if (status == "DONE") { number = $3; gsub(/[^0-9]/, "", number); print number + 0 } }')
+
+          if [ -z "$done_numbers" ]; then
+            echo "No DONE tasks found."
+            exit 0
+          fi
+
+          echo "DONE milestones: $(echo $done_numbers)"
+
+          open_milestones=$(gh api "repos/$GITHUB_REPOSITORY/milestones?state=open&per_page=100" \
+            --jq '.[] | "\(.number)\t\(.title)"')
+
+          closed=0
+          for n in $done_numbers; do
+            while IFS=$'\t' read -r number title; do
+              [ -z "$number" ] && continue
+              if [[ "$title" == "Milestone $n:"* ]]; then
+                gh api -X PATCH "repos/$GITHUB_REPOSITORY/milestones/$number" -f state=closed > /dev/null
+                echo "Closed: $title"
+                closed=$((closed + 1))
+              fi
+            done <<< "$open_milestones"
+          done
+
+          echo "Closed $closed milestone(s)."

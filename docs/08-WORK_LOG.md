@@ -501,3 +501,31 @@ Remote CI Verification 완료 후 TASK-004 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 대기
+
+---
+
+## Out-of-Task — GitHub Milestone Sync Workflow (DEC-018)
+
+### 상태
+
+DONE
+
+### 작업 내용
+
+- Human이 `scripts/create-milestones.js`(GitHub Milestone 1~12 생성 스크립트)를 추가했다.
+- Human 요청에 따라 DONE Task의 Milestone을 자동 Close하는 Workflow를 Gate C로 승인받아 추가했다.
+- `.github/workflows/milestones.yml` 생성
+- DEC-018 기록, TASK-012 관련 메모 추가, README 보조 스크립트 안내 추가
+
+### Verification
+
+`gh` CLI를 가짜 명령으로 대체하고 Workflow의 run script를 로컬에서 실행했다.
+
+| 시나리오 | 결과 |
+|---|---|
+| 현재 `docs/07-TASKS.md` (TASK-001~003 DONE) | Milestone 1, 2, 3만 Close 요청, exit `0` |
+| TASK-004, TASK-010을 DONE으로 바꾼 사본 | Milestone 1, 2, 3, 4, 10 Close, `Milestone 1:`이 `Milestone 10:`과 혼동되지 않음, exit `0` |
+| DONE Task 없음 | `No DONE tasks found.`, exit `0` |
+| Milestone이 아직 없음 | `Closed 0 milestone(s).`, exit `0` |
+
+Remote 실행 결과는 push 후 확인한다.

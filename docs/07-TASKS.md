@@ -925,6 +925,7 @@ BLOCKED
 ### Human Approval 또는 Gate
 
 - GitHub Actions Bot 구성은 Gate C 적용
+- GitHub Milestone 자동 Close(`.github/workflows/milestones.yml`)는 DEC-018로 먼저 도입되었다. TASK-012에서는 이를 포함해 Bot 범위를 검토한다.
 
 ### 완료 조건
 

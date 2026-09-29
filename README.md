@@ -76,7 +76,8 @@ today-v3/
 ├── .env.example
 ├── .github/
 │   └── workflows/
-│       └── ci.yml
+│       ├── ci.yml
+│       └── milestones.yml
 ├── frontend/
 │   └── React + TypeScript + Vite Skeleton
 ├── backend/
@@ -111,6 +112,8 @@ today-v3/
 - `scripts/create-milestones.js`: `docs/07-TASKS.md`의 Milestone 1~12를 GitHub Milestone으로 생성하는 일회성 도구입니다. TASK 산출물이나 Local Verification / CI 대상이 아닙니다.
   - 실행: `GITHUB_TOKEN` 환경변수를 설정한 뒤 `node scripts/create-milestones.js`
   - Token은 Repository에 Commit하지 않습니다.
+- `.github/workflows/milestones.yml`: `docs/07-TASKS.md`에서 DONE이 된 Task의 GitHub Milestone을 자동으로 Close합니다. (DEC-018)
+  - Milestone을 처음 생성한 직후에는 GitHub Actions 화면에서 `Sync Milestones`를 수동 실행(`workflow_dispatch`)하면 이미 DONE인 Milestone이 Close됩니다.
 
 ## v1 / v2 / v3 비교
 
