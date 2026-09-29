@@ -354,7 +354,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS
+REVIEW
 
 ### 작업 내용
 
@@ -484,8 +484,20 @@ Human Review에서 API 입력 Validation 누락 2건이 발견되어 보완했�
 
 ### Remote CI Verification
 
-Pending — Commit / Push 후 확인 필요
+Commit `3f12803`을 `main`에 push하여 Remote CI를 실행했다.
+
+- Push 시 Remote `main`에 Human이 추가한 commit `af73c75`(`scripts/create-milestones.js`)가 있어 push가 거부되었다.
+  - TASK-004 파일과 겹치지 않음을 확인한 뒤, 아직 push되지 않은 로컬 commit을 `origin/main` 위로 rebase하여 push했다.
+- Workflow run: https://github.com/youneedpython/today-v3/actions/runs/36540515429
+- 결과: PASS (`success`)
+
+| Job | 결과 | 소요 시간 |
+|---|---|---|
+| `frontend` | success | 약 12초 |
+| `backend` | success | 약 53초 |
+
+Remote CI Verification 완료 후 TASK-004 상태를 REVIEW로 변경했다.
 
 ### 결과
 
-Remote CI Verification 대기 / Human Review 대기
+Human Review 대기

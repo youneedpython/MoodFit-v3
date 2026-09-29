@@ -76,10 +76,26 @@ Remote CI Verification은 commit/push 이후 확인한다.
 
 TASK-004 실행 승인 완료.
 
+## Human Review 보완
+
+Human Review에서 발견된 API 입력 Validation 누락 2건을 보완했다.
+
+- History `days` 최소값 `1` Validation 추가
+- 요청 형식 오류(JSON 문법 오류, 없는 enum 값, 타입 오류)를 `VALIDATION_ERROR` 형식으로 통일
+- 관련 Controller Test 6건 추가
+- Human Approval을 받아 `docs/05-API_SPEC.md`와 DEC-004에 `days` 허용 범위 `1 ~ 30`과 요청 형식 오류 정책을 추가
+
+## Remote CI Verification 결과
+
+- Commit: `3f12803`
+- Workflow run: https://github.com/youneedpython/today-v3/actions/runs/36540515429
+- `frontend` Job: success
+- `backend` Job: success
+
 ## 상태
 
-구현 완료 / Remote CI Verification 대기
+실행 완료 / Human Review 중
 
 ## Related Commit
 
-Pending
+3f12803

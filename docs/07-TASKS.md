@@ -38,12 +38,12 @@ TASK-004 — Backend Domain / API Skeleton
 Status:
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
 TASK-001, TASK-002, TASK-003은 DONE 상태이다.
-TASK-004는 Human 실행 승인에 따라 진행 중이다.
-Remote CI Verification과 Human Review가 완료되기 전에는 REVIEW 또는 DONE으로 변경하지 않는다.
+TASK-004는 구현, Human Review 보완, Local Verification, Remote CI Verification을 완료하고 Human Review를 기다리는 상태이다.
+TASK-004 Human Review가 끝나기 전에는 TASK-005를 시작하지 않는다.
 승인되지 않은 Dependency(예: Spring Data JPA, MySQL Connector) 또는 API Contract / DB Schema 변경이 필요하면 Gate C를 적용한다.
 
 ---
@@ -55,7 +55,7 @@ Remote CI Verification과 Human Review가 완료되기 전에는 REVIEW 또는 D
 | TASK-001 | Milestone 1 | Project Bootstrap | DONE | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | DONE | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
-| TASK-004 | Milestone 4 | Backend Domain / API Skeleton | IN_PROGRESS | TASK-001, TASK-002, TASK-003 완료 (충족), Human 실행 승인 완료 | Gate C 조건부 |
+| TASK-004 | Milestone 4 | Backend Domain / API Skeleton | REVIEW | TASK-001, TASK-002, TASK-003 완료 (충족), Human 실행 승인 완료, Remote CI 성공 | Gate C 조건부 |
 | TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | BLOCKED | TASK-004 완료, DEC-014 후보 Rule 제안 준비 | Gate B 필요 |
 | TASK-006 | Milestone 6 | Backend Domain / API Core | BLOCKED | TASK-004 완료, TASK-005 완료, Gate B 승인 | Gate C 조건부 |
 | TASK-007 | Milestone 7 | Frontend Foundation / Design System | BLOCKED | TASK-001, TASK-002, TASK-003 완료, Gate A 승인 | Gate C 조건부 |
@@ -461,12 +461,11 @@ TASK-003은 DEC-017 기준 CI Workflow 구현, Local Verification, Remote CI Ver
 ### 상태
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
 선행 Task인 TASK-001, TASK-002, TASK-003은 DONE 상태이다.
-TASK-004는 Human 실행 승인에 따라 진행 중이다.
-Remote CI Verification과 Human Review가 완료되기 전에는 REVIEW 또는 DONE으로 변경하지 않는다.
+TASK-004는 구현, Human Review 보완, Local Verification, Remote CI Verification을 완료하고 Human Review를 기다리는 상태이다.
 
 ### 목적
 
