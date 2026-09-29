@@ -354,7 +354,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-REVIEW
+DONE
 
 ### 작업 내용
 
@@ -498,9 +498,19 @@ Commit `3f12803`을 `main`에 push하여 Remote CI를 실행했다.
 
 Remote CI Verification 완료 후 TASK-004 상태를 REVIEW로 변경했다.
 
+### Human Review
+
+검토 일자: 2026-09-29
+
+- Controller / DTO / Service / Exception 구조가 `docs/05-API_SPEC.md`와 일치함을 확인했다.
+- 실제 서버 실행 후 요청으로 Validation / Error Response 동작을 확인했다.
+- Human Review 보완 사항(`days` 최소값, 요청 형식 오류 응답 통일)과 API Spec / DEC-004 보완을 확인했다.
+- Remote CI의 `frontend`, `backend` Job이 모두 success임을 확인했다.
+- Human Review 승인 후 TASK-004 상태를 DONE으로 변경했다.
+
 ### 결과
 
-Human Review 대기
+Human Review 완료 / DONE
 
 ---
 
@@ -528,4 +538,15 @@ DONE
 | DONE Task 없음 | `No DONE tasks found.`, exit `0` |
 | Milestone이 아직 없음 | `Closed 0 milestone(s).`, exit `0` |
 
-Remote 실행 결과는 push 후 확인한다.
+Remote 실행 결과 (commit `03782ac`):
+
+- `Sync Milestones` run https://github.com/youneedpython/today-v3/actions/runs/36542755169 (event: `push`) : success
+  - Human이 push 이전에 `scripts/create-milestones.js`로 Milestone 1~12를 생성해 두었다.
+  - 이 push run이 DONE Task에 해당하는 Milestone 1, 2, 3을 Close했다. (closed_at `2026-09-29T08:26:48Z`, run 시작 5초 후)
+- `CI` run https://github.com/youneedpython/today-v3/actions/runs/36542755222 : success
+
+GitHub API로 Milestone 상태를 확인했다.
+
+- Milestone 1, 2, 3: `closed`
+- Milestone 4 ~ 12: `open`
+- 총 12개, 중복 없음

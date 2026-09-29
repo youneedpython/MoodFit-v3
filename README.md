@@ -26,13 +26,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-004 — Backend Domain / API Skeleton Human Review 중** 단계입니다.
+현재 Repository는 **TASK-004 — Backend Domain / API Skeleton 완료** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-004 — Backend Domain / API Skeleton
-REVIEW (Human Review 중)
+TASK-005 — Wellness Analysis / Recommendation Rule Approval
+READY (실행 지시 대기)
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -64,7 +64,8 @@ TASK-003 Initial GitHub Actions CI
 Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification과 Human Review가 완료되었습니다.
 `scripts/verify.ps1`, `scripts/verify.sh` Local Verification Harness가 구성되었고 성공/실패 경로 검증과 Human Review가 완료되었습니다.
 DEC-017 기준 GitHub Actions CI(`.github/workflows/ci.yml`)가 구성되었고, Remote CI에서 `frontend` / `backend` Job이 모두 성공했으며 Human Review가 완료되었습니다.
-현재는 TASK-004 Backend API Skeleton 구현과 Local / Remote CI Verification을 완료하고 Human Review를 기다리는 상태입니다.
+TASK-004 Backend API Skeleton 구현, Local / Remote CI Verification, Human Review가 완료되었습니다.
+현재는 사용자의 명시적인 TASK-005 실행 지시를 기다리는 상태입니다.
 
 ## 현재 구조
 
@@ -136,6 +137,6 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-004 Human Review
-2. TASK-004 DONE
-3. TASK-005 Wellness Analysis / Recommendation Rule Approval 준비
+1. TASK-005 Wellness Analysis / Recommendation Rule 후보 제안
+2. Gate B Human Review 및 DEC-014 승인
+3. TASK-006 Backend Domain / API Core 준비

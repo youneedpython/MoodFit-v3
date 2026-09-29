@@ -30,23 +30,22 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 Project Bootstrap, TASK-002 Initial Local Verification Harness, TASK-003 Initial GitHub Actions CI는 DONE 상태이다.
-TASK-004 Backend Domain / API Skeleton은 구현과 Verification을 완료하고 Human Review를 기다리는 상태이다.
+TASK-001 Project Bootstrap, TASK-002 Initial Local Verification Harness, TASK-003 Initial GitHub Actions CI, TASK-004 Backend Domain / API Skeleton은 DONE 상태이다.
 
 Current Task:
 
 ```text
-TASK-004 — Backend Domain / API Skeleton
+TASK-005 — Wellness Analysis / Recommendation Rule Approval
 ```
 
 Status:
 
 ```text
-REVIEW
+READY
 ```
 
-TASK-004는 Backend API Skeleton 구현, Human Review 보완, Local Verification, Remote CI Verification을 완료했다.
-TASK-004 Human Review가 끝나기 전에는 TASK-005를 시작하지 않는다.
+TASK-005는 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+TASK-005는 Rule 후보 제안과 Gate B Human Review까지만 수행하며, DEC-014 승인 전에는 Rule을 구현하지 않는다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 
