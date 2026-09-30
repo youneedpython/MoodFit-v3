@@ -42,10 +42,10 @@ TASK-007 — Frontend Foundation / Design System
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-TASK-007은 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+TASK-007은 Human 실행 지시에 따라 시작되었다.
 새로운 UI Library 또는 외부 Dependency가 필요하면 Gate C를 적용한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.

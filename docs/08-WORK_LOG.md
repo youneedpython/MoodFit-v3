@@ -932,3 +932,87 @@ Human Review 완료 / DONE
 ### 결과
 
 Human Review 완료
+
+---
+
+## TASK-007 — Frontend Foundation / Design System
+
+### 상태
+
+IN_PROGRESS
+
+Local Verification 완료 / Remote CI Verification 대기
+
+### 작업 내용
+
+- Route 구조 (DEC-011): `/` Dashboard, `/check-in` Daily Check-in, `/history` History, 그 외 경로는 Not Found
+  - `createBrowserRouter` + `RouterProvider` (`react-router` 8.4.0, `react-router-dom` 미사용)
+  - Route 정의는 `src/app/router.tsx`의 `routes` 배열로 분리해 Test에서 `createMemoryRouter`로 재사용
+- 공통 Layout (`src/app/AppLayout.tsx`): Brand, 오늘 날짜, 주요 메뉴(`NavLink`), 본문 건너뛰기 링크, `<main id="main-content">`
+- 공통 Component (`src/components/`)
+  - `Button` (primary / secondary / ghost, Hover / Focus / Disabled 상태), 화면 이동용 `ButtonLink`
+  - `Card`, `Badge` (Text Label과 함께 사용), `MetricCard` (값이 없으면 임의 값 대신 "값 없음" 표시), `PageHeader`
+  - `LoadingState` (`role="status"`), `ErrorState` (`role="alert"`, 선택적 재시도), `EmptyState` (다음 행동 안내)
+- Style
+  - `src/styles/tokens.css`: v1 Dark Wellness 방향의 색상 / 간격 / 반경 / Typography Token
+  - `src/styles/global.css`: 기본 스타일, Focus Ring, Responsive Grid (Desktop > 860px, Tablet 561 ~ 860px, Mobile <= 560px), 한글 단어 단위 줄바꿈, `prefers-reduced-motion`
+- API Client 기본 구조
+  - `src/types/api.ts`: `docs/05-API_SPEC.md` / Backend DTO와 같은 Request / Response 타입
+  - `src/services/api.ts`: `checkinApi.create`, `getLatest`, `getHistory`, `ApiError`(status, code, fieldErrors)
+  - `getLatest`는 `404 CHECKIN_NOT_FOUND`를 오류가 아닌 Empty State로 보고 `null`을 반환한다. (API Spec 5절)
+  - 네트워크 실패는 `NETWORK_ERROR`, ErrorResponse가 없는 오류는 `HTTP_ERROR`로 변환한다.
+- 화면 3개는 TASK-008 ~ TASK-010 전까지 "준비 중인 화면입니다." 안내만 표시한다. Hard-coded 분석 결과를 표시하지 않는다.
+- TASK-001 Bootstrap Placeholder(`src/App.tsx`, `src/App.test.tsx`)를 삭제하고 Router 구조로 대체했다.
+- `index.html`: `lang="ko"`, title `MoodFit`
+- Test 설정: `src/test/setup.ts`를 `vite.config.ts`의 `setupFiles`로 등록 (Vitest globals 미사용 환경에서 Test마다 DOM / Mock 정리)
+- `src/vite-env.d.ts`: Vite 공식 Template과 같은 `vite/client` 타입 참조 (CSS import 타입 선언)
+
+### Dependency
+
+- 새로운 Dependency 추가 없음. `package.json`, `package-lock.json` 변경 없음.
+- 승인된 React, React Router, Vitest, React Testing Library, jsdom만 사용했다. (Gate C 불필요)
+- `@testing-library/user-event`, `jest-dom` 등 추가 Testing Utility 없이 `fireEvent`와 기본 Assertion을 사용했다.
+
+### 오류 및 해결
+
+- 오류: `npm run build`의 `tsc --noEmit`에서 CSS side-effect import에 대한 TS2882 오류가 발생했다.
+  - 원인: TypeScript 6은 CSS import에 타입 선언이 필요하다.
+  - 해결: `src/vite-env.d.ts`에 `/// <reference types="vite/client" />`를 추가했다.
+- 오류: `api.test.ts`의 fetch Mock 호출 인자 타입이 빈 Tuple로 추론되어 TS2493 오류가 발생했다.
+  - 해결: Mock 함수의 인자 타입을 명시했다.
+- 화면 검토에서 발견: Page 제목이 Header에 붙어 보였다.
+  - 원인: `global.css`가 Component CSS보다 나중에 로드되어 `.container`의 `padding` 축약형이 `.app-main`의 `padding-top`을 덮어썼다.
+  - 해결: `.container`를 `padding-inline`으로 바꾸고, `main.tsx`에서 `global.css`를 먼저 import했다.
+- 화면 검토에서 발견: 390px에서 한글 단어가 중간에서 줄바꿈되었다.
+  - 해결: `body`에 `word-break: keep-all`, `overflow-wrap: break-word`를 적용했다.
+
+### Verification
+
+- `npm test`: PASS, Test File 5개 / Test 25건
+  - Button / ButtonLink: 렌더링, 클릭, Disabled, Link 경로
+  - Card / Badge / MetricCard: 렌더링, 값 없음 표시
+  - Loading / Error / Empty State: `role`, 재시도, 다음 행동 안내
+  - Route: 3개 화면, Not Found, 메뉴 이동, `aria-current` 현재 메뉴 표시, 건너뛰기 링크, Hard-coded 결과 미표시
+  - API Client: POST 형식, `latest` 404 → `null`, History 기본 7일, 400 `fieldErrors`, 500 전파, ErrorResponse 없는 오류, 네트워크 오류
+- `npm run build`: PASS (`tsc --noEmit` + `vite build`)
+- 화면 검토: `vite preview` 결과를 Headless Edge로 캡처해 확인
+  - Desktop 1280px, Tablet 768px, 560px, Mobile 390px
+  - 390px는 Headless Edge 최소 창 너비 제한이 있어 iframe으로 정확한 너비를 만들어 확인했다.
+  - 모든 너비에서 가로 넘침 없음, 메뉴 3개 표시, 현재 메뉴 강조, 560px 이하에서 Header / 메뉴 세로 배치
+- Keyboard 접근성: 본문 건너뛰기 링크, 모든 Link / Button의 `:focus-visible` Focus Ring, 메뉴 Tap Target 최소 44px
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
+  - Frontend Test / Build, Backend Test / Build
+  - 새 Frontend Test는 기존 `npm test`에 포함되므로 `verify.ps1`, `verify.sh`, CI Workflow 변경 없이 Local Verification과 CI 검증 범위가 확장된다.
+
+### 변경하지 않은 것
+
+- Backend, API Contract, DB Schema, DEC 문서 변경 없음
+- `scripts/`, `.github/workflows/` 변경 없음
+
+### Remote CI Verification
+
+Pending — Commit / Push 후 확인 필요
+
+### 결과
+
+Local Verification PASS / Remote CI Verification 대기

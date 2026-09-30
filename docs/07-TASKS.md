@@ -38,12 +38,12 @@ TASK-007 — Frontend Foundation / Design System
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-006은 DONE 상태이다.
-TASK-007은 선행 Task 조건을 충족하여 실행 가능한 상태이다.
-단, TASK-007 실행 전 별도 Human 지시가 필요하다.
+TASK-007은 Human 실행 지시에 따라 시작되었다. (`prompts/18-TASK-007-FRONTEND-FOUNDATION.md`)
+승인된 Dependency(React, React Router, Vitest, React Testing Library, jsdom) 범위 안에서 구현하며, 새로운 Dependency는 추가하지 않는다.
 새로운 UI Library 또는 외부 Dependency가 필요하면 Gate C를 적용한다.
 
 ---
@@ -58,7 +58,7 @@ TASK-007은 선행 Task 조건을 충족하여 실행 가능한 상태이다.
 | TASK-004 | Milestone 4 | Backend Domain / API Skeleton | DONE | TASK-001, TASK-002, TASK-003 완료 (충족), Human 실행 승인 완료, Remote CI 성공 | Gate C 조건부 |
 | TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | DONE | TASK-004 완료 (충족), Human 실행 승인 완료, DEC-014 Human Approved | Gate B 승인 완료 |
 | TASK-006 | Milestone 6 | Backend Domain / API Core | DONE | TASK-004 완료 (충족), TASK-005 완료 (충족), Gate B 승인 (DEC-014), Persistence Gate C 승인 (DEC-019) | Gate C 승인 완료 |
-| TASK-007 | Milestone 7 | Frontend Foundation / Design System | READY | TASK-001, TASK-002, TASK-003 완료 (충족), Gate A 승인 (충족) | Gate C 조건부 |
+| TASK-007 | Milestone 7 | Frontend Foundation / Design System | IN_PROGRESS | TASK-001, TASK-002, TASK-003 완료 (충족), Gate A 승인 (충족) | Gate C 조건부 |
 | TASK-008 | Milestone 8 | Daily Check-in | BLOCKED | TASK-006, TASK-007 완료 | Gate C 조건부 |
 | TASK-009 | Milestone 9 | Dashboard | BLOCKED | TASK-006, TASK-007, TASK-008 완료 | Gate C 조건부 |
 | TASK-010 | Milestone 10 | History / Trend | BLOCKED | TASK-006, TASK-007, TASK-009 완료 | Gate C 조건부 |
@@ -635,11 +635,11 @@ Persistence Dependency와 DB Schema는 `docs/09-DECISIONS.md` DEC-019를 Source 
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 선행 Task인 TASK-001, TASK-002, TASK-003은 DONE 상태이며 Gate A는 Human Approved 되었다.
-TASK-007 실행 전 별도 Human 지시가 필요하다.
+TASK-007은 Human 실행 지시에 따라 시작되었다.
 
 ### 목적
 
