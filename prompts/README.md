@@ -84,3 +84,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 12 | TASK-003 GitHub Actions CI | Implementation | 완료 |
 | 13 | TASK-004 Backend Domain / API Skeleton | Implementation | 완료 |
 | 14 | Milestone Sync Workflow | CI/CD 구성 (Gate C) | 완료 |
+| 15 | TASK-005 Wellness Rule Gate B Review | Gate B | 완료 |

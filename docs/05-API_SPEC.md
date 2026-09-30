@@ -33,16 +33,14 @@ SNOW
 
 ### Mood
 
-초기 예시:
+| code | label |
+|---|---|
+| TIRED | 피곤함 |
+| ENERGETIC | 활기 있음 |
+| CALM | 차분함 |
+| BALANCED | 균형 있음 |
 
-```text
-CALM
-ENERGETIC
-TIRED
-BALANCED
-```
-
-최종 Mood 규칙은 Analysis Service 구현 전에 확정한다.
+Mood 판정 규칙은 `docs/09-DECISIONS.md` DEC-014를 따른다.
 
 ---
 
@@ -89,11 +87,11 @@ POST /api/check-ins
   "id": 101,
   "recordedAt": "2026-09-28T03:00:00Z",
   "mood": {
-    "code": "CALM",
-    "label": "평온함"
+    "code": "ENERGETIC",
+    "label": "활기 있음"
   },
-  "wellnessScore": 78,
-  "summary": "현재 신체 리듬은 비교적 안정적이며 차분한 활동이 잘 맞는 상태입니다.",
+  "wellnessScore": 76,
+  "summary": "현재 입력 기준으로 에너지 수준은 비교적 높고, 스트레스 부담은 크지 않은 편입니다. 비가 오는 날씨에는 차분한 실내 활동과 부담이 적은 식사가 어울립니다.",
   "metrics": {
     "heartRate": 68,
     "respiratoryRate": 18,
@@ -109,19 +107,33 @@ POST /api/check-ins
     {
       "name": "연어 샐러드",
       "tag": "에너지 균형",
-      "reason": "현재의 안정적인 리듬을 유지하기 위한 가벼운 식사로 추천합니다."
+      "reason": "가볍게 에너지를 유지하기 좋은 메뉴입니다."
+    },
+    {
+      "name": "따뜻한 채소 스튜",
+      "tag": "따뜻한 메뉴",
+      "reason": "비 오는 날씨에 어울리는 따뜻한 메뉴입니다."
     }
   ],
   "music": [
     {
-      "title": "Rainy Morning",
-      "artist": "Cloud Echo",
+      "title": "Light Motion Playlist",
+      "artist": "MoodFit Curated",
+      "tag": "가벼운 활력",
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다."
+    },
+    {
+      "title": "Rainy Indoor Playlist",
+      "artist": "MoodFit Curated",
       "tag": "잔잔한 감성",
-      "reason": "차분한 현재 상태와 비 오는 날의 분위기에 어울리는 음악입니다."
+      "reason": "비 오는 날의 실내 분위기에 어울립니다."
     }
   ]
 }
 ```
+
+- `wellnessScore`, `mood`, `summary`, `foods`, `music`은 DEC-014 Rule로 생성한다.
+- `foods`, `music`은 각각 항상 2개이며, 첫 번째는 Mood 기반 Item, 두 번째는 Weather / Temperature Context 기반 Item이다.
 
 ---
 
@@ -186,10 +198,10 @@ GET /api/check-ins/history?days=7
       "id": 101,
       "recordedAt": "2026-09-28T03:00:00Z",
       "mood": {
-        "code": "CALM",
-        "label": "평온함"
+        "code": "ENERGETIC",
+        "label": "활기 있음"
       },
-      "wellnessScore": 78,
+      "wellnessScore": 76,
       "heartRate": 68,
       "respiratoryRate": 18,
       "sleepScore": 86,

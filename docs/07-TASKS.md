@@ -33,7 +33,7 @@ DONE
 
 ## 3. Current Task
 
-TASK-005 — Wellness Analysis / Recommendation Rule Approval
+TASK-006 — Backend Domain / API Core
 
 Status:
 
@@ -41,10 +41,10 @@ Status:
 READY
 ```
 
-TASK-001 ~ TASK-004는 DONE 상태이다.
-TASK-005는 선행 Task 조건을 충족하여 Rule 후보 제안을 시작할 수 있는 상태이다.
-단, TASK-005 실행 전 별도 Human 지시가 필요하다.
-TASK-005는 DEC-014 Rule 후보를 제안하고 Gate B Human Approval을 받는 Task이며, Wellness Analysis / Recommendation Rule을 구현하지 않는다.
+TASK-001 ~ TASK-005는 DONE 상태이다.
+Gate B Human Approval이 완료되었으며, Wellness Analysis / Recommendation Rule은 `docs/09-DECISIONS.md` DEC-014를 Source of Truth로 사용한다.
+TASK-006은 선행 Task 조건을 충족했지만, 실행 전 별도 Human 지시가 필요하다.
+Check-in 저장에 필요한 Persistence Dependency(예: Spring Data JPA, MySQL Connector, Test DB)와 DB Schema는 아직 승인되지 않았으므로 구현 전 Gate C를 적용한다.
 
 ---
 
@@ -56,8 +56,8 @@ TASK-005는 DEC-014 Rule 후보를 제안하고 Gate B Human Approval을 받는 
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | DONE | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
 | TASK-004 | Milestone 4 | Backend Domain / API Skeleton | DONE | TASK-001, TASK-002, TASK-003 완료 (충족), Human 실행 승인 완료, Remote CI 성공 | Gate C 조건부 |
-| TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | READY | TASK-004 완료 (충족), DEC-014 후보 Rule 제안 준비 | Gate B 필요 |
-| TASK-006 | Milestone 6 | Backend Domain / API Core | BLOCKED | TASK-004 완료, TASK-005 완료, Gate B 승인 | Gate C 조건부 |
+| TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | DONE | TASK-004 완료 (충족), Human 실행 승인 완료, DEC-014 Human Approved | Gate B 승인 완료 |
+| TASK-006 | Milestone 6 | Backend Domain / API Core | READY | TASK-004 완료 (충족), TASK-005 완료 (충족), Gate B 승인 (DEC-014) | Gate C 조건부 |
 | TASK-007 | Milestone 7 | Frontend Foundation / Design System | BLOCKED | TASK-001, TASK-002, TASK-003 완료, Gate A 승인 | Gate C 조건부 |
 | TASK-008 | Milestone 8 | Daily Check-in | BLOCKED | TASK-006, TASK-007 완료 | Gate C 조건부 |
 | TASK-009 | Milestone 9 | Dashboard | BLOCKED | TASK-006, TASK-007, TASK-008 완료 | Gate C 조건부 |
@@ -518,11 +518,11 @@ API Contract와 Domain 경계를 먼저 잡고, Wellness Rule 구현 전에도 �
 ### 상태
 
 ```text
-READY
+DONE
 ```
 
-선행 Task인 TASK-004는 DONE 상태이다.
-TASK-005 실행 전 별도 Human 지시가 필요하다.
+TASK-005는 Rule 후보 제안, Gate B Human Review, Human Review 보완을 완료했다.
+승인된 Rule은 `docs/09-DECISIONS.md` DEC-014에 기록했다.
 
 ### 목적
 
@@ -573,8 +573,12 @@ DEC-014 Wellness Analysis Rule 후보를 제안하고 Human Review를 받는다.
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
+
+선행 Task인 TASK-005는 DONE 상태이며 DEC-014가 Human Approved 되었다.
+TASK-006 실행 전 별도 Human 지시가 필요하다.
+Persistence Dependency와 DB Schema는 아직 승인되지 않았으므로 구현 전 Gate C를 적용한다.
 
 ### 목적
 

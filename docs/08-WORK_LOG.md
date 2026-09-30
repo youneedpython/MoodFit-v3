@@ -473,7 +473,7 @@ Human Review에서 API 입력 Validation 누락 2건이 발견되어 보완했�
 - `.\gradlew.bat test`
   - PASS
   - `CheckinControllerTests` 10건, `MoodFitApplicationTests` 1건 성공
-- `powershell -ExecutionPolicy Bypass -File .\scriptserify.ps1`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`
   - PASS
 - 실제 서버 실행 후 요청 확인
   - 알 수 없는 `weather`, JSON 구문 오류, 숫자 필드 문자열 값: `400 VALIDATION_ERROR`
@@ -550,3 +550,135 @@ GitHub API로 Milestone 상태를 확인했다.
 - Milestone 1, 2, 3: `closed`
 - Milestone 4 ~ 12: `open`
 - 총 12개, 중복 없음
+
+---
+
+## TASK-005 — Wellness Analysis / Recommendation Rule Approval
+
+### 상태
+
+DONE
+
+### 작업 내용
+
+- TASK-005 시작
+- Gate B Human Review를 위한 Rule Proposal 작성
+- `docs/10-WELLNESS-RULE-PROPOSAL.md` 생성
+- Wellness Score Option 검토
+- Metric Weight 후보 검토
+- Mood 판정 후보 검토
+- Weather 영향 후보 검토
+- Temperature 처리 후보 검토
+- Summary Rule 후보 검토
+- Food Recommendation Rule 후보 검토
+- Music Recommendation Rule 후보 검토
+- Boundary / Edge Case 검토
+- API 예시 입력 계산 결과 작성
+- Decision Matrix 작성
+
+### Gate B 목적
+
+TASK-006 Backend Domain / API Core 구현 전에 DEC-014 Wellness Analysis Rule의 후보를 Human Review 대상으로 제안한다.
+
+### 검토한 Score Option
+
+- Option A: Self-reported Metric 중심
+  - `sleepScore`, `stressScore`, `energyLevel`만 Score 계산에 사용
+  - Heart Rate / Respiratory Rate는 Summary와 Dashboard 보조 정보로 사용
+- Option B: 모든 Metric 사용
+  - Heart Rate / Respiratory Rate를 낮은 weight의 comfort score로 반영
+  - Threshold는 의료 기준이 아닌 MoodFit 교육용 Product Heuristic으로 명시
+
+### Mood 후보
+
+- `CALM`
+- `ENERGETIC`
+- `TIRED`
+- `BALANCED`
+
+새 Mood Code는 추가하지 않았다.
+
+### Recommendation Rule 후보
+
+- 외부 Food API 또는 Music API를 사용하지 않는 deterministic rule 후보를 제안했다.
+- Food Recommendation은 `name`, `tag`, `reason` 구조를 유지한다.
+- Music Recommendation은 초기 MVP에서 가상 Playlist / Track Metadata 사용을 우선 후보로 제안했다.
+
+### Edge Case 검토
+
+다음 범주의 Boundary / Edge Case를 검토했다.
+
+- 모든 입력이 낮은 경우
+- 모든 입력이 높은 경우
+- 높은 Energy와 높은 Stress가 함께 있는 경우
+- 낮은 Energy와 낮은 Stress가 함께 있는 경우
+- Mood 경계값
+- Heart Rate / Respiratory Rate 최소값과 최대값
+- Temperature `-30`, `50`
+- Weather `CLEAR`, `CLOUDY`, `RAIN`, `SNOW`
+- 같은 Score지만 Metric 조합이 다른 경우
+
+### API 예시 입력 계산 결과
+
+`docs/05-API_SPEC.md`의 예시 입력을 사용했다.
+
+- Option A 예상 Score: `76`
+- Option B 예상 Score: `79`
+- 예상 Mood 후보: `ENERGETIC`
+
+### 의료 진단 표현 배제 확인
+
+- Proposal에서 정상/비정상 진단, 질환 가능성, 의학적 위험, 치료 필요, 건강 이상 판정 표현을 배제했다.
+- Threshold와 score 기준은 MoodFit 교육용 Product Heuristic으로 명시했다.
+
+### 코드 변경 여부
+
+코드 변경 없음.
+
+Backend Java Source, Frontend Source, Test Code, build.gradle, package.json, Dependency, CI Workflow, Milestone Workflow를 수정하지 않았다.
+
+### DEC-014 상태
+
+`docs/09-DECISIONS.md` DEC-014는 `Pending Human Approval` 상태로 유지했다.
+
+### Milestone 4 상태 확인
+
+`gh api repos/youneedpython/today-v3/milestones?state=all` 조회를 시도했으나 현재 환경에서 `gh` CLI가 PATH에 없어 확인하지 못했다.
+Milestone 4 상태를 추정하지 않았다.
+
+### Gate B Human Review 보완
+
+검토 일자: 2026-09-30
+
+- Human은 §15 Codex 추천 조합(Option A / M2 / Weather Context only / T-A / Deterministic Recommendation / Template Summary / Rule Policy class)을 그대로 승인했다.
+- Human Review에서 Rule 정의 누락 6건이 발견되어, Human 지시에 따라 Claude가 `docs/10-WELLNESS-RULE-PROPOSAL.md` §16 확정 Rule로 보완했다.
+  1. Food Score Band Rule이 우선순위상 도달 불가 → Score Band 제거, Mood Item + Context Item 구조
+  2. Music Rule 적용 순서 / Temperature / CLEAR·CLOUDY 누락 → Food와 같은 구조로 정의
+  3. 추천 개수 미정 → `foods`, `music` 각각 항상 2개
+  4. Edge Case 표 중복·모호 → 입력값과 기대값을 수치로 명시한 20개 Case
+  5. 반올림 방식 미정 → 정수 연산 공식 `(35*sleep + 35*(100-stress) + 30*energy + 50) / 100`
+  6. Summary Metric 선택 Rule 없음 → Mood 문장 + Context 문장 Template
+- Reference 구현(Scratch, Repository 미포함)으로 확인했다.
+  - 입력 0 ~ 100 전체 조합에서 Score가 0 ~ 100 범위를 벗어나지 않음
+  - Mood Item과 Context Item 이름이 겹치지 않음
+  - §16.8 Edge Case 표 20개 행이 Reference 계산 결과와 모두 일치
+- §16.9에 API Spec 예시와의 차이를 정리했다. DEC-014 확정 시 API Spec 예시와 Mood label 정렬이 필요하다.
+
+### Gate B Human Approval
+
+승인 일자: 2026-09-30
+
+- Human이 `docs/10-WELLNESS-RULE-PROPOSAL.md` 16절 확정 Rule을 승인했다.
+- 16절 16.1 ~ 16.8 내용을 `docs/09-DECISIONS.md` DEC-014에 반영하고 상태를 `Human Approved`로 변경했다.
+- Human Approval을 받아 `docs/05-API_SPEC.md`를 DEC-014 기준으로 맞췄다. (API Contract 변경)
+  - Mood Enum에 code / label 표 추가 (CALM label: 평온함 → 차분함)
+  - POST / Latest Response 예시: Score 78 → 76, Mood CALM → ENERGETIC, Summary 문장 변경
+  - `foods`, `music` 예시를 각각 2개(Mood Item, Context Item)로 변경
+  - History Response 예시의 Mood / Score도 같은 입력 기준으로 변경
+- 검증
+  - DEC-014 Edge Case 표 20개 행을 Reference 계산 결과와 다시 대조: 불일치 0건
+  - API Spec의 JSON 예시 4개가 모두 유효한 JSON임을 확인
+
+### 결과
+
+Gate B Human Review 완료 / DONE

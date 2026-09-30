@@ -387,35 +387,175 @@ Human Approved
 
 ## DEC-014 Wellness Analysis Rule
 
-### 현재 상태
+### 결정
 
-아직 확정하지 않는다.
+TASK-005 Gate B Human Review를 통해 Wellness Analysis / Recommendation Rule을 다음과 같이 확정한다.
 
-Backend Wellness Analysis Service 구현 전에 다음 사항을 정의해야 한다.
+- 검토 근거: `docs/10-WELLNESS-RULE-PROPOSAL.md` (16절 확정 Rule)
+- 승인 조합: Score Option A / Mood Option M2 / Weather Context only / Temperature Option T-A / Deterministic Recommendation / Template Summary
+- 아래 threshold와 문구는 의학적 기준이 아니라 MoodFit 교육용 Product Heuristic이다.
+- heartRate, respiratoryRate는 Score / Mood / Recommendation에 반영하지 않고 Dashboard 표시용으로만 사용한다.
+- 구현 시 threshold와 weight는 Controller가 아닌 Rule Policy class 한 곳에서 관리한다.
+
+### Wellness Score
 
 ```text
-Wellness Score 계산식
-
-Mood 판정 기준
-
-입력 Metric의 가중치
-
-Weather 영향 규칙
-
-Food Recommendation Rule
-
-Music Recommendation Rule
+stressScore   = 100 - stressLevel
+wellnessScore = (35 * sleepScore + 35 * stressScore + 30 * energyLevel + 50) / 100   // 정수 나눗셈
 ```
 
-Codex가 후보 Rule을 제안하고
-Human Review를 받은 후 구현한다.
+- Weight: Sleep 35% / Stress 35% / Energy 30% (Option A)
+- 정수 연산만 사용하므로 부동소수점 오차가 없다.
+- 결과는 가중합을 소수 첫째 자리에서 반올림(HALF_UP)한 값과 같다. 예: 3.50 → 4
+- 입력 범위(0 ~ 100) 안에서 결과는 항상 0 ~ 100이다. (0 ~ 100 전체 조합 검증 완료)
+- heartRate, respiratoryRate, temperature, weather는 Score에 반영하지 않는다.
 
-승인 전에는 분석 규칙을 임의로 구현하지 않는다.
+### Mood
+
+위에서부터 순서대로 판정하고, 처음 만족한 Mood를 사용한다. 모든 경계값은 포함(inclusive)이다.
+
+| 순서 | code | label | 조건 |
+|---:|---|---|---|
+| 1 | TIRED | 피곤함 | `energyLevel <= 35` 또는 `sleepScore <= 35` |
+| 2 | ENERGETIC | 활기 있음 | `energyLevel >= 70` 그리고 `stressLevel <= 45` 그리고 `sleepScore >= 60` |
+| 3 | CALM | 차분함 | `stressLevel <= 35` 그리고 `wellnessScore >= 65` |
+| 4 | BALANCED | 균형 있음 | 위 조건에 해당하지 않음 |
+
+- `wellnessScore`는 위 Wellness Score의 정수 결과를 사용한다.
+
+### Weather / Temperature → Context
+
+Weather와 Temperature는 Score와 Mood에 반영하지 않는다.
+Summary, Food, Music에서 공통으로 사용하는 Context 하나를 다음 순서로 결정한다.
+
+| 순서 | 조건 | Context |
+|---:|---|---|
+| 1 | `temperature <= 5` | COLD |
+| 2 | `temperature >= 30` | HOT |
+| 3 | 그 외 | `weather` 값 그대로 (CLEAR / CLOUDY / RAIN / SNOW) |
+
+- Temperature 경계값은 포함(inclusive)이다.
+- 극단 기온이 Weather보다 우선한다. 예: `-30` + `SNOW` → COLD, `30` + `RAIN` → HOT
+
+### Recommendation 공통
+
+- 외부 API를 사용하지 않는 Deterministic Rule이다. 같은 입력에는 항상 같은 결과를 반환한다.
+- `foods`, `music`은 각각 **항상 2개**를 반환한다.
+  - 첫 번째 Item: Mood Item
+  - 두 번째 Item: Context Item
+- Mood Item과 Context Item의 이름은 서로 겹치지 않는다. (중복 Item 없음)
+- 효능, 치료, 질환 관련 표현은 사용하지 않는다.
+
+### Food
+
+Mood Item:
+
+| Mood | name | tag | reason |
+|---|---|---|---|
+| TIRED | 따뜻한 수프와 곡물빵 | 편안한 식사 | 부담이 적고 천천히 먹기 좋은 메뉴입니다. |
+| ENERGETIC | 연어 샐러드 | 에너지 균형 | 가볍게 에너지를 유지하기 좋은 메뉴입니다. |
+| CALM | 두부 채소 덮밥 | 균형 식사 | 차분한 컨디션에 어울리는 균형 잡힌 메뉴입니다. |
+| BALANCED | 닭가슴살 라이스볼 | 균형 식사 | 한쪽으로 치우치지 않은 기본 메뉴입니다. |
+
+Context Item:
+
+| Context | name | tag | reason |
+|---|---|---|---|
+| COLD | 따뜻한 죽 | 따뜻한 메뉴 | 기온이 낮은 날에 어울리는 따뜻한 메뉴입니다. |
+| HOT | 그릭 요거트 볼 | 가벼운 메뉴 | 기온이 높은 날에 부담이 적은 메뉴입니다. |
+| RAIN | 따뜻한 채소 스튜 | 따뜻한 메뉴 | 비 오는 날씨에 어울리는 따뜻한 메뉴입니다. |
+| SNOW | 따뜻한 채소 스튜 | 따뜻한 메뉴 | 눈 오는 날씨에 어울리는 따뜻한 메뉴입니다. |
+| CLEAR | 과일 곁들인 그린 샐러드 | 가벼운 메뉴 | 맑은 날씨에 어울리는 산뜻한 메뉴입니다. |
+| CLOUDY | 따뜻한 현미 주먹밥 | 부담 적은 메뉴 | 흐린 날씨에 부담 없이 먹기 좋은 메뉴입니다. |
+
+### Music
+
+실제 외부 곡이 아니라 가상 Playlist를 사용한다. `artist`는 모두 `MoodFit Curated`이다.
+
+Mood Item:
+
+| Mood | title | tag | reason |
+|---|---|---|---|
+| TIRED | Soft Reset Playlist | 편안한 휴식 | 느린 페이스에 어울리는 분위기입니다. |
+| ENERGETIC | Light Motion Playlist | 가벼운 활력 | 높은 에너지에 어울리는 밝은 흐름입니다. |
+| CALM | Calm Focus Playlist | 차분한 분위기 | 차분한 컨디션을 유지하기 좋은 분위기입니다. |
+| BALANCED | Daily Balance Playlist | 균형 있는 분위기 | 과하지 않은 기본 분위기입니다. |
+
+Context Item:
+
+| Context | title | tag | reason |
+|---|---|---|---|
+| COLD | Warm Evening Playlist | 포근한 분위기 | 기온이 낮은 날에 어울리는 따뜻한 분위기입니다. |
+| HOT | Cool Breeze Playlist | 가벼운 분위기 | 기온이 높은 날에 어울리는 산뜻한 분위기입니다. |
+| RAIN | Rainy Indoor Playlist | 잔잔한 감성 | 비 오는 날의 실내 분위기에 어울립니다. |
+| SNOW | Warm Evening Playlist | 포근한 분위기 | 눈 오는 날에 어울리는 따뜻한 분위기입니다. |
+| CLEAR | Bright Morning Playlist | 밝은 분위기 | 맑은 날씨에 어울리는 밝은 분위기입니다. |
+| CLOUDY | Cloudy Focus Playlist | 집중하기 좋은 분위기 | 흐린 날씨에 차분히 집중하기 좋은 분위기입니다. |
+
+### Summary
+
+```text
+summary = Mood 문장 + " " + Context 문장
+```
+
+Metric 개별 선택은 하지 않는다. Mood 판정 자체가 주요 Metric 조합을 반영하기 때문이다.
+
+Mood 문장:
+
+| Mood | 문장 |
+|---|---|
+| TIRED | 현재 입력 기준으로 에너지나 수면 점수가 낮은 편이라 무리하지 않는 페이스가 어울립니다. |
+| ENERGETIC | 현재 입력 기준으로 에너지 수준은 비교적 높고, 스트레스 부담은 크지 않은 편입니다. |
+| CALM | 현재 입력 기준으로 스트레스 부담이 낮고 전반적인 컨디션이 안정적인 편입니다. |
+| BALANCED | 현재 입력 기준으로 컨디션이 한쪽으로 크게 치우치지 않은 편입니다. |
+
+Context 문장:
+
+| Context | 문장 |
+|---|---|
+| COLD | 기온이 낮은 날에는 따뜻한 식사와 느린 페이스가 어울립니다. |
+| HOT | 기온이 높은 날에는 가벼운 식사와 충분한 휴식이 어울립니다. |
+| RAIN | 비가 오는 날씨에는 차분한 실내 활동과 부담이 적은 식사가 어울립니다. |
+| SNOW | 눈이 오는 날씨에는 보온에 신경 쓰며 느린 페이스로 움직이는 것이 어울립니다. |
+| CLEAR | 맑은 날씨에는 가벼운 산책 같은 활동이 어울립니다. |
+| CLOUDY | 흐린 날씨에는 차분한 페이스로 하루를 이어 가는 것이 어울립니다. |
+
+- 진단, 질환, 위험, 치료, 이상 판정 표현을 사용하지 않는다.
+
+### Edge Case / Boundary 기대값
+
+아래 값은 이 결정의 Rule로 계산한 기대값이다.
+TASK-006 Unit Test의 기대값으로 사용한다. (heartRate / respiratoryRate는 결과에 영향이 없다.)
+
+| Case | sleep / stress / energy | temp / weather | Score | Mood | Context | Food (Mood, Context) | Music (Mood, Context) |
+|---|---|---|---:|---|---|---|---|
+| E01 API 예시 입력 | 86 / 31 / 74 | 19.0 / RAIN | 76 | ENERGETIC | RAIN | 연어 샐러드, 따뜻한 채소 스튜 | Light Motion, Rainy Indoor |
+| E02 모든 입력 최소 | 0 / 0 / 0 | 19.0 / RAIN | 35 | TIRED | RAIN | 따뜻한 수프와 곡물빵, 따뜻한 채소 스튜 | Soft Reset, Rainy Indoor |
+| E03 모든 입력 최대 | 100 / 100 / 100 | 19.0 / RAIN | 65 | BALANCED | RAIN | 닭가슴살 라이스볼, 따뜻한 채소 스튜 | Daily Balance, Rainy Indoor |
+| E04 높은 Energy + 높은 Stress | 80 / 80 / 90 | 19.0 / RAIN | 62 | BALANCED | RAIN | 닭가슴살 라이스볼, 따뜻한 채소 스튜 | Daily Balance, Rainy Indoor |
+| E05 낮은 Energy + 낮은 Stress | 70 / 10 / 30 | 19.0 / RAIN | 65 | TIRED | RAIN | 따뜻한 수프와 곡물빵, 따뜻한 채소 스튜 | Soft Reset, Rainy Indoor |
+| E06 energy = 35 (TIRED 경계 포함) | 80 / 20 / 35 | 19.0 / RAIN | 67 | TIRED | RAIN | 따뜻한 수프와 곡물빵, 따뜻한 채소 스튜 | Soft Reset, Rainy Indoor |
+| E07 sleep = 35 (TIRED 경계 포함) | 35 / 20 / 80 | 19.0 / RAIN | 64 | TIRED | RAIN | 따뜻한 수프와 곡물빵, 따뜻한 채소 스튜 | Soft Reset, Rainy Indoor |
+| E08 ENERGETIC 경계 포함 | 60 / 45 / 70 | 19.0 / RAIN | 61 | ENERGETIC | RAIN | 연어 샐러드, 따뜻한 채소 스튜 | Light Motion, Rainy Indoor |
+| E09 energy = 69 (ENERGETIC 미달) | 60 / 45 / 69 | 19.0 / RAIN | 61 | BALANCED | RAIN | 닭가슴살 라이스볼, 따뜻한 채소 스튜 | Daily Balance, Rainy Indoor |
+| E10 stress = 46 (ENERGETIC 미달) | 60 / 46 / 70 | 19.0 / RAIN | 61 | BALANCED | RAIN | 닭가슴살 라이스볼, 따뜻한 채소 스튜 | Daily Balance, Rainy Indoor |
+| E11 CALM 경계 포함 (stress 35, Score 65) | 70 / 35 / 58 | 19.0 / RAIN | 65 | CALM | RAIN | 두부 채소 덮밥, 따뜻한 채소 스튜 | Calm Focus, Rainy Indoor |
+| E12 Score 64 (CALM 미달) | 70 / 35 / 55 | 19.0 / RAIN | 64 | BALANCED | RAIN | 닭가슴살 라이스볼, 따뜻한 채소 스튜 | Daily Balance, Rainy Indoor |
+| E13 반올림 경계 (3.50 → 4) | 10 / 100 / 0 | 19.0 / RAIN | 4 | TIRED | RAIN | 따뜻한 수프와 곡물빵, 따뜻한 채소 스튜 | Soft Reset, Rainy Indoor |
+| E14 temperature = 5 (COLD 포함) | 70 / 30 / 60 | 5.0 / CLEAR | 67 | CALM | COLD | 두부 채소 덮밥, 따뜻한 죽 | Calm Focus, Warm Evening |
+| E15 temperature = 5.1 (COLD 아님) | 70 / 30 / 60 | 5.1 / CLEAR | 67 | CALM | CLEAR | 두부 채소 덮밥, 과일 곁들인 그린 샐러드 | Calm Focus, Bright Morning |
+| E16 temperature = 30 (HOT 포함) | 70 / 30 / 60 | 30.0 / RAIN | 67 | CALM | HOT | 두부 채소 덮밥, 그릭 요거트 볼 | Calm Focus, Cool Breeze |
+| E17 temperature = 29.9 (HOT 아님) | 70 / 30 / 60 | 29.9 / RAIN | 67 | CALM | RAIN | 두부 채소 덮밥, 따뜻한 채소 스튜 | Calm Focus, Rainy Indoor |
+| E18 temperature 최소 -30 + SNOW | 70 / 30 / 60 | -30.0 / SNOW | 67 | CALM | COLD | 두부 채소 덮밥, 따뜻한 죽 | Calm Focus, Warm Evening |
+| E19 temperature 최대 50 + CLEAR | 70 / 30 / 60 | 50.0 / CLEAR | 67 | CALM | HOT | 두부 채소 덮밥, 그릭 요거트 볼 | Calm Focus, Cool Breeze |
+| E20 CLOUDY 보통 기온 | 70 / 30 / 60 | 18.0 / CLOUDY | 67 | CALM | CLOUDY | 두부 채소 덮밥, 따뜻한 현미 주먹밥 | Calm Focus, Cloudy Focus |
+
+Music 열의 이름은 `Playlist`를 생략해 표기했다.
 
 ### 상태
 
 ```text
-Pending Human Approval
+Human Approved
 ```
 
 ---

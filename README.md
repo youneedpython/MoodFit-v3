@@ -26,12 +26,12 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-004 — Backend Domain / API Skeleton 완료** 단계입니다.
+현재 Repository는 **TASK-005 — Wellness Analysis / Recommendation Rule Approval 완료** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-005 — Wellness Analysis / Recommendation Rule Approval
+TASK-006 — Backend Domain / API Core
 READY (실행 지시 대기)
 ```
 
@@ -65,7 +65,8 @@ Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification�
 `scripts/verify.ps1`, `scripts/verify.sh` Local Verification Harness가 구성되었고 성공/실패 경로 검증과 Human Review가 완료되었습니다.
 DEC-017 기준 GitHub Actions CI(`.github/workflows/ci.yml`)가 구성되었고, Remote CI에서 `frontend` / `backend` Job이 모두 성공했으며 Human Review가 완료되었습니다.
 TASK-004 Backend API Skeleton 구현, Local / Remote CI Verification, Human Review가 완료되었습니다.
-현재는 사용자의 명시적인 TASK-005 실행 지시를 기다리는 상태입니다.
+TASK-005 Gate B Human Review를 거쳐 Wellness Analysis / Recommendation Rule이 DEC-014로 확정되었습니다.
+현재는 사용자의 명시적인 TASK-006 실행 지시를 기다리는 상태입니다.
 
 ## 현재 구조
 
@@ -102,10 +103,11 @@ today-v3/
 │   ├── 06-PLAN.md
 │   ├── 07-TASKS.md
 │   ├── 08-WORK_LOG.md
-│   └── 09-DECISIONS.md
+│   ├── 09-DECISIONS.md
+│   └── 10-WELLNESS-RULE-PROPOSAL.md
 └── prompts/
     ├── README.md
-    └── 01 ~ 13 Prompt History
+    └── 01 ~ 15 Prompt History
 ```
 
 ## 보조 스크립트
@@ -137,6 +139,7 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-005 Wellness Analysis / Recommendation Rule 후보 제안
-2. Gate B Human Review 및 DEC-014 승인
-3. TASK-006 Backend Domain / API Core 준비
+1. TASK-006 Persistence Dependency / DB Schema Gate C 검토
+2. TASK-006 Backend Domain / API Core 구현 (DEC-014 Rule 적용)
+3. Local Verification 및 Remote CI 확인
+4. TASK-006 Human Review

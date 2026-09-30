@@ -30,12 +30,13 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 Project Bootstrap, TASK-002 Initial Local Verification Harness, TASK-003 Initial GitHub Actions CI, TASK-004 Backend Domain / API Skeleton은 DONE 상태이다.
+TASK-001 ~ TASK-005는 DONE 상태이다.
+DEC-014 Wellness Analysis Rule은 Gate B에서 Human Approved 되었다.
 
 Current Task:
 
 ```text
-TASK-005 — Wellness Analysis / Recommendation Rule Approval
+TASK-006 — Backend Domain / API Core
 ```
 
 Status:
@@ -44,8 +45,9 @@ Status:
 READY
 ```
 
-TASK-005는 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
-TASK-005는 Rule 후보 제안과 Gate B Human Review까지만 수행하며, DEC-014 승인 전에는 Rule을 구현하지 않는다.
+TASK-006은 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+Wellness Analysis / Recommendation은 DEC-014를 그대로 구현하며, Rule을 임의로 변경하지 않는다.
+Persistence Dependency와 DB Schema는 아직 승인되지 않았으므로 구현 전 Gate C를 적용한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 
@@ -59,8 +61,7 @@ Task 실행 시에는 다음 규칙을 따른다.
 - BLOCKED Task는 실행하지 않는다.
 - Task 범위를 벗어난 작업은 수행하지 않는다.
 - 새로운 승인되지 않은 Dependency가 필요하면 Gate C를 적용한다.
-- DEC-014 Wellness Analysis Rule은 승인 전 구현하지 않는다.
-- TASK-004에서는 Wellness Score 계산, Mood 판정, Recommendation Rule을 구현하지 않는다.
+- DEC-014 Wellness Analysis Rule은 승인된 내용 그대로 구현하며, 변경이 필요하면 Gate B를 다시 거친다.
 
 ---
 
