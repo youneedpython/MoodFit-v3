@@ -26,13 +26,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-006 — Backend Domain / API Core 완료** 단계입니다.
+현재 Repository는 **TASK-007 — Frontend Foundation / Design System 완료** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-007 — Frontend Foundation / Design System
-IN_PROGRESS
+TASK-008 — Daily Check-in
+READY (실행 지시 대기)
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -67,7 +67,8 @@ DEC-017 기준 GitHub Actions CI(`.github/workflows/ci.yml`)가 구성되었고,
 TASK-004 Backend API Skeleton 구현, Local / Remote CI Verification, Human Review가 완료되었습니다.
 TASK-005 Gate B Human Review를 거쳐 Wellness Analysis / Recommendation Rule이 DEC-014로 확정되었습니다.
 TASK-006에서 Check-in 저장, DEC-014 분석 / 추천, 최신 / History 조회를 구현했고 Local / Remote CI Verification, Local MySQL 실행 확인, Human Review를 완료했습니다.
-현재는 TASK-007 Frontend Foundation / Design System을 진행하는 상태입니다.
+TASK-007에서 Frontend Route 구조, 공통 Layout / Component, Design Token, API Client를 구성했고 Local / Remote CI Verification과 Human Review를 완료했습니다.
+현재는 사용자의 명시적인 TASK-008 실행 지시를 기다리는 상태입니다.
 
 ## 현재 구조
 
@@ -165,7 +166,6 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-007 Frontend Foundation / Design System 실행
-2. 필요 시 UI / Frontend Dependency Gate C 검토
-3. Local Verification 및 Remote CI 확인
-4. TASK-007 Human Review
+1. TASK-008 Daily Check-in 실행
+2. Local Verification 및 Remote CI 확인
+3. TASK-008 Human Review
