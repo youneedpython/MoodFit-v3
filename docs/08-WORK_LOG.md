@@ -1040,9 +1040,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS
-
-Local Verification 완료 / Remote CI Verification 대기
+DONE
 
 ### 작업 내용
 
@@ -1113,8 +1111,31 @@ Local Verification 완료 / Remote CI Verification 대기
 
 ### Remote CI Verification
 
-Pending — Commit / Push 후 확인 필요
+Commit `0887711`을 `main`에 push하여 Remote CI를 실행했다.
+
+- Workflow run: https://github.com/youneedpython/today-v3/actions/runs/36693834801
+- 결과: PASS (`success`)
+
+| Job | 결과 | 소요 시간 |
+|---|---|---|
+| `frontend` | success | 약 17초 (Test 59건 포함) |
+| `backend` | success | 약 62초 |
+
+- `Sync Milestones`: success (새로 DONE이 된 Task 없음)
+
+Remote CI Verification 완료 후 TASK-008 상태를 REVIEW로 변경했다.
+
+### Human Review 승인
+
+승인 일자: 2026-09-30
+
+- Human이 Local에서 Backend(MySQL `moodfit_v3`)와 Frontend 개발 서버를 함께 실행해 다음을 확인했다.
+  - 빈 값 / 범위 밖 값 제출 시 필드 옆 Validation Error 표시
+  - 정상 입력 제출 시 저장과 결과 요약 표시
+  - Backend 중지 상태에서 제출 시 오류 안내와 `다시 시도` 표시
+- Human이 TASK-008 Human Review를 승인했다.
+- TASK-008 상태를 DONE으로 변경하고, TASK-009를 READY로 변경했다.
 
 ### 결과
 
-Local Verification PASS / Remote CI Verification 대기
+Human Review 완료 / DONE

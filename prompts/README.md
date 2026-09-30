@@ -88,4 +88,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 16 | TASK-006 Persistence Gate C Review | Gate C Review | 완료 |
 | 17 | TASK-006 Post-completion Cleanup | Cleanup | 완료 |
 | 18 | TASK-007 Frontend Foundation / Design System | Implementation | 완료 |
-| 19 | TASK-008 Daily Check-in | Implementation | 실행 중 |
+| 19 | TASK-008 Daily Check-in | Implementation | 완료 |
