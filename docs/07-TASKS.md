@@ -33,19 +33,18 @@ DONE
 
 ## 3. Current Task
 
-TASK-006 — Backend Domain / API Core
+TASK-007 — Frontend Foundation / Design System
 
 Status:
 
 ```text
-IN_PROGRESS
+READY
 ```
 
-TASK-001 ~ TASK-005는 DONE 상태이다.
-Gate B Human Approval이 완료되었으며, Wellness Analysis / Recommendation Rule은 `docs/09-DECISIONS.md` DEC-014를 Source of Truth로 사용한다.
-TASK-006은 Human 실행 지시에 따라 시작되었다.
-Persistence Gate C Review(`prompts/16-TASK-006-PERSISTENCE-GATE-C-REVIEW.md`)는 Human Approved 되었으며, 승인 결과는 `docs/09-DECISIONS.md` DEC-019를 Source of Truth로 사용한다.
-TASK-006 구현은 DEC-014와 DEC-019 범위 안에서만 진행한다.
+TASK-001 ~ TASK-006은 DONE 상태이다.
+TASK-007은 선행 Task 조건을 충족하여 실행 가능한 상태이다.
+단, TASK-007 실행 전 별도 Human 지시가 필요하다.
+새로운 UI Library 또는 외부 Dependency가 필요하면 Gate C를 적용한다.
 
 ---
 
@@ -58,8 +57,8 @@ TASK-006 구현은 DEC-014와 DEC-019 범위 안에서만 진행한다.
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | DONE | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
 | TASK-004 | Milestone 4 | Backend Domain / API Skeleton | DONE | TASK-001, TASK-002, TASK-003 완료 (충족), Human 실행 승인 완료, Remote CI 성공 | Gate C 조건부 |
 | TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | DONE | TASK-004 완료 (충족), Human 실행 승인 완료, DEC-014 Human Approved | Gate B 승인 완료 |
-| TASK-006 | Milestone 6 | Backend Domain / API Core | IN_PROGRESS | TASK-004 완료 (충족), TASK-005 완료 (충족), Gate B 승인 (DEC-014), Persistence Gate C 승인 (DEC-019) | Gate C 승인 완료 |
-| TASK-007 | Milestone 7 | Frontend Foundation / Design System | BLOCKED | TASK-001, TASK-002, TASK-003 완료, Gate A 승인 | Gate C 조건부 |
+| TASK-006 | Milestone 6 | Backend Domain / API Core | DONE | TASK-004 완료 (충족), TASK-005 완료 (충족), Gate B 승인 (DEC-014), Persistence Gate C 승인 (DEC-019) | Gate C 승인 완료 |
+| TASK-007 | Milestone 7 | Frontend Foundation / Design System | READY | TASK-001, TASK-002, TASK-003 완료 (충족), Gate A 승인 (충족) | Gate C 조건부 |
 | TASK-008 | Milestone 8 | Daily Check-in | BLOCKED | TASK-006, TASK-007 완료 | Gate C 조건부 |
 | TASK-009 | Milestone 9 | Dashboard | BLOCKED | TASK-006, TASK-007, TASK-008 완료 | Gate C 조건부 |
 | TASK-010 | Milestone 10 | History / Trend | BLOCKED | TASK-006, TASK-007, TASK-009 완료 | Gate C 조건부 |
@@ -574,11 +573,11 @@ DEC-014 Wellness Analysis Rule 후보를 제안하고 Human Review를 받는다.
 ### 상태
 
 ```text
-IN_PROGRESS
+DONE
 ```
 
-선행 Task인 TASK-005는 DONE 상태이며 DEC-014가 Human Approved 되었다.
-TASK-006은 Human 실행 지시에 따라 시작되었으며, Persistence Gate C Human Approval이 완료되었다.
+TASK-006은 구현, Human Review 보완, Local Verification, Remote CI Verification, Local MySQL 실행 확인, Human Review를 완료했다.
+작업 결과와 Verification 기록은 `docs/08-WORK_LOG.md`를 따른다.
 Persistence Dependency와 DB Schema는 `docs/09-DECISIONS.md` DEC-019를 Source of Truth로 사용한다.
 
 ### 목적
@@ -636,8 +635,11 @@ Persistence Dependency와 DB Schema는 `docs/09-DECISIONS.md` DEC-019를 Source 
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
+
+선행 Task인 TASK-001, TASK-002, TASK-003은 DONE 상태이며 Gate A는 Human Approved 되었다.
+TASK-007 실행 전 별도 Human 지시가 필요하다.
 
 ### 목적
 

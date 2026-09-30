@@ -30,25 +30,23 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-005는 DONE 상태이다.
-DEC-014 Wellness Analysis Rule은 Gate B에서 Human Approved 되었다.
+TASK-001 ~ TASK-006은 DONE 상태이다.
+Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019를 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-006 — Backend Domain / API Core
+TASK-007 — Frontend Foundation / Design System
 ```
 
 Status:
 
 ```text
-IN_PROGRESS
+READY
 ```
 
-TASK-006은 Human 실행 지시에 따라 시작되었으며, Persistence Gate C Human Approval이 완료되었다.
-Wellness Analysis / Recommendation은 DEC-014를 그대로 구현하며, Rule을 임의로 변경하지 않는다.
-Persistence Gate C Human Approval은 완료되었으며, Persistence Dependency와 DB Schema는 DEC-019를 Source of Truth로 사용한다.
-TASK-006은 DEC-014와 DEC-019 범위 안에서만 구현한다.
+TASK-007은 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+새로운 UI Library 또는 외부 Dependency가 필요하면 Gate C를 적용한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

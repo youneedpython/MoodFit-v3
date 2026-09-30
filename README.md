@@ -26,13 +26,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-005 — Wellness Analysis / Recommendation Rule Approval 완료** 단계입니다.
+현재 Repository는 **TASK-006 — Backend Domain / API Core 완료** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-006 — Backend Domain / API Core
-IN_PROGRESS (Persistence Gate C Human Approved)
+TASK-007 — Frontend Foundation / Design System
+READY (실행 지시 대기)
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -66,7 +66,8 @@ Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification�
 DEC-017 기준 GitHub Actions CI(`.github/workflows/ci.yml`)가 구성되었고, Remote CI에서 `frontend` / `backend` Job이 모두 성공했으며 Human Review가 완료되었습니다.
 TASK-004 Backend API Skeleton 구현, Local / Remote CI Verification, Human Review가 완료되었습니다.
 TASK-005 Gate B Human Review를 거쳐 Wellness Analysis / Recommendation Rule이 DEC-014로 확정되었습니다.
-현재는 TASK-006 Persistence Dependency / DB Schema Gate C Human Approval이 완료되어 Backend Domain / API Core 구현을 진행하는 상태입니다.
+TASK-006에서 Check-in 저장, DEC-014 분석 / 추천, 최신 / History 조회를 구현했고 Local / Remote CI Verification, Local MySQL 실행 확인, Human Review를 완료했습니다.
+현재는 사용자의 명시적인 TASK-007 실행 지시를 기다리는 상태입니다.
 
 ## 현재 구조
 
@@ -110,6 +111,27 @@ today-v3/
     └── 01 ~ 16 Prompt History
 ```
 
+## Local 실행
+
+Test와 CI는 H2 In-memory DB로 실행되므로 MySQL이 필요 없습니다.
+Backend를 직접 실행할 때만 Local MySQL이 필요합니다.
+
+```bash
+# 1. v3 전용 DB 생성 (최초 1회)
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS moodfit_v3 CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
+
+# 2. .env.example을 복사해 .env.local 작성 (Commit 금지)
+#    DB_URL=jdbc:mysql://localhost:3306/moodfit_v3
+
+# 3. 환경변수 불러오기 (Git Bash, 새 터미널마다)
+set -a; source .env.local; set +a
+
+# 4. Backend 실행 (Flyway가 Table을 자동 생성)
+cd backend && ./gradlew bootRun
+```
+
+- DB 이름은 `moodfit_v3`처럼 v3 전용으로 사용합니다. today-v2가 사용하는 `moodfit` DB를 공유하면 Flyway가 실행을 중단합니다.
+
 ## 보조 스크립트
 
 - `scripts/create-milestones.js`: `docs/07-TASKS.md`의 Milestone 1~12를 GitHub Milestone으로 생성하는 일회성 도구입니다. TASK 산출물이나 Local Verification / CI 대상이 아닙니다.
@@ -139,6 +161,7 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-006 Backend Domain / API Core 구현 (DEC-014, DEC-019 적용)
-2. Local Verification 및 Remote CI 확인
-3. TASK-006 Human Review
+1. TASK-007 Frontend Foundation / Design System 실행
+2. 필요 시 UI / Frontend Dependency Gate C 검토
+3. Local Verification 및 Remote CI 확인
+4. TASK-007 Human Review

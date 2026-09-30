@@ -689,9 +689,7 @@ Gate B Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS
-
-Remote CI Verification Pending
+DONE
 
 ### 작업 내용
 
@@ -815,10 +813,49 @@ Human Review에서 다음 문제가 발견되어 Human 지시에 따라 Claude�
 
 ### Remote CI Verification
 
-Pending.
+Human Review 보완 후 commit `e89ca5e`를 `main`에 push하여 Remote CI를 실행했다.
 
-이번 Codex 작업에서는 git commit과 git push를 수행하지 않았으므로 Remote CI는 아직 실행되지 않았다.
+- Workflow run: https://github.com/youneedpython/today-v3/actions/runs/36675278212
+- 결과: PASS (`success`)
+
+| Job | 결과 | 소요 시간 |
+|---|---|---|
+| `frontend` | success | 약 12초 |
+| `backend` | success | 약 68초 |
+
+- Remote CI에서도 H2 In-memory DB로 Backend Test가 실행되며 MySQL Service Container는 사용하지 않는다.
+
+Remote CI Verification 완료 후 TASK-006 상태를 REVIEW로 변경했다.
+
+### Human Review — Local MySQL 실행 확인
+
+검토 일자: 2026-09-30
+
+Human이 Local MySQL 8.0에서 Backend를 직접 실행(`./gradlew bootRun`)하고 API를 호출해 확인했다.
+
+발생한 문제와 해결:
+
+- `'url' must start with "jdbc"`: DB 환경변수를 불러오기 전에 실행해 발생했다. `.env.local`을 환경변수로 불러온 뒤 해결되었다.
+- `Found non-empty schema(s) moodfit but no schema history table`: Local `moodfit` DB를 today-v2가 이미 사용 중이었다. (`recommendation_history` 등 3개 Table과 데이터 존재)
+  - v2 데이터를 보존하기 위해 `baselineOnMigrate`를 사용하거나 v2 Table을 삭제하지 않았다.
+  - v3 전용 DB `moodfit_v3`를 생성하고 `.env.local`의 `DB_URL`만 변경해 해결했다. Repository 파일은 변경하지 않았다.
+
+확인 결과 (`moodfit_v3`):
+
+- Flyway: `1 create checkin tables` 적용 성공
+- `POST /api/check-ins` 저장 결과: Score `76`, Mood `ENERGETIC`, Weather `RAIN`, Temperature `19.0`
+- Recommendation 저장: Food `연어 샐러드`(position 0), `따뜻한 채소 스튜`(position 1) / Music `Light Motion Playlist`, `Rainy Indoor Playlist`
+- 한글 문구가 `utf8mb4`로 올바르게 저장됨을 저장 Byte로 확인했다.
+- `recorded_at`은 UTC로 저장되었다.
+- today-v2의 `moodfit` DB Table 3개는 그대로 유지되었다.
+
+### Human Review 승인
+
+승인 일자: 2026-09-30
+
+- Human이 TASK-006 Human Review를 승인했다.
+- TASK-006 상태를 DONE으로 변경하고, TASK-007을 READY로 변경했다.
 
 ### 결과
 
-Local Verification PASS / Remote CI Verification Pending / Human Review 대기
+Human Review 완료 / DONE
