@@ -1,0 +1,226 @@
+.checkin-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.checkin-error {
+  margin-bottom: var(--space-4);
+}
+
+.checkin-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.checkin-group__legend {
+  padding: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.checkin-group__description {
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.checkin-group__fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.checkin-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+fieldset.checkin-field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.checkin-field__label {
+  padding: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.checkin-field__unit {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.checkin-field__input {
+  width: 100%;
+  min-height: var(--tap-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkin-field__input:focus-visible {
+  border-color: var(--color-focus);
+  border-radius: var(--radius-md);
+}
+
+.checkin-field__input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.checkin-field__input:disabled {
+  opacity: 0.6;
+}
+
+.checkin-field__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.checkin-field__error {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-danger);
+}
+
+.checkin-weather {
+  grid-column: span 2;
+}
+
+.checkin-weather__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.checkin-weather__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target-min);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.checkin-weather__option:has(input:checked) {
+  border-color: var(--color-accent-blue);
+  background: var(--color-surface-raised);
+}
+
+.checkin-weather__option input {
+  accent-color: var(--color-accent-blue);
+}
+
+.checkin-form__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.checkin-result__header {
+  margin-bottom: var(--space-4);
+}
+
+.checkin-result__title {
+  font-size: var(--font-size-xl);
+}
+
+.checkin-result__title:focus {
+  outline: none;
+}
+
+.checkin-result__time {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.checkin-result__score {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.checkin-result__score p {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.checkin-result__score-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.checkin-result__score-value {
+  font-size: var(--font-size-metric);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.checkin-result__summary {
+  margin-top: var(--space-4);
+}
+
+.checkin-result__recommendations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.checkin-result__recommendations h3 {
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+}
+
+.checkin-result__recommendations ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checkin-result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+@media (max-width: 860px) {
+  .checkin-group__fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .checkin-group__fields,
+  .checkin-result__recommendations {
+    grid-template-columns: 1fr;
+  }
+
+  .checkin-weather {
+    grid-column: auto;
+  }
+
+  .checkin-form__actions .button,
+  .checkin-result__actions .button {
+    width: 100%;
+  }
+}

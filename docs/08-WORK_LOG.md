@@ -1033,3 +1033,88 @@ Remote CI Verification 완료 후 TASK-007 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-008 — Daily Check-in
+
+### 상태
+
+IN_PROGRESS
+
+Local Verification 완료 / Remote CI Verification 대기
+
+### 작업 내용
+
+- `src/features/checkin/checkinForm.ts`: 입력 정의와 Client-side Validation 보조
+  - 기준은 `docs/05-API_SPEC.md` 4절 Validation, Backend `CreateCheckinRequest`와 같다.
+  - Metric 5개는 정수, Temperature는 -30.0 ~ 50.0 소수 첫째 자리까지, Weather는 필수
+  - 한국어 범위 안내 / 오류 메시지 제공
+  - Backend `VALIDATION_ERROR`의 `fieldErrors`는 화면에 있는 필드만 같은 한국어 안내로 변환한다. (Backend 메시지는 실행 환경 Locale에 따라 언어가 달라질 수 있음)
+- `src/features/checkin/CheckinPage.tsx`: Daily Check-in 화면 (UX Spec 4절 CHECK-001)
+  - 입력 그룹: 신체 리듬(심박수, 호흡수), 컨디션(수면 / 스트레스 / 에너지), 날씨(기온, 날씨 상태 Radio)
+  - 필드마다 Label, 단위, 범위 안내(`aria-describedby`)
+  - Validation Error를 해당 필드 바로 아래에 표시하고 `aria-invalid`를 설정, 첫 번째 잘못된 필드로 Focus 이동
+  - 입력을 수정하면 해당 필드 오류를 지운다.
+  - 상태: Initial / Validation Error / Submitting / Success / API Error
+  - 중복 제출 방지: 제출 중 Button과 입력 비활성화, `useRef` 기반 제출 중 Guard (Button 비활성화 전 연속 제출도 차단)
+  - API Error: 네트워크 오류는 연결 안내, 그 외 오류는 일반 한국어 안내. 입력값을 유지하고 `다시 시도` 제공
+- `src/features/checkin/CheckinResultSummary.tsx`: 저장 완료 후 결과 요약
+  - Backend 응답의 Mood, Wellness Score, Summary, 추천 음식 / 음악, 기록 시각을 표시한다. (분석 Rule을 Frontend에 구현하지 않음)
+  - 결과 제목으로 Focus 이동, `Dashboard로 이동` / `새로 입력하기` 제공
+- `src/features/checkin/CheckinPage.css`: Form / 결과 Style (Desktop 3열, Tablet 2열, Mobile 1열, Mobile에서 Button 전체 폭)
+
+### Dependency / Contract
+
+- 새로운 Dependency 추가 없음. `package.json`, `package-lock.json`, `vite.config.ts` 변경 없음.
+- API Contract, Backend, DB Schema 변경 없음. TASK-007의 `checkinApi.create`를 그대로 사용했다.
+
+### Verification
+
+- `npm test`: PASS, Test File 7개 / Test 57건 (TASK-008 추가 32건)
+  - `checkinForm.test.ts`: 정상 변환, 필수 입력, 필드별 경계값 19건(범위 양끝 포함/초과, 정수 여부, Temperature 소수 둘째 자리), 한국어 메시지, 서버 오류 변환
+  - `CheckinPage.test.tsx`: 입력 그룹과 범위 안내, 필드 옆 오류 / `aria-invalid` / 첫 오류 Focus / API 미호출, 수정 시 오류 해제, 제출 1회 / 제출 중 비활성화 / 결과 표시, 새로 입력하기, 서버 Validation 오류의 필드 표시, 네트워크 오류 후 입력 유지와 재시도, 서버 오류 일반 안내
+- 중복 제출 Guard 검증: `useRef` Guard를 임시로 제거하면 "fetch 1회 호출" Test가 2회 호출로 실패함을 확인하고 원복했다.
+- `npm run build`: PASS
+- 화면 검토: `vite preview` 결과를 390px / 768px / 1280px로 캡처해 확인. 가로 넘침 없음, 입력 그룹 / 범위 안내 표시, 390px에서 1열과 전체 폭 Button
+- Backend 관련 Test 재실행: PASS (`WellnessRulePolicyTests` 36건, `CheckinControllerTests` 13건, `WellnessCheckinRepositoryTests` 3건, `MoodFitApplicationTests` 1건)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
+  - 새 Frontend Test는 기존 `npm test`에 포함되므로 Script / CI Workflow 변경 없이 검증 범위가 확장된다.
+
+### Human Review 보완
+
+검토 일자: 2026-09-30
+
+발견 내용:
+
+- Retry Validation UX 문제
+  - API 오류 후 오류 상태에서도 입력을 수정할 수 있다.
+  - 입력을 잘못된 값(예: 심박수 200)으로 고친 뒤 `다시 시도`를 누르면 `handleRetry`가 Validation 실패 시 아무 처리 없이 종료했다.
+  - Field Error 미표시, Focus 미이동, 기존 API Error 상태 유지로 버튼이 반응하지 않는 것처럼 보였다.
+- 같은 원인으로, 오류 상태에서 잘못된 값으로 고친 뒤 `분석 요청`을 누르면 Field Error는 표시되지만 API Error 알림이 함께 남아 있었다. (Claude 사전 검토에서 추가 확인)
+- README가 `01 ~ 17 Prompt History`, Frontend `Skeleton` 표현으로 남아 있었다. (TASK-007, TASK-008 진행 중 갱신 누락)
+
+보완 내용:
+
+- `CheckinPage.tsx`: 제출과 재시도가 같은 `validateAndSubmit()` 경로를 사용하도록 통합했다.
+  - Validation 실패 시 API를 호출하지 않고, Field Error 갱신, 이전 API Error 해제(`editing` 상태), 첫 번째 잘못된 필드로 Focus 이동
+  - 기존 `handleRetry`를 제거하고 `ErrorState`의 재시도에 `validateAndSubmit`을 연결했다.
+- `CheckinPage.test.tsx`: API 오류 후 입력을 잘못 고치고 `다시 시도` / `분석 요청`을 누르는 Test 2건 추가
+  - API 추가 호출 없음, 필드 옆 오류, `aria-invalid`, 첫 오류 Focus, `role="alert"` 해제
+  - API Error 해제 코드를 임시로 제거하면 두 Test가 모두 실패함을 확인하고 원복했다.
+- README: Prompt History `01 ~ 19`, Frontend 설명 `React + TypeScript + Vite (Router / Design System / API Client / Daily Check-in)`로 동기화. 미구현 Dashboard / History 기능은 적지 않았다.
+
+재검증 결과:
+
+- `npm test`: PASS, Test File 7개 / Test 59건
+- `npm run build`: PASS
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
+  - Backend Test Regression 없음 (`WellnessRulePolicyTests` 36건, `CheckinControllerTests` 13건, `WellnessCheckinRepositoryTests` 3건, `MoodFitApplicationTests` 1건)
+
+### Remote CI Verification
+
+Pending — Commit / Push 후 확인 필요
+
+### 결과
+
+Local Verification PASS / Remote CI Verification 대기
