@@ -84,10 +84,12 @@ today-v3/
 ├── frontend/
 │   └── React + TypeScript + Vite Skeleton
 ├── backend/
-│   ├── Spring Boot + Gradle Wrapper Skeleton
+│   ├── Spring Boot + Spring Data JPA + Flyway (Check-in API)
 │   └── src/main/java/com/moodfit/
+│       ├── config/
 │       ├── controller/
 │       ├── dto/
+│       ├── entity/
 │       ├── exception/
 │       ├── repository/
 │       └── service/
@@ -108,7 +110,7 @@ today-v3/
 │   └── 10-WELLNESS-RULE-PROPOSAL.md
 └── prompts/
     ├── README.md
-    └── 01 ~ 16 Prompt History
+    └── 01 ~ 17 Prompt History
 ```
 
 ## Local 실행
@@ -131,6 +133,8 @@ cd backend && ./gradlew bootRun
 ```
 
 - DB 이름은 `moodfit_v3`처럼 v3 전용으로 사용합니다. today-v2가 사용하는 `moodfit` DB를 공유하면 Flyway가 실행을 중단합니다.
+- `.env.local`은 `.gitignore`로 제외되어 Git Commit 대상이 아닙니다.
+- 프로젝트 ZIP / 학생 배포본을 만들 때는 `.env.local`과 `.git/` 폴더를 제외합니다. 폴더 전체를 압축하면 Git 제외 대상 파일도 함께 포함됩니다.
 
 ## 보조 스크립트
 

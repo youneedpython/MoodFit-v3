@@ -803,7 +803,7 @@ Human Review에서 다음 문제가 발견되어 Human 지시에 따라 Claude�
 - `.\gradlew.bat test`
   - PASS
   - `WellnessRulePolicyTests` 36건, `CheckinControllerTests` 13건, `WellnessCheckinRepositoryTests` 3건, `MoodFitApplicationTests` 1건
-- `powershell -ExecutionPolicy Bypass -File .\scriptserify.ps1`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`
   - PASS
 
 참고:
@@ -859,3 +859,76 @@ Human이 Local MySQL 8.0에서 Backend를 직접 실행(`./gradlew bootRun`)하�
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## Cleanup Checkpoint — TASK-006 Post-completion Cleanup
+
+### 상태
+
+실행 완료 / Human Review 완료
+
+- 별도 Feature Task가 아니라 TASK-006 완료 후 Cleanup Checkpoint이다. (`prompts/17-TASK-006-POST-COMPLETION-CLEANUP.md`)
+- TASK-006 DONE 유지, TASK-007 READY 유지. TASK-007은 시작하지 않았다.
+
+### Preflight
+
+- `git status --short`: 변경 없음 (clean)
+- `git log -5 --oneline`: 최신 commit `3b3dcdb`
+- `docs/07-TASKS.md`: TASK-006 `DONE`, TASK-007 `READY`
+- 예상하지 못한 변경 없음
+
+### 작업 내용
+
+- `repository/package-info.java`: TASK-004 시절 "Repository boundary reserved for TASK-006..." 설명을 현재 설명(Spring Data JPA, DEC-019 `WellnessCheckin` 저장)으로 교체했다.
+- `PendingImplementationException` 사용 여부 확인 (`git grep`, Local Git Bash에 `rg` 없음)
+  - Production 사용처: `GlobalExceptionHandler`의 Handler뿐이었다. 이 예외를 던지던 `CheckinServiceSkeleton`은 TASK-006에서 이미 삭제되었다.
+  - Test 사용처: 없음
+  - `POST /api/check-ins`는 TASK-006 `CheckinServiceImpl.create`로 실제 구현되어 있다.
+- Dead Code 삭제
+  - `PendingImplementationException.java` 삭제
+  - `GlobalExceptionHandler`의 `PendingImplementationException` → `501 NOT_IMPLEMENTED` Handler 삭제
+- README 동기화
+  - Backend 구조에 `config/`, `entity/` 추가
+  - Backend 설명 `Spring Boot + Gradle Wrapper Skeleton` → `Spring Boot + Spring Data JPA + Flyway (Check-in API)`
+  - Prompt History `01 ~ 16` → `01 ~ 17`
+  - Local 실행 안내에 `.env.local` Commit 제외, 공유용 ZIP / 학생 배포본에서 `.env.local`과 `.git/` 폴더 제외 안내 추가
+- `prompts/README.md`에 Prompt 17 추가
+- WORK_LOG 제어문자 수정
+  - TASK-006 `Human Review 보완` 기록의 `scripts` 경로에 0x0B(Vertical Tab) 1개가 있어 원래 문자인 역슬래시 + `v`로 복구했다.
+  - 원인: Claude가 Python으로 기록을 추가할 때 명령 문자열의 역슬래시가 한 번 해석되어 `\v`가 0x0B로 바뀌었다. 복구는 Byte 값으로 수행했다.
+  - Tracked / 신규 Text 파일 전체(md, txt, properties, yml, sql, java, ts, tsx, json, gradle, ps1, sh, html) 재검사: 제어문자 없음 (정상 TAB / CR / LF 제외)
+  - 같은 원인으로 TAB / CR 변형이나 경로 역슬래시 누락이 생긴 곳이 없는지도 확인했다: 없음
+
+### Secret / 배포 파일 확인
+
+- `git check-ignore -v .env.local`: `.gitignore:26:.env.*` 규칙으로 제외
+- `git ls-files .env.local`: 결과 없음 (tracked 아님)
+- `git log --all -- .env.local`: Commit 이력 없음
+- Secret 값은 Console Report와 문서에 출력하지 않았다.
+
+### Verification
+
+- `.\gradlew.bat test`: PASS
+  - `WellnessRulePolicyTests` 36건, `CheckinControllerTests` 13건, `WellnessCheckinRepositoryTests` 3건, `MoodFitApplicationTests` 1건
+- `.\gradlew.bat build`: PASS
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
+  - Frontend Test / Build, Backend Test / Build
+- Cleanup 후 재검색
+  - `backend/src/main`의 `NOT_IMPLEMENTED` / `PendingImplementation` / `501`: 없음
+  - `PendingImplementationException`은 TASK-004 Work Log와 Prompt 17의 과거 / 작업 기록에만 남아 있다.
+
+### 변경하지 않은 것
+
+- Feature, Controller, Service Logic, Wellness Rule, Repository Query, Entity Mapping 변경 없음
+- API Contract, DTO, Validation, DB Schema, Flyway Migration 변경 없음
+- DEC-014, DEC-019 변경 없음
+- `build.gradle`, `package.json`, `scripts/verify.ps1`, `scripts/verify.sh`, `.github/workflows/*` 변경 없음
+
+### Human Review
+
+- 2026-09-30 Human이 Cleanup 결과를 승인했다.
+
+### 결과
+
+Human Review 완료

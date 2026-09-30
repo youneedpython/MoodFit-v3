@@ -88,12 +88,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    @ExceptionHandler(PendingImplementationException.class)
-    public ResponseEntity<ErrorResponse> handlePendingImplementation(PendingImplementationException exception) {
-        ErrorResponse response = new ErrorResponse("NOT_IMPLEMENTED", exception.getMessage(), Map.of());
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(response);
-    }
-
     private ResponseEntity<ErrorResponse> validationError(Map<String, String> fieldErrors) {
         ErrorResponse response = new ErrorResponse("VALIDATION_ERROR", "Request validation failed.", fieldErrors);
         return ResponseEntity.badRequest().body(response);

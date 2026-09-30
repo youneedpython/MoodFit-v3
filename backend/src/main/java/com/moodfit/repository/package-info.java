@@ -1,8 +1,7 @@
 /**
- * Repository boundary reserved for TASK-006 persistence implementation.
+ * Persistence repositories for MoodFit check-in data.
  *
- * <p>TASK-004 intentionally does not introduce JPA, JDBC, MySQL, or an in-memory
- * database. Keeping this package as a documented boundary avoids creating a fake
- * repository contract before the storage model is approved.</p>
+ * <p>The repository layer uses Spring Data JPA and persists
+ * {@code WellnessCheckin} aggregate data defined by DEC-019.</p>
  */
 package com.moodfit.repository;
