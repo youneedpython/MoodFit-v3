@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -14,6 +15,6 @@ public record CreateCheckinRequest(
         @NotNull @Min(0) @Max(100) Integer sleepScore,
         @NotNull @Min(0) @Max(100) Integer stressLevel,
         @NotNull @Min(0) @Max(100) Integer energyLevel,
-        @NotNull @DecimalMin("-30.0") @DecimalMax("50.0") BigDecimal temperature,
+        @NotNull @DecimalMin("-30.0") @DecimalMax("50.0") @Digits(integer = 2, fraction = 1) BigDecimal temperature,
         @NotNull WeatherCondition weather) {
 }

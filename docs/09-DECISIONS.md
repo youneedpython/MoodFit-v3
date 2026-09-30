@@ -860,3 +860,106 @@ Tool: Runner 기본 설치 gh CLI (새 Action 추가 없음)
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-019 TASK-006 Persistence Dependency / DB Schema
+
+### 결정
+
+TASK-006 Backend Domain / API Core 구현을 위해 다음 Persistence 구성과 DB Schema를 Gate C Human Review로 승인한다.
+
+### Persistence
+
+- Spring Data JPA를 사용한다.
+- Schema 관리는 Flyway를 사용한다.
+- Hibernate는 `ddl-auto=validate`를 사용한다.
+- 초기 Schema는 `V1__create_checkin_tables.sql`로 관리한다.
+
+### Test DB
+
+- Test DB는 H2 In-memory를 사용한다.
+- H2는 Test 전용으로 사용한다.
+- H2는 MySQL Compatibility Mode로 실행한다.
+- CI에는 MySQL Service Container를 추가하지 않는다.
+- 실제 MySQL 또는 Testcontainers 기반 검증은 TASK-011에서 재검토한다.
+
+### Dependency
+
+다음 Dependency를 추가한다.
+
+```text
+implementation      org.springframework.boot:spring-boot-starter-data-jpa
+implementation      org.springframework.boot:spring-boot-starter-flyway
+runtimeOnly         org.flywaydb:flyway-mysql
+runtimeOnly         com.mysql:mysql-connector-j
+testRuntimeOnly     com.h2database:h2
+testImplementation  org.springframework.boot:spring-boot-starter-data-jpa-test
+```
+
+Version은 직접 지정하지 않고 Spring Boot `4.1.1` Dependency Management를 사용한다.
+
+### Recommendation Persistence
+
+- Food / Music Recommendation은 독립 Aggregate로 만들지 않는다.
+- `@ElementCollection`을 사용한다.
+- `@Embeddable` Value Type을 사용한다.
+- `@OrderColumn(position)`으로 순서를 유지한다.
+  - `0` = Mood Item
+  - `1` = Context Item
+- Recommendation 전용 Repository를 만들지 않는다.
+
+### DB Schema
+
+다음 3개 Table 구조를 승인한다.
+
+```text
+wellness_checkin
+checkin_food_recommendation
+checkin_music_recommendation
+```
+
+Core MVP는 단일 사용자 구조를 유지하므로 `user_id`는 추가하지 않는다.
+
+### recorded_at
+
+- DB Column은 MySQL `DATETIME(6)`를 사용한다.
+- Java와 API의 기준 타입은 `Instant`를 유지한다.
+- DB에는 UTC 기준 값으로 저장한다.
+- `Instant`와 UTC `LocalDateTime` 변환을 명시적으로 수행한다.
+- JVM / OS 기본 Timezone에 의존하지 않는다.
+- Repository Test에서 `Instant` round-trip을 검증한다.
+- 저장 precision은 `DATETIME(6)`에 맞춘다.
+
+### History
+
+- History 조회는 최근 `days × 24시간` Rolling Window를 사용한다.
+- 기본값은 `days=7`이다.
+- 허용 범위는 `1~30`을 유지한다.
+- 응답 정렬은 `recorded_at ASC`이며 오래된 기록에서 최신 기록 순으로 반환한다.
+
+### Temperature
+
+- API에서는 소수 첫째 자리까지만 허용한다.
+- Java 타입은 `BigDecimal`을 유지한다.
+- Request Validation에 `@Digits(integer = 2, fraction = 1)`을 적용한다.
+- 기존 `-30.0 ~ 50.0` 범위를 유지한다.
+- DB Column은 `DECIMAL(3,1)`을 사용한다.
+
+### Clock
+
+- 저장 시각은 서버가 결정한다.
+- `java.time.Clock`을 주입 가능하게 구성한다.
+- Test에서는 Fixed Clock을 사용할 수 있게 한다.
+
+### Local Verification / CI
+
+- 기존 `scripts/verify.ps1`와 `scripts/verify.sh`는 변경하지 않는다.
+- 기존 `.github/workflows/ci.yml`은 변경하지 않는다.
+- H2를 이용한 Persistence Test는 기존 `gradlew test`에 포함한다.
+
+### 상태
+
+```text
+Human Approved
+```

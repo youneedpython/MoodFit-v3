@@ -11,8 +11,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+
+import com.moodfit.repository.WellnessCheckinRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -20,6 +29,45 @@ class CheckinControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private WellnessCheckinRepository repository;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        repository.deleteAll();
+    }
+
+    @Test
+    void validCreateRequestPersistsAndReturnsAnalysisResult() throws Exception {
+        String request = """
+                {
+                  "heartRate": 68,
+                  "respiratoryRate": 18,
+                  "sleepScore": 86,
+                  "stressLevel": 31,
+                  "energyLevel": 74,
+                  "temperature": 19.0,
+                  "weather": "RAIN"
+                }
+                """;
+
+        mockMvc.perform(post("/api/check-ins")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.recordedAt").value("2026-09-30T00:00:00Z"))
+                .andExpect(jsonPath("$.mood.code").value("ENERGETIC"))
+                .andExpect(jsonPath("$.mood.label").value("활기 있음"))
+                .andExpect(jsonPath("$.wellnessScore").value(76))
+                .andExpect(jsonPath("$.foods.length()").value(2))
+                .andExpect(jsonPath("$.foods[0].name").value("연어 샐러드"))
+                .andExpect(jsonPath("$.foods[1].name").value("따뜻한 채소 스튜"))
+                .andExpect(jsonPath("$.music.length()").value(2))
+                .andExpect(jsonPath("$.music[0].title").value("Light Motion Playlist"))
+                .andExpect(jsonPath("$.music[1].title").value("Rainy Indoor Playlist"));
+    }
 
     @Test
     void invalidCreateRequestReturnsValidationErrorStructure() throws Exception {
@@ -57,6 +105,31 @@ class CheckinControllerTests {
                 .andExpect(jsonPath("$.code").value("CHECKIN_NOT_FOUND"))
                 .andExpect(jsonPath("$.message").isString())
                 .andExpect(jsonPath("$.fieldErrors").isMap());
+    }
+
+    @Test
+    void latestReturnsMostRecentCheckin() throws Exception {
+        String request = """
+                {
+                  "heartRate": 68,
+                  "respiratoryRate": 18,
+                  "sleepScore": 86,
+                  "stressLevel": 31,
+                  "energyLevel": 74,
+                  "temperature": 19.0,
+                  "weather": "RAIN"
+                }
+                """;
+
+        mockMvc.perform(post("/api/check-ins")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/check-ins/latest"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mood.code").value("ENERGETIC"))
+                .andExpect(jsonPath("$.wellnessScore").value(76));
     }
 
     @Test
@@ -119,6 +192,28 @@ class CheckinControllerTests {
     }
 
     @Test
+    void temperatureRejectsMoreThanOneFractionDigit() throws Exception {
+        String request = """
+                {
+                  "heartRate": 68,
+                  "respiratoryRate": 18,
+                  "sleepScore": 86,
+                  "stressLevel": 31,
+                  "energyLevel": 74,
+                  "temperature": 19.25,
+                  "weather": "RAIN"
+                }
+                """;
+
+        mockMvc.perform(post("/api/check-ins")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.fieldErrors.temperature").exists());
+    }
+
+    @Test
     void nonNumericMetricReturnsValidationErrorStructure() throws Exception {
         String request = """
                 {
@@ -150,5 +245,15 @@ class CheckinControllerTests {
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("$.message").isString())
                 .andExpect(jsonPath("$.fieldErrors").isMap());
+    }
+
+    @TestConfiguration
+    static class FixedClockConfiguration {
+
+        @Bean
+        @Primary
+        Clock fixedClock() {
+            return Clock.fixed(Instant.parse("2026-09-30T00:00:00Z"), ZoneOffset.UTC);
+        }
     }
 }

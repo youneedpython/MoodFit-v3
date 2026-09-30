@@ -38,13 +38,14 @@ TASK-006 — Backend Domain / API Core
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-005는 DONE 상태이다.
 Gate B Human Approval이 완료되었으며, Wellness Analysis / Recommendation Rule은 `docs/09-DECISIONS.md` DEC-014를 Source of Truth로 사용한다.
-TASK-006은 선행 Task 조건을 충족했지만, 실행 전 별도 Human 지시가 필요하다.
-Check-in 저장에 필요한 Persistence Dependency(예: Spring Data JPA, MySQL Connector, Test DB)와 DB Schema는 아직 승인되지 않았으므로 구현 전 Gate C를 적용한다.
+TASK-006은 Human 실행 지시에 따라 시작되었다.
+Persistence Gate C Review(`prompts/16-TASK-006-PERSISTENCE-GATE-C-REVIEW.md`)는 Human Approved 되었으며, 승인 결과는 `docs/09-DECISIONS.md` DEC-019를 Source of Truth로 사용한다.
+TASK-006 구현은 DEC-014와 DEC-019 범위 안에서만 진행한다.
 
 ---
 
@@ -57,7 +58,7 @@ Check-in 저장에 필요한 Persistence Dependency(예: Spring Data JPA, MySQL 
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | DONE | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
 | TASK-004 | Milestone 4 | Backend Domain / API Skeleton | DONE | TASK-001, TASK-002, TASK-003 완료 (충족), Human 실행 승인 완료, Remote CI 성공 | Gate C 조건부 |
 | TASK-005 | Milestone 5 | Wellness Analysis / Recommendation Rule Approval | DONE | TASK-004 완료 (충족), Human 실행 승인 완료, DEC-014 Human Approved | Gate B 승인 완료 |
-| TASK-006 | Milestone 6 | Backend Domain / API Core | READY | TASK-004 완료 (충족), TASK-005 완료 (충족), Gate B 승인 (DEC-014) | Gate C 조건부 |
+| TASK-006 | Milestone 6 | Backend Domain / API Core | IN_PROGRESS | TASK-004 완료 (충족), TASK-005 완료 (충족), Gate B 승인 (DEC-014), Persistence Gate C 승인 (DEC-019) | Gate C 승인 완료 |
 | TASK-007 | Milestone 7 | Frontend Foundation / Design System | BLOCKED | TASK-001, TASK-002, TASK-003 완료, Gate A 승인 | Gate C 조건부 |
 | TASK-008 | Milestone 8 | Daily Check-in | BLOCKED | TASK-006, TASK-007 완료 | Gate C 조건부 |
 | TASK-009 | Milestone 9 | Dashboard | BLOCKED | TASK-006, TASK-007, TASK-008 완료 | Gate C 조건부 |
@@ -573,12 +574,12 @@ DEC-014 Wellness Analysis Rule 후보를 제안하고 Human Review를 받는다.
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 선행 Task인 TASK-005는 DONE 상태이며 DEC-014가 Human Approved 되었다.
-TASK-006 실행 전 별도 Human 지시가 필요하다.
-Persistence Dependency와 DB Schema는 아직 승인되지 않았으므로 구현 전 Gate C를 적용한다.
+TASK-006은 Human 실행 지시에 따라 시작되었으며, Persistence Gate C Human Approval이 완료되었다.
+Persistence Dependency와 DB Schema는 `docs/09-DECISIONS.md` DEC-019를 Source of Truth로 사용한다.
 
 ### 목적
 
@@ -961,10 +962,9 @@ BLOCKED
 
 ## 6. 현재 Pending Decision
 
-- TASK-006 Persistence Dependency / DB Schema (Gate C 검토 예정)
-  - Spring Data JPA, MySQL Connector, Test DB 전략
-  - WellnessCheckin 저장 구조
+현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-016 Bootstrap Dependency Set은 Gate C와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
+DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.

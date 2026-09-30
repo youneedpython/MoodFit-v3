@@ -75,10 +75,11 @@ POST /api/check-ins
 | sleepScore | 0 ~ 100 |
 | stressLevel | 0 ~ 100 |
 | energyLevel | 0 ~ 100 |
-| temperature | -30 ~ 50 |
+| temperature | -30.0 ~ 50.0, 소수 첫째 자리까지 허용 |
 | weather | 필수 Enum |
 
-범위 값은 교육용 초기 기준이며 구현 계획 단계에서 최종 검토한다.
+Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에 따라 확정되었으며,
+`temperature`는 API에서 소수 첫째 자리까지만 허용한다.
 
 ### Response — 201 Created
 
@@ -216,6 +217,8 @@ GET /api/check-ins/history?days=7
 
 History 화면에 필요한 최소 정보만 반환하는 것을 우선한다.
 상세 Recommendation은 최신 또는 상세 조회에서 처리한다.
+History 응답은 최근 `days × 24시간` Rolling Window를 기준으로 하며,
+`recordedAt` 오름차순으로 오래된 기록에서 최신 기록 순서로 반환한다.
 
 ---
 

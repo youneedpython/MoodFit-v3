@@ -42,12 +42,13 @@ TASK-006 — Backend Domain / API Core
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-TASK-006은 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+TASK-006은 Human 실행 지시에 따라 시작되었으며, Persistence Gate C Human Approval이 완료되었다.
 Wellness Analysis / Recommendation은 DEC-014를 그대로 구현하며, Rule을 임의로 변경하지 않는다.
-Persistence Dependency와 DB Schema는 아직 승인되지 않았으므로 구현 전 Gate C를 적용한다.
+Persistence Gate C Human Approval은 완료되었으며, Persistence Dependency와 DB Schema는 DEC-019를 Source of Truth로 사용한다.
+TASK-006은 DEC-014와 DEC-019 범위 안에서만 구현한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

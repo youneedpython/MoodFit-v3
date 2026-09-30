@@ -32,7 +32,7 @@ Current Task:
 
 ```text
 TASK-006 — Backend Domain / API Core
-READY (실행 지시 대기)
+IN_PROGRESS (Persistence Gate C Human Approved)
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -66,7 +66,7 @@ Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification�
 DEC-017 기준 GitHub Actions CI(`.github/workflows/ci.yml`)가 구성되었고, Remote CI에서 `frontend` / `backend` Job이 모두 성공했으며 Human Review가 완료되었습니다.
 TASK-004 Backend API Skeleton 구현, Local / Remote CI Verification, Human Review가 완료되었습니다.
 TASK-005 Gate B Human Review를 거쳐 Wellness Analysis / Recommendation Rule이 DEC-014로 확정되었습니다.
-현재는 사용자의 명시적인 TASK-006 실행 지시를 기다리는 상태입니다.
+현재는 TASK-006 Persistence Dependency / DB Schema Gate C Human Approval이 완료되어 Backend Domain / API Core 구현을 진행하는 상태입니다.
 
 ## 현재 구조
 
@@ -107,7 +107,7 @@ today-v3/
 │   └── 10-WELLNESS-RULE-PROPOSAL.md
 └── prompts/
     ├── README.md
-    └── 01 ~ 15 Prompt History
+    └── 01 ~ 16 Prompt History
 ```
 
 ## 보조 스크립트
@@ -139,7 +139,6 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-006 Persistence Dependency / DB Schema Gate C 검토
-2. TASK-006 Backend Domain / API Core 구현 (DEC-014 Rule 적용)
-3. Local Verification 및 Remote CI 확인
-4. TASK-006 Human Review
+1. TASK-006 Backend Domain / API Core 구현 (DEC-014, DEC-019 적용)
+2. Local Verification 및 Remote CI 확인
+3. TASK-006 Human Review

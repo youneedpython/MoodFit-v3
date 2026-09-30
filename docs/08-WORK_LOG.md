@@ -682,3 +682,143 @@ Milestone 4 상태를 추정하지 않았다.
 ### 결과
 
 Gate B Human Review 완료 / DONE
+
+---
+
+## TASK-006 — Backend Domain / API Core
+
+### 상태
+
+IN_PROGRESS
+
+Remote CI Verification Pending
+
+### 작업 내용
+
+- TASK-006 Persistence Gate C Human Approval 반영
+- DEC-019 Persistence Dependency / DB Schema 기록
+- Spring Data JPA, Flyway, H2 Test DB Dependency 추가
+- Flyway 초기 Schema `V1__create_checkin_tables.sql` 생성
+- `wellness_checkin`, `checkin_food_recommendation`, `checkin_music_recommendation` Table 구성
+- `WellnessCheckin` Entity와 Food / Music Recommendation `@ElementCollection` 구성
+- `recorded_at` UTC `Instant` ↔ UTC `LocalDateTime` 변환 구성
+- `java.time.Clock` 주입 구성
+- DEC-014 Wellness Analysis / Recommendation Rule 구현
+- Check-in 생성, 최신 조회, History 조회 구현
+- Temperature 소수 첫째 자리 Validation 추가
+- Repository / Controller Test 보강
+
+### 승인된 Persistence 정책
+
+- Spring Data JPA 사용
+- H2 In-memory Test DB 사용
+- H2 MySQL Compatibility Mode 사용
+- CI MySQL Service Container 미사용
+- Flyway + Hibernate `ddl-auto=validate`
+- Recommendation 전용 Repository 미생성
+- 실제 MySQL / Testcontainers 검증은 TASK-011에서 재검토
+
+### Backend Verification
+
+- `.\gradlew.bat test`
+  - 1차 FAIL
+  - 원인: Repository Test에서 `@ElementCollection` 기본 lazy loading 컬렉션을 트랜잭션 밖에서 접근했다.
+  - 해결: Repository Test에 `@Transactional`을 적용했다.
+- `.\gradlew.bat test`
+  - 2차 FAIL
+  - 원인: `Instant` 정밀도 검증에서 같은 영속성 컨텍스트의 Entity를 다시 읽어 DB 변환 결과가 반영되지 않았다.
+  - 해결: 저장 후 `EntityManager.clear()`를 호출해 DB에서 다시 조회하도록 수정했다.
+- `.\gradlew.bat test`
+  - PASS
+  - 결과: 17 tests completed
+- `.\gradlew.bat build`
+  - PASS
+  - 결과: BUILD SUCCESSFUL
+
+### Local Verification
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`
+  - PASS
+  - Frontend `npm test` PASS
+  - Frontend `npm run build` PASS
+  - Backend `gradlew.bat test` PASS
+  - Backend `gradlew.bat build` PASS
+- `bash scripts/verify.sh`
+  - PASS
+  - Frontend `npm test` PASS
+  - Frontend `npm run build` PASS
+  - Backend test PASS
+  - Backend build PASS
+
+### Dependency 확인
+
+Backend:
+
+- `spring-boot-starter-data-jpa` 추가
+- `spring-boot-starter-flyway` 추가
+- `flyway-mysql` 추가
+- `mysql-connector-j` 추가
+- `h2` Test Runtime 추가
+- `spring-boot-starter-data-jpa-test` Test Dependency 추가
+- Version은 직접 지정하지 않고 Spring Boot 4.1.1 Dependency Management를 사용한다.
+
+제외 유지:
+
+- MySQL Service Container 미추가
+- Testcontainers 미추가
+- Recommendation Repository 미추가
+- Spring Security / OAuth / Actuator / Lombok 미추가
+- Frontend 변경 없음
+- scripts 변경 없음
+- GitHub Actions Workflow 변경 없음
+
+### Human Review 보완
+
+검토 일자: 2026-09-30
+
+Human Review에서 다음 문제가 발견되어 Human 지시에 따라 Claude가 보완했다.
+
+발견 내용:
+
+- `WellnessRulePolicy`의 문구 3곳이 DEC-014와 달랐다. (DEC-014 문구 72개를 코드와 기계적으로 대조해 발견)
+  - TIRED Food 이름: `따뜻한 수프와 곡물밥` → DEC-014 `따뜻한 수프와 곡물빵`
+  - RAIN Music tag: `차분한 감성` → DEC-014 `잔잔한 감성`
+  - TIRED Summary 문장이 DEC-014 문장과 달랐다.
+- TASK-006 Verification 항목(Wellness Analysis / Recommendation / Rule Boundary / Edge Case Test)에 해당하는 Rule Test가 없었다. DEC-014 Edge Case 20개 중 E01만 Controller Test로 확인되고 있었다.
+- Mood label이 `WellnessRulePolicy`와 `CheckinServiceImpl.labelFor()` 두 곳에 중복되어 있었다. (DEC-014: Rule 값은 Rule Policy 한 곳에서 관리)
+
+보완 내용:
+
+- `WellnessRulePolicy` 문구 3곳을 DEC-014와 일치하도록 수정했다.
+- `WellnessRulePolicy.moodLabel(String)`을 추가하고 `CheckinServiceImpl.labelFor()`를 제거했다.
+- `WellnessRulePolicyTests`(Spring 없이 실행되는 Unit Test 36건)를 추가했다.
+  - DEC-014 Edge Case E01 ~ E20: Score, Mood, Food 2개, Music 2개
+  - Mood Item 4종: label, Food / Music name·tag·reason, Summary Mood 문장
+  - Context Item 6종: Food / Music name·tag·reason, Summary Context 문장
+  - Summary 결합 형식, heartRate / respiratoryRate 무영향, Mood label 4종
+- Test가 실제로 문구 차이를 잡아내는지 확인했다. 수정 전 문구로 하나씩 되돌려 실행한 결과:
+  - `곡물밥` → 6건 실패, `차분한 감성` → 1건 실패, 이전 TIRED Summary 문장 → 1건 실패
+  - 확인 후 올바른 문구로 복구했다.
+
+재검증 결과:
+
+- `.\gradlew.bat test`
+  - PASS
+  - `WellnessRulePolicyTests` 36건, `CheckinControllerTests` 13건, `WellnessCheckinRepositoryTests` 3건, `MoodFitApplicationTests` 1건
+- `powershell -ExecutionPolicy Bypass -File .\scriptserify.ps1`
+  - PASS
+
+참고:
+
+- Test와 CI는 H2 In-memory DB로 실행되므로 MySQL이 필요 없다.
+- Local에서 Backend를 직접 실행(`bootRun`)하려면 MySQL과 `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` 환경변수가 필요하다.
+
+### Remote CI Verification
+
+Pending.
+
+이번 Codex 작업에서는 git commit과 git push를 수행하지 않았으므로 Remote CI는 아직 실행되지 않았다.
+
+### 결과
+
+Local Verification PASS / Remote CI Verification Pending / Human Review 대기
