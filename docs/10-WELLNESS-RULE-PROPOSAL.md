@@ -753,8 +753,8 @@ Approved (2026-09-30) — 확정 내용은 §16을 따른다.
 | Respiratory Rate 처리 | Display only | Score 미반영 | 의료 오해 낮음 | Score 풍부함 감소 | 추천 | **Approved** |
 | Weather 영향 | Context only | Summary / Recommendation만 사용 | 단정 표현 방지 | Score 영향 없음 | 추천 | **Approved** |
 | Temperature 영향 | T-A | Recommendation / Summary만 사용 | 단순, 안전 | 극단 기온 Score 영향 없음 | 추천 | **Approved** |
-| Summary Rule | Template | Mood + Metric + Weather Context | deterministic, 테스트 쉬움 | 문구 다양성 제한 | 추천 | **Approved** |
-| Food Recommendation Rule | Deterministic table | Mood / Score / Weather / Temperature 기반 | 재현 가능 | 개인화 제한 | 추천 | **Approved** |
+| Summary Rule | Template | Mood 문장 + Context 문장 | deterministic, 테스트 쉬움 | 문구 다양성 제한 | 추천 | **Approved** |
+| Food Recommendation Rule | Deterministic table | Mood Item + Context Item | 재현 가능, 항상 2개 반환 | 개인화 제한 | 추천 | **Approved** |
 | Music Recommendation Rule | Virtual Playlist | 외부 API 없는 가상 Playlist | 저작권/연동 부담 낮음 | 실제 곡 경험 약함 | 추천 | **Approved** |
 | Recommendation deterministic 정책 | Required | 같은 입력이면 같은 결과 | 테스트 가능 | 다양성 제한 | 추천 | **Approved** |
 | Boundary 처리 | Inclusive threshold | 경계값 포함 기준 명시 | 테스트 명확 | 세부 조정 필요 | 추천 | **Approved** |

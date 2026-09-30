@@ -266,9 +266,10 @@ Error Response 형식은 Frontend Error UX와 함께 유지한다.
 
 ---
 
-## 10. PLAN 단계에서 확정할 API 관련 결정
+## 10. Wellness Rule 결정 상태
 
-다음 항목은 아직 승인되지 않았으며 Codex가 구현 전에 대안을 제안해야 한다.
+다음 항목은 TASK-005 Gate B Human Review를 통해 승인되었으며,
+현재 Source of Truth는 `docs/09-DECISIONS.md`의 DEC-014이다.
 
 - Wellness Score 계산식
 - Mood 판정 기준
@@ -277,4 +278,5 @@ Error Response 형식은 Frontend Error UX와 함께 유지한다.
 - Food Recommendation Rule
 - Music Recommendation Rule
 
-위 결정이 API Contract 또는 DB Schema에 영향을 주면 Human Approval 후 `09-DECISIONS.md`에 기록한다.
+TASK-006 Backend Domain / API Core 구현 시 위 결정은 DEC-014를 따른다.
+추가 API Contract 또는 DB Schema 변경이 필요하면 별도 Human Approval을 받는다.

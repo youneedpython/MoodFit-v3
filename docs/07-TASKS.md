@@ -961,15 +961,10 @@ BLOCKED
 
 ## 6. 현재 Pending Decision
 
-- DEC-014 Wellness Analysis Rule
-  - Wellness Score 계산식
-  - Mood 판정 기준
-  - Metric 가중치
-  - Weather 영향
-  - Temperature 처리 정책
-  - Food Recommendation Rule
-  - Music Recommendation Rule
-  - Rule Boundary / Edge Case
+- TASK-006 Persistence Dependency / DB Schema (Gate C 검토 예정)
+  - Spring Data JPA, MySQL Connector, Test DB 전략
+  - WellnessCheckin 저장 구조
 
+DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-016 Bootstrap Dependency Set은 Gate C와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

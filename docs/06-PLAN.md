@@ -17,7 +17,7 @@
 - Dashboard Metric은 Heart Rate, Respiratory Rate, Sleep Score, Stress Level, Energy Level 5개를 기준으로 한다.
 - Trend는 외부 Chart Library 없이 CSS 또는 SVG 기반 단순 Component로 시작한다.
 - 기술의 정확한 Version은 Gate A에서 Human Approved 되었으며, `docs/09-DECISIONS.md`의 DEC-015를 따른다.
-- Wellness Analysis Rule은 아직 확정하지 않는다.
+- Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 승인되었으며, `docs/09-DECISIONS.md`의 DEC-014를 따른다.
 - 초기 Local Verification과 CI는 외부 MySQL 연결 없이 실행 가능해야 한다.
 - Feature가 추가될 때마다 Local Verification과 CI의 검증 범위를 함께 확장한다.
 - 새로운 외부 Dependency, API Contract 변경, DB Schema 주요 변경은 구현 전 Human Approval을 받는다.
@@ -115,10 +115,9 @@ Milestone 6 시작 전
 
 규칙:
 
-- Human Approval 전에는 Wellness Analysis Service의 실제 Rule을 구현하지 않는다.
-- Human Approval 전에는 Recommendation 생성 Rule을 구현하지 않는다.
-- Human Approval 전에는 Temperature 영향 여부를 임의로 확정하지 않는다.
-- 승인된 Rule은 이후 `docs/09-DECISIONS.md`에 반영한다.
+- Gate B는 Human Approved 되었으며, 승인된 Rule은 `docs/09-DECISIONS.md`의 DEC-014에 반영되어 있다.
+- TASK-006 구현 시 Wellness Analysis Service와 Recommendation 생성 Rule은 DEC-014를 따른다.
+- DEC-014와 다른 Rule이 필요하면 구현 전에 Human Approval을 다시 받는다.
 
 ### Gate C — 주요 변경 승인
 
@@ -176,7 +175,7 @@ Milestone 6 시작 전
 
 - 계획이 승인된 결정과 충돌하지 않는지 문서 검토
 - Recommendation Refresh가 Core MVP에 포함되지 않았는지 확인
-- 기술 Version은 Gate A에서 확정되었고 Wellness Rule은 아직 확정되지 않았는지 확인
+- 기술 Version은 Gate A에서 확정되었고, Wellness Rule은 Gate B에서 확정되었는지 확인
 - Local Verification과 CI가 Project Bootstrap 직후로 배치되었는지 확인
 
 Human Approval Gate:
@@ -726,7 +725,8 @@ Human Approval Gate:
 - Local Verification을 Project Bootstrap 직후에 배치하면 이후 Feature마다 검증 범위를 누적 확장할 기준이 생긴다.
 - GitHub Actions CI를 초기 Local Verification 직후에 배치하면 Feature 구현 초반부터 CI 실패를 볼 수 있다.
 - Backend API Contract와 Domain Skeleton은 Frontend가 의존할 계약이므로 Core Feature보다 먼저 만든다.
-- Wellness Analysis Rule은 아직 Pending 상태이므로 실제 Backend Core 구현 전에 Gate B로 분리한다.
+- Wellness Analysis Rule은 계획 당시 Pending 상태였으므로 실제 Backend Core 구현 전에 Gate B로 분리했다.
+- 현재는 Gate B가 완료되었고 DEC-014가 Human Approved 상태이므로 Backend Core 구현은 DEC-014를 따른다.
 - Frontend Foundation은 Backend Contract와 병행 가능하지만, 사용자 흐름 구현은 Backend Core 이후가 안정적이다.
 - Daily Check-in은 Dashboard와 History의 데이터 생성 경로이므로 먼저 구현한다.
 - Dashboard는 최신 Check-in 결과와 Empty State 처리를 검증하는 핵심 화면이므로 History보다 먼저 구현한다.
@@ -736,9 +736,9 @@ Human Approval Gate:
 
 ---
 
-## 8. Pending Decision
+## 8. Decision 상태
 
-다음 결정은 아직 확정하지 않는다.
+다음 결정은 TASK-005 Gate B Human Review를 통해 확정되었다.
 
 - DEC-014 Wellness Analysis Rule
   - Wellness Score 계산식
@@ -750,12 +750,14 @@ Human Approval Gate:
   - Music Recommendation Rule
   - Rule Boundary / Edge Case
 
+현재 DEC-014는 `docs/09-DECISIONS.md`에 Human Approved 상태로 기록되어 있으며 Pending Decision이 아니다.
+
 ---
 
 ## 9. Risk
 
-- Wellness Analysis Rule이 승인되기 전에는 Backend Core 구현이 지연될 수 있다.
-- Temperature 처리 정책과 Rule Boundary / Edge Case가 승인되기 전에는 분석 관련 Test를 확정할 수 없다.
+- Wellness Analysis Rule은 승인되었으므로 Backend Core 구현은 DEC-014를 따라 진행할 수 있다.
+- Temperature 처리 정책과 Rule Boundary / Edge Case는 DEC-014에 승인되어 있으므로 TASK-006에서 해당 기준으로 Test를 확정한다.
 - MySQL Integration Test가 필요해질 경우 초기 CI Database Strategy를 재검토해야 한다.
 - API Contract 또는 DB Schema 변경이 발생하면 Frontend Type과 Test 계획도 함께 갱신해야 한다.
 - 외부 Chart Library 없이 Trend를 구현하므로 표현 범위를 MVP 수준으로 제한해야 한다.
