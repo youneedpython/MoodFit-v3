@@ -42,11 +42,11 @@ TASK-012 — GitHub Actions Bot
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-012 Gate C Human Approval이 완료되었으며, 승인된 Bot 범위는 DEC-021을 따른다.
-TASK-012는 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+TASK-012는 Human 실행 지시에 따라 시작되었다.
 TASK-011의 후속 보완 작업 후보(FU-1 ~ FU-4)는 별도 승인 없이 진행하지 않는다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.

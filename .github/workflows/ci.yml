@@ -26,16 +26,50 @@ jobs:
           package-manager-cache: false
 
       - name: Install dependencies
+        id: install
         run: npm ci
         working-directory: frontend
 
       - name: Run frontend tests
+        id: test
         run: npm test
         working-directory: frontend
 
       - name: Build frontend
+        id: build
         run: npm run build
         working-directory: frontend
+
+      # DEC-021: 실패한 경우에도 결과를 기록하고, Job의 성공 / 실패 판정은 바꾸지 않는다.
+      - name: Write frontend summary
+        if: always()
+        env:
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+        run: |
+          label() {
+            case "$1" in
+              success) echo "✅ success" ;;
+              failure) echo "❌ failure" ;;
+              skipped) echo "⏭️ skipped" ;;
+              cancelled) echo "⏹️ cancelled" ;;
+              *) echo "– not run" ;;
+            esac
+          }
+          {
+            echo "## Frontend"
+            echo ""
+            echo "| Step | Command | Result |"
+            echo "|---|---|---|"
+            echo "| Install | \`npm ci\` | $(label "$INSTALL_OUTCOME") |"
+            echo "| Test | \`npm test\` | $(label "$TEST_OUTCOME") |"
+            echo "| Build | \`npm run build\` | $(label "$BUILD_OUTCOME") |"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Workflow Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "- MySQL Service Container: 사용하지 않음 (DEC-009)"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   backend:
     runs-on: ubuntu-latest
@@ -56,9 +90,40 @@ jobs:
           cache-disabled: true
 
       - name: Run backend tests
+        id: test
         run: ./gradlew test
         working-directory: backend
 
       - name: Build backend
+        id: build
         run: ./gradlew build
         working-directory: backend
+
+      # DEC-021: 실패한 경우에도 결과를 기록하고, Job의 성공 / 실패 판정은 바꾸지 않는다.
+      - name: Write backend summary
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+        run: |
+          label() {
+            case "$1" in
+              success) echo "✅ success" ;;
+              failure) echo "❌ failure" ;;
+              skipped) echo "⏭️ skipped" ;;
+              cancelled) echo "⏹️ cancelled" ;;
+              *) echo "– not run" ;;
+            esac
+          }
+          {
+            echo "## Backend"
+            echo ""
+            echo "| Step | Command | Result |"
+            echo "|---|---|---|"
+            echo "| Test | \`./gradlew test\` | $(label "$TEST_OUTCOME") |"
+            echo "| Build | \`./gradlew build\` | $(label "$BUILD_OUTCOME") |"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Workflow Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "- MySQL Service Container: 사용하지 않음 (DEC-009)"
+          } >> "$GITHUB_STEP_SUMMARY"

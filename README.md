@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-012 — GitHub Actions Bot
-READY (Gate C Human Approved, DEC-021)
+IN_PROGRESS
 ```
 
 진행 흐름:
@@ -54,7 +54,7 @@ TASK-007 ~ TASK-010   Frontend Foundation / Daily Check-in / Dashboard / History
     ↓
 TASK-011              Verification Hardening
     ↓
-TASK-012              GitHub Actions Bot  ← 현재 (실행 지시 대기)
+TASK-012              GitHub Actions Bot  ← 현재
 ```
 
 Task별 진행 결과:
@@ -75,7 +75,7 @@ Task별 진행 결과:
 
 Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었습니다.
 
-TASK-011 Verification Hardening이 완료되었고, TASK-012 GitHub Actions Bot의 Gate C Human Approval(DEC-021)이 완료되어, 현재는 사용자의 명시적인 TASK-012 실행 지시를 기다리고 있습니다.
+TASK-011 Verification Hardening이 완료되었고, TASK-012 GitHub Actions Bot의 Gate C Human Approval(DEC-021)이 완료되어, 현재는 TASK-012를 진행하고 있습니다.
 각 Task의 상세 기록은 `docs/08-WORK_LOG.md`, 승인된 결정은 `docs/09-DECISIONS.md`를 참고합니다.
 
 ## 현재 구조

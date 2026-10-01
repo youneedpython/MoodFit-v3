@@ -1521,3 +1521,62 @@ Remote CI (commit `d799259`):
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-012 — GitHub Actions Bot
+
+### 상태
+
+IN_PROGRESS
+
+Local Verification 완료 / Remote CI Verification 대기
+
+### 작업 내용 (DEC-021)
+
+- `.github/workflows/ci.yml`의 `frontend` / `backend` Job 마지막에 Step Summary 작성 Step 추가
+  - `Write frontend summary`: `npm ci` / `npm test` / `npm run build` 결과
+  - `Write backend summary`: `./gradlew test` / `./gradlew build` 결과
+  - 공통: Commit SHA, Workflow Run URL, MySQL Service Container 미사용(DEC-009)
+- 실패 시 기록 (DEC-021 Human Review 보완)
+  - Summary Step은 `if: always()`로 실행한다.
+  - 기존 Install / Test / Build Step에 `id`를 붙이고 `steps.<id>.outcome`을 그대로 기록한다. (success / failure / skipped / cancelled / 미실행)
+  - Step outcome은 `env`로 전달해 Script에 직접 치환하지 않는다.
+  - Summary Step은 항상 exit code 0으로 끝나며 Job의 성공 / 실패 판정을 바꾸지 않는다. `continue-on-error`는 사용하지 않는다.
+- `.github/workflows/milestones.yml`(DEC-018)은 변경하지 않았다.
+
+### 변경하지 않은 것
+
+- Trigger(`push` / `pull_request` to `main`), Permissions(`contents: read`)
+- 기존 Checkout / Setup / Install / Test / Build Step의 이름 · 명령 · 설정 (`id`만 추가)
+- 추가 GitHub Action, Dependency, Secret / PAT 없음
+- Source Code / 문서 자동 수정, Commit / Push / PR, Comment, Issue, Label, Release 없음
+- Frontend / Backend Source, `scripts/verify.ps1`, `scripts/verify.sh`
+
+### Verification
+
+- Workflow 정적 확인 (이전 Commit의 `ci.yml`과 Python YAML 비교)
+  - Trigger 동일, Permissions 동일(`contents: read`)
+  - 기존 Step 이름 / 명령 / `uses` / `with` / `working-directory` 동일
+  - 두 Summary Step 모두 `if: always()`, `continue-on-error` 없음, 추가 Action 없음
+- Summary Script 실행 확인 (Workflow에서 Script를 추출해 Local bash로 실행)
+
+| 시나리오 | 기록 결과 | Script exit code |
+|---|---|---|
+| Frontend 모두 성공 | Install / Test / Build `✅ success` | 0 |
+| Frontend Test 실패 | Test `❌ failure`, Build `⏭️ skipped` | 0 |
+| Frontend Install 실패 | Install `❌ failure`, Test / Build `⏭️ skipped` | 0 |
+| Backend Build 실패 | Test `✅ success`, Build `❌ failure` | 0 |
+| Backend Checkout 실패 (Step 미실행) | Test / Build `– not run` | 0 |
+
+- 실패 경로의 실제 GitHub Actions 실행은 확인하지 않았다. 현재 Trigger가 `main` Push / Pull Request뿐이고 `main`에 실패 Commit을 올리지 않기 위해, 위 Local Script 시나리오와 Workflow 구조(`if: always()`, Step outcome)로 확인했다.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS (Frontend 73건, Backend Test / Build)
+- 화면(UI) 변경이 없는 Task이므로 AGENTS.md 8.1 캡처 대상이 아니다. Remote CI의 Summary 화면은 Human Review에서 확인한다.
+
+### Remote CI Verification
+
+Pending — Commit / Push 후 확인 필요
+
+### 결과
+
+Local Verification PASS / Remote CI Verification 대기

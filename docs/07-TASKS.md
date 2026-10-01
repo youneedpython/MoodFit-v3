@@ -38,12 +38,12 @@ TASK-012 — GitHub Actions Bot
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-011은 DONE 상태이다. Core Feature 구현과 Verification Hardening이 완료되었다.
 TASK-012 Gate C Human Approval이 완료되었으며, 승인된 Bot 범위는 `docs/09-DECISIONS.md` DEC-021을 따른다.
-단, TASK-012 실행 전 별도 Human 지시가 필요하다.
+TASK-012는 Human 실행 지시에 따라 시작되었다. (`prompts/24-TASK-012-GITHUB-ACTIONS-BOT.md`)
 TASK-011에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-4)는 `docs/08-WORK_LOG.md`를 따르며, 진행 시 별도 승인을 받는다.
 
 ---
@@ -63,7 +63,7 @@ TASK-011에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-4)는 `docs/08-WO
 | TASK-009 | Milestone 9 | Dashboard | DONE | TASK-006, TASK-007, TASK-008 완료 (충족) | Gate C 조건부 |
 | TASK-010 | Milestone 10 | History / Trend | DONE | TASK-006, TASK-007, TASK-009 완료 (충족) | Gate C 조건부 |
 | TASK-011 | Milestone 11 | Verification Hardening | DONE | TASK-008, TASK-009, TASK-010 완료 (충족), Local Verification/CI 누적 확장 완료 (충족), Human 실행 승인 완료, Local/Remote Verification 확인 완료 | Gate C 조건부 |
-| TASK-012 | Milestone 12 | GitHub Actions Bot | READY | TASK-002, TASK-003, TASK-011 완료 (충족), Local Verification/CI 안정화 (충족), DEC-021 Human Approved | Gate C 승인 완료 |
+| TASK-012 | Milestone 12 | GitHub Actions Bot | IN_PROGRESS | TASK-002, TASK-003, TASK-011 완료 (충족), Local Verification/CI 안정화 (충족), DEC-021 Human Approved | Gate C 승인 완료 |
 
 ---
 
@@ -917,12 +917,12 @@ Local Verification과 CI가 동일하거나 동등한 품질 기준을 갖도록
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 선행 Task인 TASK-002, TASK-003, TASK-011은 DONE 상태이다.
 Gate C Human Approval이 완료되었으며 승인된 Bot 범위는 DEC-021을 Source of Truth로 사용한다.
-TASK-012 실행 전 별도 Human 지시가 필요하다.
+TASK-012는 Human 실행 지시에 따라 시작되었다.
 
 ### 목적
 
