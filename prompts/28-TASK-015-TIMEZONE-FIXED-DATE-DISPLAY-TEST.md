@@ -52,8 +52,8 @@ Human Review 보완 (Claude 검토 후):
 
 ## 상태
 
-진행 중
+완료 (Human Review 승인)
 
 ## Related Commit
 
-Pending
+- `c8807a1` feat: TASK-015 날짜 / 시각 표시 Timezone 고정 (Asia/Seoul) 및 Test 추가
