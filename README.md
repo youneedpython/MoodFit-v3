@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-012 — GitHub Actions Bot
-IN_PROGRESS
+REVIEW (Human Review 중)
 ```
 
 진행 흐름:
@@ -75,7 +75,7 @@ Task별 진행 결과:
 
 Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었습니다.
 
-TASK-011 Verification Hardening이 완료되었고, TASK-012 GitHub Actions Bot의 Gate C Human Approval(DEC-021)이 완료되어, 현재는 TASK-012를 진행하고 있습니다.
+TASK-011 Verification Hardening이 완료되었고, TASK-012 GitHub Actions Bot의 Gate C Human Approval(DEC-021)이 완료되어, TASK-012에서 CI 결과를 GitHub Actions Step Summary로 자동 기록하는 Bot을 구성했고(실패 시에도 기록), Remote CI 확인을 완료해 Human Review를 기다리고 있습니다.
 각 Task의 상세 기록은 `docs/08-WORK_LOG.md`, 승인된 결정은 `docs/09-DECISIONS.md`를 참고합니다.
 
 ## 현재 구조
@@ -175,6 +175,6 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-012 GitHub Actions Bot 실행 (DEC-021: CI Step Summary)
-2. Remote CI 확인 및 TASK-012 Human Review
+1. TASK-012 Human Review (GitHub Actions 실행 화면 Summary 확인)
+2. TASK-012 DONE
 3. 필요 시 TASK-011 후속 보완 작업 후보(FU-1 ~ FU-4) 승인 및 진행

@@ -1528,9 +1528,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS
-
-Local Verification 완료 / Remote CI Verification 대기
+REVIEW
 
 ### 작업 내용 (DEC-021)
 
@@ -1575,8 +1573,22 @@ Local Verification 완료 / Remote CI Verification 대기
 
 ### Remote CI Verification
 
-Pending — Commit / Push 후 확인 필요
+Commit `e0f92de`를 `main`에 push하여 Remote CI를 실행했다.
+
+- Workflow run: https://github.com/youneedpython/MoodFit-v3/actions/runs/36814475255
+- 결과: PASS (`success`)
+
+| Job | 결과 | 소요 시간 | Summary Step |
+|---|---|---|---|
+| `frontend` | success | 약 14초 | `Write frontend summary`: success |
+| `backend` | success | 약 59초 | `Write backend summary`: success |
+
+- GitHub REST API로 Job Step 목록을 조회해 두 Summary Step이 실행되었음을 확인했다.
+- Step Summary 내용은 REST API로 조회할 수 없으므로 Human Review에서 Workflow Run의 Summary 화면으로 확인한다.
+- `Sync Milestones`: success (새로 DONE이 된 Task 없음)
+
+Remote CI Verification 완료 후 TASK-012 상태를 REVIEW로 변경했다.
 
 ### 결과
 
-Local Verification PASS / Remote CI Verification 대기
+Human Review 대기
