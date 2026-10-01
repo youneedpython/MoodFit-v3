@@ -1474,6 +1474,7 @@ Local Verification과 CI의 Core Test / Build 범위(Frontend Test / Build, Back
 | FU-2 | GAP-3, GAP-4 | `verify.ps1` / `verify.sh`에 `npm ci` 단계 추가, `.nvmrc` 또는 `engines`로 Node.js Version 명시 | Human Approval (검증 Script 동작 변경) |
 | FU-3 | GAP-5 | Testcontainers 등 실제 MySQL 기반 Integration Test | Gate C (DEC-009 / DEC-019 재검토) |
 | FU-4 | GAP-6 | 고정 Timezone 기준 날짜 표시 Test | Human Approval |
+| FU-5 | — (TASK-012 CI Summary 관찰) | Gradle Wrapper Version 검토. `gradle/actions/setup-gradle` Summary가 승인 Version `8.14.5`(DEC-015)에 대해 "Gradle version is out of date"를 안내함. Spring Boot 4.1.1은 Gradle 8.14+ / 9.x를 지원 | Human Approval (DEC-015 기술 Version 변경) |
 
 TASK-011 문서 변경분은 Commit / Push 후 Remote CI가 다시 실행된다.
 
@@ -1528,7 +1529,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-REVIEW
+DONE
 
 ### 작업 내용 (DEC-021)
 
@@ -1589,6 +1590,34 @@ Commit `e0f92de`를 `main`에 push하여 Remote CI를 실행했다.
 
 Remote CI Verification 완료 후 TASK-012 상태를 REVIEW로 변경했다.
 
+### Human Review
+
+검토 일자: 2026-10-01
+
+- Human이 GitHub Actions Workflow Run의 Summary 화면을 확인하고 캡처를 첨부했다. (Run: https://github.com/youneedpython/MoodFit-v3/actions/runs/36814655358, commit `9c798e1`)
+  - `## Frontend`: Install / Test / Build 모두 `✅ success`, Commit SHA, Workflow Run URL, MySQL 미사용 표시
+  - `## Backend`: Test / Build 모두 `✅ success`, Commit SHA, Workflow Run URL, MySQL 미사용 표시
+- 캡처 (`docs/images/task-012/`)
+
+  ![TASK-012 Frontend Summary](images/task-012/ci-summary-frontend.png)
+
+  ![TASK-012 Backend Summary](images/task-012/ci-summary-backend.png)
+
+추가 관찰:
+
+- Frontend Summary 위의 "Vitest Test Report"는 Vitest가 GitHub Actions 환경에서 자동으로 작성하는 Job Summary이다. (Test File 9개 / Test 73건) 설정 / Dependency 변경 없이 생성되며 DEC-021 범위와 충돌하지 않는다.
+- Backend Summary 아래의 "Gradle Builds"는 `gradle/actions/setup-gradle`이 기본으로 작성하는 Summary이다.
+  - "Caching was disabled"는 DEC-017(Cache 미사용)대로 동작함을 보여준다.
+  - "Gradle version is out of date" 안내가 있어 Gradle Version 검토를 후속 보완 작업 후보 FU-5로 추가했다. (TASK-011 섹션, Human 승인)
+
+### Human Review 승인
+
+승인 일자: 2026-10-01
+
+- Human이 TASK-012 Human Review를 승인했다.
+- TASK-012 상태를 DONE으로 변경했다.
+- TASK-001 ~ TASK-012 계획 Task가 모두 완료되었다.
+
 ### 결과
 
-Human Review 대기
+Human Review 완료 / DONE

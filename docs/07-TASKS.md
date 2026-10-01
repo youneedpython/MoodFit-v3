@@ -33,18 +33,18 @@ DONE
 
 ## 3. Current Task
 
-TASK-012 — GitHub Actions Bot
+없음 — TASK-001 ~ TASK-012 모두 DONE
 
 Status:
 
 ```text
-REVIEW
+ALL DONE
 ```
 
-TASK-001 ~ TASK-011은 DONE 상태이다. Core Feature 구현과 Verification Hardening이 완료되었다.
-TASK-012 Gate C Human Approval이 완료되었으며, 승인된 Bot 범위는 `docs/09-DECISIONS.md` DEC-021을 따른다.
-TASK-012는 CI Step Summary 구성, Local 확인, Remote CI Verification을 완료하고 Human Review를 기다리는 상태이다. (`prompts/24-TASK-012-GITHUB-ACTIONS-BOT.md`)
-TASK-011에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-4)는 `docs/08-WORK_LOG.md`를 따르며, 진행 시 별도 승인을 받는다.
+계획된 12개 Task(Milestone 1 ~ 12)가 모두 완료되었다.
+Core Feature(Daily Check-in, Dashboard, History / Trend), Verification Hardening, GitHub Actions Bot(DEC-021)이 구성되었다.
+TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-5)는 `docs/08-WORK_LOG.md` TASK-011 섹션을 따르며, 진행 시 각 후보에 필요한 승인을 받는다.
+새로운 Task를 시작하려면 Human 지시에 따라 Task를 정의하고 필요한 Gate를 거친다.
 
 ---
 
@@ -63,7 +63,7 @@ TASK-011에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-4)는 `docs/08-WO
 | TASK-009 | Milestone 9 | Dashboard | DONE | TASK-006, TASK-007, TASK-008 완료 (충족) | Gate C 조건부 |
 | TASK-010 | Milestone 10 | History / Trend | DONE | TASK-006, TASK-007, TASK-009 완료 (충족) | Gate C 조건부 |
 | TASK-011 | Milestone 11 | Verification Hardening | DONE | TASK-008, TASK-009, TASK-010 완료 (충족), Local Verification/CI 누적 확장 완료 (충족), Human 실행 승인 완료, Local/Remote Verification 확인 완료 | Gate C 조건부 |
-| TASK-012 | Milestone 12 | GitHub Actions Bot | REVIEW | TASK-002, TASK-003, TASK-011 완료 (충족), Local Verification/CI 안정화 (충족), DEC-021 Human Approved | Gate C 승인 완료 |
+| TASK-012 | Milestone 12 | GitHub Actions Bot | DONE | TASK-002, TASK-003, TASK-011 완료 (충족), Local Verification/CI 안정화 (충족), DEC-021 Human Approved | Gate C 승인 완료 |
 
 ---
 
@@ -917,12 +917,11 @@ Local Verification과 CI가 동일하거나 동등한 품질 기준을 갖도록
 ### 상태
 
 ```text
-REVIEW
+DONE
 ```
 
-선행 Task인 TASK-002, TASK-003, TASK-011은 DONE 상태이다.
-Gate C Human Approval이 완료되었으며 승인된 Bot 범위는 DEC-021을 Source of Truth로 사용한다.
-TASK-012는 CI Step Summary 구성, Local 확인, Remote CI Verification을 완료하고 Human Review를 기다리는 상태이다.
+TASK-012는 DEC-021 범위의 CI Step Summary 구성, Local 확인, Remote CI Verification, Human Review를 완료했다.
+작업 결과와 Verification 기록은 `docs/08-WORK_LOG.md`를 따른다.
 
 ### 목적
 

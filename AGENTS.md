@@ -30,24 +30,23 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-011은 DONE 상태이다.
-Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019를 Source of Truth로 사용한다.
+TASK-001 ~ TASK-012는 모두 DONE 상태이다.
+Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-012 — GitHub Actions Bot
+없음 (계획된 Task 모두 완료)
 ```
 
 Status:
 
 ```text
-REVIEW
+ALL DONE
 ```
 
-TASK-012 Gate C Human Approval이 완료되었으며, 승인된 Bot 범위는 DEC-021을 따른다.
-TASK-012는 CI Step Summary 구성과 Remote CI Verification을 완료하고 Human Review를 기다린다.
-TASK-011의 후속 보완 작업 후보(FU-1 ~ FU-4)는 별도 승인 없이 진행하지 않는다.
+TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-5)는 `docs/08-WORK_LOG.md` TASK-011 섹션을 따르며, 진행 시 각 후보에 필요한 승인을 받는다.
+새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

@@ -28,13 +28,12 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **TASK-011 — Verification Hardening 완료** 단계입니다.
+현재 Repository는 **계획된 TASK-001 ~ TASK-012가 모두 완료된** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-012 — GitHub Actions Bot
-REVIEW (Human Review 중)
+없음 (ALL DONE)
 ```
 
 진행 흐름:
@@ -54,7 +53,9 @@ TASK-007 ~ TASK-010   Frontend Foundation / Daily Check-in / Dashboard / History
     ↓
 TASK-011              Verification Hardening
     ↓
-TASK-012              GitHub Actions Bot  ← 현재
+TASK-012              GitHub Actions Bot
+    ↓
+ALL DONE              후속 보완 작업 후보 FU-1 ~ FU-5 (별도 승인)
 ```
 
 Task별 진행 결과:
@@ -72,10 +73,13 @@ Task별 진행 결과:
 | TASK-009 Dashboard | 최신 결과, 5개 Body Metric, 음식 / 음악 추천, Empty / Loading / Error 상태 | DONE |
 | TASK-010 History / Trend | 최근 7일 Wellness Score Trend, 날짜별 Mood / Metric / 추천 이력(DEC-020) | DONE |
 | TASK-011 Verification Hardening | 전체 Local / Remote CI 재검증, Verification Gap(GAP-1 ~ GAP-6) 정리 | DONE |
+| TASK-012 GitHub Actions Bot | CI 결과를 Step Summary로 자동 기록(실패 시에도 기록), Milestone 자동 Close 유지(DEC-021) | DONE |
 
 Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었습니다.
 
-TASK-011 Verification Hardening이 완료되었고, TASK-012 GitHub Actions Bot의 Gate C Human Approval(DEC-021)이 완료되어, TASK-012에서 CI 결과를 GitHub Actions Step Summary로 자동 기록하는 Bot을 구성했고(실패 시에도 기록), Remote CI 확인을 완료해 Human Review를 기다리고 있습니다.
+Verification Hardening(TASK-011)과 GitHub Actions Bot(TASK-012)까지 완료되어, 계획된 12개 Task가 모두 끝났습니다.
+
+남은 개선 항목은 후속 보완 작업 후보(FU-1 ~ FU-5)로 `docs/08-WORK_LOG.md` TASK-011 섹션에 정리되어 있으며, 진행 시 별도 승인을 받습니다.
 각 Task의 상세 기록은 `docs/08-WORK_LOG.md`, 승인된 결정은 `docs/09-DECISIONS.md`를 참고합니다.
 
 ## 현재 구조
@@ -175,6 +179,12 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-1. TASK-012 Human Review (GitHub Actions 실행 화면 Summary 확인)
-2. TASK-012 DONE
-3. 필요 시 TASK-011 후속 보완 작업 후보(FU-1 ~ FU-4) 승인 및 진행
+계획된 Task는 모두 완료되었습니다. 다음 작업은 Human 지시에 따라 선택합니다.
+
+| 후보 | 내용 | 필요 승인 |
+|---|---|---|
+| FU-1 | Frontend / Backend Contract 검증 (E2E 또는 Contract Test) | Gate C |
+| FU-2 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | Human Approval |
+| FU-3 | 실제 MySQL 기반 Integration Test (Testcontainers 등) | Gate C |
+| FU-4 | 고정 Timezone 기준 날짜 표시 Test | Human Approval |
+| FU-5 | Gradle Wrapper Version 검토 | Human Approval (DEC-015) |
