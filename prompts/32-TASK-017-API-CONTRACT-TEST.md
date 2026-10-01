@@ -53,8 +53,8 @@ backend/src/test/java/com/moodfit/
 
 ## 상태
 
-진행 중
+실행 완료 / Human Review 대기
 
 ## Related Commit
 
-Pending
+- `19f985c` test: TASK-017 API 계약 테스트 (contracts/) 추가

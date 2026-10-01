@@ -2100,7 +2100,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS (Gate C 승인: DEC-024, 2026-10-01)
+REVIEW (Gate C 승인: DEC-024, 2026-10-01)
 
 ### Gate C 결정 (DEC-024)
 
@@ -2180,6 +2180,28 @@ Local Verification:
 
 - 화면(UI) 변경이 없는 Task이므로 AGENTS.md 8.1 캡처 대상이 아니다.
 
+### Remote CI Verification
+
+Commit을 둘로 나누어 `main`에 push했다. (Human 지시)
+
+- `fcb7b80` docs: TASK-017 Gate C 검토 및 승인 반영 (DEC-024)
+- `19f985c` test: TASK-017 API 계약 테스트 (contracts/) 추가
+
+- Workflow run: https://github.com/youneedpython/MoodFit-v3/actions/runs/36841079709
+- 결과: PASS (`success`)
+
+| Job / Step | 결과 | 소요 시간 |
+|---|---|---|
+| `frontend` | success | 약 15초 |
+| `frontend` › Run frontend tests / Build | success | 약 5초 / 약 2초 (계약 Type 검사 포함) |
+| `backend` | success | 약 112초 |
+| `backend` › Run backend tests | success | 약 71초 (계약 Test, MySQL 연동 Test 포함) |
+| Sync Milestones | success | — |
+
+- CI `frontend` / `backend` Job 모두 Repository 전체를 Checkout하므로 `contracts/`를 읽는다. (`ci.yml` 변경 없음)
+
+Remote CI Verification 완료 후 TASK-017 상태를 REVIEW로 변경했다.
+
 ### 결과
 
-Implementation / Local Verification 완료 / Commit · Push 및 Remote CI 확인 대기
+Verification 완료 / Human Review 대기

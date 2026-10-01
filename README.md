@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-017 — API 계약 테스트 (Frontend / Backend)
-IN_PROGRESS
+REVIEW (Human Review 대기)
 ```
 
 진행 흐름:
