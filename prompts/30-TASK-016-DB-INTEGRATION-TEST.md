@@ -55,8 +55,9 @@ docker 실행했어.
 
 ## 상태
 
-실행 완료 / Human Review 대기
+완료 (Human Review 승인)
 
 ## Related Commit
 
 - `2f693d4` test: TASK-016 MySQL DB 연동 테스트 (Testcontainers) 추가
+- `e281af9` docs: TASK-016 Remote CI 검증 및 REVIEW 반영

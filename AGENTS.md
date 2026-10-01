@@ -37,18 +37,17 @@ Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB
 Current Task:
 
 ```text
-TASK-016 — DB 연동 테스트 (실제 MySQL)
+TASK-017 — API 계약 테스트 (Frontend / Backend)
 ```
 
 Status:
 
 ```text
-REVIEW
+BLOCKED
 ```
 
-TASK-013 ~ TASK-015는 DONE 상태이다.
-TASK-016은 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다.
-TASK-016 ~ TASK-017은 등록 순서대로 진행하며, 각 Task의 Human Approval / Gate C를 거친다.
+TASK-013 ~ TASK-016은 DONE 상태이다.
+TASK-017은 계약 테스트 방식 / 도구 선택을 포함하므로 Gate C 승인 전에는 시작하지 않는다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

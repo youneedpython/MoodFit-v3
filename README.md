@@ -33,8 +33,8 @@ Work Log
 Current Task:
 
 ```text
-TASK-016 — DB 연동 테스트 (실제 MySQL)
-REVIEW (Human Review 대기)
+TASK-017 — API 계약 테스트 (Frontend / Backend)
+BLOCKED (Gate C 대기)
 ```
 
 진행 흐름:
@@ -78,6 +78,7 @@ Task별 진행 결과:
 | TASK-013 Local Verification Environment Alignment | `verify.ps1` / `verify.sh`에 `npm ci` 추가, `.nvmrc`로 Node.js `24.21.0` 명시, 불일치 경고 | DONE |
 | TASK-014 Gradle Wrapper Version Review | Gradle Wrapper `8.14.5` → `9.8.0` 변경(DEC-015), CI "out of date" 안내 해소 | DONE |
 | TASK-015 Timezone-fixed Date Display Test | 날짜 / 시각 표시를 `Asia/Seoul`로 고정(DEC-022), 실행 Timezone과 무관한 경계값 Test | DONE |
+| TASK-016 DB 연동 테스트 (실제 MySQL) | Testcontainers `mysql:8.0.46`로 Flyway / 저장 / 조회 / API 흐름 검증(DEC-023), CI는 Docker 필수 | DONE |
 
 Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었습니다.
 
@@ -194,5 +195,5 @@ Post-MVP 보완 Task를 다음 순서로 진행합니다. 각 Task는 실행 전
 | 1 | TASK-013 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | FU-2 | Human Approval (완료, DONE) |
 | 2 | TASK-014 | Gradle Wrapper Version 검토 | FU-5 | Human Approval (DEC-015) (완료, DONE) |
 | 3 | TASK-015 | 고정 Timezone 기준 날짜 표시 Test | FU-4 | Human Approval (완료, DONE) |
-| 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C (승인 완료, DEC-023) |
+| 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C (승인 완료, DEC-023) (DONE) |
 | 5 | TASK-017 | API 계약 테스트 (Frontend / Backend) | FU-1 | Gate C |

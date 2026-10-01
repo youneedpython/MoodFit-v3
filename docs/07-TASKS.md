@@ -33,18 +33,18 @@ DONE
 
 ## 3. Current Task
 
-TASK-016 — DB 연동 테스트 (실제 MySQL)
+TASK-017 — API 계약 테스트 (Frontend / Backend)
 
 Status:
 
 ```text
-REVIEW
+BLOCKED
 ```
 
 TASK-001 ~ TASK-012(Core MVP)은 모두 DONE 상태이다.
 TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보 FU-1 ~ FU-5를 Human 지시에 따라 TASK-013 ~ TASK-017로 등록했다. (권장 순서: FU-2 → FU-5 → FU-4 → FU-3 → FU-1)
-TASK-013 ~ TASK-015는 Human Review 승인으로 DONE 상태이다. (TASK-014: Gradle Wrapper `9.8.0`, DEC-015 / TASK-015: 표시 Timezone `Asia/Seoul`, DEC-022)
-TASK-016은 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다. (DEC-023: Testcontainers MySQL `mysql:8.0.46`)
+TASK-013 ~ TASK-016은 Human Review 승인으로 DONE 상태이다. (TASK-014: Gradle Wrapper `9.8.0`, DEC-015 / TASK-015: 표시 Timezone `Asia/Seoul`, DEC-022 / TASK-016: Testcontainers MySQL, DEC-023)
+TASK-017은 선행 조건(TASK-016 완료)이 충족되었으며, 계약 테스트 방식 / 도구 선택을 포함하므로 실행 전 Gate C 승인을 기다린다.
 
 ---
 
@@ -67,8 +67,8 @@ TASK-016은 구현과 Local / Remote Verification을 마치고 Human Review를 �
 | TASK-013 | Milestone 13 | Local Verification Environment Alignment (FU-2) | DONE | Human Approval 완료, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-014 | Milestone 14 | Gradle Wrapper Version Review (FU-5) | DONE | TASK-013 완료 (충족), Human Approval 완료, Human 결정(B안 9.8.0), Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | DONE | TASK-014 완료 (충족), Human Approval 완료, DEC-022 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
-| TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | REVIEW | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료 | Gate C 승인 완료 |
-| TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | BLOCKED | TASK-016 완료 | Gate C 필요 |
+| TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | DONE | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
+| TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | BLOCKED | TASK-016 완료 (충족), Gate C 승인 대기 | Gate C 필요 |
 
 ---
 
@@ -1075,10 +1075,10 @@ DONE
 ### 상태
 
 ```text
-REVIEW
+DONE
 ```
 
-Gate C 승인(DEC-023) 후 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다.
+Gate C 승인(DEC-023), 구현, Local / Remote Verification, Human Review가 완료되었다.
 
 ### 목적
 
@@ -1112,7 +1112,7 @@ Backend를 실제 MySQL에 연결해 Flyway Schema, 저장 / 조회 동작을 �
 BLOCKED
 ```
 
-TASK-016 완료 후 진행한다.
+선행 Task(TASK-016)는 완료되었다. 실행 전 Gate C 승인을 기다린다.
 
 ### 목적
 
