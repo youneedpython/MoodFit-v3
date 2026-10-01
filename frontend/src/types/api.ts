@@ -73,6 +73,10 @@ export type HistoryItem = {
   energyLevel: number;
   temperature: number;
   weather: WeatherCondition;
+  /** 추천 음식 이름 (Mood Item, Context Item 순서, DEC-020) */
+  foodNames: string[];
+  /** 추천 음악 제목 (Mood Item, Context Item 순서, DEC-020) */
+  musicTitles: string[];
 };
 
 export type HistoryResponse = {

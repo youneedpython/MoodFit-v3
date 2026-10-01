@@ -11,15 +11,20 @@ function renderAt(path: string) {
 
 describe("App routes", () => {
   beforeEach(() => {
-    // Dashboard(/)는 최신 Check-in을 조회하므로 Route Test에서는 기록 없음(404)으로 응답한다.
+    // Route Test에서는 기록이 없는 상태로 응답한다. (Dashboard: latest 404, History: 빈 목록)
     vi.stubGlobal(
       "fetch",
-      vi.fn(() =>
+      vi.fn((input: string) =>
         Promise.resolve(
-          new Response(JSON.stringify({ code: "CHECKIN_NOT_FOUND", message: "Not found", fieldErrors: {} }), {
-            status: 404,
-            headers: { "Content-Type": "application/json" }
-          })
+          input.startsWith("/api/check-ins/history")
+            ? new Response(JSON.stringify({ days: 7, items: [] }), {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+              })
+            : new Response(JSON.stringify({ code: "CHECKIN_NOT_FOUND", message: "Not found", fieldErrors: {} }), {
+                status: 404,
+                headers: { "Content-Type": "application/json" }
+              })
         )
       )
     );
@@ -67,11 +72,10 @@ describe("App routes", () => {
     expect(screen.getByRole("link", { name: "Dashboard로 이동" }).getAttribute("href")).toBe("/");
   });
 
-  it("does not present hard-coded analysis results on placeholder screens", () => {
+  it("shows the history empty state when no records exist", async () => {
     renderAt("/history");
 
-    expect(screen.getByText("준비 중인 화면입니다.")).toBeTruthy();
-    expect(screen.queryByText(/wellness score \d/i)).toBeNull();
+    expect(await screen.findByText("아직 충분한 기록이 없습니다.")).toBeTruthy();
   });
 
   it("shows the dashboard empty state when no check-in exists", async () => {

@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,37 @@ class WellnessCheckinRepositoryTests {
                 .containsExactly(
                         Instant.parse("2026-09-29T00:00:00Z"),
                         Instant.parse("2026-09-30T00:00:00Z"));
+    }
+
+    @Test
+    void loadsHistoryRecommendationsWithoutAdditionalQueriesPerCheckin() {
+        repository.save(sample(Instant.parse("2026-09-28T00:00:00Z"), "TIRED"));
+        repository.save(sample(Instant.parse("2026-09-29T00:00:00Z"), "BALANCED"));
+        repository.save(sample(Instant.parse("2026-09-30T00:00:00Z"), "ENERGETIC"));
+        repository.flush();
+        entityManager.clear();
+
+        Statistics statistics = entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getStatistics();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            List<WellnessCheckin> items = repository.findByRecordedAtGreaterThanEqualOrderByRecordedAtAsc(
+                    Instant.parse("2026-09-28T00:00:00Z"));
+
+            assertThat(items).hasSize(3);
+            assertThat(items).allSatisfy(item -> {
+                assertThat(item.getFoodRecommendations())
+                        .extracting(FoodRecommendationValue::getName)
+                        .containsExactly("Mood Food", "Context Food");
+                assertThat(item.getMusicRecommendations())
+                        .extracting(MusicRecommendationValue::getTitle)
+                        .containsExactly("Mood Music", "Context Music");
+            });
+            // DEC-020: 기록 수와 관계없이 Recommendation까지 하나의 Query로 조회한다. (N+1 없음)
+            assertThat(statistics.getPrepareStatementCount()).isEqualTo(1);
+        } finally {
+            statistics.setStatisticsEnabled(false);
+        }
     }
 
     private WellnessCheckin sample(Instant recordedAt, String mood) {

@@ -42,10 +42,11 @@ TASK-010 — History / Trend
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-TASK-010은 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+TASK-010은 Human 실행 지시에 따라 시작되었다.
+History 응답의 추천 이름 필드 추가는 Gate C Human Approval(DEC-020)을 따른다.
 Trend는 CSS / SVG 기반으로 구현하며, 외부 Chart Library가 필요하면 Gate C를 적용한다. (DEC-010)
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
@@ -167,6 +168,18 @@ Task 완료
 - `docs/09-DECISIONS.md`: 중요한 기술적·제품적 결정 기록
 
 Task를 완료할 때 관련 상태와 작업 기록을 함께 갱신한다.
+
+### 8.1 화면 검토 캡처 기록
+
+화면(UI)이 바뀌는 Task는 화면 검토 캡처를 Repository에 남긴다.
+
+- 저장 위치: `docs/images/task-XXX/` (예: `docs/images/task-010/`)
+- 기본 캡처 폭: Mobile 390px, Tablet 768px, Desktop 1280px
+- 화면 검토에서 문제를 발견해 수정했다면 수정 전 / 수정 후 캡처를 함께 남긴다.
+- `docs/08-WORK_LOG.md`의 해당 Task Verification에 Markdown 이미지로 연결한다.
+  - 예: `![TASK-010 History](images/task-010/history-records-390-768-1280.png)`
+- Repository 용량을 위해 PNG를 압축한다. (가로 최대 1600px, 1장당 약 300KB 이하 권장)
+- 캡처에 실제 Secret, Password, 개인 인증 정보가 보이지 않는지 확인한다.
 
 ---
 

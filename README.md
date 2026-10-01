@@ -32,7 +32,7 @@ Current Task:
 
 ```text
 TASK-010 — History / Trend
-READY (실행 지시 대기)
+IN_PROGRESS
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -70,7 +70,7 @@ TASK-006에서 Check-in 저장, DEC-014 분석 / 추천, 최신 / History 조회
 TASK-007에서 Frontend Route 구조, 공통 Layout / Component, Design Token, API Client를 구성했고 Local / Remote CI Verification과 Human Review를 완료했습니다.
 TASK-008에서 Daily Check-in 입력, Validation, 제출 / 오류 / 결과 요약 흐름을 구현했고 Local / Remote CI Verification, Human 실행 확인, Human Review를 완료했습니다.
 TASK-009에서 최신 Check-in 결과, 5개 Body Metric, 음식 / 음악 추천과 Empty / Loading / Error 상태를 갖춘 Dashboard를 구현했고 Local / Remote CI Verification과 Human Review를 완료했습니다.
-현재는 사용자의 명시적인 TASK-010 실행 지시를 기다리는 상태입니다.
+현재는 TASK-010 History / Trend를 진행하는 상태입니다.
 
 ## 현재 구조
 
@@ -85,7 +85,7 @@ today-v3/
 │       ├── ci.yml
 │       └── milestones.yml
 ├── frontend/
-│   └── React + TypeScript + Vite (Router / Design System / API Client / Daily Check-in / Dashboard)
+│   └── React + TypeScript + Vite (Router / Design System / API Client / Daily Check-in / Dashboard / History)
 ├── backend/
 │   ├── Spring Boot + Spring Data JPA + Flyway (Check-in API)
 │   └── src/main/java/com/moodfit/
@@ -110,10 +110,11 @@ today-v3/
 │   ├── 07-TASKS.md
 │   ├── 08-WORK_LOG.md
 │   ├── 09-DECISIONS.md
-│   └── 10-WELLNESS-RULE-PROPOSAL.md
+│   ├── 10-WELLNESS-RULE-PROPOSAL.md
+│   └── images/ (Task별 화면 검토 캡처)
 └── prompts/
     ├── README.md
-    └── 01 ~ 20 Prompt History
+    └── 01 ~ 21 Prompt History
 ```
 
 ## Local 실행

@@ -997,6 +997,19 @@ DONE
   - Desktop 1280px, Tablet 768px, 560px, Mobile 390px
   - 390px는 Headless Edge 최소 창 너비 제한이 있어 iframe으로 정확한 너비를 만들어 확인했다.
   - 모든 너비에서 가로 넘침 없음, 메뉴 3개 표시, 현재 메뉴 강조, 560px 이하에서 Header / 메뉴 세로 배치
+  - 캡처 (`docs/images/task-007/`)
+    - 수정 전: Page 제목이 Header에 붙어 보임
+
+      ![TASK-007 수정 전 Desktop](images/task-007/layout-desktop-before.png)
+
+    - 수정 후: Desktop 1280px
+
+      ![TASK-007 수정 후 Desktop](images/task-007/layout-desktop-after.png)
+
+    - 수정 후: 390px / 560px / 768px
+
+      ![TASK-007 390 / 560 / 768px](images/task-007/layout-390-560-768.png)
+
 - Keyboard 접근성: 본문 건너뛰기 링크, 모든 Link / Button의 `:focus-visible` Focus Ring, 메뉴 Tap Target 최소 44px
 - `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
   - Frontend Test / Build, Backend Test / Build
@@ -1075,6 +1088,10 @@ DONE
 - 중복 제출 Guard 검증: `useRef` Guard를 임시로 제거하면 "fetch 1회 호출" Test가 2회 호출로 실패함을 확인하고 원복했다.
 - `npm run build`: PASS
 - 화면 검토: `vite preview` 결과를 390px / 768px / 1280px로 캡처해 확인. 가로 넘침 없음, 입력 그룹 / 범위 안내 표시, 390px에서 1열과 전체 폭 Button
+  - 캡처 (`docs/images/task-008/`): 390px / 768px / 1280px
+
+    ![TASK-008 Daily Check-in 390 / 768 / 1280px](images/task-008/checkin-390-768-1280.png)
+
 - Backend 관련 Test 재실행: PASS (`WellnessRulePolicyTests` 36건, `CheckinControllerTests` 13건, `WellnessCheckinRepositoryTests` 3건, `MoodFitApplicationTests` 1건)
 - `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
   - 새 Frontend Test는 기존 `npm test`에 포함되므로 Script / CI Workflow 변경 없이 검증 범위가 확장된다.
@@ -1191,6 +1208,10 @@ DONE
   - 390px / 768px / 1280px로 캡처해 확인: 가로 넘침 없음, Hero / Metric / 추천 영역 Responsive 배치 정상
   - 표시된 Summary와 추천(기온 36.0°C → HOT Context)이 DEC-014 Rule 결과와 일치했다.
   - 확인 후 Backend와 Preview 서버를 종료했다.
+  - 캡처 (`docs/images/task-009/`): 실제 Backend 데이터, 390px / 768px / 1280px
+
+    ![TASK-009 Dashboard 390 / 768 / 1280px](images/task-009/dashboard-390-768-1280.png)
+
 - Backend 관련 Test 재실행: PASS (`WellnessRulePolicyTests` 36건, `CheckinControllerTests` 13건, `WellnessCheckinRepositoryTests` 3건, `MoodFitApplicationTests` 1건)
 - `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
 
@@ -1220,3 +1241,97 @@ Remote CI Verification 완료 후 TASK-009 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-010 — History / Trend
+
+### 상태
+
+IN_PROGRESS
+
+Local Verification 완료 / Remote CI Verification 대기
+
+### 문서 충돌과 Gate C 결정 (DEC-020)
+
+- 실행 전 확인한 충돌: TASKS / PLAN / UX Spec은 History에 "추천 이력 요약"을 요구하지만, API Spec 6절은 History 응답을 최소 정보로 두고 "상세 Recommendation은 최신 또는 상세 조회에서 처리"로 정했다. 상세 조회 API는 명세에 없다.
+- AGENTS.md 3.1절에 따라 구현 전에 선택지(A: History에 추천 이름 추가 / B: 요구사항 제외 / C: 최신 추천 재표시)를 보고했다.
+- Human이 A안을 승인했다. → DEC-020, `prompts/21-TASK-010-HISTORY-TREND.md`
+
+### 작업 내용
+
+Backend (DEC-020):
+
+- `HistoryItemResponse`에 `foodNames`, `musicTitles` 추가 (기존 필드 변경 없음)
+- `CheckinServiceImpl`: 저장된 추천을 순서대로(Mood Item, Context Item) 이름 목록으로 변환
+- `WellnessCheckinRepository`: History 조회 메서드에 `@EntityGraph(foodRecommendations, musicRecommendations)`를 적용해 추천까지 하나의 Query로 조회 (N+1 방지)
+- DB Schema, Flyway Migration 변경 없음
+
+Frontend:
+
+- `src/features/history/useHistory.ts`: 최근 7일 History 조회 Hook (loading / empty / error / ready, 늦은 응답 무시)
+- `src/features/history/WellnessTrend.tsx`: 최근 7일 Wellness Score Trend
+  - 외부 Chart Library 없이 SVG + CSS로 구현 (DEC-010)
+  - SVG는 Grid와 선만 그리고, 점과 축 Label은 HTML로 % 위치에 배치해 화면 폭과 관계없이 글자 크기를 유지
+  - 그래프는 장식(`aria-hidden`)으로 처리하고 "기록 N건 · 최저 · 최고 · 최근" Text 요약 제공
+  - 기록이 1건이면 선 없이 점 하나만 표시
+- `src/features/history/HistoryRecordList.tsx`: 최신 기록부터 날짜 / 시각(`<time>`), Mood, Wellness Score, 주요 Metric, 날씨 / 기온, 추천 음식 / 음악 이력
+- `src/features/history/HistoryPage.tsx`: Loading / API Error + 다시 시도 / Empty State(UX Spec 문구 "아직 충분한 기록이 없습니다. 오늘의 상태를 입력해 보세요." + Check-in CTA) / 결과
+- `src/types/api.ts`: `HistoryItem`에 `foodNames`, `musicTitles` 추가
+
+문서:
+
+- `docs/05-API_SPEC.md` 6절 예시와 설명 갱신, `docs/09-DECISIONS.md` DEC-020 추가
+- README: Frontend 설명에 History 추가, Prompt History `01 ~ 21`, `docs/images/` 구조 추가
+- 화면 검토 캡처 기록 (Human 요청)
+  - TASK-007 ~ TASK-010 화면 검토 캡처 8장을 `docs/images/task-XXX/`에 저장하고 각 Task Verification에 연결했다.
+  - Pillow(기존 Local Python 환경)로 가로 최대 1600px, 256색 PNG로 압축했다. (3.9MB → 1.25MB)
+  - AGENTS.md 8.1절에 "화면이 바뀌는 Task는 캡처를 `docs/images/task-XXX/`에 남기고 WORK_LOG에 연결한다" 규칙을 추가했다.
+
+### 오류 및 해결
+
+- 화면 검토에서 발견: 처음에는 SVG 전체가 화면 폭에 맞춰 확대 / 축소되어 1280px에서는 축 글자가 지나치게 커지고 390px에서는 약 6px로 읽기 어려웠다. (`preserveAspectRatio="none"`을 쓰면 점이 타원으로 찌그러짐)
+  - 해결: SVG는 Grid / 선만 그리고 점과 Label을 HTML로 배치하는 구조로 변경했다. 재캡처로 모든 폭에서 같은 글자 크기와 원형 점을 확인했다.
+- Route Test: History(`/history`)도 API를 호출하므로 fetch Stub을 URL별로 나눴다. (History는 빈 목록, Latest는 404) 준비 중 화면이 더 이상 없으므로 "준비 중" 확인 Test를 History Empty State 확인으로 바꿨다.
+
+### Dependency / Contract
+
+- 새로운 Dependency, 외부 Chart Library 추가 없음. `package.json`, `package-lock.json`, `build.gradle` 변경 없음.
+- API Contract 변경: History 응답 필드 추가(DEC-020, Gate C 승인). 기존 필드 변경 없음.
+
+### Verification
+
+- Backend `gradlew test`: PASS, 55건 (추가 2건)
+  - `CheckinControllerTests`: 저장 후 History 응답의 `foodNames` / `musicTitles` 순서 확인
+  - `WellnessCheckinRepositoryTests`: 3건 조회 + 추천 접근 시 SQL 1회 (Hibernate Statistics)
+  - `@EntityGraph`를 임시로 제거하면 N+1 Test가 실패함을 확인하고 원복했다.
+- Frontend `npm test`: PASS, Test File 9개 / Test 73건 (TASK-010 추가 6건 + Route Test 조정)
+  - `HistoryPage.test.tsx`: `days=7` 요청과 Loading, Trend 점 수 / 선 / Text 요약, 1건일 때 점만 표시, 최신순 기록 / Mood / Metric / 날씨 / 추천 이력, UX Spec Empty State, 오류 후 다시 시도
+- Frontend `npm run build`: PASS
+- 실제 Backend 연동 화면 검토
+  - 새 Backend Jar를 Local MySQL(`moodfit_v3`)로 실행해 History 응답(4건, 각 `foodNames` / `musicTitles` 2개)을 확인했다.
+  - `vite preview` + `/api` Proxy로 390px / 768px / 1280px 캡처: 가로 넘침 없음, Trend 글자 크기 일정, 기록 목록 Responsive 배치 정상
+  - 확인 후 Backend와 Preview 서버를 종료했다.
+  - 캡처 (`docs/images/task-010/`): 실제 Backend 데이터, 390px / 768px / 1280px
+    - Trend 수정 전: 화면 폭에 따라 축 글자 크기가 달라짐 (390px에서 읽기 어려움)
+
+      ![TASK-010 Trend 수정 전](images/task-010/history-trend-before.png)
+
+    - Trend 수정 후: 모든 폭에서 같은 글자 크기와 원형 점
+
+      ![TASK-010 Trend 수정 후](images/task-010/history-trend-after.png)
+
+    - 기록 목록 (추천 이력 요약 포함)
+
+      ![TASK-010 History 기록 목록](images/task-010/history-records-390-768-1280.png)
+
+- 외부 Chart Library 미추가 확인: `package.json`에 Chart 관련 Dependency 없음
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
+
+### Remote CI Verification
+
+Pending — Commit / Push 후 확인 필요
+
+### 결과
+
+Local Verification PASS / Remote CI Verification 대기

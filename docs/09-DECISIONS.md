@@ -963,3 +963,41 @@ Core MVP는 단일 사용자 구조를 유지하므로 `user_id`는 추가하지
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-020 History 추천 이력 요약 필드
+
+### 결정
+
+TASK-010 History / Trend의 "추천 이력 요약"을 위해
+`GET /api/check-ins/history` 응답 항목에 추천 이름 필드를 추가한다.
+
+TASK-010 실행 시 확인된 문서 충돌을 Gate C Human Review로 결정했다.
+
+- `docs/07-TASKS.md`, `docs/06-PLAN.md`, `docs/03-UX_UI_SPEC.md`: History 산출물에 "추천 이력 요약" 포함
+- `docs/05-API_SPEC.md` 6절(변경 전): History는 최소 정보만 반환, 상세 Recommendation은 최신 또는 상세 조회에서 처리 (상세 조회 API는 명세에 없음)
+
+검토한 선택지와 결과는 `prompts/21-TASK-010-HISTORY-TREND.md`를 따른다. (A안 채택)
+
+### 추가 필드
+
+```text
+foodNames   : string[]  추천 음식 이름 (Mood Item, Context Item 순서)
+musicTitles : string[]  추천 음악 제목 (Mood Item, Context Item 순서)
+```
+
+### 규칙
+
+- 기존 History 응답 필드는 변경하지 않는다. (필드 추가만, 하위 호환)
+- 추천 이름만 포함하며 Tag / 이유 / Artist는 포함하지 않는다. 상세 정보는 최신 조회에서 제공한다.
+- 값은 Check-in 생성 시 저장된 추천(DEC-019 `checkin_food_recommendation`, `checkin_music_recommendation`)을 그대로 사용한다.
+- DB Schema, Flyway Migration은 변경하지 않는다.
+- History 조회 시 추천을 함께 조회해 기록마다 추가 Query가 발생하지 않도록 한다. (N+1 방지)
+- Frontend에서 추천을 다시 계산하지 않는다.
+
+### 상태
+
+```text
+Human Approved
+```

@@ -38,12 +38,12 @@ TASK-010 — History / Trend
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-009는 DONE 상태이다.
-TASK-010은 선행 Task 조건을 충족하여 실행 가능한 상태이다.
-단, TASK-010 실행 전 별도 Human 지시가 필요하다.
+TASK-010은 Human 실행 지시에 따라 시작되었다. (`prompts/21-TASK-010-HISTORY-TREND.md`)
+추천 이력 요약을 위한 History 응답 필드 추가는 Gate C Human Approval(DEC-020)에 따라 진행한다.
 Trend는 CSS / SVG 기반으로 구현하며, 외부 Chart Library가 필요하면 Gate C를 적용한다. (DEC-010)
 새로운 UI Library 또는 외부 Dependency가 필요하면 Gate C를 적용한다.
 
@@ -62,7 +62,7 @@ Trend는 CSS / SVG 기반으로 구현하며, 외부 Chart Library가 필요하�
 | TASK-007 | Milestone 7 | Frontend Foundation / Design System | DONE | TASK-001, TASK-002, TASK-003 완료 (충족), Gate A 승인 (충족) | Gate C 조건부 |
 | TASK-008 | Milestone 8 | Daily Check-in | DONE | TASK-006, TASK-007 완료 (충족) | Gate C 조건부 |
 | TASK-009 | Milestone 9 | Dashboard | DONE | TASK-006, TASK-007, TASK-008 완료 (충족) | Gate C 조건부 |
-| TASK-010 | Milestone 10 | History / Trend | READY | TASK-006, TASK-007, TASK-009 완료 (충족) | Gate C 조건부 |
+| TASK-010 | Milestone 10 | History / Trend | IN_PROGRESS | TASK-006, TASK-007, TASK-009 완료 (충족) | Gate C 조건부 |
 | TASK-011 | Milestone 11 | Verification Hardening | BLOCKED | TASK-008, TASK-009, TASK-010 완료, Local Verification/CI 누적 확장 완료 | Gate C 조건부 |
 | TASK-012 | Milestone 12 | GitHub Actions Bot | BLOCKED | TASK-002, TASK-003, TASK-011 완료, Local Verification/CI 안정화 | Gate C 필요 |
 
@@ -807,11 +807,12 @@ TASK-009는 구현, Local Verification, Remote CI Verification, Human Review를 
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 선행 Task인 TASK-006, TASK-007, TASK-009는 DONE 상태이다.
-TASK-010 실행 전 별도 Human 지시가 필요하다.
+TASK-010은 Human 실행 지시에 따라 시작되었다.
+History 응답의 추천 이름 필드 추가는 DEC-020을 따른다.
 
 ### 목적
 

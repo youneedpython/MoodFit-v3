@@ -209,14 +209,21 @@ GET /api/check-ins/history?days=7
       "stressLevel": 31,
       "energyLevel": 74,
       "temperature": 19.0,
-      "weather": "RAIN"
+      "weather": "RAIN",
+      "foodNames": ["연어 샐러드", "따뜻한 채소 스튜"],
+      "musicTitles": ["Light Motion Playlist", "Rainy Indoor Playlist"]
     }
   ]
 }
 ```
 
 History 화면에 필요한 최소 정보만 반환하는 것을 우선한다.
-상세 Recommendation은 최신 또는 상세 조회에서 처리한다.
+추천 이력 요약을 위해 각 항목은 추천 이름만 포함한다. (DEC-020)
+
+- `foodNames`: 추천 음식 이름 목록 (Mood Item, Context Item 순서)
+- `musicTitles`: 추천 음악 제목 목록 (Mood Item, Context Item 순서)
+
+추천의 Tag / 이유 / Artist 등 상세 정보는 최신 조회(`GET /api/check-ins/latest`)에서 제공한다.
 History 응답은 최근 `days × 24시간` Rolling Window를 기준으로 하며,
 `recordedAt` 오름차순으로 오래된 기록에서 최신 기록 순서로 반환한다.
 

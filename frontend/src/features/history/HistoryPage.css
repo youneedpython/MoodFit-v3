@@ -1,0 +1,178 @@
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Wellness Trend (SVG, DEC-010) */
+.wellness-trend {
+  margin: 0;
+}
+
+.wellness-trend__plot {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  grid-template-rows: 200px auto;
+  column-gap: var(--space-2);
+}
+
+.wellness-trend__y-labels,
+.wellness-trend__area,
+.wellness-trend__x-labels {
+  position: relative;
+}
+
+.wellness-trend__y-labels span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.wellness-trend__x-labels {
+  grid-column: 2;
+  height: 1.75rem;
+}
+
+.wellness-trend__x-labels span {
+  position: absolute;
+  top: var(--space-2);
+  transform: translateX(-50%);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.wellness-trend__chart {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.wellness-trend__grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.wellness-trend__line {
+  fill: none;
+  stroke: var(--color-accent-blue);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.wellness-trend__point {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 3px solid var(--color-accent-purple);
+  border-radius: 50%;
+  background: var(--color-surface);
+  transform: translate(-50%, -50%);
+}
+
+.wellness-trend__summary {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Records */
+.history-records {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-record {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.history-record__header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.history-record__time {
+  font-weight: var(--font-weight-bold);
+}
+
+.history-record__score {
+  margin-left: auto;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.history-record__score strong {
+  margin-left: var(--space-1);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-record__metrics,
+.history-record__recommendations {
+  display: grid;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-3) 0 0;
+}
+
+.history-record__metrics {
+  grid-template-columns: repeat(6, minmax(0, auto));
+  justify-content: start;
+}
+
+.history-record__recommendations {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.history-record dt {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.history-record dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 860px) {
+  .history-record__metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .wellness-trend__plot {
+    grid-template-rows: 160px auto;
+  }
+
+  .history-record__score {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+
+  .history-record__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .history-record__recommendations {
+    grid-template-columns: 1fr;
+  }
+}

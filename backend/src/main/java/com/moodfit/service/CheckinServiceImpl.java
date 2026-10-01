@@ -112,7 +112,13 @@ public class CheckinServiceImpl implements CheckinService {
                 checkin.getStressLevel(),
                 checkin.getEnergyLevel(),
                 checkin.getTemperature(),
-                checkin.getWeather());
+                checkin.getWeather(),
+                checkin.getFoodRecommendations().stream()
+                        .map(FoodRecommendationValue::getName)
+                        .toList(),
+                checkin.getMusicRecommendations().stream()
+                        .map(MusicRecommendationValue::getTitle)
+                        .toList());
     }
 
     private FoodRecommendationResponse toFoodResponse(FoodRecommendationValue value) {

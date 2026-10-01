@@ -70,6 +70,35 @@ class CheckinControllerTests {
     }
 
     @Test
+    void historyIncludesRecommendationNamesInOrder() throws Exception {
+        String request = """
+                {
+                  "heartRate": 68,
+                  "respiratoryRate": 18,
+                  "sleepScore": 86,
+                  "stressLevel": 31,
+                  "energyLevel": 74,
+                  "temperature": 19.0,
+                  "weather": "RAIN"
+                }
+                """;
+
+        mockMvc.perform(post("/api/check-ins")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/check-ins/history"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].mood.code").value("ENERGETIC"))
+                .andExpect(jsonPath("$.items[0].foodNames[0]").value("연어 샐러드"))
+                .andExpect(jsonPath("$.items[0].foodNames[1]").value("따뜻한 채소 스튜"))
+                .andExpect(jsonPath("$.items[0].musicTitles[0]").value("Light Motion Playlist"))
+                .andExpect(jsonPath("$.items[0].musicTitles[1]").value("Rainy Indoor Playlist"));
+    }
+
+    @Test
     void invalidCreateRequestReturnsValidationErrorStructure() throws Exception {
         String request = """
                 {
