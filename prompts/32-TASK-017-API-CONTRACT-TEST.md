@@ -53,8 +53,9 @@ backend/src/test/java/com/moodfit/
 
 ## 상태
 
-실행 완료 / Human Review 대기
+완료 (Human Review 승인)
 
 ## Related Commit
 
 - `19f985c` test: TASK-017 API 계약 테스트 (contracts/) 추가
+- `ebef142` docs: TASK-017 Remote CI 검증 및 REVIEW 반영

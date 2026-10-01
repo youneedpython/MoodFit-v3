@@ -33,18 +33,18 @@ DONE
 
 ## 3. Current Task
 
-TASK-017 — API 계약 테스트 (Frontend / Backend)
+없음 — TASK-001 ~ TASK-017 모두 DONE
 
 Status:
 
 ```text
-REVIEW
+ALL DONE
 ```
 
-TASK-001 ~ TASK-012(Core MVP)은 모두 DONE 상태이다.
-TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보 FU-1 ~ FU-5를 Human 지시에 따라 TASK-013 ~ TASK-017로 등록했다. (권장 순서: FU-2 → FU-5 → FU-4 → FU-3 → FU-1)
-TASK-013 ~ TASK-016은 Human Review 승인으로 DONE 상태이다. (TASK-014: Gradle Wrapper `9.8.0`, DEC-015 / TASK-015: 표시 Timezone `Asia/Seoul`, DEC-022 / TASK-016: Testcontainers MySQL, DEC-023)
-TASK-017은 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다. (DEC-024: 공유 계약 예시 JSON `contracts/`)
+TASK-001 ~ TASK-012(Core MVP)과 TASK-013 ~ TASK-017(Post-MVP 보완, FU-1 ~ FU-5)이 모두 완료되었다.
+Post-MVP 보완 결정: Gradle Wrapper `9.8.0`(DEC-015), 표시 Timezone `Asia/Seoul`(DEC-022), Testcontainers MySQL(DEC-023), 공유 계약 예시 JSON `contracts/`(DEC-024)
+TASK-014 Human Review에서 기록한 후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 `docs/08-WORK_LOG.md` TASK-014 섹션을 따르며, Task 등록 여부는 Human 결정 대기이다.
+새로운 Task를 시작하려면 Human 지시에 따라 Task를 정의하고 필요한 Gate를 거친다.
 
 ---
 
@@ -68,7 +68,7 @@ TASK-017은 구현과 Local / Remote Verification을 마치고 Human Review를 �
 | TASK-014 | Milestone 14 | Gradle Wrapper Version Review (FU-5) | DONE | TASK-013 완료 (충족), Human Approval 완료, Human 결정(B안 9.8.0), Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | DONE | TASK-014 완료 (충족), Human Approval 완료, DEC-022 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | DONE | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
-| TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | REVIEW | TASK-016 완료 (충족), DEC-024 Human Approved, Local / Remote Verification 완료 | Gate C 승인 완료 |
+| TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | DONE | TASK-016 완료 (충족), DEC-024 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 
 ---
 
@@ -1109,10 +1109,10 @@ Backend를 실제 MySQL에 연결해 Flyway Schema, 저장 / 조회 동작을 �
 ### 상태
 
 ```text
-REVIEW
+DONE
 ```
 
-Gate C 승인(DEC-024) 후 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다.
+Gate C 승인(DEC-024), 구현, Local / Remote Verification, Human Review가 완료되었다.
 
 ### 목적
 

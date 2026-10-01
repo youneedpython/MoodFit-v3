@@ -30,24 +30,25 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-012(Core MVP)는 모두 DONE 상태이다.
+TASK-001 ~ TASK-012(Core MVP)와 TASK-013 ~ TASK-017(Post-MVP 보완)은 모두 DONE 상태이다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 후속 보완 작업 FU-1 ~ FU-5는 TASK-013 ~ TASK-017로 등록되었다.
 
 Current Task:
 
 ```text
-TASK-017 — API 계약 테스트 (Frontend / Backend)
+없음 (계획된 Task 모두 완료)
 ```
 
 Status:
 
 ```text
-REVIEW
+ALL DONE
 ```
 
-TASK-013 ~ TASK-016은 DONE 상태이다.
-TASK-017은 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다.
+Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
+후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 `docs/08-WORK_LOG.md` TASK-014 섹션을 따르며, 진행 시 필요한 승인을 받는다.
+새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

@@ -28,13 +28,12 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **Core MVP(TASK-001 ~ TASK-012) 완료 후 Post-MVP 보완 Task(TASK-013 ~ TASK-017)를 진행하는** 단계입니다.
+현재 Repository는 **Core MVP(TASK-001 ~ TASK-012)와 Post-MVP 보완(TASK-013 ~ TASK-017)이 모두 완료된** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-017 — API 계약 테스트 (Frontend / Backend)
-REVIEW (Human Review 대기)
+없음 (ALL DONE)
 ```
 
 진행 흐름:
@@ -56,7 +55,7 @@ TASK-011              Verification Hardening
     ↓
 TASK-012              GitHub Actions Bot
     ↓
-TASK-013 ~ TASK-017   Post-MVP 보완 (FU-2 → FU-5 → FU-4 → FU-3 → FU-1)  ← 현재
+TASK-013 ~ TASK-017   Post-MVP 보완 (FU-2 → FU-5 → FU-4 → FU-3 → FU-1)
 ```
 
 Task별 진행 결과:
@@ -79,12 +78,13 @@ Task별 진행 결과:
 | TASK-014 Gradle Wrapper Version Review | Gradle Wrapper `8.14.5` → `9.8.0` 변경(DEC-015), CI "out of date" 안내 해소 | DONE |
 | TASK-015 Timezone-fixed Date Display Test | 날짜 / 시각 표시를 `Asia/Seoul`로 고정(DEC-022), 실행 Timezone과 무관한 경계값 Test | DONE |
 | TASK-016 DB 연동 테스트 (실제 MySQL) | Testcontainers `mysql:8.0.46`로 Flyway / 저장 / 조회 / API 흐름 검증(DEC-023), CI는 Docker 필수 | DONE |
+| TASK-017 API 계약 테스트 (Frontend / Backend) | 공유 계약 파일 `contracts/`로 Backend 응답 / Frontend Type / API 명세 예시 일치 검증(DEC-024) | DONE |
 
 Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었습니다.
 
 Verification Hardening(TASK-011)과 GitHub Actions Bot(TASK-012)까지 완료되어, 계획된 12개 Task가 모두 끝났습니다.
 
-남은 개선 항목(FU-1 ~ FU-5)은 TASK-013 ~ TASK-017로 등록했으며, 각 Task의 Human Approval / Gate C를 거쳐 순서대로 진행합니다.
+이후 개선 항목(FU-1 ~ FU-5)을 TASK-013 ~ TASK-017로 진행해 Local / CI 환경 정렬, Gradle 갱신, Timezone 고정, 실제 MySQL 연동 테스트, API 계약 테스트까지 완료했습니다.
 각 Task의 상세 기록은 `docs/08-WORK_LOG.md`, 승인된 결정은 `docs/09-DECISIONS.md`를 참고합니다.
 
 ## 현재 구조
@@ -189,12 +189,20 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-Post-MVP 보완 Task를 다음 순서로 진행합니다. 각 Task는 실행 전 표의 승인을 받습니다.
+Post-MVP 보완 Task는 모두 완료되었습니다.
 
-| 순서 | Task | 내용 | 원래 후보 | 필요 승인 |
+| 순서 | Task | 내용 | 원래 후보 | 승인 |
 |---|---|---|---|---|
-| 1 | TASK-013 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | FU-2 | Human Approval (완료, DONE) |
-| 2 | TASK-014 | Gradle Wrapper Version 검토 | FU-5 | Human Approval (DEC-015) (완료, DONE) |
-| 3 | TASK-015 | 고정 Timezone 기준 날짜 표시 Test | FU-4 | Human Approval (완료, DONE) |
-| 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C (승인 완료, DEC-023) (DONE) |
-| 5 | TASK-017 | API 계약 테스트 (Frontend / Backend) | FU-1 | Gate C (승인 완료, DEC-024) |
+| 1 | TASK-013 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | FU-2 | Human Approval (DONE) |
+| 2 | TASK-014 | Gradle Wrapper Version 검토 | FU-5 | Human Approval, DEC-015 (DONE) |
+| 3 | TASK-015 | 고정 Timezone 기준 날짜 표시 Test | FU-4 | Human Approval, DEC-022 (DONE) |
+| 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C, DEC-023 (DONE) |
+| 5 | TASK-017 | API 계약 테스트 (Frontend / Backend) | FU-1 | Gate C, DEC-024 (DONE) |
+
+남은 후보:
+
+| 후보 | 내용 | 필요 승인 |
+|---|---|---|
+| FU-6 | Runner OS 전환 대응 (`ubuntu-latest` → Ubuntu 26, 2026-10-19부터): 유지 후 결과 확인 또는 `ubuntu-24.04` 고정 | CI Workflow 변경 시 Gate C |
+
+새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate와 Human Approval을 거친 뒤 시작합니다.
