@@ -37,43 +37,46 @@ TASK-011 — Verification Hardening
 REVIEW
 ```
 
-완료된 Harness 단계는 다음과 같습니다.
+진행 흐름:
 
 ```text
-Requirements Review
+Requirements Review → Decision Sync → Implementation Plan
     ↓
-Decision Sync
+Gate A Technology Version Approval → Task Definition
     ↓
-Implementation Plan
+Gate C Bootstrap Dependency Approval → Pre-Bootstrap Sync → Spring Boot Version Re-review
     ↓
-Gate A Technology Version Approval
+TASK-001 ~ TASK-003   Project Bootstrap / Local Verification / GitHub Actions CI
     ↓
-Task Definition
+TASK-004 ~ TASK-006   Backend Skeleton / Wellness Rule(Gate B) / Backend Core
     ↓
-Gate C Bootstrap Dependency Approval
+TASK-007 ~ TASK-010   Frontend Foundation / Daily Check-in / Dashboard / History
     ↓
-Pre-Bootstrap Sync
+TASK-011              Verification Hardening  ← 현재
     ↓
-Spring Boot Version Re-review
-    ↓
-TASK-001 Project Bootstrap
-    ↓
-TASK-002 Initial Local Verification Harness
-    ↓
-TASK-003 Initial GitHub Actions CI
+TASK-012              GitHub Actions Bot
 ```
 
-Frontend / Backend 최소 Skeleton이 생성되었고 Test / Build Verification과 Human Review가 완료되었습니다.
-`scripts/verify.ps1`, `scripts/verify.sh` Local Verification Harness가 구성되었고 성공/실패 경로 검증과 Human Review가 완료되었습니다.
-DEC-017 기준 GitHub Actions CI(`.github/workflows/ci.yml`)가 구성되었고, Remote CI에서 `frontend` / `backend` Job이 모두 성공했으며 Human Review가 완료되었습니다.
-TASK-004 Backend API Skeleton 구현, Local / Remote CI Verification, Human Review가 완료되었습니다.
-TASK-005 Gate B Human Review를 거쳐 Wellness Analysis / Recommendation Rule이 DEC-014로 확정되었습니다.
-TASK-006에서 Check-in 저장, DEC-014 분석 / 추천, 최신 / History 조회를 구현했고 Local / Remote CI Verification, Local MySQL 실행 확인, Human Review를 완료했습니다.
-TASK-007에서 Frontend Route 구조, 공통 Layout / Component, Design Token, API Client를 구성했고 Local / Remote CI Verification과 Human Review를 완료했습니다.
-TASK-008에서 Daily Check-in 입력, Validation, 제출 / 오류 / 결과 요약 흐름을 구현했고 Local / Remote CI Verification, Human 실행 확인, Human Review를 완료했습니다.
-TASK-009에서 최신 Check-in 결과, 5개 Body Metric, 음식 / 음악 추천과 Empty / Loading / Error 상태를 갖춘 Dashboard를 구현했고 Local / Remote CI Verification과 Human Review를 완료했습니다.
-TASK-010에서 최근 7일 Wellness Score Trend와 날짜별 Mood / Metric / 추천 이력 요약을 갖춘 History를 구현했고(DEC-020), Local / Remote CI Verification과 Human Review를 완료했습니다.
-Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었으며, TASK-011 Verification Hardening의 Local Verification과 Remote CI 확인을 마치고 Human Review를 기다리고 있습니다.
+Task별 진행 결과:
+
+| Task | 주요 결과 | 상태 |
+|---|---|---|
+| TASK-001 Project Bootstrap | Frontend / Backend 최소 Skeleton 생성, Test / Build 검증 | DONE |
+| TASK-002 Local Verification Harness | `scripts/verify.ps1`, `scripts/verify.sh` 구성, 성공 / 실패 경로 검증 | DONE |
+| TASK-003 GitHub Actions CI | DEC-017 기준 `.github/workflows/ci.yml`, `frontend` / `backend` Job | DONE |
+| TASK-004 Backend Domain / API Skeleton | API Skeleton, Validation / Error Response 구조 | DONE |
+| TASK-005 Wellness Rule Approval | Gate B를 거쳐 Wellness Analysis / Recommendation Rule을 DEC-014로 확정 | DONE |
+| TASK-006 Backend Domain / API Core | Check-in 저장, DEC-014 분석 / 추천, 최신 / History 조회, Local MySQL 실행 확인 | DONE |
+| TASK-007 Frontend Foundation | Route 구조, 공통 Layout / Component, Design Token, API Client | DONE |
+| TASK-008 Daily Check-in | 입력, Validation, 제출 / 오류 / 결과 요약 흐름 | DONE |
+| TASK-009 Dashboard | 최신 결과, 5개 Body Metric, 음식 / 음악 추천, Empty / Loading / Error 상태 | DONE |
+| TASK-010 History / Trend | 최근 7일 Wellness Score Trend, 날짜별 Mood / Metric / 추천 이력(DEC-020) | DONE |
+| TASK-011 Verification Hardening | 전체 Local / Remote CI 재검증, Verification Gap(GAP-1 ~ GAP-6) 정리 | REVIEW |
+
+Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었습니다.
+
+현재는 TASK-011 Verification Hardening의 Human Review를 기다리고 있습니다.
+각 Task의 상세 기록은 `docs/08-WORK_LOG.md`, 승인된 결정은 `docs/09-DECISIONS.md`를 참고합니다.
 
 ## 현재 구조
 
