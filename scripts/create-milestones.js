@@ -253,6 +253,63 @@ const milestones = [
 - Bot이 Source Code 자동 수정하지 않음
 - 기록/검증 결과가 의도한 위치에 저장
 - Local Verification/CI 안정성 유지`
+  },
+  // Post-MVP 보완 (TASK-011 / TASK-012 후속 보완 작업 후보 FU-1 ~ FU-5)
+  {
+    title: 'Milestone 13: Local Verification Environment Alignment',
+    description: `목적: Local Verification과 CI 실행 환경 차이 축소 (FU-2)
+
+주요 산출물:
+- verify.ps1 / verify.sh에 npm ci 단계 추가
+- .nvmrc 또는 engines로 Node.js 24.21.0 명시
+
+완료 조건:
+- Local Verification이 CI와 같은 방식으로 Frontend 의존성 설치
+- 승인된 Node.js Version이 Repository에 명시됨`
+  },
+  {
+    title: 'Milestone 14: Gradle Wrapper Version Review',
+    description: `목적: Gradle Wrapper Version 유지 / 변경 결정 (FU-5)
+
+선행 조건:
+- Milestone 13 완료
+
+완료 조건:
+- Gradle Wrapper Version 결정이 DEC-015에 기록됨
+- 변경 시 Backend Test / Build와 CI 통과`
+  },
+  {
+    title: 'Milestone 15: Timezone-fixed Date Display Test',
+    description: `목적: 날짜 / 시각 표시를 고정 Timezone 기준으로 검증 (FU-4)
+
+선행 조건:
+- Milestone 14 완료
+
+완료 조건:
+- 날짜 / 시각 표시 Test가 실행 환경 Timezone과 관계없이 같은 결과`
+  },
+  {
+    title: 'Milestone 16: DB Integration Test (MySQL)',
+    description: `목적: DB 연동 테스트 — Backend를 실제 MySQL에 연결해 검증 (FU-3)
+
+선행 조건:
+- Milestone 15 완료
+- Gate C (검증 도구, DEC-009 / DEC-019 재검토)
+
+완료 조건:
+- 실제 MySQL에서 Schema 적용과 저장 / 조회 자동 검증
+- CI Database Strategy 변경이 DEC로 기록됨`
+  },
+  {
+    title: 'Milestone 17: API Contract Test (Frontend / Backend)',
+    description: `목적: API 계약 테스트 — Frontend / Backend가 API 형식을 지키는지 자동 검증 (FU-1)
+
+선행 조건:
+- Milestone 16 완료
+- Gate C (계약 테스트 방식 / 도구 선택)
+
+완료 조건:
+- API 계약 위반이 Local Verification과 CI에서 자동으로 발견됨`
   }
 ];
 
@@ -306,10 +363,20 @@ function makeRequest(method, path, body) {
 async function createMilestones() {
   console.log(`Creating ${milestones.length} milestones for ${OWNER}/${REPO}...\n`);
 
+  // 다시 실행해도 안전하도록 이미 있는 Milestone(제목 기준, open / closed 모두)은 건너뛴다.
+  const existing = await makeRequest('GET', `/repos/${OWNER}/${REPO}/milestones?state=all&per_page=100`);
+  const existingTitles = new Set(existing.data.map((milestone) => milestone.title));
+
   let created = 0;
+  let skipped = 0;
   let failed = 0;
 
   for (const milestone of milestones) {
+    if (existingTitles.has(milestone.title)) {
+      console.log(`- Skipped (already exists): ${milestone.title}`);
+      skipped++;
+      continue;
+    }
     try {
       const response = await makeRequest(
         'POST',
@@ -335,6 +402,7 @@ async function createMilestones() {
   console.log(`\n========================================`);
   console.log(`Summary:`);
   console.log(`  Created: ${created}/${milestones.length}`);
+  console.log(`  Skipped: ${skipped}/${milestones.length}`);
   console.log(`  Failed: ${failed}/${milestones.length}`);
   console.log(`========================================`);
 

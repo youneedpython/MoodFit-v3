@@ -33,18 +33,17 @@ DONE
 
 ## 3. Current Task
 
-없음 — TASK-001 ~ TASK-012 모두 DONE
+TASK-013 — Local Verification Environment Alignment
 
 Status:
 
 ```text
-ALL DONE
+BLOCKED
 ```
 
-계획된 12개 Task(Milestone 1 ~ 12)가 모두 완료되었다.
-Core Feature(Daily Check-in, Dashboard, History / Trend), Verification Hardening, GitHub Actions Bot(DEC-021)이 구성되었다.
-TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-5)는 `docs/08-WORK_LOG.md` TASK-011 섹션을 따르며, 진행 시 각 후보에 필요한 승인을 받는다.
-새로운 Task를 시작하려면 Human 지시에 따라 Task를 정의하고 필요한 Gate를 거친다.
+TASK-001 ~ TASK-012(Core MVP)은 모두 DONE 상태이다.
+TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보 FU-1 ~ FU-5를 Human 지시에 따라 TASK-013 ~ TASK-017로 등록했다. (권장 순서: FU-2 → FU-5 → FU-4 → FU-3 → FU-1)
+TASK-013은 선행 조건이 없지만 Local Verification Script 동작 변경을 포함하므로 실행 전 Human Approval을 기다린다.
 
 ---
 
@@ -64,6 +63,11 @@ TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-5)는 
 | TASK-010 | Milestone 10 | History / Trend | DONE | TASK-006, TASK-007, TASK-009 완료 (충족) | Gate C 조건부 |
 | TASK-011 | Milestone 11 | Verification Hardening | DONE | TASK-008, TASK-009, TASK-010 완료 (충족), Local Verification/CI 누적 확장 완료 (충족), Human 실행 승인 완료, Local/Remote Verification 확인 완료 | Gate C 조건부 |
 | TASK-012 | Milestone 12 | GitHub Actions Bot | DONE | TASK-002, TASK-003, TASK-011 완료 (충족), Local Verification/CI 안정화 (충족), DEC-021 Human Approved | Gate C 승인 완료 |
+| TASK-013 | Milestone 13 | Local Verification Environment Alignment (FU-2) | BLOCKED | Human Approval 대기 | 필요 |
+| TASK-014 | Milestone 14 | Gradle Wrapper Version Review (FU-5) | BLOCKED | TASK-013 완료 | 필요 (DEC-015 변경) |
+| TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | BLOCKED | TASK-014 완료 | 필요 |
+| TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | BLOCKED | TASK-015 완료 | Gate C 필요 |
+| TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | BLOCKED | TASK-016 완료 | Gate C 필요 |
 
 ---
 
@@ -960,6 +964,179 @@ TASK-012는 DEC-021 범위의 CI Step Summary 구성, Local 확인, Remote CI Ve
 
 ---
 
+## TASK-013 — Local Verification Environment Alignment
+
+### 상태
+
+```text
+BLOCKED
+```
+
+선행 Task는 없으며, Local Verification Script 동작 변경을 포함하므로 실행 전 Human Approval을 기다린다.
+
+### 목적
+
+Local Verification과 GitHub Actions CI의 실행 환경 차이를 줄인다. (FU-2, GAP-3 / GAP-4)
+
+### 주요 산출물
+
+- `scripts/verify.ps1`, `scripts/verify.sh`에 `npm ci` 단계 추가 (CI와 같은 lock file 기준 설치)
+- `.nvmrc` 또는 `package.json` `engines`로 Node.js `24.21.0` 명시 (DEC-015)
+- 필요 시 Local Node.js Version 불일치 안내
+
+### Verification
+
+- `verify.ps1`, `verify.sh` 성공 / 실패 경로 재검증
+- Local Verification과 CI의 Frontend 설치 / Test / Build 단계 비교
+
+### Human Approval 또는 Gate
+
+- Local Verification Script 동작 변경이므로 실행 전 Human Approval 필요
+- 새로운 Dependency가 필요하면 Gate C 적용
+
+### 완료 조건
+
+- Local Verification이 CI와 같은 방식으로 Frontend 의존성을 설치한다.
+- 승인된 Node.js Version이 Repository에 명시된다.
+
+---
+
+## TASK-014 — Gradle Wrapper Version Review
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-013 완료 후 진행한다.
+
+### 목적
+
+TASK-012 CI Summary에서 확인된 "Gradle version is out of date" 안내를 검토하고, Gradle Wrapper Version 유지 / 변경을 결정한다. (FU-5)
+
+### 주요 산출물
+
+- Gradle Wrapper `8.14.5` 유지 또는 상위 Version 전환 검토 자료 (Spring Boot 4.1.1 호환 범위: Gradle 8.14+ / 9.x)
+- 변경 승인 시 Gradle Wrapper 갱신과 DEC-015 갱신
+
+### Verification
+
+- Backend Test / Build, Local Verification, Remote CI
+- `gradle/actions/setup-gradle` Wrapper 검증 통과 확인
+
+### Human Approval 또는 Gate
+
+- 기술 Version 변경이므로 Human Approval 필요 (DEC-015 변경)
+
+### 완료 조건
+
+- Gradle Wrapper Version 결정이 DEC-015에 기록된다.
+- 변경 시 Backend Test / Build와 CI가 통과한다.
+
+---
+
+## TASK-015 — Timezone-fixed Date Display Test
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-014 완료 후 진행한다.
+
+### 목적
+
+화면의 날짜 / 시각 표시가 실행 환경 Timezone에 따라 달라지는 부분을 고정 Timezone 기준으로 검증한다. (FU-4, GAP-6)
+
+### 주요 산출물
+
+- 고정 Timezone 기준 날짜 / 시각 표시 Frontend Test
+
+### Verification
+
+- Frontend Test / Build, Local Verification, Remote CI
+
+### Human Approval 또는 Gate
+
+- 실행 전 Human Approval 필요
+- 새로운 Dependency가 필요하면 Gate C 적용
+
+### 완료 조건
+
+- 날짜 / 시각 표시 Test가 실행 환경 Timezone과 관계없이 같은 결과를 낸다.
+
+---
+
+## TASK-016 — DB 연동 테스트 (실제 MySQL)
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-015 완료 후 진행한다.
+
+### 목적
+
+Backend를 실제 MySQL에 연결해 Flyway Schema, 저장 / 조회 동작을 검증한다. (FU-3, GAP-5)
+
+### 주요 산출물
+
+- 실제 MySQL 기반 DB 연동 테스트 (예: Testcontainers)
+- Local Verification / CI 반영 방식 결정 (Docker 필요 여부, 실행 시간)
+
+### Verification
+
+- DB 연동 테스트, Backend Test / Build, Local Verification, Remote CI
+
+### Human Approval 또는 Gate
+
+- 검증 도구 / Dependency 추가와 DEC-009(CI Database Strategy), DEC-019 재검토가 필요하므로 Gate C 필요
+
+### 완료 조건
+
+- 실제 MySQL에서 Schema 적용과 저장 / 조회가 자동 검증된다.
+- CI Database Strategy 변경이 DEC로 기록된다.
+
+---
+
+## TASK-017 — API 계약 테스트 (Frontend / Backend)
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-016 완료 후 진행한다.
+
+### 목적
+
+Frontend와 Backend가 약속한 API 형식(`docs/05-API_SPEC.md`)을 양쪽이 지키는지 자동 검증한다. (FU-1, GAP-2)
+
+### 주요 산출물
+
+- API 계약 테스트 방식 결정 (공유 예시 JSON 기반 Contract Test, Pact, E2E 중 선택)
+- 선택한 방식의 계약 테스트
+
+### Verification
+
+- Backend 응답이 계약과 다르거나 Frontend 기대 형식이 계약과 다르면 Test가 실패하는지 확인
+- Frontend / Backend Test / Build, Local Verification, Remote CI
+
+### Human Approval 또는 Gate
+
+- 검증 도구 / 방식 선택이 필요하므로 Gate C 필요
+
+### 완료 조건
+
+- API 계약 위반이 Local Verification과 CI에서 자동으로 발견된다.
+
+---
+
 ## 5. Human Approval 필요 Task
 
 다음 Task는 실행 전 Human Approval 또는 Gate 확인이 필요하다.
@@ -975,6 +1152,11 @@ TASK-012는 DEC-021 범위의 CI Step Summary 구성, Local 확인, Remote CI Ve
 - TASK-010: 외부 Chart Library 필요 시 Gate C 필요
 - TASK-011: 추가 검증 도구 또는 Database Integration Test 필요 시 Gate C 필요
 - TASK-012: GitHub Actions Bot 구성이므로 Gate C 필요
+- TASK-013: Local Verification Script 동작 변경이므로 Human Approval 필요
+- TASK-014: Gradle Wrapper Version 변경 시 Human Approval 필요 (DEC-015)
+- TASK-015: 실행 전 Human Approval 필요
+- TASK-016: DB 연동 테스트 도구와 CI Database Strategy 변경이므로 Gate C 필요
+- TASK-017: API 계약 테스트 방식 / 도구 선택이므로 Gate C 필요
 
 ---
 

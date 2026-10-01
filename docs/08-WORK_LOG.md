@@ -1470,11 +1470,26 @@ Local Verification과 CI의 Core Test / Build 범위(Frontend Test / Build, Back
 
 | 후보 | 대상 Gap | 내용 | 필요 승인 |
 |---|---|---|---|
-| FU-1 | GAP-2 | Frontend / Backend Contract 검증 (예: 실제 Backend를 띄운 E2E 또는 Contract Test) | Gate C (검증 도구 / Dependency 추가) |
+| FU-1 | GAP-2 | API 계약 테스트 (Frontend / Backend): API 응답 형식을 양쪽이 지키는지 자동 검증 (예: 공유 예시 JSON 기반 Contract Test, 또는 E2E) | Gate C (검증 도구 / Dependency 추가) |
 | FU-2 | GAP-3, GAP-4 | `verify.ps1` / `verify.sh`에 `npm ci` 단계 추가, `.nvmrc` 또는 `engines`로 Node.js Version 명시 | Human Approval (검증 Script 동작 변경) |
-| FU-3 | GAP-5 | Testcontainers 등 실제 MySQL 기반 Integration Test | Gate C (DEC-009 / DEC-019 재검토) |
+| FU-3 | GAP-5 | DB 연동 테스트 (실제 MySQL): Testcontainers 등으로 실제 MySQL에 연결한 Integration Test | Gate C (DEC-009 / DEC-019 재검토) |
 | FU-4 | GAP-6 | 고정 Timezone 기준 날짜 표시 Test | Human Approval |
 | FU-5 | — (TASK-012 CI Summary 관찰) | Gradle Wrapper Version 검토. `gradle/actions/setup-gradle` Summary가 승인 Version `8.14.5`(DEC-015)에 대해 "Gradle version is out of date"를 안내함. Spring Boot 4.1.1은 Gradle 8.14+ / 9.x를 지원 | Human Approval (DEC-015 기술 Version 변경) |
+
+용어:
+
+- API 계약 테스트(Contract Test): Frontend와 Backend를 함께 띄우지 않고, 약속한 API 형식을 양쪽이 각각 지키는지 검증한다.
+- DB 연동 테스트(Integration Test): Backend를 실제 MySQL에 연결해 함께 동작하는지 검증한다.
+
+FU-1 ~ FU-5는 2026-10-01 Human 지시로 TASK-013 ~ TASK-017에 등록되었다. (`docs/07-TASKS.md`)
+
+| FU | 등록 Task |
+|---|---|
+| FU-2 | TASK-013 |
+| FU-5 | TASK-014 |
+| FU-4 | TASK-015 |
+| FU-3 | TASK-016 |
+| FU-1 | TASK-017 |
 
 TASK-011 문서 변경분은 Commit / Push 후 Remote CI가 다시 실행된다.
 

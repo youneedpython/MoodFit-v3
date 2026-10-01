@@ -28,12 +28,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **계획된 TASK-001 ~ TASK-012가 모두 완료된** 단계입니다.
+현재 Repository는 **Core MVP(TASK-001 ~ TASK-012) 완료 후 Post-MVP 보완 Task(TASK-013 ~ TASK-017)를 등록한** 단계입니다.
 
 Current Task:
 
 ```text
-없음 (ALL DONE)
+TASK-013 — Local Verification Environment Alignment
+BLOCKED (Human Approval 대기)
 ```
 
 진행 흐름:
@@ -55,7 +56,7 @@ TASK-011              Verification Hardening
     ↓
 TASK-012              GitHub Actions Bot
     ↓
-ALL DONE              후속 보완 작업 후보 FU-1 ~ FU-5 (별도 승인)
+TASK-013 ~ TASK-017   Post-MVP 보완 (FU-2 → FU-5 → FU-4 → FU-3 → FU-1)  ← 현재
 ```
 
 Task별 진행 결과:
@@ -79,7 +80,7 @@ Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었�
 
 Verification Hardening(TASK-011)과 GitHub Actions Bot(TASK-012)까지 완료되어, 계획된 12개 Task가 모두 끝났습니다.
 
-남은 개선 항목은 후속 보완 작업 후보(FU-1 ~ FU-5)로 `docs/08-WORK_LOG.md` TASK-011 섹션에 정리되어 있으며, 진행 시 별도 승인을 받습니다.
+남은 개선 항목(FU-1 ~ FU-5)은 TASK-013 ~ TASK-017로 등록했으며, 각 Task의 Human Approval / Gate C를 거쳐 순서대로 진행합니다.
 각 Task의 상세 기록은 `docs/08-WORK_LOG.md`, 승인된 결정은 `docs/09-DECISIONS.md`를 참고합니다.
 
 ## 현재 구조
@@ -124,7 +125,7 @@ MoodFit-v3/
 │   └── images/ (Task별 화면 검토 캡처)
 └── prompts/
     ├── README.md
-    └── 01 ~ 22 Prompt History
+    └── 01 ~ 25 Prompt History
 ```
 
 ## Local 실행
@@ -136,7 +137,7 @@ Backend를 직접 실행할 때만 Local MySQL이 필요합니다.
 # 1. v3 전용 DB 생성 (최초 1회)
 mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS moodfit_v3 CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
 
-# 2. .env.example을 복사해 .env.local 작성 (Commit 금지)
+# 2. .env.example 복사 .env.local 작성 (Commit 금지)
 #    DB_URL=jdbc:mysql://localhost:3306/moodfit_v3
 
 # 3. 환경변수 불러오기 (Git Bash, 새 터미널마다)
@@ -152,7 +153,7 @@ cd backend && ./gradlew bootRun
 
 ## 보조 스크립트
 
-- `scripts/create-milestones.js`: `docs/07-TASKS.md`의 Milestone 1~12를 GitHub Milestone으로 생성하는 일회성 도구입니다. TASK 산출물이나 Local Verification / CI 대상이 아닙니다.
+- `scripts/create-milestones.js`: `docs/07-TASKS.md`의 Milestone 1~17을 GitHub Milestone으로 생성하는 도구입니다. 이미 있는 Milestone은 제목 기준으로 건너뛰므로 다시 실행해도 안전합니다. TASK 산출물이나 Local Verification / CI 대상이 아닙니다.
   - 실행: `GITHUB_TOKEN` 환경변수를 설정한 뒤 `node scripts/create-milestones.js`
   - Token은 Repository에 Commit하지 않습니다.
 - `.github/workflows/milestones.yml`: `docs/07-TASKS.md`에서 DONE이 된 Task의 GitHub Milestone을 자동으로 Close합니다. (DEC-018)
@@ -179,12 +180,12 @@ Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
 
 ## 다음 단계
 
-계획된 Task는 모두 완료되었습니다. 다음 작업은 Human 지시에 따라 선택합니다.
+Post-MVP 보완 Task를 다음 순서로 진행합니다. 각 Task는 실행 전 표의 승인을 받습니다.
 
-| 후보 | 내용 | 필요 승인 |
-|---|---|---|
-| FU-1 | Frontend / Backend Contract 검증 (E2E 또는 Contract Test) | Gate C |
-| FU-2 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | Human Approval |
-| FU-3 | 실제 MySQL 기반 Integration Test (Testcontainers 등) | Gate C |
-| FU-4 | 고정 Timezone 기준 날짜 표시 Test | Human Approval |
-| FU-5 | Gradle Wrapper Version 검토 | Human Approval (DEC-015) |
+| 순서 | Task | 내용 | 원래 후보 | 필요 승인 |
+|---|---|---|---|---|
+| 1 | TASK-013 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | FU-2 | Human Approval |
+| 2 | TASK-014 | Gradle Wrapper Version 검토 | FU-5 | Human Approval (DEC-015) |
+| 3 | TASK-015 | 고정 Timezone 기준 날짜 표시 Test | FU-4 | Human Approval |
+| 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C |
+| 5 | TASK-017 | API 계약 테스트 (Frontend / Backend) | FU-1 | Gate C |

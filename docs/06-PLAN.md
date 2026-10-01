@@ -40,7 +40,16 @@ Milestone 9  Dashboard
 Milestone 10 History / Trend
 Milestone 11 Verification Hardening
 Milestone 12 GitHub Actions Bot
+
+# Post-MVP 보완 (2026-10-01 Human 지시로 추가, TASK-011 / TASK-012 후속 보완 작업 후보)
+Milestone 13 Local Verification Environment Alignment (FU-2)
+Milestone 14 Gradle Wrapper Version Review (FU-5)
+Milestone 15 Timezone-fixed Date Display Test (FU-4)
+Milestone 16 DB 연동 테스트 — 실제 MySQL (FU-3)
+Milestone 17 API 계약 테스트 — Frontend / Backend (FU-1)
 ```
+
+Milestone 13 ~ 17의 상세 범위와 승인 조건은 `docs/07-TASKS.md` TASK-013 ~ TASK-017을 따른다.
 
 Local Verification Harness와 GitHub Actions CI를 Core Feature 구현 이후가 아니라 Project Bootstrap 직후에 배치한다.
 초기에는 Frontend Test/Build와 Backend Test/Build를 최소 검증 대상으로 삼고, Feature Task가 추가될 때마다 검증 범위를 점진적으로 확장한다.
