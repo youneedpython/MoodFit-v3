@@ -4,6 +4,8 @@ MoodFit v3는 사용자의 신체 리듬 정보와 날씨 정보를 기반으로
 
 이번 버전의 핵심은 기능 구현 자체보다 **Harness Engineering을 적용한 Codex 개발 프로세스**에 있습니다.
 
+- Repository: https://github.com/youneedpython/MoodFit-v3 (이전 이름: `today-v3`)
+
 ## v3 핵심 목표
 
 ```text
@@ -76,7 +78,7 @@ Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었�
 ## 현재 구조
 
 ```text
-today-v3/
+MoodFit-v3/
 ├── AGENTS.md
 ├── README.md
 ├── .gitignore

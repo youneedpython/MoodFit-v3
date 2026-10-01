@@ -1353,3 +1353,28 @@ Remote CI Verification 완료 후 TASK-010 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## Out-of-Task — Repository 이름 변경 (`today-v3` → `MoodFit-v3`)
+
+### 상태
+
+DONE
+
+### 작업 내용
+
+- Human이 GitHub Repository 이름을 `today-v3`에서 `MoodFit-v3`로 변경했다. (2026-10-01)
+  - 버전 표기는 관례에 따라 소문자 `v`를 사용했다.
+- GitHub API로 변경을 확인했다.
+  - `youneedpython/MoodFit-v3` 조회 성공
+  - 이전 이름 `youneedpython/today-v3` 요청은 HTTP 301 Redirect
+- Local `origin` Remote URL을 `https://github.com/youneedpython/MoodFit-v3.git`로 변경하고 `git fetch` / `git ls-remote`로 연결을 확인했다.
+- `scripts/create-milestones.js`의 기본 `REPO_NAME`을 `MoodFit-v3`로 변경했다.
+- README에 Repository 주소(이전 이름 포함)를 추가하고 구조의 Root 이름을 `MoodFit-v3/`로 변경했다.
+
+### 변경하지 않은 것
+
+- `docs/08-WORK_LOG.md`, `prompts/`의 과거 GitHub Actions 실행 링크(`today-v3`)는 과거 기록이므로 유지했다. GitHub Redirect로 열린다.
+- `.github/workflows/`는 `$GITHUB_REPOSITORY`를 사용하므로 변경하지 않았다.
+- Local 작업 폴더 이름(`today-v3`)은 변경하지 않았다.

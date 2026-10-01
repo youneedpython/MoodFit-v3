@@ -9,13 +9,13 @@
  * Environment Variables:
  *   GITHUB_TOKEN: GitHub Personal Access Token (required)
  *   REPO_OWNER: Repository owner (default: youneedpython)
- *   REPO_NAME: Repository name (default: today-v3)
+ *   REPO_NAME: Repository name (default: MoodFit-v3)
  */
 
 const https = require('https');
 
 const OWNER = process.env.REPO_OWNER || 'youneedpython';
-const REPO = process.env.REPO_NAME || 'today-v3';
+const REPO = process.env.REPO_NAME || 'MoodFit-v3';
 const TOKEN = process.env.GITHUB_TOKEN;
 
 if (!TOKEN) {
