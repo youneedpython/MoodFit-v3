@@ -587,7 +587,7 @@ jsdom 30.1.1
 Backend
 Java 21
 Spring Boot 4.1.1
-Gradle Wrapper 8.14.5
+Gradle Wrapper 9.8.0
 ```
 
 ### Version 고정 정책
@@ -598,7 +598,7 @@ Gradle Wrapper 8.14.5
 - TypeScript는 Vite `8.3.1` 공식 React + TypeScript Template 기준의 `6.0.2`를 사용한다.
 - `package.json`의 직접 Dependency는 Core MVP 재현성을 위해 정확한 Version으로 고정한다.
 - `package-lock.json`은 Repository에 Commit한다.
-- Gradle Wrapper Version은 `8.14.5`로 고정한다.
+- Gradle Wrapper Version은 `9.8.0`으로 고정한다. (Spring Boot 4.1.1 지원 범위: Gradle 8.x(8.14 이상) / 9.x)
 - Spring Boot Plugin Version은 `4.1.1`로 고정한다.
 - GitHub Actions에서도 Node.js `24.21.0`과 Java `21`을 사용한다.
 
@@ -618,6 +618,13 @@ JUnit 6 기본 Stack
 
 Jackson 2 compatibility path는 TASK-001에서 사용하지 않는다.
 향후 실제 호환성 문제가 발생하면 Gate C에서 별도로 검토한다.
+
+### 변경 이력
+
+- 2026-10-01: TASK-014 Gradle Wrapper Version Review에서 Gradle Wrapper를 `8.14.5` → `9.8.0`으로 변경했다. (Human Approved)
+  - 배경: TASK-012 CI Summary의 "Gradle version is out of date" 안내 (FU-5)
+  - 근거: Spring Boot 4.1.1 지원 범위 안, 변경 전 검증에서 Backend Test 57건 통과 / Deprecation 경고 0건
+  - Wrapper jar SHA-256이 Gradle 공식 배포 값과 일치함을 확인했다.
 
 ### 상태
 

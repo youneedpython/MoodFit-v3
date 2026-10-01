@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-014 — Gradle Wrapper Version Review
-BLOCKED (Human Approval 대기)
+IN_PROGRESS
 ```
 
 진행 흐름:
@@ -127,7 +127,7 @@ MoodFit-v3/
 │   └── images/ (Task별 화면 검토 캡처)
 └── prompts/
     ├── README.md
-    └── 01 ~ 26 Prompt History
+    └── 01 ~ 27 Prompt History
 ```
 
 ## Local 실행
@@ -172,7 +172,7 @@ cd backend && ./gradlew bootRun
 ## 기술 스택
 
 - Frontend: Node.js 24.21.0 + React 19.3.0 + TypeScript 6.0.2 + Vite 8.3.1
-- Backend: Java 21 + Spring Boot 4.1.1 + Gradle Wrapper 8.14.5
+- Backend: Java 21 + Spring Boot 4.1.1 + Gradle Wrapper 9.8.0
 - Database: MySQL
 - CI: GitHub Actions
 

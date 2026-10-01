@@ -43,11 +43,11 @@ TASK-014 — Gradle Wrapper Version Review
 Status:
 
 ```text
-BLOCKED
+IN_PROGRESS
 ```
 
 TASK-013은 DONE 상태이다.
-TASK-014는 기술 Version 검토(DEC-015)를 포함하므로 Human Approval 전에는 시작하지 않는다.
+TASK-014는 Human Approval을 받아 진행 중이다. Gradle Wrapper Version 변경 여부는 검토 결과를 보고 Human이 결정한다.
 TASK-015 ~ TASK-017은 등록 순서대로 진행하며, 각 Task의 Human Approval / Gate C를 거친다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.

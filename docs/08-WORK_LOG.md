@@ -1732,3 +1732,72 @@ Remote CI Verification 완료 후 TASK-013 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-014 — Gradle Wrapper Version Review
+
+### 상태
+
+IN_PROGRESS (Human Approval 완료: 2026-10-01, Human 결정: B안 `9.8.0`으로 변경)
+
+### 검토 배경 (FU-5)
+
+TASK-012 Human Review에서 `gradle/actions/setup-gradle` Summary에 "Gradle version is out of date" 안내가 표시되었다.
+
+### 확인 자료 (2026-10-01 기준)
+
+| 항목 | 내용 | 출처 |
+|---|---|---|
+| 현재 Wrapper | Gradle `8.14.5` (2026-05-07 배포, 8.14 계열 최신 Patch) | `backend/gradle/wrapper/gradle-wrapper.properties`, services.gradle.org |
+| 최신 Gradle | `9.8.0` (2026-09-24 배포) | services.gradle.org `versions/current` |
+| Spring Boot 4.1.1 지원 범위 | Gradle 8.x (8.14 이상)와 9.x | Spring Boot 4.1 System Requirements / Gradle Plugin 문서 |
+| `io.spring.dependency-management` | `1.1.7` (현재 최신 배포) | Gradle Plugin Portal |
+| Java | Local / CI 모두 Java 21 (Gradle 9 실행 요구 Java 17 이상 충족) | DEC-015, `ci.yml` |
+
+### 검증
+
+| 대상 | 명령 | 결과 |
+|---|---|---|
+| 현재 `8.14.5` (Repository) | `gradlew clean test build --warning-mode all --no-build-cache` | BUILD SUCCESSFUL, Test 57건 통과, Deprecation 경고 0건 |
+| 후보 `9.8.0` (Repository 밖 임시 사본) | `gradlew clean test build --warning-mode all` | BUILD SUCCESSFUL, Test 57건 통과, Deprecation 경고 0건, 실행 Jar / plain Jar 생성 |
+
+- 임시 사본은 `backend`를 Scratchpad에 복사하고 `distributionUrl`만 `gradle-9.8.0-bin.zip`으로 바꿔 실행했다. 검증 후 Daemon을 종료하고 사본을 삭제했다.
+- Repository의 Wrapper 설정, Wrapper jar / Script, `build.gradle`, DEC-015는 변경하지 않았다.
+- `build.gradle`은 Groovy DSL 기본 기능만 사용하며, 9.8.0에서 Build Script 수정 없이 동작했다.
+- 9.8.0 실행 시 Configuration Cache 사용 권장 안내가 출력되었다. (선택 기능이며 이번 범위 밖)
+
+### 선택지
+
+| 선택지 | 장점 | 단점 / 영향 |
+|---|---|---|
+| A. `8.14.5` 유지 | 변경 없음, 이미 검증된 상태 | CI Summary의 "out of date" 안내가 계속 표시된다. Gradle 8은 이전 Major로 신규 기능 없이 중요 수정만 제공된다 |
+| B. `9.8.0`으로 변경 | 최신 지원 Version, CI 안내 해소, Spring Boot 4.1.1 지원 범위 안 | `gradlew wrapper --gradle-version 9.8.0`으로 Wrapper jar / Script / properties 갱신, DEC-015 갱신, Local / Remote CI 재검증 필요 |
+
+### Human 결정 및 변경 (B안)
+
+Human이 B안(`9.8.0`으로 변경)을 선택했다.
+
+- `gradlew wrapper --gradle-version 9.8.0 --distribution-type bin`을 두 번 실행했다. (첫 실행은 `8.14.5`로 properties 갱신, 두 번째 실행은 `9.8.0`으로 Wrapper jar / Script 재생성)
+- 변경 파일
+  - `backend/gradle/wrapper/gradle-wrapper.properties`: `distributionUrl` → `gradle-9.8.0-bin.zip`, Gradle 9 기본값 `retries=0`, `retryBackOffMs=500` 추가
+  - `backend/gradle/wrapper/gradle-wrapper.jar`: SHA-256 `238e777f…21abd5`, Gradle 공식 `gradle-9.8.0-wrapper.jar.sha256`과 일치
+  - `backend/gradlew`, `backend/gradlew.bat`: Gradle 9.8.0 표준 Template으로 재생성 (직접 수정 없음, 실행 권한 유지)
+- `build.gradle`, `settings.gradle`, Plugin / Dependency Version은 변경하지 않았다.
+- 문서: DEC-015 Version / 고정 정책 / 변경 이력, README 기술 스택, PLAN Gate A 규칙에 변경 사실 추가
+- 과거 기록(Prompt 04 / 05 / 08 / 09, TASK-001 명세, 이전 Work Log)의 `8.14.5` 표기는 당시 결정 기록이므로 유지했다.
+
+### Local Verification (`9.8.0`)
+
+| 명령 | 결과 |
+|---|---|
+| `gradlew --version` | Gradle 9.8.0 |
+| `sh scripts/verify.sh` (`gradlew clean` 후) | PASS (exit 0) — `npm ci`, Frontend Test 73건, Build, Backend Test / Build |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1` | PASS (exit 0) |
+
+- Gradle 9.8.0은 Build마다 Configuration Cache 사용 권장 안내를 출력한다. 안내 문구일 뿐 결과에는 영향이 없으며, 사용 여부는 이번 범위 밖이다.
+- Remote CI에서 `gradle/actions/setup-gradle`의 Wrapper jar 검증과 "out of date" 안내 해소를 확인한다.
+
+### 결과
+
+Version 변경 및 Local Verification 완료 / Commit · Push 및 Remote CI 확인 대기
