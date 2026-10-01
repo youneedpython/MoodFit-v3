@@ -33,17 +33,18 @@ DONE
 
 ## 3. Current Task
 
-TASK-013 — Local Verification Environment Alignment
+TASK-014 — Gradle Wrapper Version Review
 
 Status:
 
 ```text
-REVIEW
+BLOCKED
 ```
 
 TASK-001 ~ TASK-012(Core MVP)은 모두 DONE 상태이다.
 TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보 FU-1 ~ FU-5를 Human 지시에 따라 TASK-013 ~ TASK-017로 등록했다. (권장 순서: FU-2 → FU-5 → FU-4 → FU-3 → FU-1)
-TASK-013은 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다.
+TASK-013은 Human Review 승인으로 DONE 상태이다.
+TASK-014는 선행 조건(TASK-013 완료)이 충족되었지만 기술 Version 검토(DEC-015)를 포함하므로 실행 전 Human Approval을 기다린다.
 
 ---
 
@@ -63,8 +64,8 @@ TASK-013은 구현과 Local / Remote Verification을 마치고 Human Review를 �
 | TASK-010 | Milestone 10 | History / Trend | DONE | TASK-006, TASK-007, TASK-009 완료 (충족) | Gate C 조건부 |
 | TASK-011 | Milestone 11 | Verification Hardening | DONE | TASK-008, TASK-009, TASK-010 완료 (충족), Local Verification/CI 누적 확장 완료 (충족), Human 실행 승인 완료, Local/Remote Verification 확인 완료 | Gate C 조건부 |
 | TASK-012 | Milestone 12 | GitHub Actions Bot | DONE | TASK-002, TASK-003, TASK-011 완료 (충족), Local Verification/CI 안정화 (충족), DEC-021 Human Approved | Gate C 승인 완료 |
-| TASK-013 | Milestone 13 | Local Verification Environment Alignment (FU-2) | REVIEW | Human Approval 완료, Local / Remote Verification 완료 | 승인 완료 |
-| TASK-014 | Milestone 14 | Gradle Wrapper Version Review (FU-5) | BLOCKED | TASK-013 완료 | 필요 (DEC-015 변경) |
+| TASK-013 | Milestone 13 | Local Verification Environment Alignment (FU-2) | DONE | Human Approval 완료, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
+| TASK-014 | Milestone 14 | Gradle Wrapper Version Review (FU-5) | BLOCKED | TASK-013 완료 (충족), Human Approval 대기 | 필요 (DEC-015 변경) |
 | TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | BLOCKED | TASK-014 완료 | 필요 |
 | TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | BLOCKED | TASK-015 완료 | Gate C 필요 |
 | TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | BLOCKED | TASK-016 완료 | Gate C 필요 |
@@ -969,10 +970,10 @@ TASK-012는 DEC-021 범위의 CI Step Summary 구성, Local 확인, Remote CI Ve
 ### 상태
 
 ```text
-REVIEW
+DONE
 ```
 
-선행 Task는 없으며, 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다.
+구현, Local / Remote Verification, Human Review가 완료되었다.
 
 ### 목적
 
@@ -1009,7 +1010,7 @@ Local Verification과 GitHub Actions CI의 실행 환경 차이를 줄인다. (F
 BLOCKED
 ```
 
-TASK-013 완료 후 진행한다.
+선행 Task(TASK-013)는 완료되었다. 기술 Version 검토(DEC-015)를 포함하므로 실행 전 Human Approval을 기다린다.
 
 ### 목적
 

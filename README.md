@@ -28,13 +28,13 @@ Work Log
 
 ## 현재 단계
 
-현재 Repository는 **Core MVP(TASK-001 ~ TASK-012) 완료 후 Post-MVP 보완 Task(TASK-013 ~ TASK-017)를 등록한** 단계입니다.
+현재 Repository는 **Core MVP(TASK-001 ~ TASK-012) 완료 후 Post-MVP 보완 Task(TASK-013 ~ TASK-017)를 진행하는** 단계입니다.
 
 Current Task:
 
 ```text
-TASK-013 — Local Verification Environment Alignment
-REVIEW (Human Review 대기)
+TASK-014 — Gradle Wrapper Version Review
+BLOCKED (Human Approval 대기)
 ```
 
 진행 흐름:
@@ -75,6 +75,7 @@ Task별 진행 결과:
 | TASK-010 History / Trend | 최근 7일 Wellness Score Trend, 날짜별 Mood / Metric / 추천 이력(DEC-020) | DONE |
 | TASK-011 Verification Hardening | 전체 Local / Remote CI 재검증, Verification Gap(GAP-1 ~ GAP-6) 정리 | DONE |
 | TASK-012 GitHub Actions Bot | CI 결과를 Step Summary로 자동 기록(실패 시에도 기록), Milestone 자동 Close 유지(DEC-021) | DONE |
+| TASK-013 Local Verification Environment Alignment | `verify.ps1` / `verify.sh`에 `npm ci` 추가, `.nvmrc`로 Node.js `24.21.0` 명시, 불일치 경고 | DONE |
 
 Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었습니다.
 
@@ -185,7 +186,7 @@ Post-MVP 보완 Task를 다음 순서로 진행합니다. 각 Task는 실행 전
 
 | 순서 | Task | 내용 | 원래 후보 | 필요 승인 |
 |---|---|---|---|---|
-| 1 | TASK-013 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | FU-2 | Human Approval |
+| 1 | TASK-013 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | FU-2 | Human Approval (완료, DONE) |
 | 2 | TASK-014 | Gradle Wrapper Version 검토 | FU-5 | Human Approval (DEC-015) |
 | 3 | TASK-015 | 고정 Timezone 기준 날짜 표시 Test | FU-4 | Human Approval |
 | 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C |
