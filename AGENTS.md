@@ -30,25 +30,23 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-010은 DONE 상태이다.
+TASK-001 ~ TASK-011은 DONE 상태이다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019를 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-011 — Verification Hardening
+TASK-012 — GitHub Actions Bot
 ```
 
 Status:
 
 ```text
-REVIEW
+BLOCKED
 ```
 
-TASK-011 Verification Hardening의 Local Verification, CI 범위 점검, Remote CI 확인을 완료했으며 Human Review를 기다린다.
-TASK-012는 시작하지 않는다.
-추가 검증 도구, 외부 Dependency, Database Integration Test가 필요하면 Gate C를 적용한다.
-Trend는 CSS / SVG 기반으로 구현하며, 외부 Chart Library가 필요하면 Gate C를 적용한다. (DEC-010)
+TASK-012는 선행 Task 조건을 충족했지만, GitHub Actions Bot 구성은 Gate C 대상이므로 Gate C Human Approval 전에는 시작하지 않는다.
+TASK-011의 후속 보완 작업 후보(FU-1 ~ FU-4)는 별도 승인 없이 진행하지 않는다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

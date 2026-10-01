@@ -33,20 +33,18 @@ DONE
 
 ## 3. Current Task
 
-TASK-011 — Verification Hardening
+TASK-012 — GitHub Actions Bot
 
 Status:
 
 ```text
-REVIEW
+BLOCKED
 ```
 
-TASK-001 ~ TASK-010은 DONE 상태이다. Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었다.
-TASK-011 Verification Hardening의 Local Verification, CI 범위 점검, Remote CI 확인을 완료했으며 Human Review를 기다린다.
-TASK-012는 시작하지 않는다.
-추가 검증 도구, 외부 Dependency, Database Integration Test가 필요하면 Gate C를 적용한다.
-Trend는 CSS / SVG 기반으로 구현하며, 외부 Chart Library가 필요하면 Gate C를 적용한다. (DEC-010)
-새로운 UI Library 또는 외부 Dependency가 필요하면 Gate C를 적용한다.
+TASK-001 ~ TASK-011은 DONE 상태이다. Core Feature 구현과 Verification Hardening이 완료되었다.
+TASK-012는 선행 Task 조건(TASK-002, TASK-003, TASK-011 완료, Local Verification / CI 안정화)을 충족했지만,
+GitHub Actions Bot 구성은 Gate C 대상이므로 실행 전 Gate C Human Approval을 기다린다.
+TASK-011에서 정리한 후속 보완 작업 후보(FU-1 ~ FU-4)는 `docs/08-WORK_LOG.md`를 따르며, 진행 시 별도 승인을 받는다.
 
 ---
 
@@ -64,8 +62,8 @@ Trend는 CSS / SVG 기반으로 구현하며, 외부 Chart Library가 필요하�
 | TASK-008 | Milestone 8 | Daily Check-in | DONE | TASK-006, TASK-007 완료 (충족) | Gate C 조건부 |
 | TASK-009 | Milestone 9 | Dashboard | DONE | TASK-006, TASK-007, TASK-008 완료 (충족) | Gate C 조건부 |
 | TASK-010 | Milestone 10 | History / Trend | DONE | TASK-006, TASK-007, TASK-009 완료 (충족) | Gate C 조건부 |
-| TASK-011 | Milestone 11 | Verification Hardening | REVIEW | TASK-008, TASK-009, TASK-010 완료 (충족), Local Verification/CI 누적 확장 완료 (충족), Human 실행 승인 완료, Local/Remote Verification 확인 완료 | Gate C 조건부 |
-| TASK-012 | Milestone 12 | GitHub Actions Bot | BLOCKED | TASK-002, TASK-003, TASK-011 완료, Local Verification/CI 안정화 | Gate C 필요 |
+| TASK-011 | Milestone 11 | Verification Hardening | DONE | TASK-008, TASK-009, TASK-010 완료 (충족), Local Verification/CI 누적 확장 완료 (충족), Human 실행 승인 완료, Local/Remote Verification 확인 완료 | Gate C 조건부 |
+| TASK-012 | Milestone 12 | GitHub Actions Bot | BLOCKED | TASK-002, TASK-003, TASK-011 완료 (충족), Local Verification/CI 안정화 (충족), Gate C 대기 | Gate C 필요 |
 
 ---
 
@@ -864,11 +862,11 @@ History 응답의 추천 이름 필드 추가는 DEC-020을 따른다.
 ### 상태
 
 ```text
-REVIEW
+DONE
 ```
 
-선행 Task인 TASK-008, TASK-009, TASK-010은 DONE 상태이며, Feature마다 Local Verification과 CI 검증 범위가 누적 확장되었다.
-Local Verification과 Remote CI 확인을 완료했으며, Human Review를 기다린다.
+TASK-011은 전체 Local / Remote CI 재검증, Verification Gap 정리, Human Review 보완(GAP-1 해결), Human Review를 완료했다.
+작업 결과와 Verification Gap / 후속 보완 작업 후보는 `docs/08-WORK_LOG.md`를 따른다.
 
 ### 목적
 
@@ -921,6 +919,9 @@ Local Verification과 CI가 동일하거나 동등한 품질 기준을 갖도록
 ```text
 BLOCKED
 ```
+
+선행 Task인 TASK-002, TASK-003, TASK-011은 DONE 상태이다.
+GitHub Actions Bot 구성은 Gate C 대상이므로 실행 전 Gate C Human Approval을 기다린다.
 
 ### 목적
 

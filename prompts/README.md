@@ -91,4 +91,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 19 | TASK-008 Daily Check-in | Implementation | 완료 |
 | 20 | TASK-009 Dashboard | Implementation | 완료 |
 | 21 | TASK-010 History / Trend | Implementation (Gate C 포함) | 완료 |
-| 22 | TASK-011 Verification Hardening | Verification Hardening | Human Review 중 |
+| 22 | TASK-011 Verification Hardening | Verification Hardening | 완료 |
