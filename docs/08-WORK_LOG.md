@@ -1643,7 +1643,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS (Human Approval 완료: 2026-10-01)
+REVIEW (Human Approval 완료: 2026-10-01)
 
 ### 작업 내용 (FU-2 — GAP-3 / GAP-4)
 
@@ -1701,6 +1701,24 @@ IN_PROGRESS (Human Approval 완료: 2026-10-01)
 - `npm ci`는 `node_modules`를 삭제 후 다시 설치한다. `npm run dev`(Vite) 등이 실행 중이면 Windows에서 파일 잠금으로 실패할 수 있으므로 검증 전에 종료한다.
 - 검증 시간이 `npm ci`만큼(Local 약 3 ~ 9초) 늘어난다.
 
+### Remote CI Verification
+
+Commit을 둘로 나누어 `main`에 push했다. (Human 지시)
+
+- `ffb8387` docs: Post-MVP 보완 Task 등록 및 Milestone 연결
+- `db2567f` feat: TASK-013 Local Verification 환경 정렬
+
+| Workflow | 결과 | 비고 |
+|---|---|---|
+| CI | success | Run: https://github.com/youneedpython/MoodFit-v3/actions/runs/36819501929 |
+| `frontend` Job | success | 약 18초 (`npm ci` → `npm test` → `npm run build`) |
+| `backend` Job | success | 약 66초 |
+| Sync Milestones | success | 새로 DONE이 된 Task 없음 |
+
+- CI Workflow는 변경하지 않았으므로 Local Script 변경이 CI 결과에 영향을 주지 않음을 확인했다.
+
+Remote CI Verification 완료 후 TASK-013 상태를 REVIEW로 변경했다.
+
 ### 결과
 
-Verification 완료 / Commit · Push 및 Remote CI 확인 대기
+Verification 완료 / Human Review 대기
