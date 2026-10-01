@@ -100,3 +100,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 28 | TASK-015 Timezone-fixed Date Display Test | Verification 구성 | 완료 |
 | 29 | TASK-016 DB 연동 테스트 Gate C Review | Gate C Review | 완료 |
 | 30 | TASK-016 DB 연동 테스트 (실제 MySQL) | Implementation (Gate C 포함) | 완료 |
+| 31 | TASK-017 API 계약 테스트 Gate C Review | Gate C Review | 완료 |

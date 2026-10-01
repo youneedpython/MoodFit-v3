@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-017 — API 계약 테스트 (Frontend / Backend)
-BLOCKED (Gate C 대기)
+READY (Gate C 승인 완료, DEC-024)
 ```
 
 진행 흐름:
@@ -130,7 +130,7 @@ MoodFit-v3/
 │   └── images/ (Task별 화면 검토 캡처)
 └── prompts/
     ├── README.md
-    └── 01 ~ 30 Prompt History
+    └── 01 ~ 31 Prompt History
 ```
 
 ## Local 실행
@@ -196,4 +196,4 @@ Post-MVP 보완 Task를 다음 순서로 진행합니다. 각 Task는 실행 전
 | 2 | TASK-014 | Gradle Wrapper Version 검토 | FU-5 | Human Approval (DEC-015) (완료, DONE) |
 | 3 | TASK-015 | 고정 Timezone 기준 날짜 표시 Test | FU-4 | Human Approval (완료, DONE) |
 | 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C (승인 완료, DEC-023) (DONE) |
-| 5 | TASK-017 | API 계약 테스트 (Frontend / Backend) | FU-1 | Gate C |
+| 5 | TASK-017 | API 계약 테스트 (Frontend / Backend) | FU-1 | Gate C (승인 완료, DEC-024) |

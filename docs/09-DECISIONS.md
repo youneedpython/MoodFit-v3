@@ -1151,3 +1151,37 @@ org.testcontainers:testcontainers-mysql               (2.0.5)
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-024 TASK-017 API 계약 테스트
+
+### 결정
+
+TASK-017 API 계약 테스트(Frontend / Backend)를 Gate C Human Review를 통해 다음과 같이 확정한다.
+검토 근거는 `prompts/31-TASK-017-API-CONTRACT-TEST-GATE-C-REVIEW.md`를 따른다. (Option A 채택)
+
+### 계약 정의
+
+- 공유 계약 예시 JSON(Contract Fixture)을 Repository Root `contracts/`에 둔다.
+- 계약 대상: Check-in 생성(201), 최신 조회(200 / 404 `CHECKIN_NOT_FOUND`), History 조회(200), 입력 오류(400 `VALIDATION_ERROR`)
+- 계약 파일은 현재 API 동작을 그대로 고정한다. API 형식은 변경하지 않는다.
+
+### 검증 방식
+
+- Backend: 고정 시계 / 고정 입력으로 실제 API를 호출해 응답 전체를 계약 파일과 비교한다. 필드 누락 / 추가 / 이름 / 값이 다르면 실패한다. DB가 정하는 `id`는 숫자인지만 확인한다.
+- Frontend: 계약 파일과 `frontend/src/types/api.ts` Type의 필드 구성이 같은지 TypeScript로 검사한다. (`npm run build`의 `tsc --noEmit`)
+- Frontend 화면 Test(`CheckinPage` / `DashboardPage` / `HistoryPage`)의 가짜 응답을 계약 파일로 교체한다.
+- `docs/05-API_SPEC.md`의 Response 예시가 계약 파일과 같은지 확인하는 Test를 둔다.
+
+### 유지
+
+- 새로운 Dependency 없음 (`package.json` / `build.gradle` 변경 없음)
+- `ci.yml`, `scripts/verify.ps1`, `scripts/verify.sh` 실행 명령 변경 없음
+- JSON Schema / OpenAPI / Pact / E2E는 도입하지 않는다. (필요 시 별도 Gate C)
+
+### 상태
+
+```text
+Human Approved
+```
