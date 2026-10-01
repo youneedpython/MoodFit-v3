@@ -37,18 +37,18 @@ Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB
 Current Task:
 
 ```text
-TASK-014 — Gradle Wrapper Version Review
+TASK-015 — Timezone-fixed Date Display Test
 ```
 
 Status:
 
 ```text
-REVIEW
+BLOCKED
 ```
 
-TASK-013은 DONE 상태이다.
-TASK-014는 Gradle Wrapper `9.8.0` 변경(Human 결정 B안)과 Local / Remote Verification을 마치고 Human Review를 기다린다.
-TASK-015 ~ TASK-017은 등록 순서대로 진행하며, 각 Task의 Human Approval / Gate C를 거친다.
+TASK-013, TASK-014는 DONE 상태이다.
+TASK-015는 Human Approval 전에는 시작하지 않는다.
+TASK-016 ~ TASK-017은 등록 순서대로 진행하며, 각 Task의 Human Approval / Gate C를 거친다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

@@ -96,4 +96,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 24 | TASK-012 GitHub Actions Bot | Implementation (CI / Bot) | 완료 |
 | 25 | Post-MVP 보완 Task 등록 (TASK-013 ~ TASK-017) | Task 생성 | 완료 |
 | 26 | TASK-013 Local Verification Environment Alignment | Verification 구성 | 완료 |
-| 27 | TASK-014 Gradle Wrapper Version Review | Technology Version Review | 완료 (Human Review 대기) |
+| 27 | TASK-014 Gradle Wrapper Version Review | Technology Version Review | 완료 |
