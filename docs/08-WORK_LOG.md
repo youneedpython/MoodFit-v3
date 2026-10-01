@@ -1966,3 +1966,81 @@ Commit `c8807a1`를 `main`에 push하여 Remote CI를 실행했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-016 — DB 연동 테스트 (실제 MySQL)
+
+### 상태
+
+IN_PROGRESS (Gate C 승인: DEC-023, 2026-10-01)
+
+### Gate C 결정 (DEC-023)
+
+| 항목 | 결정 |
+|---|---|
+| DB 연동 방식 | Testcontainers MySQL (Option A) |
+| MySQL Image | `mysql:8.0.46` (Local 개발 MySQL과 동일) |
+| Docker 없는 Local | 건너뛰고(SKIPPED) 표시 |
+| CI Backend Summary | "MySQL: Testcontainers(`mysql:8.0.46`, DEC-023)"로 문구 변경 |
+
+검토 자료: `prompts/29-TASK-016-DB-INTEGRATION-TEST-GATE-C-REVIEW.md`. DEC-009는 DEC-023으로 대체되었다.
+
+### 작업 내용
+
+- `backend/build.gradle`
+  - `testImplementation` 추가 (Version은 Spring Boot `4.1.1` BOM 관리): `spring-boot-testcontainers` 4.1.1, `testcontainers-junit-jupiter` 2.0.5, `testcontainers-mysql` 2.0.5
+  - `test` Task `testLogging.events 'skipped', 'failed'`: 건너뛴 / 실패한 Test를 Test 출력에 표시
+- `backend/src/test/java/com/moodfit/mysql/MySqlIntegrationTests.java` (5건)
+  - `@Testcontainers(disabledWithoutDocker = true)`, `@Container @ServiceConnection MySQLContainer("mysql:8.0.46")`
+
+| Test | 검증 내용 |
+|---|---|
+| `connectsToMySqlAndAppliesFlywayMigration` | MySQL `8.0.46` 연결, Flyway V1 적용(`flyway_schema_history`), Table 3개 생성, `ddl-auto=validate` 통과 |
+| `storesRecordedAtAsUtcWithMicrosecondPrecision` | DB에 저장된 원본 값이 `2026-09-30 12:34:56.123456`(UTC, Microsecond) — JVM Timezone(Local KST / CI UTC)과 무관 (DEC-019) |
+| `preservesTemperatureDecimalAndKoreanText` | `DECIMAL(3,1)` 경계값 `-30.0` / `50.0`, 한글 Summary / 추천 이름 저장 / 조회 |
+| `findsHistoryWithinRollingWindowInOneQuery` | Rolling Window 조회, 오름차순, 추천 순서, 추천까지 Query 1회 (DEC-020) |
+| `createThenReadLatestAndHistoryThroughApi` | API 저장(`POST /api/check-ins`) → 최신 / History 조회 흐름 |
+
+- `backend/src/test/java/com/moodfit/mysql/DockerAvailabilityTests.java`
+  - `CI=true`일 때만 실행되어 Docker가 없으면 실패한다. (CI에서 MySQL 연동 테스트가 조용히 건너뛰어지는 것을 방지)
+  - Local(`CI` 미설정)에서는 항상 SKIPPED로 표시된다.
+- `.github/workflows/ci.yml`: Backend Summary의 MySQL 문구만 변경 (Frontend Summary의 "MySQL Service Container: 사용하지 않음" 문구는 Frontend가 MySQL을 사용하지 않으므로 유지)
+- `README.md`: Local 실행 안내에 MySQL 연동 테스트 / Docker 조건 추가
+
+### 변경하지 않은 것
+
+- DB Schema / Flyway Migration, 운영 `application.properties`
+- 기존 H2 Test(`src/test/resources/application.properties`, 기존 Test Class)
+- `ci.yml` Trigger / Permission / Cache 정책 / 실행 명령 (GitHub Actions가 `CI=true`를 기본 설정)
+- `scripts/verify.ps1`, `scripts/verify.sh`
+
+### Verification
+
+Docker 실행 / 미실행 경로 (`gradlew cleanTest test --tests "com.moodfit.mysql.*"`):
+
+| 조건 | MySqlIntegrationTests | DockerAvailabilityTests | Build |
+|---|---|---|---|
+| Local, Docker 실행 | 5건 통과 (약 35초) | SKIPPED | 성공 |
+| Local, Docker 미실행 | 5건 SKIPPED (출력에 표시) | SKIPPED | 성공 |
+| `CI=true`, Docker 미실행 | 5건 SKIPPED | 실패 | 실패 |
+| `CI=true`, Docker 실행 | 5건 통과 | 통과 | 성공 |
+
+- Docker 미실행 경로는 `docker desktop stop`으로 실제로 중지해 확인한 뒤 `docker desktop start`로 다시 실행했다. (실행 중 Container 없음 확인 후)
+- `DOCKER_HOST` / `TESTCONTAINERS_DOCKER_CLIENT_STRATEGY` 환경변수로는 재현되지 않았다. Testcontainers가 설정 Strategy 실패 시 다른 Strategy(Npipe)로 다시 연결하기 때문이다.
+- 개발 중 오류: 트랜잭션 밖 Lazy 로딩(`LazyInitializationException`), 응답 JSON 경로(`$.weather.temperature`) — Test Code 수정으로 해결
+
+Local Verification:
+
+| Script | 결과 |
+|---|---|
+| `sh scripts/verify.sh` (Docker 실행) | PASS — Frontend Test 76, Build, Backend Test 63건(SKIPPED 1: CI 전용), Build |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1` (Docker 실행) | PASS |
+| `sh scripts/verify.sh` (Docker 미실행) | PASS — Backend Test 출력에 MySQL 연동 테스트 5건 SKIPPED 표시 |
+
+- Backend Test 시간: 약 2초 → 약 33 ~ 35초 (Container 시작 포함, Image 캐시 상태)
+- 화면(UI) 변경이 없는 Task이므로 AGENTS.md 8.1 캡처 대상이 아니다.
+
+### 결과
+
+Implementation / Local Verification 완료 / Commit · Push 및 Remote CI 확인 대기

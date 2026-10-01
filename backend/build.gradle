@@ -23,8 +23,16 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
     testRuntimeOnly 'com.h2database:h2'
+    // DEC-023: 실제 MySQL DB 연동 테스트 (Version은 Spring Boot BOM 관리)
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers-mysql'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    // DEC-023: Docker가 없어 건너뛴 MySQL 연동 테스트를 Test 출력에 표시한다.
+    testLogging {
+        events 'skipped', 'failed'
+    }
 }

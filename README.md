@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-016 — DB 연동 테스트 (실제 MySQL)
-READY (Gate C 승인 완료, DEC-023)
+IN_PROGRESS
 ```
 
 진행 흐름:
@@ -129,13 +129,16 @@ MoodFit-v3/
 │   └── images/ (Task별 화면 검토 캡처)
 └── prompts/
     ├── README.md
-    └── 01 ~ 29 Prompt History
+    └── 01 ~ 30 Prompt History
 ```
 
 ## Local 실행
 
-Test와 CI는 H2 In-memory DB로 실행되므로 MySQL이 필요 없습니다.
-Backend를 직접 실행할 때만 Local MySQL이 필요합니다.
+Backend Test는 H2 In-memory DB로 실행되며, 실제 MySQL 연동 테스트는 Testcontainers(`mysql:8.0.46`, DEC-023)로 실행합니다.
+
+- MySQL 연동 테스트는 Docker가 필요합니다. Local에서 Docker Desktop이 실행 중이 아니면 해당 테스트는 건너뛰고(SKIPPED) Test 출력에 표시됩니다.
+- CI(GitHub Actions)에서는 Docker가 없으면 Test가 실패합니다.
+- Backend를 직접 실행할 때만 Local MySQL이 필요합니다.
 
 ```bash
 # 1. v3 전용 DB 생성 (최초 1회)
