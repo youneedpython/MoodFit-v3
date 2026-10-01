@@ -98,3 +98,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 26 | TASK-013 Local Verification Environment Alignment | Verification 구성 | 완료 |
 | 27 | TASK-014 Gradle Wrapper Version Review | Technology Version Review | 완료 |
 | 28 | TASK-015 Timezone-fixed Date Display Test | Verification 구성 | 완료 |
+| 29 | TASK-016 DB 연동 테스트 Gate C Review | Gate C Review | 완료 |

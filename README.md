@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-016 — DB 연동 테스트 (실제 MySQL)
-BLOCKED (Gate C 대기)
+READY (Gate C 승인 완료, DEC-023)
 ```
 
 진행 흐름:
@@ -129,7 +129,7 @@ MoodFit-v3/
 │   └── images/ (Task별 화면 검토 캡처)
 └── prompts/
     ├── README.md
-    └── 01 ~ 28 Prompt History
+    └── 01 ~ 29 Prompt History
 ```
 
 ## Local 실행
@@ -191,5 +191,5 @@ Post-MVP 보완 Task를 다음 순서로 진행합니다. 각 Task는 실행 전
 | 1 | TASK-013 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | FU-2 | Human Approval (완료, DONE) |
 | 2 | TASK-014 | Gradle Wrapper Version 검토 | FU-5 | Human Approval (DEC-015) (완료, DONE) |
 | 3 | TASK-015 | 고정 Timezone 기준 날짜 표시 Test | FU-4 | Human Approval (완료, DONE) |
-| 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C |
+| 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C (승인 완료, DEC-023) |
 | 5 | TASK-017 | API 계약 테스트 (Frontend / Backend) | FU-1 | Gate C |

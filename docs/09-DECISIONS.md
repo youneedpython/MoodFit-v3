@@ -266,6 +266,10 @@ Backend Build
 Repository / Database Integration Test가 필요해지는 경우
 별도의 Test DB 전략을 다시 결정한다.
 
+### 변경 이력
+
+- 2026-10-01: TASK-016 Gate C에서 Testcontainers MySQL 도입이 승인되어 DEC-023으로 대체되었다. (Human Approved)
+
 ### 상태
 
 ```text
@@ -1090,6 +1094,57 @@ Display Timezone = Asia/Seoul
 ### 대안 (채택하지 않음)
 
 - B안: 사용자 브라우저 Timezone 표시를 유지하고 Test 실행 Timezone만 고정한다. 해외 사용자에게 현지 시각을 보여줄 수 있지만, 한국 사용자 대상 서비스에서 표시 일관성을 우선해 채택하지 않았다.
+
+### 상태
+
+```text
+Human Approved
+```
+
+---
+
+## DEC-023 TASK-016 DB 연동 테스트 / CI Database Strategy
+
+### 결정
+
+TASK-016 DB 연동 테스트(실제 MySQL)를 Gate C Human Review를 통해 다음과 같이 확정한다.
+검토 근거는 `prompts/29-TASK-016-DB-INTEGRATION-TEST-GATE-C-REVIEW.md`를 따른다. (Option A 채택)
+
+이 결정은 DEC-009(CI Database Strategy)를 대체한다.
+
+### DB 연동 방식
+
+- Testcontainers MySQL을 사용한다.
+- MySQL Image는 `mysql:8.0.46`으로 고정한다. (Local 개발 MySQL과 동일 Version)
+- 기존 H2 In-memory Test는 유지한다. MySQL 연동 Test Class를 별도로 추가하고 `@ServiceConnection`으로 연결한다.
+
+### Test Dependency
+
+`testImplementation`으로 추가하며, Version은 Spring Boot `4.1.1` BOM 관리 Version을 사용한다.
+
+```text
+org.springframework.boot:spring-boot-testcontainers   (4.1.1)
+org.testcontainers:testcontainers-junit-jupiter       (2.0.5)
+org.testcontainers:testcontainers-mysql               (2.0.5)
+```
+
+### 실행 정책
+
+- MySQL 연동 Test는 `./gradlew test`에 포함한다. (`verify.ps1` / `verify.sh`, CI 실행 명령 변경 없음)
+- Docker가 없는 Local 환경에서는 MySQL 연동 Test를 건너뛰고(Skipped) 결과에 표시한다.
+- CI(`CI=true`)에서는 Docker가 없으면 건너뛰지 않고 실패한다.
+
+### CI
+
+- `ci.yml`의 Trigger / Permission / Cache 정책 / 실행 명령은 변경하지 않는다.
+- GitHub Actions Ubuntu Runner의 기본 Docker를 사용한다. MySQL Service Container는 사용하지 않는다.
+- DEC-021 Backend Step Summary의 "MySQL Service Container 미사용" 문구를 "MySQL: Testcontainers(`mysql:8.0.46`)"로 변경한다. (문구 변경만, Human 승인)
+
+### 유지
+
+- DB Schema / Flyway Migration 변경 없음 (DEC-019 재검토 결과 변경 없음)
+- 운영 DB 설정(`application.properties`) 변경 없음
+- Secret / PAT 사용 없음
 
 ### 상태
 
