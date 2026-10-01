@@ -1818,6 +1818,23 @@ Remote CI Verification 완료 후 TASK-014 상태를 REVIEW로 변경했다.
 
 - Human이 Summary 화면에서 "Gradle version is out of date" 안내가 사라진 것을 확인했다. (2026-10-01)
 
+### Human Review 관찰 — Runner Annotation
+
+Human이 Workflow Run 화면의 Annotations(notice 2건)를 캡처해 첨부했다.
+
+![TASK-014 CI Annotations](images/task-014/ci-annotations-ubuntu-latest.png)
+
+- `frontend` / `backend` Job: "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026."
+- 의미: `runs-on: ubuntu-latest`를 사용하는 Job은 2026-10-19부터 Ubuntu 26 Runner에서 실행된다.
+- 대상: `ci.yml`의 `frontend` / `backend`, `milestones.yml`의 Sync Job (DEC-017 / DEC-018 Runner: `ubuntu-latest`)
+- 영향 예상: Node.js `24.21.0`(`setup-node`), Java 21(`setup-java`), Gradle Wrapper `9.8.0`은 Workflow에서 Version을 직접 지정하므로 OS 변경의 직접 영향은 작다. 다만 OS 기본 도구(`gh` 등) Version이 바뀔 수 있다.
+- notice(정보) 수준이며 TASK-014 결과(Job 성공)에는 영향이 없다.
+- 후속 보완 작업 후보 FU-6으로 기록한다.
+
+| 후보 | 내용 | 필요 승인 |
+|---|---|---|
+| FU-6 | Runner OS 전환 대응: `ubuntu-latest` 유지 후 2026-10-19 이후 CI 결과 확인, 또는 `ubuntu-24.04`로 고정 | CI Workflow 변경 시 Gate C (DEC-017 / DEC-018) |
+
 ### 결과
 
 Verification 완료 / Human Review 대기
