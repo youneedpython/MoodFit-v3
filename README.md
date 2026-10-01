@@ -1,208 +1,239 @@
 # MoodFit v3
 
-MoodFit v3는 사용자의 신체 리듬 정보와 날씨 정보를 기반으로 현재 웰니스 상태를 추정하고, 음식과 음악을 추천하는 Full-stack 프로젝트입니다.
+[![CI](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml/badge.svg)](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml)
 
-이번 버전의 핵심은 기능 구현 자체보다 **Harness Engineering을 적용한 Codex 개발 프로세스**에 있습니다.
+**신체 리듬과 날씨로 오늘의 컨디션을 읽고, 어울리는 음식과 음악을 추천하는 웰니스 웹 서비스**
 
-- Repository: https://github.com/youneedpython/MoodFit-v3 (이전 이름: `today-v3`)
+수면, 스트레스, 에너지 같은 오늘의 상태와 기온·날씨를 입력하면
+MoodFit이 Wellness Score와 Mood를 계산하고, 그날의 상황에 맞는 음식 2개와 음악 2개를 추천합니다.
+기록은 저장되어 최근 7일의 컨디션 흐름을 그래프로 확인할 수 있습니다.
 
-## v3 핵심 목표
+![MoodFit Dashboard](docs/images/readme/dashboard.png)
 
-```text
-Specification
-    ↓
-Rules
-    ↓
-Plan
-    ↓
-Human Approval
-    ↓
-Task
-    ↓
-Implementation
-    ↓
-Verification
-    ↓
-Work Log
-```
+> MoodFit의 분석 기준은 교육용 Product Heuristic이며, 의학적 진단이나 치료 목적이 아닙니다.
 
-## 현재 단계
+---
 
-현재 Repository는 **Core MVP(TASK-001 ~ TASK-012)와 Post-MVP 보완(TASK-013 ~ TASK-017)이 모두 완료된** 단계입니다.
+## 주요 기능
 
-Current Task:
+### 1. Daily Check-in — 오늘의 상태 입력
 
-```text
-없음 (ALL DONE)
-```
+신체 리듬(심박수, 호흡수), 컨디션(수면 점수, 스트레스, 에너지), 날씨(기온, 날씨 상태)를 입력합니다.
+입력 범위를 화면에서 먼저 확인하고, 서버 검증 결과도 해당 입력칸 옆에 표시합니다.
 
-진행 흐름:
+![Daily Check-in 입력](docs/images/readme/checkin-form.png)
 
-```text
-Requirements Review → Decision Sync → Implementation Plan
-    ↓
-Gate A Technology Version Approval → Task Definition
-    ↓
-Gate C Bootstrap Dependency Approval → Pre-Bootstrap Sync → Spring Boot Version Re-review
-    ↓
-TASK-001 ~ TASK-003   Project Bootstrap / Local Verification / GitHub Actions CI
-    ↓
-TASK-004 ~ TASK-006   Backend Skeleton / Wellness Rule(Gate B) / Backend Core
-    ↓
-TASK-007 ~ TASK-010   Frontend Foundation / Daily Check-in / Dashboard / History
-    ↓
-TASK-011              Verification Hardening
-    ↓
-TASK-012              GitHub Actions Bot
-    ↓
-TASK-013 ~ TASK-017   Post-MVP 보완 (FU-2 → FU-5 → FU-4 → FU-3 → FU-1)
-```
+저장하면 바로 분석 결과를 보여 줍니다.
 
-Task별 진행 결과:
+![Check-in 분석 결과](docs/images/readme/checkin-result.png)
 
-| Task | 주요 결과 | 상태 |
-|---|---|---|
-| TASK-001 Project Bootstrap | Frontend / Backend 최소 Skeleton 생성, Test / Build 검증 | DONE |
-| TASK-002 Local Verification Harness | `scripts/verify.ps1`, `scripts/verify.sh` 구성, 성공 / 실패 경로 검증 | DONE |
-| TASK-003 GitHub Actions CI | DEC-017 기준 `.github/workflows/ci.yml`, `frontend` / `backend` Job | DONE |
-| TASK-004 Backend Domain / API Skeleton | API Skeleton, Validation / Error Response 구조 | DONE |
-| TASK-005 Wellness Rule Approval | Gate B를 거쳐 Wellness Analysis / Recommendation Rule을 DEC-014로 확정 | DONE |
-| TASK-006 Backend Domain / API Core | Check-in 저장, DEC-014 분석 / 추천, 최신 / History 조회, Local MySQL 실행 확인 | DONE |
-| TASK-007 Frontend Foundation | Route 구조, 공통 Layout / Component, Design Token, API Client | DONE |
-| TASK-008 Daily Check-in | 입력, Validation, 제출 / 오류 / 결과 요약 흐름 | DONE |
-| TASK-009 Dashboard | 최신 결과, 5개 Body Metric, 음식 / 음악 추천, Empty / Loading / Error 상태 | DONE |
-| TASK-010 History / Trend | 최근 7일 Wellness Score Trend, 날짜별 Mood / Metric / 추천 이력(DEC-020) | DONE |
-| TASK-011 Verification Hardening | 전체 Local / Remote CI 재검증, Verification Gap(GAP-1 ~ GAP-6) 정리 | DONE |
-| TASK-012 GitHub Actions Bot | CI 결과를 Step Summary로 자동 기록(실패 시에도 기록), Milestone 자동 Close 유지(DEC-021) | DONE |
-| TASK-013 Local Verification Environment Alignment | `verify.ps1` / `verify.sh`에 `npm ci` 추가, `.nvmrc`로 Node.js `24.21.0` 명시, 불일치 경고 | DONE |
-| TASK-014 Gradle Wrapper Version Review | Gradle Wrapper `8.14.5` → `9.8.0` 변경(DEC-015), CI "out of date" 안내 해소 | DONE |
-| TASK-015 Timezone-fixed Date Display Test | 날짜 / 시각 표시를 `Asia/Seoul`로 고정(DEC-022), 실행 Timezone과 무관한 경계값 Test | DONE |
-| TASK-016 DB 연동 테스트 (실제 MySQL) | Testcontainers `mysql:8.0.46`로 Flyway / 저장 / 조회 / API 흐름 검증(DEC-023), CI는 Docker 필수 | DONE |
-| TASK-017 API 계약 테스트 (Frontend / Backend) | 공유 계약 파일 `contracts/`로 Backend 응답 / Frontend Type / API 명세 예시 일치 검증(DEC-024) | DONE |
+### 2. Dashboard — 지금 컨디션 한눈에 보기
 
-Core Feature(Daily Check-in, Dashboard, History / Trend) 구현이 완료되었습니다.
+가장 최근 기록을 기준으로 다음을 보여 줍니다.
 
-Verification Hardening(TASK-011)과 GitHub Actions Bot(TASK-012)까지 완료되어, 계획된 12개 Task가 모두 끝났습니다.
+- Mood와 Wellness Score, 상태 요약 문장
+- 날씨와 기온
+- 5가지 Body Metric
+- 추천 음식 2개, 추천 음악 2개와 추천 이유
 
-이후 개선 항목(FU-1 ~ FU-5)을 TASK-013 ~ TASK-017로 진행해 Local / CI 환경 정렬, Gradle 갱신, Timezone 고정, 실제 MySQL 연동 테스트, API 계약 테스트까지 완료했습니다.
-각 Task의 상세 기록은 `docs/08-WORK_LOG.md`, 승인된 결정은 `docs/09-DECISIONS.md`를 참고합니다.
+기록이 없으면 Check-in으로 안내하는 Empty State를 보여 줍니다.
 
-## 현재 구조
+### 3. History / Trend — 최근 7일 흐름
 
-```text
-MoodFit-v3/
-├── AGENTS.md
-├── README.md
-├── .gitignore
-├── .env.example
-├── .nvmrc (Node.js 24.21.0)
-├── contracts/ (API 계약 파일, DEC-024)
-├── .github/
-│   └── workflows/
-│       ├── ci.yml
-│       └── milestones.yml
-├── frontend/
-│   └── React + TypeScript + Vite (Router / Design System / API Client / Daily Check-in / Dashboard / History)
-├── backend/
-│   ├── Spring Boot + Spring Data JPA + Flyway (Check-in API)
-│   └── src/main/java/com/moodfit/
-│       ├── config/
-│       ├── controller/
-│       ├── dto/
-│       ├── entity/
-│       ├── exception/
-│       ├── repository/
-│       └── service/
-├── scripts/
-│   ├── verify.ps1
-│   ├── verify.sh
-│   └── create-milestones.js
-├── docs/
-│   ├── 01-PROJECT.md
-│   ├── 02-V1-REFERENCE.md
-│   ├── 03-UX_UI_SPEC.md
-│   ├── 04-ARCHITECTURE.md
-│   ├── 05-API_SPEC.md
-│   ├── 06-PLAN.md
-│   ├── 07-TASKS.md
-│   ├── 08-WORK_LOG.md
-│   ├── 09-DECISIONS.md
-│   ├── 10-WELLNESS-RULE-PROPOSAL.md
-│   └── images/ (Task별 화면 검토 캡처)
-└── prompts/
-    ├── README.md
-    └── 01 ~ 32 Prompt History
-```
+최근 7일의 Wellness Score 변화를 그래프로 보여 주고, 기록별 Mood, 지표, 날씨, 추천 이력을 함께 보여 줍니다.
 
-## Local 실행
+![History / Trend](docs/images/readme/history.png)
 
-Backend Test는 H2 In-memory DB로 실행되며, 실제 MySQL 연동 테스트는 Testcontainers(`mysql:8.0.46`, DEC-023)로 실행합니다.
+### 4. 모바일 화면
 
-- MySQL 연동 테스트는 Docker가 필요합니다. Local에서 Docker Desktop이 실행 중이 아니면 해당 테스트는 건너뛰고(SKIPPED) Test 출력에 표시됩니다.
-- CI(GitHub Actions)에서는 Docker가 없으면 Test가 실패합니다.
-- Backend를 직접 실행할 때만 Local MySQL이 필요합니다.
+모든 화면은 390px(모바일)부터 데스크톱까지 같은 기능을 제공합니다.
 
-```bash
-# 1. v3 전용 DB 생성 (최초 1회)
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS moodfit_v3 CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
+<p>
+  <img src="docs/images/readme/mobile-dashboard.png" alt="모바일 Dashboard" width="300" />
+  &nbsp;&nbsp;
+  <img src="docs/images/readme/mobile-history.png" alt="모바일 History" width="300" />
+</p>
 
-# 2. .env.example 복사 .env.local 작성 (Commit 금지)
-#    DB_URL=jdbc:mysql://localhost:3306/moodfit_v3
+---
 
-# 3. 환경변수 불러오기 (Git Bash, 새 터미널마다)
-set -a; source .env.local; set +a
+## 분석과 추천은 어떻게 동작하나요?
 
-# 4. Backend 실행 (Flyway가 Table을 자동 생성)
-cd backend && ./gradlew bootRun
-```
+외부 AI나 외부 API 없이 정해진 Rule로 계산합니다. 같은 입력에는 항상 같은 결과가 나옵니다.
 
-- DB 이름은 `moodfit_v3`처럼 v3 전용으로 사용합니다. today-v2가 사용하는 `moodfit` DB를 공유하면 Flyway가 실행을 중단합니다.
-- `.env.local`은 `.gitignore`로 제외되어 Git Commit 대상이 아닙니다.
-- 프로젝트 ZIP / 학생 배포본을 만들 때는 `.env.local`과 `.git/` 폴더를 제외합니다. 폴더 전체를 압축하면 Git 제외 대상 파일도 함께 포함됩니다.
-
-## 보조 스크립트
-
-- `scripts/create-milestones.js`: `docs/07-TASKS.md`의 Milestone 1~17을 GitHub Milestone으로 생성하는 도구입니다. 이미 있는 Milestone은 제목 기준으로 건너뛰므로 다시 실행해도 안전합니다. TASK 산출물이나 Local Verification / CI 대상이 아닙니다.
-  - 실행: `GITHUB_TOKEN` 환경변수를 설정한 뒤 `node scripts/create-milestones.js`
-  - Token은 Repository에 Commit하지 않습니다.
-- `.github/workflows/milestones.yml`: `docs/07-TASKS.md`에서 DONE이 된 Task의 GitHub Milestone을 자동으로 Close합니다. (DEC-018)
-  - Milestone을 처음 생성한 직후에는 GitHub Actions 화면에서 `Sync Milestones`를 수동 실행(`workflow_dispatch`)하면 이미 DONE인 Milestone이 Close됩니다.
-
-## v1 / v2 / v3 비교
-
-| 버전 | 핵심 |
+| 단계 | 기준 |
 |---|---|
-| v1 | 자연어 요청 중심의 UI 프로토타입 |
-| v2 | Markdown 명세 기반 Full-stack 구현 + GitHub Actions CI |
-| v3 | Harness 기반 계획·Task·검증·기록 중심 개발 |
+| Wellness Score | 수면 35% + 스트레스(낮을수록 좋음) 35% + 에너지 30%의 가중 평균 (0 ~ 100) |
+| Mood | 피곤함 → 활기 있음 → 차분함 → 균형 있음 순서로 조건을 확인해 결정 |
+| 날씨 Context | 5°C 이하는 추위, 30°C 이상은 더위, 그 외에는 날씨 상태(맑음 / 흐림 / 비 / 눈) |
+| 추천 | 음식·음악 각각 2개: 첫 번째는 Mood 기반, 두 번째는 날씨 Context 기반 |
+| 요약 문장 | Mood와 날씨 Context 문장을 조합한 Template |
+
+- 심박수와 호흡수는 점수에 반영하지 않고 화면에 표시만 합니다.
+- 날씨와 기온은 점수에 반영하지 않고 추천과 요약에만 사용합니다.
+- 상세 기준과 경계값은 [DEC-014](docs/09-DECISIONS.md)와 [Wellness Rule 제안서](docs/10-WELLNESS-RULE-PROPOSAL.md)에 있습니다.
+
+---
+
+## 구성
+
+```text
+Browser ── React (Vite) ──▶ /api ──▶ Spring Boot ──▶ MySQL
+            Dashboard / Check-in / History      Check-in API      Flyway Schema
+```
+
+| API | 설명 |
+|---|---|
+| `POST /api/check-ins` | Check-in 저장, 분석 / 추천 결과 반환 |
+| `GET /api/check-ins/latest` | 최신 Check-in 조회 (없으면 `404 CHECKIN_NOT_FOUND`) |
+| `GET /api/check-ins/history?days=7` | 최근 `days`일(1 ~ 30) 기록 조회 |
+
+API 형식은 [API 명세](docs/05-API_SPEC.md)와 계약 파일 [`contracts/`](contracts/)에 정의되어 있습니다.
 
 ## 기술 스택
 
-- Frontend: Node.js 24.21.0 + React 19.3.0 + TypeScript 6.0.2 + Vite 8.3.1
-- Backend: Java 21 + Spring Boot 4.1.1 + Gradle Wrapper 9.8.0
-- Database: MySQL
-- CI: GitHub Actions
+| 영역 | 기술 |
+|---|---|
+| Frontend | React 19, TypeScript 6, Vite 8, React Router 8 |
+| Backend | Java 21, Spring Boot 4.1, Spring Data JPA, Bean Validation |
+| Database | MySQL 8, Flyway |
+| Test | Vitest, React Testing Library, JUnit, MockMvc, Testcontainers |
+| CI | GitHub Actions |
 
-정확한 기술 Version과 Bootstrap Dependency는 이미 Human Approved 상태입니다.
-Version 결정은 `docs/09-DECISIONS.md`의 DEC-015를 따르고,
-Bootstrap Dependency Set은 DEC-016을 Source of Truth로 사용합니다.
+정확한 Version은 [DEC-015](docs/09-DECISIONS.md)를 따릅니다. (Node.js `24.21.0`, Gradle Wrapper `9.8.0`)
 
-## 다음 단계
+## 품질 검증
 
-Post-MVP 보완 Task는 모두 완료되었습니다.
+| 검증 | 내용 |
+|---|---|
+| Frontend Test | 화면 / 입력 검증 / API Client / 날짜 표시(Timezone 고정) |
+| Backend Test | API Validation, Wellness Rule 경계값, Repository |
+| DB 연동 테스트 | Testcontainers로 실제 MySQL에서 Schema / 저장 / 조회 검증 |
+| API 계약 테스트 | Backend 응답, Frontend Type, API 명세 예시가 `contracts/`와 같은지 검증 |
+| Local Verification | `scripts/verify.ps1` / `scripts/verify.sh`로 CI와 같은 순서(설치 → Test → Build) 실행 |
+| CI | Push / Pull Request마다 Frontend / Backend Test·Build, 결과를 Step Summary로 기록 |
 
-| 순서 | Task | 내용 | 원래 후보 | 승인 |
-|---|---|---|---|---|
-| 1 | TASK-013 | Local Verification에 `npm ci` 추가, Node.js Version 명시 | FU-2 | Human Approval (DONE) |
-| 2 | TASK-014 | Gradle Wrapper Version 검토 | FU-5 | Human Approval, DEC-015 (DONE) |
-| 3 | TASK-015 | 고정 Timezone 기준 날짜 표시 Test | FU-4 | Human Approval, DEC-022 (DONE) |
-| 4 | TASK-016 | DB 연동 테스트 (실제 MySQL) | FU-3 | Gate C, DEC-023 (DONE) |
-| 5 | TASK-017 | API 계약 테스트 (Frontend / Backend) | FU-1 | Gate C, DEC-024 (DONE) |
+---
 
-남은 후보:
+## Harness 기반 개발 방식
 
-| 후보 | 내용 | 필요 승인 |
+MoodFit v3는 기능 자체만큼 **AI Coding Agent와 함께 개발하는 과정**을 중요하게 다룬 프로젝트입니다.
+Agent(Codex, Claude)가 코드를 작성하더라도 무엇을, 어떤 순서로, 어떤 기준으로 만들지는
+문서와 규칙(Harness)으로 정하고, 중요한 결정은 사람이 승인합니다.
+
+```text
+Specification → Rules → Plan → Human Approval → Task → Implementation → Verification → Work Log
+```
+
+| 단계 | 하는 일 | 문서 |
 |---|---|---|
-| FU-6 | Runner OS 전환 대응 (`ubuntu-latest` → Ubuntu 26, 2026-10-19부터): 유지 후 결과 확인 또는 `ubuntu-24.04` 고정 | CI Workflow 변경 시 Gate C |
+| Specification | 제품 목표, 화면, 구조, API를 먼저 정의 | [01-PROJECT](docs/01-PROJECT.md), [03-UX_UI_SPEC](docs/03-UX_UI_SPEC.md), [04-ARCHITECTURE](docs/04-ARCHITECTURE.md), [05-API_SPEC](docs/05-API_SPEC.md) |
+| Rules | Agent가 지켜야 할 작업 규칙 (Task 단위 실행, 승인 없는 Commit / Dependency 추가 금지 등) | [AGENTS.md](AGENTS.md) |
+| Plan / Task | Milestone과 Task로 나누고, 한 번에 하나의 Task만 실행 | [06-PLAN](docs/06-PLAN.md), [07-TASKS](docs/07-TASKS.md) |
+| Human Approval | Gate에서 사람이 검토하고 승인 | [09-DECISIONS](docs/09-DECISIONS.md) |
+| Verification | Local Verification과 CI가 모두 통과해야 완료 | `scripts/`, `.github/workflows/` |
+| Work Log | 작업 내용, 오류와 해결, 검증 결과를 기록 | [08-WORK_LOG](docs/08-WORK_LOG.md) |
 
-새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate와 Human Approval을 거친 뒤 시작합니다.
+### Gate
+
+| Gate | 대상 | 예 |
+|---|---|---|
+| Gate A | 기술 Version | Spring Boot / Node.js / Gradle Version 결정 |
+| Gate B | 제품 Rule | Wellness Score / Mood / 추천 Rule 확정 |
+| Gate C | Dependency와 검증 도구 | Testcontainers 도입, API 계약 테스트 방식 선택 |
+
+승인된 결정은 `DEC-xxx`로 [09-DECISIONS](docs/09-DECISIONS.md)에 남고, 이후 작업의 기준(Source of Truth)이 됩니다.
+
+### Task 진행 흐름
+
+```text
+READY → IN_PROGRESS → 구현 → Local Verification → Commit / Push → Remote CI → REVIEW → Human Review → DONE
+```
+
+- Task가 DONE이 되면 GitHub Actions(`Sync Milestones`)가 해당 GitHub Milestone을 자동으로 닫습니다.
+- Agent에게 준 실제 Prompt는 [prompts/](prompts/README.md)에 순서대로 남겨, 어떤 지시로 어떤 결과가 나왔는지 추적할 수 있습니다.
+- 진행 내역과 Task별 상세 기록은 [07-TASKS](docs/07-TASKS.md)와 [08-WORK_LOG](docs/08-WORK_LOG.md)를 참고합니다.
+
+### 버전별 비교
+
+| 버전 | 개발 방식 |
+|---|---|
+| v1 | 자연어 요청 중심의 UI 프로토타입 |
+| v2 | Markdown 명세 기반 Full-stack 구현 + GitHub Actions CI |
+| v3 | Harness 기반 계획 · Task · 검증 · 기록 중심 개발 |
+
+---
+
+## 시작하기
+
+### 준비
+
+- Node.js `24.21.0` (`.nvmrc`)
+- Java 21
+- MySQL 8 (Backend 실행용)
+- Docker (선택, DB 연동 테스트용)
+
+### 1. Database와 환경변수
+
+```bash
+# v3 전용 DB 생성 (최초 1회)
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS moodfit_v3 CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
+
+# .env.example을 복사해 .env.local 작성 (Commit 금지)
+#   DB_URL=jdbc:mysql://localhost:3306/moodfit_v3
+#   DB_USERNAME=...
+#   DB_PASSWORD=...
+```
+
+### 2. Backend 실행
+
+```bash
+# Git Bash 기준, 새 터미널마다 환경변수 불러오기
+set -a; source .env.local; set +a
+
+cd backend && ./gradlew bootRun   # http://localhost:8080 (Flyway가 Table 자동 생성)
+```
+
+### 3. Frontend 실행
+
+```bash
+cd frontend
+npm ci
+npm run dev                        # http://localhost:5173 (/api는 Backend로 Proxy)
+```
+
+### 4. 전체 검증
+
+```bash
+sh scripts/verify.sh                                        # Git Bash / macOS / Linux
+powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1  # Windows PowerShell
+```
+
+- Backend Test는 H2 In-memory DB로 실행되므로 MySQL 없이도 동작합니다.
+- DB 연동 테스트는 Docker가 실행 중일 때만 동작하며, Docker가 없으면 건너뛰고(SKIPPED) 출력에 표시됩니다. CI에서는 Docker가 필수입니다.
+- `.env.local`은 Git에 포함되지 않습니다. 프로젝트를 압축해 배포할 때는 `.env.local`과 `.git/`을 제외합니다.
+
+---
+
+## 프로젝트 구조
+
+```text
+MoodFit-v3/
+├── frontend/            React + TypeScript + Vite
+│   └── src/
+│       ├── app/         Router, Layout
+│       ├── components/  공통 UI Component
+│       ├── features/    checkin / dashboard / history
+│       ├── services/    API Client
+│       └── contracts/   API 계약 Type 검사
+├── backend/             Spring Boot
+│   └── src/main/java/com/moodfit/
+│       ├── controller/  REST API
+│       ├── service/     Wellness Rule, Check-in 처리
+│       ├── entity/  repository/  dto/  exception/  config/
+├── contracts/           API 계약 파일 (Frontend / Backend 공유)
+├── docs/                명세, 계획, Task, Work Log, 결정 기록
+├── prompts/             Agent Prompt 기록
+├── scripts/             Local Verification, Milestone 생성 도구
+├── .github/workflows/   CI, Milestone 자동 Close
+└── AGENTS.md            Agent 작업 규칙
+```

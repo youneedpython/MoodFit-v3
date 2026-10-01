@@ -2216,3 +2216,49 @@ Remote CI Verification 완료 후 TASK-017 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## Out-of-Task — README 프로젝트 소개 개편
+
+### 상태
+
+완료 (Human 지시, 2026-10-02)
+
+### 작업 내용
+
+- Root `README.md`를 진행 기록 중심에서 **프로젝트 소개 중심**으로 다시 작성했다.
+  - 제거: Current Task, Task별 진행 결과 표, 다음 단계 표, Prompt History 개수 (진행 기록은 `docs/07-TASKS.md`, `docs/08-WORK_LOG.md`에 유지)
+  - 추가: 서비스 소개, 주요 기능과 실제 화면, 분석 / 추천 동작 방식, 구성과 API, 기술 스택, 품질 검증, Harness 기반 개발 방식(흐름 / 문서 / Gate / Task 진행), 시작하기, 프로젝트 구조, CI Badge
+- README 소개용 화면 캡처 6장을 `docs/images/readme/`에 추가했다.
+
+| 파일 | 화면 | 크기 |
+|---|---|---|
+| `dashboard.png` | Dashboard (Desktop) | 1280px |
+| `checkin-form.png` | Daily Check-in 입력 (Desktop) | 1280px |
+| `checkin-result.png` | Check-in 분석 결과 (Desktop) | 1280px (2x) |
+| `history.png` | History / Trend + 최근 기록 (Desktop) | 1280px |
+| `mobile-dashboard.png` | Dashboard (Mobile) | 390px (2x) |
+| `mobile-history.png` | History (Mobile) | 390px (2x) |
+
+### 캡처 방법
+
+- Local MySQL(`moodfit_v3`)로 Backend(`bootRun`), Frontend(`npm run dev`)를 실행했다.
+- 예시 기록 4건을 API(`POST /api/check-ins`)로 생성해 실제 Rule(DEC-014) 결과를 저장한 뒤, Trend 표시를 위해 기록 시각만 DB에서 `2026-09-26 ~ 09-29`로 옮겼다. (Human 허용)
+- 캡처 과정의 Check-in 입력(API 명세 예시 값)으로 오늘 기록 1건이 추가되었다.
+- Headless Chrome을 Chrome DevTools Protocol(Node.js 내장 WebSocket)로 제어해 정확한 화면 너비로 캡처했다. 새 Dependency와 Repository 파일 변경은 없다. (캡처 Script는 Scratchpad에서만 사용)
+- History 화면은 기존 수동 확인 기록(극단 입력값 포함)이 노출되지 않도록 Trend와 최근 기록 1건까지만 잘라 사용했다. 기존 기록은 변경하지 않았다.
+
+### 변경하지 않은 것
+
+- Source Code, Test, CI, 다른 문서의 진행 기록
+- `docs/images/task-xxx/` Task 검토용 캡처
+
+### GitHub Repository About
+
+- 현재 설명: "사용자의 신체 리듬 정보와 날씨 정보를 기반으로 현재 웰니스 상태를 추정하고, 음식과 음악을 추천하는 Full-stack 프로젝트" / Topics 없음
+- 이 환경에는 GitHub 인증(`gh`)이 없어 About은 Human이 GitHub 화면에서 직접 수정한다. (문구 / Topics 초안 제공)
+
+### 결과
+
+완료 / Commit · Push 대기
