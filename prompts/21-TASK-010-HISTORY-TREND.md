@@ -75,10 +75,23 @@ A안으로 진행!
 - TASK-010 실행 승인 완료.
 - History 응답 추천 이름 필드 추가 Gate C 승인 완료 (A안, DEC-020).
 
+## 추가 Human 요청
+
+- 화면 검토 캡처를 Work Log에 남기도록 요청했다.
+  - TASK-007 ~ TASK-010 캡처 8장을 `docs/images/task-XXX/`에 압축 저장하고 Work Log에 연결했다.
+  - AGENTS.md 8.1절에 화면 검토 캡처 기록 규칙을 추가했다.
+
+## Remote CI Verification 결과
+
+- Commit: `c5bac2c`
+- Workflow run: https://github.com/youneedpython/today-v3/actions/runs/36802116810
+- `frontend` Job: success
+- `backend` Job: success
+
 ## 상태
 
-구현 완료 / Local Verification PASS / Remote CI Verification 대기
+실행 완료 / Human Review 중
 
 ## Related Commit
 
-Pending
+c5bac2c

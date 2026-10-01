@@ -1248,9 +1248,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS
-
-Local Verification 완료 / Remote CI Verification 대기
+REVIEW
 
 ### 문서 충돌과 Gate C 결정 (DEC-020)
 
@@ -1330,8 +1328,20 @@ Frontend:
 
 ### Remote CI Verification
 
-Pending — Commit / Push 후 확인 필요
+Commit `c5bac2c`를 `main`에 push하여 Remote CI를 실행했다.
+
+- Workflow run: https://github.com/youneedpython/today-v3/actions/runs/36802116810
+- 결과: PASS (`success`)
+
+| Job | 결과 | 소요 시간 |
+|---|---|---|
+| `frontend` | success | 약 20초 (Test 73건 포함) |
+| `backend` | success | 약 67초 (Test 55건 포함) |
+
+- `Sync Milestones`: success (새로 DONE이 된 Task 없음)
+
+Remote CI Verification 완료 후 TASK-010 상태를 REVIEW로 변경했다.
 
 ### 결과
 
-Local Verification PASS / Remote CI Verification 대기
+Human Review 대기

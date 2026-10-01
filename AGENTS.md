@@ -42,10 +42,10 @@ TASK-010 — History / Trend
 Status:
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
-TASK-010은 Human 실행 지시에 따라 시작되었다.
+TASK-010은 구현, Local Verification, Remote CI Verification을 완료하고 Human Review를 기다리는 상태이다.
 History 응답의 추천 이름 필드 추가는 Gate C Human Approval(DEC-020)을 따른다.
 Trend는 CSS / SVG 기반으로 구현하며, 외부 Chart Library가 필요하면 Gate C를 적용한다. (DEC-010)
 
