@@ -38,13 +38,13 @@ TASK-016 — DB 연동 테스트 (실제 MySQL)
 Status:
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
 TASK-001 ~ TASK-012(Core MVP)은 모두 DONE 상태이다.
 TASK-011 / TASK-012에서 정리한 후속 보완 작업 후보 FU-1 ~ FU-5를 Human 지시에 따라 TASK-013 ~ TASK-017로 등록했다. (권장 순서: FU-2 → FU-5 → FU-4 → FU-3 → FU-1)
 TASK-013 ~ TASK-015는 Human Review 승인으로 DONE 상태이다. (TASK-014: Gradle Wrapper `9.8.0`, DEC-015 / TASK-015: 표시 Timezone `Asia/Seoul`, DEC-022)
-TASK-016은 Gate C 승인(DEC-023: Testcontainers MySQL `mysql:8.0.46`) 후 Human 지시(Docker 실행)에 따라 진행 중이다.
+TASK-016은 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다. (DEC-023: Testcontainers MySQL `mysql:8.0.46`)
 
 ---
 
@@ -67,7 +67,7 @@ TASK-016은 Gate C 승인(DEC-023: Testcontainers MySQL `mysql:8.0.46`) 후 Huma
 | TASK-013 | Milestone 13 | Local Verification Environment Alignment (FU-2) | DONE | Human Approval 완료, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-014 | Milestone 14 | Gradle Wrapper Version Review (FU-5) | DONE | TASK-013 완료 (충족), Human Approval 완료, Human 결정(B안 9.8.0), Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | DONE | TASK-014 완료 (충족), Human Approval 완료, DEC-022 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
-| TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | IN_PROGRESS | TASK-015 완료 (충족), DEC-023 Human Approved | Gate C 승인 완료 |
+| TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | REVIEW | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료 | Gate C 승인 완료 |
 | TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | BLOCKED | TASK-016 완료 | Gate C 필요 |
 
 ---
@@ -1075,10 +1075,10 @@ DONE
 ### 상태
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
-선행 Task(TASK-015)는 완료되었다. Gate C 승인 완료 (`prompts/29-TASK-016-DB-INTEGRATION-TEST-GATE-C-REVIEW.md`, DEC-023) 후 진행 중이다.
+Gate C 승인(DEC-023) 후 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다.
 
 ### 목적
 

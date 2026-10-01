@@ -43,11 +43,11 @@ TASK-016 — DB 연동 테스트 (실제 MySQL)
 Status:
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
 TASK-013 ~ TASK-015는 DONE 상태이다.
-TASK-016은 Gate C 승인(DEC-023) 후 진행 중이다.
+TASK-016은 구현과 Local / Remote Verification을 마치고 Human Review를 기다린다.
 TASK-016 ~ TASK-017은 등록 순서대로 진행하며, 각 Task의 Human Approval / Gate C를 거친다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.

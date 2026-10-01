@@ -55,8 +55,8 @@ docker 실행했어.
 
 ## 상태
 
-진행 중
+실행 완료 / Human Review 대기
 
 ## Related Commit
 
-Pending
+- `2f693d4` test: TASK-016 MySQL DB 연동 테스트 (Testcontainers) 추가

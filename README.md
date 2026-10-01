@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-016 — DB 연동 테스트 (실제 MySQL)
-IN_PROGRESS
+REVIEW (Human Review 대기)
 ```
 
 진행 흐름:

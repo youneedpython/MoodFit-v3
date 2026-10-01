@@ -1973,7 +1973,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS (Gate C 승인: DEC-023, 2026-10-01)
+REVIEW (Gate C 승인: DEC-023, 2026-10-01)
 
 ### Gate C 결정 (DEC-023)
 
@@ -2041,6 +2041,46 @@ Local Verification:
 - Backend Test 시간: 약 2초 → 약 33 ~ 35초 (Container 시작 포함, Image 캐시 상태)
 - 화면(UI) 변경이 없는 Task이므로 AGENTS.md 8.1 캡처 대상이 아니다.
 
+### Remote CI Verification
+
+Commit을 둘로 나누어 `main`에 push했다. (Human 지시)
+
+- `74cdd3c` docs: TASK-016 Gate C 검토 및 승인 반영 (DEC-023)
+- `2f693d4` test: TASK-016 MySQL DB 연동 테스트 (Testcontainers) 추가
+
+- Workflow run: https://github.com/youneedpython/MoodFit-v3/actions/runs/36836934133
+- 결과: PASS (`success`)
+
+| Job / Step | 결과 | 소요 시간 |
+|---|---|---|
+| `frontend` | success | 약 17초 |
+| `backend` | success | 약 97초 (이전 약 52 ~ 66초) |
+| `backend` › Run backend tests | success | 약 89초 (MySQL Image Pull / Container 시작 포함) |
+| Sync Milestones | success | — |
+
+MySQL 연동 테스트 실제 실행 근거:
+
+- GitHub Actions는 `CI=true`를 설정하므로 `DockerAvailabilityTests`가 실행된다. 이 Test는 Docker가 없으면 실패하며, `backend` Job이 성공했으므로 Runner에 Docker가 있었다.
+- `MySqlIntegrationTests`는 Docker가 없을 때만 건너뛰므로(`disabledWithoutDocker`) CI에서 실행되었다.
+- Job Log는 인증이 필요해 REST API로 조회하지 못했다(403). Test 출력의 SKIPPED 여부와 Backend Summary의 MySQL 문구는 Human Review에서 Workflow Run 화면으로 확인한다.
+
+Remote CI Verification 완료 후 TASK-016 상태를 REVIEW로 변경했다.
+
+### Human Review
+
+검토 일자: 2026-10-01
+
+- Human이 Workflow Run의 Backend Summary 화면을 캡처해 첨부했다.
+
+  ![TASK-016 Backend Summary](images/task-016/ci-summary-backend.png)
+
+- 확인 내용
+  - Backend Test / Build `✅ success`, Commit `2f693d4`
+  - "MySQL: Testcontainers (`mysql:8.0.46`, DEC-023)" 문구 표시 (DEC-023 문구 변경 반영)
+  - Gradle Builds: Gradle Version `9.8.0`(TASK-014), Caching Disabled(DEC-017)
+  - Annotations: `ubuntu-latest` → Ubuntu 26 전환 안내(2026-10-19)가 계속 표시됨 (FU-6, Task 등록 여부 Human 결정 대기)
+- Job Log의 Test 출력(SKIPPED 여부)은 캡처에 포함되지 않았다. MySQL 연동 테스트 실행은 위 Remote CI Verification의 근거(`CI=true` + `DockerAvailabilityTests` 성공)로 판단한다.
+
 ### 결과
 
-Implementation / Local Verification 완료 / Commit · Push 및 Remote CI 확인 대기
+Verification 완료 / Human Review 대기
