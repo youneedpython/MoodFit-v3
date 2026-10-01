@@ -34,10 +34,25 @@ function Invoke-NativeStep {
     $script:LASTEXITCODE = 0
 }
 
+# DEC-015: 승인된 Node.js Version은 .nvmrc를 기준으로 한다. 불일치 시 경고만 출력한다.
+function Test-NodeVersion {
+    $Expected = (Get-Content (Join-Path $Root ".nvmrc") -TotalCount 1).Trim()
+    $Actual = ((& node --version) -replace '^v', '').Trim()
+
+    if ($Actual -ne $Expected) {
+        Write-Warning "Node.js $Actual is in use, but .nvmrc expects $Expected (CI uses $Expected)."
+    }
+    else {
+        Write-Host "Node.js $Actual (matches .nvmrc)"
+    }
+}
+
 $Frontend = Join-Path $Root "frontend"
 $Backend = Join-Path $Root "backend"
 
 try {
+    Test-NodeVersion
+    Invoke-NativeStep "Frontend install (npm ci)" $Frontend "npm.cmd" "ci"
     Invoke-NativeStep "Frontend test" $Frontend "npm.cmd" "test"
     Invoke-NativeStep "Frontend build" $Frontend "npm.cmd" "run" "build"
     Invoke-NativeStep "Backend test" $Backend ".\gradlew.bat" "test"

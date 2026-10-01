@@ -25,6 +25,16 @@ run_step() {
   "$@"
 }
 
+# DEC-015: 승인된 Node.js Version은 .nvmrc를 기준으로 한다. 불일치 시 경고만 출력한다.
+EXPECTED_NODE=$(head -n 1 "$ROOT_DIR/.nvmrc" | tr -d ' \r\n')
+ACTUAL_NODE=$(node --version 2>/dev/null | sed 's/^v//' | tr -d '\r' || true)
+if [ "$ACTUAL_NODE" != "$EXPECTED_NODE" ]; then
+  printf 'WARNING: Node.js %s is in use, but .nvmrc expects %s (CI uses %s).\n' "${ACTUAL_NODE:-not found}" "$EXPECTED_NODE" "$EXPECTED_NODE" >&2
+else
+  printf 'Node.js %s (matches .nvmrc)\n' "$ACTUAL_NODE"
+fi
+
+run_step "Frontend install (npm ci)" sh -c "cd '$ROOT_DIR/frontend' && npm ci"
 run_step "Frontend test" sh -c "cd '$ROOT_DIR/frontend' && npm test"
 run_step "Frontend build" sh -c "cd '$ROOT_DIR/frontend' && npm run build"
 

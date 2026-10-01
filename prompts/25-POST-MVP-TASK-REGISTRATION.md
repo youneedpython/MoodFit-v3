@@ -77,4 +77,4 @@ Task 등록 및 Milestone 연결 지시 완료.
 
 ## Related Commit
 
-Pending
+- `ffb8387` docs: Post-MVP 보완 Task 등록 및 Milestone 연결

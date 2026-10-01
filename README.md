@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-013 — Local Verification Environment Alignment
-BLOCKED (Human Approval 대기)
+IN_PROGRESS
 ```
 
 진행 흐름:
@@ -91,6 +91,7 @@ MoodFit-v3/
 ├── README.md
 ├── .gitignore
 ├── .env.example
+├── .nvmrc (Node.js 24.21.0)
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml
@@ -125,7 +126,7 @@ MoodFit-v3/
 │   └── images/ (Task별 화면 검토 캡처)
 └── prompts/
     ├── README.md
-    └── 01 ~ 25 Prompt History
+    └── 01 ~ 26 Prompt History
 ```
 
 ## Local 실행

@@ -1636,3 +1636,71 @@ Remote CI Verification 완료 후 TASK-012 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-013 — Local Verification Environment Alignment
+
+### 상태
+
+IN_PROGRESS (Human Approval 완료: 2026-10-01)
+
+### 작업 내용 (FU-2 — GAP-3 / GAP-4)
+
+- Repository Root에 `.nvmrc` 추가: `24.21.0` (DEC-015, CI `setup-node`의 `node-version`과 동일)
+- `scripts/verify.ps1`, `scripts/verify.sh`
+  - 시작 시 Local Node.js Version을 `.nvmrc`와 비교한다.
+    - 일치: `Node.js 24.21.0 (matches .nvmrc)` 출력
+    - 불일치: 경고만 출력하고 검증은 계속 진행한다. (Version 강제는 범위 밖)
+  - Frontend Test 전에 `Frontend install (npm ci)` 단계를 추가했다. CI와 같이 `package-lock.json` 기준으로 설치한다.
+  - `npm ci` 실패 시 기존 단계와 같이 즉시 중단하고 exit code 1로 끝난다.
+
+### 변경하지 않은 것
+
+- `frontend/package.json`, `frontend/package-lock.json` (`engines` 미추가, Dependency 변경 없음 → Gate C 대상 아님)
+- `.github/workflows/ci.yml` (`node-version: '24.21.0'` 유지)
+- Backend 단계(`gradlew test` / `gradlew build`)
+
+`engines` 대신 `.nvmrc`를 선택한 이유:
+
+- `engines`는 npm 기본 설정에서 경고만 출력하고, Root package 변경이 `package-lock.json`에도 기록된다.
+- `.nvmrc`는 lock file을 건드리지 않고, nvm / fnm 등 Version 관리 도구와 검증 Script가 같은 값을 읽을 수 있다.
+
+### Local Verification / CI Frontend 단계 비교
+
+| 단계 | CI (`frontend` Job) | `verify.ps1` | `verify.sh` |
+|---|---|---|---|
+| Node.js Version | `setup-node` `24.21.0` 고정 | `.nvmrc`와 비교, 불일치 시 경고 | `.nvmrc`와 비교, 불일치 시 경고 |
+| 의존성 설치 | `npm ci` | `npm.cmd ci` | `npm ci` |
+| Test | `npm test` | `npm.cmd test` | `npm test` |
+| Build | `npm run build` | `npm.cmd run build` | `npm run build` |
+
+남은 차이: CI는 Node.js Version을 설치해 고정하고, Local은 설치된 Node.js를 사용하며 불일치를 경고로 안내한다.
+
+### Verification
+
+성공 경로 (Local Node.js `24.21.0`):
+
+| Script | 결과 |
+|---|---|
+| `sh scripts/verify.sh` | PASS (exit 0) — `npm ci` 99 packages, Frontend Test 73건, Build, Backend Test / Build |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1` | PASS (exit 0) — 같은 단계 모두 성공 |
+
+실패 / 경고 경로 (임시 디렉터리의 가짜 `npm` / `node`를 PATH 앞에 두고 실행, 검증 후 삭제):
+
+| 시나리오 | `verify.sh` | `verify.ps1` |
+|---|---|---|
+| `npm ci` 실패 | `Frontend install (npm ci)`에서 중단, exit 1, Test 미실행 | `Frontend install (npm ci) failed with exit code 1.`, exit 1, Test 미실행 |
+| Node.js `22.0.0` (불일치) | `WARNING: Node.js 22.0.0 is in use, but .nvmrc expects 24.21.0` 출력 후 끝까지 진행, exit 0 | 같은 경고 출력 후 끝까지 진행, exit 0 |
+
+- `git status` 확인: `npm ci` 실행 후 `frontend/package-lock.json` 변경 없음
+- 화면(UI) 변경이 없는 Task이므로 AGENTS.md 8.1 캡처 대상이 아니다.
+
+### 참고
+
+- `npm ci`는 `node_modules`를 삭제 후 다시 설치한다. `npm run dev`(Vite) 등이 실행 중이면 Windows에서 파일 잠금으로 실패할 수 있으므로 검증 전에 종료한다.
+- 검증 시간이 `npm ci`만큼(Local 약 3 ~ 9초) 늘어난다.
+
+### 결과
+
+Verification 완료 / Commit · Push 및 Remote CI 확인 대기

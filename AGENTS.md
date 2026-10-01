@@ -43,10 +43,10 @@ TASK-013 — Local Verification Environment Alignment
 Status:
 
 ```text
-BLOCKED
+IN_PROGRESS
 ```
 
-TASK-013은 Local Verification Script 동작 변경을 포함하므로 Human Approval 전에는 시작하지 않는다.
+TASK-013은 Human Approval을 받아 진행 중이다.
 TASK-014 ~ TASK-017은 등록 순서대로 진행하며, 각 Task의 Human Approval / Gate C를 거친다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
