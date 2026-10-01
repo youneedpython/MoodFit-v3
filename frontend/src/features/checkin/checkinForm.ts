@@ -1,3 +1,4 @@
+import { WEATHER_LABELS } from "../../constants/weather";
 import type { CreateCheckinRequest, WeatherCondition } from "../../types/api";
 
 /**
@@ -40,12 +41,9 @@ export const FIELD_GROUPS: { title: string; description: string; fields: NumberF
   { title: "컨디션", description: "오늘 느끼는 정도를 0 ~ 100 사이로 입력해 주세요.", fields: ["sleepScore", "stressLevel", "energyLevel"] }
 ];
 
-export const WEATHER_OPTIONS: { value: WeatherCondition; label: string }[] = [
-  { value: "CLEAR", label: "맑음" },
-  { value: "CLOUDY", label: "흐림" },
-  { value: "RAIN", label: "비" },
-  { value: "SNOW", label: "눈" }
-];
+export const WEATHER_OPTIONS: { value: WeatherCondition; label: string }[] = (
+  Object.keys(WEATHER_LABELS) as WeatherCondition[]
+).map((value) => ({ value, label: WEATHER_LABELS[value] }));
 
 export type CheckinFormValues = Record<NumberFieldName, string> & { weather: WeatherCondition | "" };
 

@@ -42,10 +42,10 @@ TASK-009 — Dashboard
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-TASK-009는 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+TASK-009는 Human 실행 지시에 따라 시작되었다.
 API Contract 변경이나 외부 시각화 Dependency가 필요하면 Gate C를 적용한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.

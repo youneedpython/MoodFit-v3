@@ -1139,3 +1139,67 @@ Remote CI Verification 완료 후 TASK-008 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-009 — Dashboard
+
+### 상태
+
+IN_PROGRESS
+
+Local Verification 완료 / Remote CI Verification 대기
+
+### 작업 내용
+
+- `src/features/dashboard/useLatestCheckin.ts`: 최신 Check-in 조회 Hook
+  - 상태: loading / empty / error / ready
+  - `404 CHECKIN_NOT_FOUND`는 `checkinApi.getLatest()`가 `null`로 반환하므로 오류가 아닌 empty 상태로 처리한다. (API Spec 5절, DEC-003)
+  - 재시도 시 이전 요청의 늦은 응답이 최신 상태를 덮어쓰지 않도록 요청 번호로 구분하고, 화면을 떠난 뒤의 응답은 반영하지 않는다.
+- `src/features/dashboard/WellnessHero.tsx`: Mood Badge / 기록 시각, 상태 Headline(`지금 컨디션은 {Mood label}`), Summary, `오늘 상태 입력` CTA, Wellness Score, 날씨 / 기온, 장식용 Weather Visual(`aria-hidden`)
+- `src/features/dashboard/BodyMetrics.tsx`: 5개 Body Metric Card (심박수, 호흡수, 수면 점수, 스트레스 수준, 에너지 수준)
+- `src/features/dashboard/RecommendationCards.tsx`: 추천 음식 / 추천 음악 Card (이름, Tag, 추천 이유, 음악은 Artist 포함)
+- `src/features/dashboard/DashboardPage.tsx`: Loading / API Error + 다시 시도 / Empty State + Check-in CTA / 결과 화면
+- `src/features/dashboard/DashboardPage.css`: Hero 2열 → Tablet / Mobile 1열, Metric 5 → 3 → 2열, 추천 2열 → 1열
+- `src/constants/weather.ts`: 날씨 표시 이름을 Check-in / Dashboard 공통 상수로 분리 (`checkinForm.ts`의 `WEATHER_OPTIONS`는 같은 값을 사용, 동작 변경 없음)
+- README: Frontend 설명에 Dashboard 추가, Prompt History `01 ~ 20` 동기화
+- 모든 표시 값은 Backend 응답을 그대로 사용한다. 분석 Rule을 Frontend에 구현하지 않았다.
+
+### 범위 밖
+
+- 최근 7일 Wellness Trend는 UX Spec Dashboard 영역에 포함되지만 TASK-009 산출물 목록에 없고 TASK-010 History / Trend 범위이므로 구현하지 않았다.
+
+### 오류 및 해결
+
+- Test 작성 중 발견: 공통 `Card`의 `<section>`에 접근 가능한 이름이 없어 Screen Reader의 영역(region)으로 인식되지 않았다. (`Body Metrics`, `추천 음식` 등)
+  - 해결: `Card`에 제목이 있으면 `useId`로 제목을 `aria-labelledby`에 연결했다. (TASK-007 공통 Component 접근성 보완)
+  - `MetricCard.test.tsx`의 Card Test에 region 이름 확인을 추가했다.
+- Route Test: Dashboard(`/`)가 이제 API를 호출하므로 `router.test.tsx`에서 fetch를 기록 없음(404)으로 Stub했다.
+  - "준비 중 화면" 확인은 아직 준비 중인 `/history`로 옮기고, `/`의 Empty State 확인 Test를 추가했다.
+
+### Dependency / Contract
+
+- 새로운 Dependency, 외부 Chart / 시각화 Library 추가 없음. (DEC-010) `package.json`, `package-lock.json`, `vite.config.ts` 변경 없음.
+- API Contract, Backend, DB Schema 변경 없음.
+
+### Verification
+
+- `npm test`: PASS, Test File 8개 / Test 67건 (TASK-009 추가 8건)
+  - `DashboardPage.test.tsx`: Loading → 결과 표시(Hero의 Mood / Score / Summary / 날씨 / 기온 / CTA), 5개 Metric 값과 단위, 추천 음식 / 음악 이름 · Tag · 이유 · Artist, `404 CHECKIN_NOT_FOUND` → Empty State와 Check-in CTA, API 오류 → 다시 시도 → 결과 표시, 네트워크 오류 안내, Weather Visual 장식 처리
+  - `router.test.tsx`: `/` Empty State 확인 추가
+- `npm run build`: PASS
+- 실제 Backend 연동 화면 검토
+  - Local MySQL(`moodfit_v3`)로 Backend Jar를 실행하고, `vite preview`의 `/api` Proxy를 통해 최신 기록(id 3)을 조회했다.
+  - 390px / 768px / 1280px로 캡처해 확인: 가로 넘침 없음, Hero / Metric / 추천 영역 Responsive 배치 정상
+  - 표시된 Summary와 추천(기온 36.0°C → HOT Context)이 DEC-014 Rule 결과와 일치했다.
+  - 확인 후 Backend와 Preview 서버를 종료했다.
+- Backend 관련 Test 재실행: PASS (`WellnessRulePolicyTests` 36건, `CheckinControllerTests` 13건, `WellnessCheckinRepositoryTests` 3건, `MoodFitApplicationTests` 1건)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
+
+### Remote CI Verification
+
+Pending — Commit / Push 후 확인 필요
+
+### 결과
+
+Local Verification PASS / Remote CI Verification 대기

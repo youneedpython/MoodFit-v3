@@ -31,6 +31,7 @@ describe("Card", () => {
     );
 
     expect(screen.getByRole("heading", { level: 2, name: "추천 음식" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "추천 음식" })).toBeTruthy();
     expect(screen.getByText("본문")).toBeTruthy();
     expect(screen.getByText("2개").className).toContain("badge--info");
   });

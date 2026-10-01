@@ -1,0 +1,62 @@
+import { Badge } from "../../components/Badge/Badge";
+import { ButtonLink } from "../../components/Button/Button";
+import { WEATHER_LABELS } from "../../constants/weather";
+import type { CheckinResponse, WeatherCondition } from "../../types/api";
+
+/** 장식용 Weather Visual. 의미는 옆의 Text로 전달한다. */
+const WEATHER_ICONS: Record<WeatherCondition, string> = {
+  CLEAR: "☀️",
+  CLOUDY: "☁️",
+  RAIN: "🌧️",
+  SNOW: "❄️"
+};
+
+function formatRecordedAt(recordedAt: string) {
+  return new Date(recordedAt).toLocaleString("ko-KR", {
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+type WellnessHeroProps = {
+  checkin: CheckinResponse;
+};
+
+export function WellnessHero({ checkin }: WellnessHeroProps) {
+  const { mood, wellnessScore, summary, weather, recordedAt } = checkin;
+
+  return (
+    <section className="wellness-hero" aria-labelledby="wellness-hero-title">
+      <div className="wellness-hero__main">
+        <div className="wellness-hero__meta">
+          <Badge tone="accent">{mood.label}</Badge>
+          <span className="wellness-hero__time">{formatRecordedAt(recordedAt)} 기록</span>
+        </div>
+        <h2 id="wellness-hero-title" className="wellness-hero__title">
+          지금 컨디션은 <strong>{mood.label}</strong>
+        </h2>
+        <p className="wellness-hero__summary">{summary}</p>
+        <ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>
+      </div>
+
+      <div className="wellness-hero__side">
+        <div className="wellness-hero__score">
+          <span className="wellness-hero__score-label">Wellness Score</span>
+          <span className="wellness-hero__score-value">{wellnessScore}</span>
+          <span className="wellness-hero__score-max">/ 100</span>
+        </div>
+        <div className="wellness-hero__weather">
+          <span className="wellness-hero__weather-icon" aria-hidden="true">
+            {WEATHER_ICONS[weather.condition]}
+          </span>
+          <span>
+            <span className="wellness-hero__weather-label">{WEATHER_LABELS[weather.condition]}</span>
+            <span className="wellness-hero__temperature">{weather.temperature.toFixed(1)}°C</span>
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}

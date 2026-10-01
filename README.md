@@ -32,7 +32,7 @@ Current Task:
 
 ```text
 TASK-009 — Dashboard
-READY (실행 지시 대기)
+IN_PROGRESS
 ```
 
 완료된 Harness 단계는 다음과 같습니다.
@@ -69,7 +69,7 @@ TASK-005 Gate B Human Review를 거쳐 Wellness Analysis / Recommendation Rule�
 TASK-006에서 Check-in 저장, DEC-014 분석 / 추천, 최신 / History 조회를 구현했고 Local / Remote CI Verification, Local MySQL 실행 확인, Human Review를 완료했습니다.
 TASK-007에서 Frontend Route 구조, 공통 Layout / Component, Design Token, API Client를 구성했고 Local / Remote CI Verification과 Human Review를 완료했습니다.
 TASK-008에서 Daily Check-in 입력, Validation, 제출 / 오류 / 결과 요약 흐름을 구현했고 Local / Remote CI Verification, Human 실행 확인, Human Review를 완료했습니다.
-현재는 사용자의 명시적인 TASK-009 실행 지시를 기다리는 상태입니다.
+현재는 TASK-009 Dashboard를 진행하는 상태입니다.
 
 ## 현재 구조
 
@@ -84,7 +84,7 @@ today-v3/
 │       ├── ci.yml
 │       └── milestones.yml
 ├── frontend/
-│   └── React + TypeScript + Vite (Router / Design System / API Client / Daily Check-in)
+│   └── React + TypeScript + Vite (Router / Design System / API Client / Daily Check-in / Dashboard)
 ├── backend/
 │   ├── Spring Boot + Spring Data JPA + Flyway (Check-in API)
 │   └── src/main/java/com/moodfit/
@@ -112,7 +112,7 @@ today-v3/
 │   └── 10-WELLNESS-RULE-PROPOSAL.md
 └── prompts/
     ├── README.md
-    └── 01 ~ 19 Prompt History
+    └── 01 ~ 20 Prompt History
 ```
 
 ## Local 실행

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { routes } from "./router";
 
 function renderAt(path: string) {
@@ -10,6 +10,21 @@ function renderAt(path: string) {
 }
 
 describe("App routes", () => {
+  beforeEach(() => {
+    // Dashboard(/)는 최신 Check-in을 조회하므로 Route Test에서는 기록 없음(404)으로 응답한다.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ code: "CHECKIN_NOT_FOUND", message: "Not found", fieldErrors: {} }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" }
+          })
+        )
+      )
+    );
+  });
+
   it("renders the Dashboard at / inside the common layout", () => {
     renderAt("/");
 
@@ -53,9 +68,15 @@ describe("App routes", () => {
   });
 
   it("does not present hard-coded analysis results on placeholder screens", () => {
-    renderAt("/");
+    renderAt("/history");
 
     expect(screen.getByText("준비 중인 화면입니다.")).toBeTruthy();
-    expect(screen.queryByText(/wellness score/i)).toBeNull();
+    expect(screen.queryByText(/wellness score \d/i)).toBeNull();
+  });
+
+  it("shows the dashboard empty state when no check-in exists", async () => {
+    renderAt("/");
+
+    expect(await screen.findByText("아직 Check-in 기록이 없습니다.")).toBeTruthy();
   });
 });
