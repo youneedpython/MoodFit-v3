@@ -42,10 +42,11 @@ TASK-011 — Verification Hardening
 Status:
 
 ```text
-READY
+REVIEW
 ```
 
-TASK-011은 선행 Task 조건을 충족했지만, 사용자의 명시적인 실행 지시 전에는 시작하지 않는다.
+TASK-011 Verification Hardening의 Local Verification, CI 범위 점검, Remote CI 확인을 완료했으며 Human Review를 기다린다.
+TASK-012는 시작하지 않는다.
 추가 검증 도구, 외부 Dependency, Database Integration Test가 필요하면 Gate C를 적용한다.
 Trend는 CSS / SVG 기반으로 구현하며, 외부 Chart Library가 필요하면 Gate C를 적용한다. (DEC-010)
 

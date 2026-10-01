@@ -1378,3 +1378,132 @@ DONE
 - `docs/08-WORK_LOG.md`, `prompts/`의 과거 GitHub Actions 실행 링크(`today-v3`)는 과거 기록이므로 유지했다. GitHub Redirect로 열린다.
 - `.github/workflows/`는 `$GITHUB_REPOSITORY`를 사용하므로 변경하지 않았다.
 - Local 작업 폴더 이름(`today-v3`)은 변경하지 않았다.
+
+---
+
+## TASK-011 — Verification Hardening
+
+### 상태
+
+REVIEW
+
+### 작업 내용
+
+- Human이 TASK-011 실행을 승인했다.
+- `docs/07-TASKS.md`의 TASK-011 상태를 `READY`에서 `IN_PROGRESS`로 변경한 뒤 Verification Hardening을 수행했다.
+- Core Feature 완료 후 전체 Frontend / Backend Test와 Build를 Local Verification Harness로 다시 검증했다.
+- Local Verification과 GitHub Actions CI의 검증 범위를 비교했다.
+- 최신 Remote CI 실행 결과를 확인했다.
+- TASK-012는 시작하지 않았다.
+
+### Local Verification
+
+PowerShell:
+
+- Command: `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`
+- Result: PASS
+- Frontend Test: PASS, Test Files 9 passed / Tests 73 passed
+- Frontend Build: PASS, `tsc --noEmit && vite build`
+- Backend Test: PASS, `gradlew.bat test`
+- Backend Build: PASS, `gradlew.bat build`
+
+Bash:
+
+- Command: `bash scripts/verify.sh`
+- Result: PASS
+- Frontend Test: PASS, Test Files 9 passed / Tests 73 passed
+- Frontend Build: PASS, `tsc --noEmit && vite build`
+- Backend Test: PASS, `./gradlew test`
+- Backend Build: PASS, `./gradlew build`
+
+### Local Verification / CI 범위 비교
+
+| 검증 항목 | Local Verification | GitHub Actions CI | 동일 여부 |
+|---|---|---|---|
+| Frontend Test | `npm test` | `npm test` | 동일 |
+| Frontend Build | `npm run build` | `npm run build` | 동일 |
+| Backend Test | `gradlew test` | `./gradlew test` | 동등 |
+| Backend Build | `gradlew build` | `./gradlew build` | 동등 |
+
+### CI / Failure 정책 확인
+
+- `.github/workflows/ci.yml`은 `frontend` / `backend` Job을 분리한다.
+- Frontend Job은 `npm ci`, `npm test`, `npm run build`를 실행한다.
+- Backend Job은 Java 21과 Gradle Wrapper를 사용해 `./gradlew test`, `./gradlew build`를 실행한다.
+- MySQL Service Container는 사용하지 않는다.
+- `continue-on-error`는 사용하지 않는다.
+- Cache는 DEC-017 정책대로 사용하지 않는다.
+- `git diff --check`: PASS. 단, Windows 작업 환경의 줄 끝 변환 경고가 표시되었으며 whitespace error는 없었다.
+
+### Remote CI Verification
+
+GitHub API로 최신 CI Workflow 실행 결과를 확인했다.
+
+- Workflow run: https://github.com/youneedpython/MoodFit-v3/actions/runs/36807979956
+- Head SHA: `c959f48cea85e9d10797017fdd4657d3d0ecc12a`
+- Status: `completed`
+- Conclusion: `success`
+- Jobs: `frontend: success`, `backend: success`
+
+현재 TASK-011의 문서 변경은 아직 Commit 전이므로, 이 문서 변경분에 대한 신규 Remote CI는 아직 실행되지 않았다.
+다만 검증 대상 Source / Workflow는 최신 Commit `c959f48` 기준 Remote CI에서 성공했다.
+
+### Verification Gap
+
+> Human Review 보완(2026-10-01)에서 최초 기록("검증 공백은 발견하지 못했다")을 정정했다. 아래는 Claude 검토로 확인한 실제 Gap이다.
+
+식별자: `GAP-n` = 검증 공백(Verification Gap), `FU-n` = 후속 보완 작업 후보(Follow-up). Gate A / B / C, DEC 번호와 구분하기 위해 두 글자 이상의 접두어를 사용한다.
+
+Local Verification과 CI의 Core Test / Build 범위(Frontend Test / Build, Backend Test / Build)는 동일하거나 동등하다.
+다만 다음 Verification Gap이 남아 있다.
+
+| # | Gap | 내용 | 심각도 | 처리 |
+|---|---|---|---|---|
+| GAP-1 | History Rolling Window 미검증 | DEC-019 `days × 24시간` 규칙에서 Service가 Clock 기준으로 시작 시각을 계산하는 로직을 검증하는 Test가 없었다. (Repository Test는 시작 시각을 직접 전달) | 중 | **TASK-011에서 해결** (아래 Human Review 보완) |
+| GAP-2 | Frontend / Backend Contract 자동 검증 없음 | Frontend Test는 모두 fetch Mock을 사용한다. Backend DTO 필드 이름이 바뀌어도 Frontend Test는 통과한다. 실제 연동은 수동 확인 / 캡처로만 검증했다. | 중 | 보완 Task 후보 FU-1 |
+| GAP-3 | Local Verification의 의존성 설치 방식이 CI와 다름 | CI는 `npm ci`로 lock file 기준 설치, `verify.ps1` / `verify.sh`는 기존 `node_modules`를 사용한다. lock file 불일치가 Local에서 발견되지 않을 수 있다. | 하 | 보완 Task 후보 FU-2 |
+| GAP-4 | Local Node.js Version 미강제 | CI는 Node.js `24.21.0` 고정, Local에는 `.nvmrc` / `engines`가 없다. (TASK-001 Review 당시 Local이 `24.16.0`이었던 사례 있음) | 하 | 보완 Task 후보 FU-2 |
+| GAP-5 | 실제 MySQL 미검증 | Test / CI는 H2(MySQL Mode)만 사용한다. MySQL 고유 동작은 Human의 Local 실행으로만 확인했다. | 하 | 보완 Task 후보 FU-3 |
+| GAP-6 | 날짜 / 시각 표시의 Timezone 의존 | 화면의 날짜 / 시각은 브라우저 Timezone을 따르며 이를 검증하는 Test가 없다. | 하 | 보완 Task 후보 FU-4 |
+
+### 보완 Task 후보
+
+| 후보 | 대상 Gap | 내용 | 필요 승인 |
+|---|---|---|---|
+| FU-1 | GAP-2 | Frontend / Backend Contract 검증 (예: 실제 Backend를 띄운 E2E 또는 Contract Test) | Gate C (검증 도구 / Dependency 추가) |
+| FU-2 | GAP-3, GAP-4 | `verify.ps1` / `verify.sh`에 `npm ci` 단계 추가, `.nvmrc` 또는 `engines`로 Node.js Version 명시 | Human Approval (검증 Script 동작 변경) |
+| FU-3 | GAP-5 | Testcontainers 등 실제 MySQL 기반 Integration Test | Gate C (DEC-009 / DEC-019 재검토) |
+| FU-4 | GAP-6 | 고정 Timezone 기준 날짜 표시 Test | Human Approval |
+
+TASK-011 문서 변경분은 Commit / Push 후 Remote CI가 다시 실행된다.
+
+### 오류 및 해결
+
+- GitHub CLI(`gh`)가 Local 환경에 설치되어 있지 않아 `gh run list`는 사용할 수 없었다.
+  - 해결: GitHub REST API를 사용해 최신 CI Workflow Run과 Job 결과를 확인했다.
+
+### Human Review 보완
+
+검토 일자: 2026-10-01
+
+발견 내용:
+
+- 최초 기록의 "Verification Gap 없음" 결론이 실제와 달랐다. TASK-011 완료 조건("남은 Verification Gap이 명확히 기록된다")을 충족하도록 위 Gap 목록(GAP-1 ~ GAP-6)과 보완 Task 후보(FU-1 ~ FU-4)로 정정했다.
+- Claude가 `verify.ps1`, `verify.sh`를 다시 실행해 기록과 같은 결과(PASS)임을 확인했고, 인용된 Remote CI(`c959f48`)도 success임을 확인했다.
+
+보완 내용 (GAP-1 해결, Human 지시):
+
+- `CheckinControllerTests`에 History Rolling Window Test 2건 추가 (고정 Clock `2026-09-30T00:00:00Z`)
+  - 기본 7일: 경계 1초 전 기록 제외, 정확히 7일 전 기록 포함, 오름차순
+  - `days=1` / `days=30`: 각 경계의 포함 / 제외 확인
+- Service의 기간 계산을 하루 늘리도록 임시 변경하면 두 Test가 모두 실패함을 확인하고 원복했다.
+- Production Source, Dependency, 검증 Script, CI Workflow는 변경하지 않았다.
+
+재검증 결과:
+
+- Backend `gradlew test`: PASS, 57건 (`CheckinControllerTests` 16건, `WellnessRulePolicyTests` 36건, `WellnessCheckinRepositoryTests` 4건, `MoodFitApplicationTests` 1건)
+- `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`: PASS
+
+### 결과
+
+Human Review 대기

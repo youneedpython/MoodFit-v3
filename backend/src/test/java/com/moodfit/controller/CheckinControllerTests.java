@@ -17,10 +17,16 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 
+import com.moodfit.dto.request.WeatherCondition;
+import com.moodfit.entity.FoodRecommendationValue;
+import com.moodfit.entity.MusicRecommendationValue;
+import com.moodfit.entity.WellnessCheckin;
 import com.moodfit.repository.WellnessCheckinRepository;
 
 @SpringBootTest
@@ -67,6 +73,63 @@ class CheckinControllerTests {
                 .andExpect(jsonPath("$.music.length()").value(2))
                 .andExpect(jsonPath("$.music[0].title").value("Light Motion Playlist"))
                 .andExpect(jsonPath("$.music[1].title").value("Rainy Indoor Playlist"));
+    }
+
+    /**
+     * DEC-019: History는 현재 시각 기준 최근 days × 24시간(Rolling Window)이며 경계 시각은 포함한다.
+     * 고정 시계 현재 시각: 2026-09-30T00:00:00Z
+     */
+    @Test
+    void historyIncludesOnlyCheckinsWithinTheDefaultSevenDayWindow() throws Exception {
+        saveCheckinAt("2026-09-22T23:59:59Z"); // 7일 경계 1초 전 → 제외
+        saveCheckinAt("2026-09-23T00:00:00Z"); // 정확히 7일 전 → 포함
+        saveCheckinAt("2026-09-29T00:00:00Z"); // 1일 전 → 포함
+
+        mockMvc.perform(get("/api/check-ins/history"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.days").value(7))
+                .andExpect(jsonPath("$.items.length()").value(2))
+                .andExpect(jsonPath("$.items[0].recordedAt").value("2026-09-23T00:00:00Z"))
+                .andExpect(jsonPath("$.items[1].recordedAt").value("2026-09-29T00:00:00Z"));
+    }
+
+    @Test
+    void historyWindowFollowsTheDaysParameter() throws Exception {
+        saveCheckinAt("2026-09-28T23:59:59Z"); // 1일 경계 1초 전 → 제외
+        saveCheckinAt("2026-09-29T00:00:00Z"); // 정확히 1일 전 → 포함
+        saveCheckinAt("2026-09-01T00:00:00Z"); // 29일 전 → days=30에서만 포함
+        saveCheckinAt("2026-08-31T00:00:00Z"); // 30일 전 → days=30에서 경계 포함
+
+        mockMvc.perform(get("/api/check-ins/history").param("days", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].recordedAt").value("2026-09-29T00:00:00Z"));
+
+        mockMvc.perform(get("/api/check-ins/history").param("days", "30"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(4))
+                .andExpect(jsonPath("$.items[0].recordedAt").value("2026-08-31T00:00:00Z"));
+    }
+
+    private void saveCheckinAt(String recordedAt) {
+        repository.save(new WellnessCheckin(
+                Instant.parse(recordedAt),
+                68,
+                18,
+                86,
+                31,
+                74,
+                new BigDecimal("19.0"),
+                WeatherCondition.RAIN,
+                76,
+                "ENERGETIC",
+                "Summary",
+                List.of(
+                        new FoodRecommendationValue("Mood Food", "Tag", "Reason"),
+                        new FoodRecommendationValue("Context Food", "Tag", "Reason")),
+                List.of(
+                        new MusicRecommendationValue("Mood Music", "MoodFit Curated", "Tag", "Reason"),
+                        new MusicRecommendationValue("Context Music", "MoodFit Curated", "Tag", "Reason"))));
     }
 
     @Test
