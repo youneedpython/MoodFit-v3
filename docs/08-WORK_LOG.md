@@ -2262,3 +2262,24 @@ Human Review 완료 / DONE
 ### 결과
 
 완료 / Commit · Push 대기
+
+---
+
+## Out-of-Task — v3.0.0 Release 준비
+
+### 상태
+
+진행 중 (Human 지시, 2026-10-02)
+
+### 작업 내용
+
+- DEC-025 Version / Tag / Release 규칙 추가 (Human 결정: `v3.0.0`, 과거 Tag `v3.0.0-mvp` 추가, 규칙 DEC 기록)
+- Release 노트 `docs/releases/v3.0.0.md` 작성
+- Annotated Tag 생성
+  - `v3.0.0-mvp` → `84b21b8` (Core MVP 완료, TASK-012 DONE)
+  - `v3.0.0` → DEC-025 반영 Commit
+- GitHub Release는 이 환경에 GitHub 인증이 없어 Human이 GitHub 화면에서 `v3.0.0` Tag로 작성한다. (본문: `docs/releases/v3.0.0.md`)
+
+### 결과
+
+Tag 생성 / Commit · Push 및 GitHub Release 작성 대기

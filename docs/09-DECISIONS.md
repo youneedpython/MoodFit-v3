@@ -1185,3 +1185,40 @@ TASK-017 API 계약 테스트(Frontend / Backend)를 Gate C Human Review를 통�
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-025 Version / Tag / Release 규칙
+
+### 결정
+
+MoodFit v3의 Version, Git Tag, GitHub Release 규칙을 다음과 같이 정한다. (2026-10-02 Human Approved)
+
+### Version
+
+- 형식: Semantic Versioning `vMAJOR.MINOR.PATCH`
+- MAJOR는 프로젝트 세대(MoodFit v3)와 맞춰 `3`으로 시작한다.
+- MINOR: 기능 추가 또는 사용자에게 보이는 동작 변경 (예: 날씨 API 연동 → `v3.1.0`)
+- PATCH: 버그 수정, 문서 / 검증 / CI 보완처럼 기능이 바뀌지 않는 변경 (예: FU-6 Runner 대응 → `v3.0.1`)
+- 정식 Release 전 기준점은 Pre-release 접미사(`-mvp`, `-rc.1` 등)를 사용한다.
+
+### 최초 Tag
+
+| Tag | Commit | 의미 | Release |
+|---|---|---|---|
+| `v3.0.0-mvp` | `84b21b8` | Core MVP 완료 (TASK-001 ~ TASK-012 DONE) | 만들지 않음 (기준점 표시) |
+| `v3.0.0` | DEC-025 반영 Commit | Core MVP + Post-MVP 보완 완료 (TASK-001 ~ TASK-017 DONE), README 소개 개편 포함 | GitHub Release 작성 |
+
+### Tag / Release 규칙
+
+- Tag는 Annotated Tag로 만든다. (작성자 / 날짜 / 메시지 포함)
+- Tag는 `main`에서 Local Verification과 Remote CI가 성공한 Commit에만 붙인다.
+- 이미 push한 Tag는 옮기거나 지우지 않는다. 잘못된 경우 다음 PATCH Version으로 바로잡는다.
+- Release 노트는 `docs/releases/<tag>.md`에 작성하고, GitHub Release 본문에 같은 내용을 사용한다.
+- Tag push와 GitHub Release 생성은 Human 확인 후 진행한다.
+
+### 상태
+
+```text
+Human Approved
+```

@@ -101,6 +101,8 @@ API 형식은 [API 명세](docs/05-API_SPEC.md)와 계약 파일 [`contracts/`](
 
 정확한 Version은 [DEC-015](docs/09-DECISIONS.md)를 따릅니다. (Node.js `24.21.0`, Gradle Wrapper `9.8.0`)
 
+Release와 Version 규칙은 [Releases](https://github.com/youneedpython/MoodFit-v3/releases)와 [DEC-025](docs/09-DECISIONS.md)를 참고합니다.
+
 ## 품질 검증
 
 | 검증 | 내용 |
