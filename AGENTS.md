@@ -43,11 +43,11 @@ TASK-014 — Gradle Wrapper Version Review
 Status:
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
 TASK-013은 DONE 상태이다.
-TASK-014는 Human Approval을 받아 진행 중이다. Gradle Wrapper Version 변경 여부는 검토 결과를 보고 Human이 결정한다.
+TASK-014는 Gradle Wrapper `9.8.0` 변경(Human 결정 B안)과 Local / Remote Verification을 마치고 Human Review를 기다린다.
 TASK-015 ~ TASK-017은 등록 순서대로 진행하며, 각 Task의 Human Approval / Gate C를 거친다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.

@@ -1739,7 +1739,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-IN_PROGRESS (Human Approval 완료: 2026-10-01, Human 결정: B안 `9.8.0`으로 변경)
+REVIEW (Human Approval 완료: 2026-10-01, Human 결정: B안 `9.8.0`으로 변경)
 
 ### 검토 배경 (FU-5)
 
@@ -1798,6 +1798,26 @@ Human이 B안(`9.8.0`으로 변경)을 선택했다.
 - Gradle 9.8.0은 Build마다 Configuration Cache 사용 권장 안내를 출력한다. 안내 문구일 뿐 결과에는 영향이 없으며, 사용 여부는 이번 범위 밖이다.
 - Remote CI에서 `gradle/actions/setup-gradle`의 Wrapper jar 검증과 "out of date" 안내 해소를 확인한다.
 
+### Remote CI Verification
+
+Commit `3b33dff`를 `main`에 push하여 Remote CI를 실행했다.
+
+- Workflow run: https://github.com/youneedpython/MoodFit-v3/actions/runs/36823802991
+- 결과: PASS (`success`)
+
+| Job | 결과 | 소요 시간 | 비고 |
+|---|---|---|---|
+| `frontend` | success | 약 17초 | 변경 없음 |
+| `backend` | success | 약 61초 | `Setup Gradle`(Wrapper jar 검증 포함), Test, Build, Summary 모두 success |
+| Sync Milestones | success | — | 새로 DONE이 된 Task 없음 |
+
+- GitHub REST API로 Job Step 목록을 조회해 확인했다.
+- Step Summary의 "Gradle Builds" 내용(Gradle Version, "out of date" 안내 해소)은 REST API로 조회할 수 없으므로 Human Review에서 Summary 화면으로 확인한다.
+
+Remote CI Verification 완료 후 TASK-014 상태를 REVIEW로 변경했다.
+
+- Human이 Summary 화면에서 "Gradle version is out of date" 안내가 사라진 것을 확인했다. (2026-10-01)
+
 ### 결과
 
-Version 변경 및 Local Verification 완료 / Commit · Push 및 Remote CI 확인 대기
+Verification 완료 / Human Review 대기

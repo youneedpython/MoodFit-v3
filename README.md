@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-014 — Gradle Wrapper Version Review
-IN_PROGRESS
+REVIEW (Human Review 대기)
 ```
 
 진행 흐름:
