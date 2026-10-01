@@ -51,8 +51,8 @@ root의 README.md 파일의 내용을 "프로젝트 소개"에 포인트를 두�
 
 ## 상태
 
-완료 / Commit · Push 대기
+완료
 
 ## Related Commit
 
-Pending
+- `9bb1b9f` docs: README 프로젝트 소개 중심으로 개편 및 화면 캡처 추가

@@ -2261,7 +2261,7 @@ Human Review 완료 / DONE
 
 ### 결과
 
-완료 / Commit · Push 대기
+완료 (`9bb1b9f`)
 
 ---
 
@@ -2269,7 +2269,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-진행 중 (Human 지시, 2026-10-02)
+완료 (Human 지시, 2026-10-02)
 
 ### 작업 내용
 
@@ -2280,6 +2280,20 @@ Human Review 완료 / DONE
   - `v3.0.0` → DEC-025 반영 Commit
 - GitHub Release는 이 환경에 GitHub 인증이 없어 Human이 GitHub 화면에서 `v3.0.0` Tag로 작성한다. (본문: `docs/releases/v3.0.0.md`)
 
+### Push / Release
+
+- Commit `f6d72c9`(DEC-025 반영) push 후 CI success 확인 (Run: https://github.com/youneedpython/MoodFit-v3/actions/runs/36939540052)
+- DEC-025 규칙(CI 성공 Commit에만 Tag)에 따라 CI 성공 후 `v3.0.0` Tag를 만들고 두 Tag를 push했다.
+
+| Tag | Commit | Tag Object |
+|---|---|---|
+| `v3.0.0` | `f6d72c9` | Annotated (`36af1cb`) |
+| `v3.0.0-mvp` | `84b21b8` | Annotated (`c273dad`) |
+
+- Human이 GitHub Release `MoodFit v3.0.0`을 발행했다. (2026-10-01T23:20:21Z, Latest, Pre-release 아님)
+  - https://github.com/youneedpython/MoodFit-v3/releases/tag/v3.0.0
+  - GitHub REST API로 Tag / 제목 / 발행 상태 / 본문을 확인했다.
+
 ### 결과
 
-Tag 생성 / Commit · Push 및 GitHub Release 작성 대기
+완료 / v3.0.0 Release 발행
