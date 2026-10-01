@@ -89,4 +89,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 17 | TASK-006 Post-completion Cleanup | Cleanup | 완료 |
 | 18 | TASK-007 Frontend Foundation / Design System | Implementation | 완료 |
 | 19 | TASK-008 Daily Check-in | Implementation | 완료 |
-| 20 | TASK-009 Dashboard | Implementation | 실행 중 |
+| 20 | TASK-009 Dashboard | Implementation | 완료 |
