@@ -43,11 +43,11 @@ TASK-017 — API 계약 테스트 (Frontend / Backend)
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-013 ~ TASK-016은 DONE 상태이다.
-TASK-017은 Gate C 승인(DEC-024)으로 READY 상태이다.
+TASK-017은 Gate C 승인(DEC-024)을 받아 진행 중이다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

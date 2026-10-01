@@ -4,8 +4,21 @@
 
 Frontend와 Backend가 동일한 Contract를 기준으로 개발하도록 초기 REST API를 정의한다.
 
-이 문서는 구현 전 계약 초안이다.
+이 문서는 구현 전 계약 초안으로 시작했다.
 API Contract 변경은 Human Approval 대상이다.
+
+실행 가능한 계약은 Repository Root `contracts/`의 계약 파일이다. (DEC-024)
+Backend 실제 응답, Frontend Type, 이 문서의 Response 예시가 계약 파일과 같은지 자동 Test로 확인한다.
+
+| 계약 파일 | 대상 |
+|---|---|
+| `contracts/checkin-create-201.json` | 4절 Check-in 생성 Response |
+| `contracts/checkin-latest-200.json` | 5절 최신 조회 Response (4절과 동일) |
+| `contracts/checkin-latest-404.json` | 5절 기록 없음 |
+| `contracts/checkin-history-200.json` | 6절 History 조회 Response |
+| `contracts/checkin-create-400.json` | 8절 Error Response |
+
+`id`는 DB가 정하므로 계약 비교에서 숫자인지만 확인한다.
 
 ---
 
@@ -158,10 +171,20 @@ GET /api/check-ins/latest
 404 Not Found
 ```
 
-예상 Error Code:
+Error Code:
 
 ```text
 CHECKIN_NOT_FOUND
+```
+
+Response 예시:
+
+```json
+{
+  "code": "CHECKIN_NOT_FOUND",
+  "message": "Latest check-in was not found.",
+  "fieldErrors": {}
+}
 ```
 
 Frontend는 이를 일반 Error 화면이 아니라 Dashboard Empty State로 처리한다.
@@ -244,19 +267,23 @@ Recommendation Refresh는 Core MVP 완료 이후 Post-MVP Task에서 다시 검�
 
 ---
 
-## 8. Error Response 초안
+## 8. Error Response
 
-예상 형식:
+형식 (예: `heartRate`가 `200`인 Check-in 생성 요청):
 
 ```json
 {
   "code": "VALIDATION_ERROR",
-  "message": "입력값을 확인해 주세요.",
+  "message": "Request validation failed.",
   "fieldErrors": {
-    "heartRate": "40 이상 180 이하로 입력해 주세요."
+    "heartRate": "must be less than or equal to 180"
   }
 }
 ```
+
+- `message`와 `fieldErrors`의 값은 Backend 기본 메시지(영어)이다.
+- Frontend는 `fieldErrors`의 필드 이름을 기준으로 화면의 한국어 안내를 표시하며, 메시지 문구에 의존하지 않는다.
+- TASK-017 이전 초안의 한국어 메시지 예시는 실제 동작과 달라 계약 파일 기준으로 정정했다. (DEC-024)
 
 Error Response 형식은 Frontend Error UX와 함께 유지한다.
 

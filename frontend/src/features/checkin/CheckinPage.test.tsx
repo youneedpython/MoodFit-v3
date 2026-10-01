@@ -1,26 +1,11 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
-import type { CheckinResponse } from "../../types/api";
+import { CHECKIN_CREATED, CHECKIN_VALIDATION_ERROR } from "../../contracts/contracts";
 import { CheckinPage } from "./CheckinPage";
 
-const RESULT: CheckinResponse = {
-  id: 1,
-  recordedAt: "2026-09-30T00:00:00Z",
-  mood: { code: "ENERGETIC", label: "활기 있음" },
-  wellnessScore: 76,
-  summary: "현재 입력 기준으로 에너지 수준은 비교적 높고, 스트레스 부담은 크지 않은 편입니다.",
-  metrics: { heartRate: 68, respiratoryRate: 18, sleepScore: 86, stressLevel: 31, energyLevel: 74 },
-  weather: { temperature: 19, condition: "RAIN" },
-  foods: [
-    { name: "연어 샐러드", tag: "에너지 균형", reason: "가볍게 에너지를 유지하기 좋은 메뉴입니다." },
-    { name: "따뜻한 채소 스튜", tag: "따뜻한 메뉴", reason: "비 오는 날씨에 어울리는 따뜻한 메뉴입니다." }
-  ],
-  music: [
-    { title: "Light Motion Playlist", artist: "MoodFit Curated", tag: "가벼운 활력", reason: "높은 에너지에 어울리는 밝은 흐름입니다." },
-    { title: "Rainy Indoor Playlist", artist: "MoodFit Curated", tag: "잔잔한 감성", reason: "비 오는 날의 실내 분위기에 어울립니다." }
-  ]
-};
+/** DEC-024: 공유 계약 파일(contracts/checkin-create-201.json) */
+const RESULT = CHECKIN_CREATED;
 
 function jsonResponse(status: number, body: unknown) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -137,9 +122,9 @@ describe("CheckinPage", () => {
       "fetch",
       vi.fn(() =>
         Promise.resolve(
+          // 계약 형식(DEC-024)을 유지하고, 이 시나리오의 필드 오류만 바꾼다.
           jsonResponse(400, {
-            code: "VALIDATION_ERROR",
-            message: "Request validation failed.",
+            ...CHECKIN_VALIDATION_ERROR,
             fieldErrors: { temperature: "must be a number with at most 1 fraction digit" }
           })
         )

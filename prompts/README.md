@@ -101,3 +101,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 29 | TASK-016 DB 연동 테스트 Gate C Review | Gate C Review | 완료 |
 | 30 | TASK-016 DB 연동 테스트 (실제 MySQL) | Implementation (Gate C 포함) | 완료 |
 | 31 | TASK-017 API 계약 테스트 Gate C Review | Gate C Review | 완료 |
+| 32 | TASK-017 API 계약 테스트 (Frontend / Backend) | Implementation (Gate C 포함) | 진행 중 |

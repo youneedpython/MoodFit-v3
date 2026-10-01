@@ -169,4 +169,4 @@ Gate C Human Approved
 
 ## Related Commit
 
-Pending
+- `fcb7b80` docs: TASK-017 Gate C 검토 및 승인 반영 (DEC-024)

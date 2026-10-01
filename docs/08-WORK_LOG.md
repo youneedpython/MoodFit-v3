@@ -2093,3 +2093,93 @@ Remote CI Verification 완료 후 TASK-016 상태를 REVIEW로 변경했다.
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-017 — API 계약 테스트 (Frontend / Backend)
+
+### 상태
+
+IN_PROGRESS (Gate C 승인: DEC-024, 2026-10-01)
+
+### Gate C 결정 (DEC-024)
+
+| 항목 | 결정 |
+|---|---|
+| 계약 테스트 방식 | Option A — 공유 계약 예시 JSON |
+| 계약 파일 위치 | Repository Root `contracts/` |
+| `05-API_SPEC.md` 예시 동기화 Test | 포함 |
+| Frontend 화면 Test 가짜 응답 | 계약 파일로 교체 |
+
+검토 자료: `prompts/31-TASK-017-API-CONTRACT-TEST-GATE-C-REVIEW.md`
+
+### 작업 내용
+
+- `contracts/` 계약 파일 5개 (현재 Backend 동작 기준)
+  - 고정 시계(`2026-09-28T03:00:00Z`, API 명세 예시 시각)와 API 명세 Request 예시로 실제 응답을 받아 작성했다. (작성용 임시 Test는 삭제)
+  - `id`는 API 명세 예시 값(`101`)을 사용하고 비교 시 숫자인지만 확인한다.
+
+| 계약 파일 | 대상 |
+|---|---|
+| `checkin-create-201.json` | `POST /api/check-ins` 201 |
+| `checkin-latest-200.json` | `GET /api/check-ins/latest` 200 (생성 응답과 동일) |
+| `checkin-latest-404.json` | `GET /api/check-ins/latest` 404 `CHECKIN_NOT_FOUND` |
+| `checkin-history-200.json` | `GET /api/check-ins/history` 200 |
+| `checkin-create-400.json` | `POST /api/check-ins` 400 `VALIDATION_ERROR` (`heartRate: 200`) |
+
+- Backend: `backend/src/test/java/com/moodfit/contract/CheckinContractTests.java` (5건)
+  - 실제 API 응답 전체를 계약 파일과 JSON Tree로 비교한다. (필드 누락 / 추가 / 이름 / 값 / 배열 순서)
+  - DB `id`는 정수인지 확인한 뒤 계약 값으로 맞춘다.
+- Frontend: `frontend/src/contracts/`
+  - `contracts.ts`: 계약 파일 import + `api.ts` Type과의 필드 구성 일치 Type 검사 (`npm run build`의 `tsc --noEmit`)
+  - `apiSpecSync.test.ts` (5건): `docs/05-API_SPEC.md` Response 예시 ↔ 계약 파일 비교 (`@vitest-environment node`)
+- Frontend 화면 Test 가짜 응답 교체
+  - `CheckinPage.test.tsx`: 생성 응답 → `checkin-create-201`, 400 응답 → `checkin-create-400` 형식 + 시나리오 필드 오류
+  - `DashboardPage.test.tsx`: 최신 응답 → `checkin-latest-200`, 404 → `checkin-latest-404`
+  - `HistoryPage.test.tsx`: History Item 기본값 → `checkin-history-200` Item, 최신 기록은 계약 Item 그대로 (Trend용 이전 기록만 시나리오 값)
+- `docs/05-API_SPEC.md`
+  - 1절: 실행 가능한 계약(`contracts/`)과 계약 파일 대응표 추가
+  - 5절: 404 Response 예시 추가
+  - 8절: Error Response 예시를 실제 동작으로 정정 ("초안" 제거)
+
+### 발견 사항
+
+- API 명세 8절 Error 예시(초안)는 한국어 메시지(`입력값을 확인해 주세요.`, `40 이상 180 이하로 입력해 주세요.`)였지만, 실제 Backend 응답은 기본 메시지(`Request validation failed.`, `must be less than or equal to 180`)였다.
+- Frontend는 `fieldErrors`의 필드 이름으로 한국어 안내를 표시하므로 화면 동작에는 문제가 없었다. (기존 화면 Test도 실제 메시지 사용)
+- Gate C 원칙(계약은 현재 동작 그대로 고정)에 따라 API는 바꾸지 않고 명세 예시를 정정했다.
+- 생성 / History 응답은 `id`를 제외하고 명세 예시와 정확히 같았다.
+
+### 변경하지 않은 것
+
+- API 형식 / Backend Main Code
+- `package.json`, `package-lock.json`, `build.gradle` (새 Dependency 없음)
+- `vite.config.ts` (`frontend/` 밖 `contracts/` import가 추가 설정 없이 동작)
+- `ci.yml`, `scripts/verify.ps1`, `scripts/verify.sh`
+
+### Verification
+
+계약 위반 탐지 (임시 변경 후 실행, 검증 후 원복):
+
+| 변경 | 결과 |
+|---|---|
+| 계약 파일에서 `summary` 삭제 | Frontend `tsc --noEmit` 실패 |
+| 계약 파일 `foodNames` → `foodList` | Frontend `tsc --noEmit` 실패 |
+| `api.ts`에 필드 추가 | Frontend `tsc --noEmit` 실패 |
+| `api.ts` `wellnessScore` 형식 `number` → `string` | Frontend `tsc --noEmit` 실패 |
+| Backend 응답 필드 이름 변경 (`HistoryItemResponse.foodNames` → `foodList`) | Backend `CheckinContractTests` 1건 실패 |
+| 계약 파일 값 변경 (`wellnessScore` 76 → 80) | Backend 계약 Test 1건 실패, 명세 동기화 Test 2건 실패 |
+| `docs/05-API_SPEC.md` 예시만 변경 | 명세 동기화 Test 1건 실패 |
+| 원복 후 | 모두 통과 |
+
+Local Verification:
+
+| Script | 결과 |
+|---|---|
+| `sh scripts/verify.sh` (Docker 실행) | PASS — Frontend Test Files 11 / Tests 81, Build, Backend Test 68건(SKIPPED 1: CI 전용), Build |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1` | PASS |
+
+- 화면(UI) 변경이 없는 Task이므로 AGENTS.md 8.1 캡처 대상이 아니다.
+
+### 결과
+
+Implementation / Local Verification 완료 / Commit · Push 및 Remote CI 확인 대기

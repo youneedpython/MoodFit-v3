@@ -34,7 +34,7 @@ Current Task:
 
 ```text
 TASK-017 — API 계약 테스트 (Frontend / Backend)
-READY (Gate C 승인 완료, DEC-024)
+IN_PROGRESS
 ```
 
 진행 흐름:
@@ -96,6 +96,7 @@ MoodFit-v3/
 ├── .gitignore
 ├── .env.example
 ├── .nvmrc (Node.js 24.21.0)
+├── contracts/ (API 계약 파일, DEC-024)
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml
@@ -130,7 +131,7 @@ MoodFit-v3/
 │   └── images/ (Task별 화면 검토 캡처)
 └── prompts/
     ├── README.md
-    └── 01 ~ 31 Prompt History
+    └── 01 ~ 32 Prompt History
 ```
 
 ## Local 실행

@@ -1,0 +1,29 @@
+{
+  "days": 7,
+  "items": [
+    {
+      "id": 101,
+      "recordedAt": "2026-09-28T03:00:00Z",
+      "mood": {
+        "code": "ENERGETIC",
+        "label": "활기 있음"
+      },
+      "wellnessScore": 76,
+      "heartRate": 68,
+      "respiratoryRate": 18,
+      "sleepScore": 86,
+      "stressLevel": 31,
+      "energyLevel": 74,
+      "temperature": 19.0,
+      "weather": "RAIN",
+      "foodNames": [
+        "연어 샐러드",
+        "따뜻한 채소 스튜"
+      ],
+      "musicTitles": [
+        "Light Motion Playlist",
+        "Rainy Indoor Playlist"
+      ]
+    }
+  ]
+}

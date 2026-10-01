@@ -1,11 +1,16 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
+import { CHECKIN_HISTORY } from "../../contracts/contracts";
 import type { HistoryItem } from "../../types/api";
 import { HistoryPage } from "./HistoryPage";
 
+/** DEC-024: 공유 계약 파일(contracts/checkin-history-200.json)의 Item 형식을 기본으로 사용한다. */
+const CONTRACT_ITEM = CHECKIN_HISTORY.items[0]!;
+
 function item(overrides: Partial<HistoryItem>): HistoryItem {
   return {
+    ...CONTRACT_ITEM,
     id: 1,
     recordedAt: "2026-09-28T09:00:00Z",
     mood: { code: "TIRED", label: "피곤함" },
@@ -36,21 +41,8 @@ const ITEMS: HistoryItem[] = [
     foodNames: ["닭가슴살 라이스볼", "따뜻한 현미 주먹밥"],
     musicTitles: ["Daily Balance Playlist", "Cloudy Focus Playlist"]
   }),
-  item({
-    id: 3,
-    recordedAt: "2026-09-30T09:00:00Z",
-    mood: { code: "ENERGETIC", label: "활기 있음" },
-    wellnessScore: 76,
-    heartRate: 68,
-    respiratoryRate: 18,
-    sleepScore: 86,
-    stressLevel: 31,
-    energyLevel: 74,
-    temperature: 19,
-    weather: "RAIN",
-    foodNames: ["연어 샐러드", "따뜻한 채소 스튜"],
-    musicTitles: ["Light Motion Playlist", "Rainy Indoor Playlist"]
-  })
+  // 최신 기록은 계약 파일 Item 그대로 사용한다. (날짜만 Trend 순서에 맞춘다)
+  { ...CONTRACT_ITEM, id: 3, recordedAt: "2026-09-30T09:00:00Z" }
 ];
 
 function jsonResponse(status: number, body: unknown) {

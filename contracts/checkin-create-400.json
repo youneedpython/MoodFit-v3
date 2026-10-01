@@ -1,0 +1,7 @@
+{
+  "code": "VALIDATION_ERROR",
+  "message": "Request validation failed.",
+  "fieldErrors": {
+    "heartRate": "must be less than or equal to 180"
+  }
+}
