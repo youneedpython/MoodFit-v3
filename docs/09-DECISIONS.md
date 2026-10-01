@@ -1001,3 +1001,52 @@ musicTitles : string[]  추천 음악 제목 (Mood Item, Context Item 순서)
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-021 TASK-012 GitHub Actions Bot
+
+### 결정
+
+TASK-012 GitHub Actions Bot의 초기 범위를 Gate C Human Review를 통해 다음과 같이 확정한다.
+
+검토 근거는 `prompts/23-TASK-012-GITHUB-ACTIONS-BOT-GATE-C-REVIEW.md`를 따른다. (Option A + B 채택)
+
+### 범위
+
+- DEC-018 Milestone 자동 Close(`.github/workflows/milestones.yml`)를 기존 Bot 자동화로 유지한다. (변경 없음)
+- `.github/workflows/ci.yml`의 `frontend` / `backend` Job에 GitHub Actions Step Summary(`GITHUB_STEP_SUMMARY`) 작성 Step을 추가한다.
+- Step Summary에는 다음을 기록한다.
+  - Frontend Test / Build 결과
+  - Backend Test / Build 결과
+  - 실행 Commit SHA
+  - Workflow Run URL
+  - MySQL Service Container 미사용
+
+### 실패 시 기록 규칙 (Human Review 보완)
+
+- Summary Step은 `if: always()`로 실행해 Test / Build가 실패한 경우에도 결과를 기록한다.
+- 각 Test / Build Step의 실제 결과(`steps.<id>.outcome`)를 그대로 기록한다. (success / failure / skipped 등)
+- Summary Step은 Job의 성공 / 실패 판정을 바꾸지 않는다. 실패를 숨기지 않으며 `continue-on-error: true`를 사용하지 않는다.
+
+### 유지 / 제외
+
+- Trigger: 기존 CI의 `push` / `pull_request` to `main` 유지. `workflow_dispatch`, `issue_comment`, `pull_request_target`, `schedule`은 추가하지 않는다.
+- Permissions: `contents: read` 유지. 권한을 확대하지 않는다.
+- 기존 Test / Build Command, Cache, MySQL 정책(DEC-009, DEC-017)은 변경하지 않는다.
+- 추가 GitHub Action(`actions/github-script` 등), 새로운 npm / Gradle Dependency, 외부 Secret / PAT를 사용하지 않는다.
+- 제외: Source Code / 문서 자동 수정, 자동 Commit / Push / Pull Request, PR Review / 병합, Release, Label, Issue 생성, PR / Issue Comment, 외부 서비스 알림 (DEC-013)
+- PR Comment Bot은 현재 Repository가 Pull Request 없이 `main` 직접 Push로 운영되므로 초기 범위에서 효과가 없어 제외한다.
+- Local Verification(`scripts/verify.ps1`, `scripts/verify.sh`)은 변경하지 않는다.
+
+### 검증
+
+- Remote CI에서 성공 경로의 Summary 기록을 확인한다.
+- 실패 경로의 Summary 기록 방식을 확인한다. (`if: always()`와 Step outcome 사용)
+- Remote CI 결과 확인 후 TASK-012를 REVIEW로 전환한다.
+
+### 상태
+
+```text
+Human Approved
+```
