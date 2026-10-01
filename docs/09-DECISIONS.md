@@ -1057,3 +1057,42 @@ TASK-012 GitHub Actions Bot의 초기 범위를 Gate C Human Review를 통해 �
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-022 Frontend 날짜 / 시각 표시 Timezone
+
+### 결정
+
+TASK-015 Human Review에서 Frontend 화면의 날짜 / 시각 표시 기준 Timezone을 `Asia/Seoul`로 고정한다. (A안)
+
+```text
+Display Timezone = Asia/Seoul
+```
+
+### 범위
+
+- `frontend/src/utils/dateTime.ts`의 `MOODFIT_TIME_ZONE`을 표시 기준으로 사용한다.
+- 대상: Header 오늘 날짜, Check-in 결과 기록 시각, Dashboard 최신 기록 시각, History 기록 목록 날짜 / 시각, History Trend 축 Label
+- 사용자 브라우저 / OS Timezone과 관계없이 같은 시각을 같은 문자열로 표시한다.
+- 표시 형식(`ko-KR` Locale, 기존 표시 Option)은 변경하지 않는다. 한국 Timezone 환경에서는 이전과 같은 문자열이 표시된다.
+
+### 유지
+
+- Backend 저장 / API 응답 시각은 DEC-019에 따라 UTC Instant를 유지한다.
+- History 조회 기간은 DEC-004 / DEC-019의 Rolling Window(`days × 24h`)를 유지한다. 표시 Timezone 결정은 조회 범위를 바꾸지 않는다.
+
+### 검증
+
+- 날짜 경계값(`2026-09-30T15:30:00Z` → `10월 1일 오전 12:30`)을 Frontend Test로 검증한다.
+- Vitest 실행 Timezone을 `UTC`로 고정(`vite.config.ts`의 `test.env.TZ`)해, 표시 Timezone과 실행 Timezone이 항상 달라지도록 한다. 이로써 Local(KST)과 CI(UTC) 모두에서 Timezone 의존 회귀를 발견한다.
+
+### 대안 (채택하지 않음)
+
+- B안: 사용자 브라우저 Timezone 표시를 유지하고 Test 실행 Timezone만 고정한다. 해외 사용자에게 현지 시각을 보여줄 수 있지만, 한국 사용자 대상 서비스에서 표시 일관성을 우선해 채택하지 않았다.
+
+### 상태
+
+```text
+Human Approved
+```

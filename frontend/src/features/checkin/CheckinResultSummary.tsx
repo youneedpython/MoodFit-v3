@@ -3,20 +3,12 @@ import { Badge } from "../../components/Badge/Badge";
 import { Button, ButtonLink } from "../../components/Button/Button";
 import { Card } from "../../components/Card/Card";
 import type { CheckinResponse } from "../../types/api";
+import { formatDisplayDateTime } from "../../utils/dateTime";
 
 type CheckinResultSummaryProps = {
   result: CheckinResponse;
   onStartOver: () => void;
 };
-
-function formatRecordedAt(recordedAt: string) {
-  return new Date(recordedAt).toLocaleString("ko-KR", {
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
 
 /** 저장 완료 후 Backend 응답을 요약한다. 분석 값은 모두 API 응답을 그대로 사용한다. */
 export function CheckinResultSummary({ result, onStartOver }: CheckinResultSummaryProps) {
@@ -33,7 +25,7 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
         <h2 className="checkin-result__title" ref={headingRef} tabIndex={-1}>
           Check-in이 저장되었습니다.
         </h2>
-        <p className="checkin-result__time">{formatRecordedAt(result.recordedAt)} 기록</p>
+        <p className="checkin-result__time">{formatDisplayDateTime(result.recordedAt)} 기록</p>
       </div>
 
       <div className="checkin-result__score">

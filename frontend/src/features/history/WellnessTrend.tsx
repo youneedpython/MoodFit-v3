@@ -1,13 +1,10 @@
 import type { HistoryItem } from "../../types/api";
+import { formatTrendDate } from "../../utils/dateTime";
 
 const GRID_SCORES = [100, 50, 0];
 const MAX_LABELS = 7;
 /** 양 끝 점이 잘리지 않도록 가로 여백(%)을 둔다. */
 const X_INSET = 4;
-
-function formatShortDate(recordedAt: string) {
-  return new Date(recordedAt).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });
-}
 
 /** 0 ~ 100 좌표계에서의 가로 위치 */
 function xFor(index: number, count: number) {
@@ -71,7 +68,7 @@ export function WellnessTrend({ items }: WellnessTrendProps) {
             (point, index) =>
               (index % labelStep === 0 || index === points.length - 1) && (
                 <span key={point.item.id} style={{ left: `${point.x}%` }}>
-                  {formatShortDate(point.item.recordedAt)}
+                  {formatTrendDate(point.item.recordedAt)}
                 </span>
               )
           )}

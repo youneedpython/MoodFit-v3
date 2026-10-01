@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router";
+import { formatHeaderDate } from "../utils/dateTime";
 import "./AppLayout.css";
 
 const NAV_ITEMS = [
@@ -6,15 +7,6 @@ const NAV_ITEMS = [
   { to: "/check-in", label: "Check-in", end: false },
   { to: "/history", label: "History", end: false }
 ];
-
-function formatToday(date: Date) {
-  return date.toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "long"
-  });
-}
 
 export function AppLayout() {
   return (
@@ -26,7 +18,7 @@ export function AppLayout() {
         <div className="container app-header__inner">
           <div className="app-header__brand">
             <span className="app-header__logo">MoodFit</span>
-            <span className="app-header__date">{formatToday(new Date())}</span>
+            <span className="app-header__date">{formatHeaderDate(new Date())}</span>
           </div>
           <nav aria-label="주요 메뉴">
             <ul className="app-nav">

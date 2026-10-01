@@ -1,16 +1,7 @@
 import { Badge } from "../../components/Badge/Badge";
 import { WEATHER_LABELS } from "../../constants/weather";
 import type { HistoryItem } from "../../types/api";
-
-function formatRecordedAt(recordedAt: string) {
-  return new Date(recordedAt).toLocaleString("ko-KR", {
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
+import { formatDisplayDateTimeWithWeekday } from "../../utils/dateTime";
 
 type HistoryRecordListProps = {
   /** recordedAt 오름차순 (API 순서) */
@@ -27,7 +18,7 @@ export function HistoryRecordList({ items }: HistoryRecordListProps) {
         <li key={item.id} className="history-record">
           <div className="history-record__header">
             <time className="history-record__time" dateTime={item.recordedAt}>
-              {formatRecordedAt(item.recordedAt)}
+              {formatDisplayDateTimeWithWeekday(item.recordedAt)}
             </time>
             <Badge tone="accent">{item.mood.label}</Badge>
             <span className="history-record__score">

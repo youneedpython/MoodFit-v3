@@ -2,6 +2,7 @@ import { Badge } from "../../components/Badge/Badge";
 import { ButtonLink } from "../../components/Button/Button";
 import { WEATHER_LABELS } from "../../constants/weather";
 import type { CheckinResponse, WeatherCondition } from "../../types/api";
+import { formatDisplayDateTime } from "../../utils/dateTime";
 
 /** 장식용 Weather Visual. 의미는 옆의 Text로 전달한다. */
 const WEATHER_ICONS: Record<WeatherCondition, string> = {
@@ -10,15 +11,6 @@ const WEATHER_ICONS: Record<WeatherCondition, string> = {
   RAIN: "🌧️",
   SNOW: "❄️"
 };
-
-function formatRecordedAt(recordedAt: string) {
-  return new Date(recordedAt).toLocaleString("ko-KR", {
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
 
 type WellnessHeroProps = {
   checkin: CheckinResponse;
@@ -32,7 +24,7 @@ export function WellnessHero({ checkin }: WellnessHeroProps) {
       <div className="wellness-hero__main">
         <div className="wellness-hero__meta">
           <Badge tone="accent">{mood.label}</Badge>
-          <span className="wellness-hero__time">{formatRecordedAt(recordedAt)} 기록</span>
+          <span className="wellness-hero__time">{formatDisplayDateTime(recordedAt)} 기록</span>
         </div>
         <h2 id="wellness-hero-title" className="wellness-hero__title">
           지금 컨디션은 <strong>{mood.label}</strong>

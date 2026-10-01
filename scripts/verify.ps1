@@ -37,6 +37,11 @@ function Invoke-NativeStep {
 # DEC-015: 승인된 Node.js Version은 .nvmrc를 기준으로 한다. 불일치 시 경고만 출력한다.
 function Test-NodeVersion {
     $Expected = (Get-Content (Join-Path $Root ".nvmrc") -TotalCount 1).Trim()
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+        Write-Warning "Node.js version could not be detected (node not found). .nvmrc expects $Expected."
+        return
+    }
+
     $Actual = ((& node --version) -replace '^v', '').Trim()
 
     if ($Actual -ne $Expected) {

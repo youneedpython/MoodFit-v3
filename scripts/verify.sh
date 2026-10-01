@@ -27,9 +27,12 @@ run_step() {
 
 # DEC-015: 승인된 Node.js Version은 .nvmrc를 기준으로 한다. 불일치 시 경고만 출력한다.
 EXPECTED_NODE=$(head -n 1 "$ROOT_DIR/.nvmrc" | tr -d ' \r\n')
-ACTUAL_NODE=$(node --version 2>/dev/null | sed 's/^v//' | tr -d '\r' || true)
-if [ "$ACTUAL_NODE" != "$EXPECTED_NODE" ]; then
-  printf 'WARNING: Node.js %s is in use, but .nvmrc expects %s (CI uses %s).\n' "${ACTUAL_NODE:-not found}" "$EXPECTED_NODE" "$EXPECTED_NODE" >&2
+# WSL처럼 Windows Node.js를 node.exe로만 실행할 수 있는 Shell도 확인한다.
+ACTUAL_NODE=$( (node --version 2>/dev/null || node.exe --version 2>/dev/null) | sed 's/^v//' | tr -d '\r' || true)
+if [ -z "$ACTUAL_NODE" ]; then
+  printf 'WARNING: Node.js version could not be detected (node / node.exe not found). .nvmrc expects %s.\n' "$EXPECTED_NODE" >&2
+elif [ "$ACTUAL_NODE" != "$EXPECTED_NODE" ]; then
+  printf 'WARNING: Node.js %s is in use, but .nvmrc expects %s (CI uses %s).\n' "$ACTUAL_NODE" "$EXPECTED_NODE" "$EXPECTED_NODE" >&2
 else
   printf 'Node.js %s (matches .nvmrc)\n' "$ACTUAL_NODE"
 fi

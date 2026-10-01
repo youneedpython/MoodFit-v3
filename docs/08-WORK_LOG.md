@@ -1847,3 +1847,107 @@ Human이 Workflow Run 화면의 Annotations(notice 2건)를 캡처해 첨부했�
 ### 결과
 
 Human Review 완료 / DONE
+
+---
+
+## TASK-015 — Timezone-fixed Date Display Test
+
+### 상태
+
+IN_PROGRESS (Human Approval 완료: 2026-10-01)
+
+### 작업 내용 (FU-4 — GAP-6)
+
+- 화면의 날짜 / 시각 표시가 Runtime Timezone에 의존하던 문제를 보완했다.
+- Frontend 날짜 / 시각 표시 기준 Timezone을 `Asia/Seoul`로 명시했다.
+- 공통 포맷 유틸을 추가했다.
+  - `frontend/src/utils/dateTime.ts`
+  - `MOODFIT_TIME_ZONE = "Asia/Seoul"`
+  - `formatDisplayDateTime`
+  - `formatDisplayDateTimeWithWeekday`
+  - `formatTrendDate`
+  - `formatHeaderDate`
+- 기존 날짜 표시 지점을 공통 유틸로 교체했다.
+  - Header 오늘 날짜
+  - Check-in 결과 기록 시각
+  - Dashboard 최신 기록 시각
+  - History 기록 목록 날짜 / 시각
+  - History Trend 축 Label
+- 고정 Timezone 기준 Frontend Test를 추가했다.
+  - UTC 기준 `2026-09-30T15:30:00Z`가 `Asia/Seoul` 기준 `2026-10-01 00:30`으로 표시되는 경계값을 검증한다.
+
+### 변경하지 않은 것
+
+- 새로운 Dependency 추가 없음
+- `package.json`, `package-lock.json` 변경 없음
+- Backend Source 변경 없음
+- CI Workflow 변경 없음
+- TASK-016 이후 작업 시작하지 않음
+
+### Verification
+
+Frontend:
+
+| Command | 결과 |
+|---|---|
+| `npm test` | PASS, Test Files 10 passed / Tests 76 passed |
+| `npm run build` | PASS |
+
+Local Verification:
+
+| Script | 결과 |
+|---|---|
+| `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1` | PASS, Node.js `24.21.0` matches `.nvmrc`, Frontend `npm ci` / Test / Build, Backend Test / Build |
+| `bash scripts/verify.sh` | PASS, Frontend `npm ci` / Test / Build, Backend Test / Build |
+
+`bash scripts/verify.sh` 실행 시 현재 Shell에서 `node --version` 탐지는 실패해 다음 경고가 출력되었다.
+
+```text
+WARNING: Node.js not found is in use, but .nvmrc expects 24.21.0 (CI uses 24.21.0).
+```
+
+이는 TASK-013에서 승인한 정책상 경고이며 검증은 계속 진행되었다. `npm ci`, `npm test`, `npm run build`는 모두 성공했다.
+
+### Human Review 보완
+
+검토 일자: 2026-10-01
+
+Codex 구현 결과를 검토하며 다음을 확인했고, Human 결정에 따라 보완했다.
+
+| # | 확인 내용 | Human 결정 / 보완 |
+|---|---|---|
+| 1 | Task 명세는 "고정 Timezone 기준 검증"이지만, 구현은 화면 표시 자체를 브라우저 Timezone → `Asia/Seoul`로 변경했다. 승인 기록(DEC)이 없었다. | A안 채택: `Asia/Seoul` 표시 유지, DEC-022로 기록 |
+| 2 | 실행 Timezone이 `Asia/Seoul`이면 `timeZone` Option을 제거해도 Test가 통과했다. (회귀를 CI(UTC)에서만 발견) | `vite.config.ts`에 `test.env.TZ = "UTC"` 추가 |
+| 3 | `docs/08-WORK_LOG.md`의 TASK-001 / TASK-002, TASK-002 / TASK-003 사이 구분선(`---`) 2개가 의도치 않게 삭제되었다. | 복구 |
+| 4 | `verify.sh`가 `node`를 찾지 못한 Shell(WSL 등 `node.exe`만 실행 가능한 환경)에서 `Node.js not found is in use` 경고를 출력했다. (TASK-013 검사의 한계) | `node` 실패 시 `node.exe`로 재확인, 미탐지 시 별도 경고 문구. `verify.ps1`도 `node` 미탐지 시 별도 경고 후 계속 진행 |
+
+보완 검증:
+
+- 회귀 탐지 (`dateTime.ts`에서 `timeZone` Option을 임시 제거 후 실행, 검증 후 원복)
+
+| 조건 | 보완 전 | 보완 후 (`test.env.TZ = "UTC"`) |
+|---|---|---|
+| Shell `TZ=Asia/Seoul` | 3건 모두 통과 (회귀 미발견) | 2건 실패 (회귀 발견) |
+| Shell `TZ=UTC` | 2건 실패 | 2건 실패 |
+
+- 실행 Timezone별 전체 Frontend Test (보완 전 구현 기준): `Asia/Seoul`, `UTC`, `America/Los_Angeles`, `Pacific/Kiritimati` 모두 76건 통과
+- Node.js 탐지 (가짜 `npm` / `node.exe`를 PATH 앞에 두고 실행, 검증 후 삭제)
+
+| 시나리오 | `verify.sh` | `verify.ps1` |
+|---|---|---|
+| `node` / `node.exe` 없음 | `WARNING: Node.js version could not be detected (node / node.exe not found)` 후 계속 진행 | `WARNING: Node.js version could not be detected (node not found)` 후 계속 진행 |
+| `node.exe`만 있음 | `Node.js 24.21.0 (matches .nvmrc)` | 해당 없음 (PowerShell은 `node.exe`를 `node`로 찾음) |
+
+- 보완 후 Local Verification: `sh scripts/verify.sh`, `verify.ps1` 모두 PASS (Node.js `24.21.0` matches `.nvmrc`, Frontend Test Files 10 / Tests 76, Build, Backend Test / Build)
+- 화면 캡처: 생략 (Human 지시: 표시 형식이 이전과 같으면 생략)
+  - 이전 구현(브라우저 Timezone, KST 환경)과 현재 구현(`Asia/Seoul` 고정)의 표시 문자열을 5개 표시 지점의 4개 형식 × 경계값 포함 3개 시각으로 비교한 결과 모두 같았다. (예: `10월 1일 (목) 오전 12:30`, `10. 1.`, `2026년 10월 1일 목요일`)
+
+### Remote CI Verification
+
+TASK-015 변경분은 아직 Commit / Push 전이므로 Remote CI는 아직 실행되지 않았다.
+
+### 결과
+
+Local Implementation / Verification / Human Review 보완 완료.
+
+Remote CI Verification은 Commit / Push 이후 확인 필요.
