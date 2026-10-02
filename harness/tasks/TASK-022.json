@@ -1,0 +1,13 @@
+{
+  "id": "TASK-022",
+  "title": "GitHub CI Integration / PR Gate",
+  "task_file": "docs/tasks/TASK-022_GITHUB_CI_INTEGRATION.md",
+  "allowed_paths": [".github/workflows/", "scripts/orchestrator/", "harness/", "docs/07-TASKS.md", "docs/08-WORK_LOG.md", "docs/11-MULTI-AGENT-ORCHESTRATION-POLICY.md", "docs/12-ORCHESTRATOR-DESIGN.md", "prompts/", "AGENTS.md"],
+  "forbidden_paths": ["harness/tasks/TASK-022.json", "frontend/", "backend/", "docs/tasks/", "package.json", "package-lock.json"],
+  "agents_sections": ["3"],
+  "verify": [
+    {"command": ["node", "--test", "scripts/orchestrator/*.test.mjs"], "cwd": "."},
+    {"command": ["git", "diff", "--check"], "cwd": "."}
+  ],
+  "max_review_cycles": 3
+}
