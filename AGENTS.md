@@ -53,19 +53,19 @@ Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB
 Current Task:
 
 ```text
-TASK-018 — Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
+TASK-019 — CI Runner OS Transition Hardening (FU-6)
 ```
 
 Status:
 
 ```text
-REVIEW
+READY
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
-TASK-018은 Human의 실행 지시 후 시작하며, TASK-019 이후는 선행 Task와 Gate 승인 전까지 BLOCKED이다.
-Multi-Agent 자동화 정책(DEC-026, Human Approved)을 D단계에서 이 문서에 반영했다. TASK-018은 A ~ D단계 완료, 최종 Human Review(PR Squash Merge) 대기 상태이다.
-TASK-019부터 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs <TASK-ID>`로 실행한다. 선행 Task 완료 / 필요한 Gate 승인 / Human의 명시적 실행 지시 없이 시작하지 않는다.
+TASK-018은 DONE이며 TASK-019는 READY이다. TASK-020 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED이다.
+Multi-Agent 자동화 정책(DEC-026, Human Approved)을 D단계에서 이 문서에 반영했다. TASK-018은 A ~ D단계와 최소 Orchestrator 구축을 완료했으며 PR Squash Merge로 Human Review 승인 / DONE이 확정된다.
+TASK-019는 Orchestrator로 실행하는 첫 Task이며 2026-10-19 전 완료를 목표로 한다. Human 실행 지시 후 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs TASK-019`로 시작한다. 선행 Task 완료 / 필요한 Gate 승인 / Human의 명시적 실행 지시 없이 시작하지 않는다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
 후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 TASK-019로 등록되었다. (Orchestrator로 실행하는 첫 Task)

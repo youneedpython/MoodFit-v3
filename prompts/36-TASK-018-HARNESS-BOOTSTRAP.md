@@ -75,7 +75,7 @@ unelevated, 커밋/push/PR 승인
 
 ## 결과 또는 상태
 
-완료 (Human Review 대기). TASK-018 REVIEW, A ~ D단계 완료, 최종 Human Review(PR Squash Merge) 대기.
+완료 (PR #1 Squash Merge로 승인). TASK-018 DONE, A ~ D단계 완료. 이 Commit이 포함된 PR의 Merge가 Human Review 승인 시점이다.
 
 ## 관련 문서
 
@@ -86,9 +86,8 @@ unelevated, 커밋/push/PR 승인
 
 ## Related Commit
 
-```text
-Pending
-```
+- `ea26c55` (A단계)
+- `e3b7722` (B ~ D단계)
 
 ### Review 2회차: Branch 전략 / 승인 채널 반영 (2026-10-02)
 
