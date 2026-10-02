@@ -18,6 +18,22 @@ TASK-019(첫 시범 운영)에서 발견한 문제를 반영하고, 작업 공�
 - 확정된 언어 / Runtime(Node.js 24 + `.mjs`, Dependency 없음, DEC-026) 외의 Runtime이나 새 Dependency가 필요하면 Gate C
 - Agent 호출 방식이 DEC-026과 다르면(예: API Key 사용) 즉시 `HUMAN_REQUIRED`
 
+## TASK-019 시범 운영 발견 사항 (반드시 반영)
+
+TASK-019를 Orchestrator로 실행하며 발견한 문제다. (2026-10-02, Human 승인으로 TASK-020 범위에 추가)
+
+1. **Executor `HUMAN_REQUIRED` 시 Claude Review 누락**
+   - 현상: Executor가 `HUMAN_REQUIRED`를 반환하면 Guard 직후 정지해 Verify와 Claude Review를 건너뛴다. TASK-019에서 2회 발생했고, 매번 Claude 세션이 같은 Reviewer 규격(Template / Schema / 입력 / Read-only CLI)으로 별도 Review를 실행해 보완했다.
+   - 문제: "Codex 실행 후 Claude 자동 Review" 원칙과 맞지 않고 Human이 검토되지 않은 자료를 받는다.
+   - 보강: Executor `HUMAN_REQUIRED`도 Guard → Verify → Review를 거친 뒤 정지한다. 최종 상태는 Reviewer Verdict와 Executor 요청을 함께 기록한다. (Reviewer `BLOCKED` / `CHANGES_REQUIRED` 처리 규칙을 설계 문서에 정의)
+2. **Human 결정과 Orchestrator 후속 작업의 구분 없음**
+   - 현상: TASK-019 C단계에서 Executor가 Commit / Push / PR / `workflow_dispatch` 같은 Orchestrator(또는 승인된 Claude 세션) 후속 작업을 `HUMAN_REQUIRED`로 보고했다.
+   - 보강: Executor 결과에 Human 결정 필요(`human_decisions_needed`)와 Orchestrator 후속 작업(예: `handoff_actions`)을 구분하는 필드를 추가하고, Codex 전달용 strict Schema와 내부 Schema, Fake CLI Test를 함께 갱신한다. 후속 작업만 있으면 Human Gate가 아니라 다음 단계 대기로 기록한다.
+3. **Task 완료 시 AGENTS.md 상태 동기화**
+   - 현상: TASK-019 Contract에서 AGENTS.md가 금지 경로라 DONE 반영 시 AGENTS.md 3절(Current Task)이 07-TASKS와 어긋났다. (Human 결정: 이번에는 수정하지 않고 TASK-020에서 기능으로 해결)
+   - 보강: Task 완료 단계에서 AGENTS.md 3절의 Current Task / Status만 07-TASKS와 맞추는 방법을 정의한다. (예: Task Contract에 상태 동기화 전용 허용 규칙, 또는 Orchestrator의 결정적 상태 동기화 Step) 다른 절은 수정하지 않는다.
+   - TASK-020 시작 시 AGENTS.md 3절은 아직 TASK-019 READY로 표시되어 있을 수 있다. TASK-020 완료 시 이 기능으로 최신 상태(TASK-021)로 맞춘다.
+
 ## Codex 작업 범위
 
 1. **작업 공간 분리**: Task마다 `git worktree`로 전용 작업 폴더를 만들어 Human의 작업 폴더와 분리한다.
@@ -63,6 +79,10 @@ scripts/orchestrator/
 Agent CLI 사전 검증 결과와 구현 시 주의 사항은 [TASK-018](TASK-018_HARNESS_BOOTSTRAP.md)을 따른다.
 
 ## 필수 Test (TASK-018 Test에 추가)
+
+- Executor `HUMAN_REQUIRED` → Verify / Review 실행 후 정지 (Review 누락 회귀 Test)
+- `handoff_actions`만 있는 결과 → Human Gate가 아닌 후속 작업 대기로 기록
+- AGENTS.md 상태 동기화: 3절 Current Task / Status만 변경, 다른 절 변경 시 실패
 
 - allowed / forbidden path 위반 → Claude 호출 전 실패
 - Secret File / Secret-like 입력 차단
