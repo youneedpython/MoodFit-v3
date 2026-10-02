@@ -1222,3 +1222,41 @@ MoodFit v3의 Version, Git Tag, GitHub Release 규칙을 다음과 같이 정한
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-026 Multi-Agent Automation Policy
+
+### 결정
+
+TASK-018 A단계의 Multi-Agent Automation Policy를 Human Approved 정책으로 기록한다 (2026-10-02).
+상세 확정 정책과 Human Decision Matrix는 `docs/11-MULTI-AGENT-ORCHESTRATION-POLICY.md`를 따른다. Human은 모든 항목을 권장안대로 승인했다.
+
+### 범위
+
+- Codex / Claude / Orchestrator / Human 권한과 금지, API Key 없는 로컬 CLI, Sandbox / CLI Version을 다룬다.
+- Human Gate / 승인 채널, 로그인 / Profile, Secret / Log, Git / PR / Auto Merge의 단계별 권한을 정의한다.
+- Branch / PR / Squash Merge 전략: TASK-018부터 Task 하나 = Branch 하나 = PR 하나, main 직접 Push 금지 / Branch Ruleset 보호, Remote CI(frontend / backend) 통과 후 Squash Merge로 main에 Task당 Commit 1개를 남긴다.
+- 승인 채널: Task 완료 승인은 Human의 PR Squash Merge이며 Agent / Orchestrator는 Merge하지 않는다. Required approvals 0 / Required status checks로 CI를 강제하고 Auto Merge는 비활성으로 유지한다.
+- Review Loop(MAX_REVIEW_CYCLES=3), Deterministic Verification / AI Review의 역할, Staging / Production 및 DEC-025 Release / Tag 관계를 정의한다.
+- Bootstrap은 Claude 세션의 임시 Orchestrator 예외이며 Script 구현은 승인 후 B단계에서 수행한다.
+
+- Windows Codex Sandbox: `unelevated` 시작 (사전 검증 완료, 추가 설정 없음), `elevated` 전환은 TASK-020에서 검증 후 재결정한다.
+- GitHub 설정 적용: Human 승인 후 Claude 세션이 2026-10-02 Squash Merge 전용 / PR 제목·본문 사용 / Head Branch 자동 삭제와 Active `main-protection`(기본 Branch, Bypass 없음, 삭제·Force Push 금지, Linear History, PR 필수 / Required approvals 0 / Squash만 허용, Required status checks `frontend` / `backend`)을 적용했다. Bypass 미설정 이유와 긴급 대응은 정책 7절을 따른다.
+
+### 유지
+
+- DEC-026 승인과 D단계 AGENTS.md 반영 전에는 기존 AGENTS.md / Gate A / B / C와 승인된 DEC-001 ~ DEC-025를 유지한다.
+- DEC-021의 GitHub Actions Bot 범위 / CI 권한은 변경하지 않는다. Git 자동화는 TASK-021의 별도 승인 / 구현 대상이다.
+- 이번 실행은 A단계 문서 작성만 수행한다. Source / Dependency / Workflow / Branch / Commit / Push 작업은 수행하지 않는다.
+- TASK-018은 IN_PROGRESS이며 B / C / D단계와 최종 Human Review 전에는 DONE으로 처리하지 않는다.
+
+### 변경 이력
+
+- 2026-10-02: Reviewer(Claude) PASS(Review 2회차) 후 Human이 모든 Matrix 항목을 권장안대로 승인했다. Sandbox는 `unelevated`로 확정하고 `elevated` 전환은 TASK-020에서 검증 후 재결정한다. GitHub 설정 적용 기록을 반영했다. A단계 Commit / Push / Draft PR 생성은 승인되었으며 Claude 세션이 수행한다.
+
+### 상태
+
+```text
+Human Approved
+```

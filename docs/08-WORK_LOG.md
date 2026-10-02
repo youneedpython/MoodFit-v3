@@ -2378,3 +2378,128 @@ Human이 이번 작업의 핵심을 다시 확인했다: **Agent를 이용한 �
 ### 결과
 
 Roadmap 검토 / 문서 재구성 / 등록 / Milestone 생성 / 순서 재정렬 완료
+
+---
+
+## TASK-018 — Multi-Agent Harness Bootstrap
+
+### 상태
+
+```text
+DONE
+```
+
+### A단계 작업 내용 (2026-10-02)
+
+- Human 실행 지시에 따라 A단계(정책)만 수행했다. Human 제공 Context에 따라 Claude 세션이 임시 Orchestrator로 `codex exec`를 시작한 Bootstrap 실행을 기록한다.
+- TASKS Current Task / 전체 목록 / TASK-018 섹션 상태를 IN_PROGRESS로 변경하고 시작 안내를 갱신했다.
+- AGENTS.md는 3절 Current Task Status 값만 IN_PROGRESS로 변경했다. 정책 권한은 반영하지 않았다.
+- DEC-026 Pending Human Approval 초안과 정책 문서를 작성했다. A. 정책 1~10과 전체 Human Decision Matrix를 포함하고 신규 결정은 미정으로 남겼다.
+- Prompt 36과 Index 36번(진행 중)을 기록했다. Human 제공 선행 지시 "커밋/푸시 승인!"은 기록만 하고 이번 실행의 Git 작업 금지를 적용했다.
+
+### Verification
+
+- 문서 변경 범위이므로 Source Test / Build / 전체 verify Script / Fake CLI Test / 실제 CLI Smoke Run은 이번 A단계에서 실행하지 않았다. B / C단계 검증은 미수행이다.
+- `git diff --check`: 통과 (Exit Code 0, whitespace 오류 없음). Git의 LF → CRLF 변환 안내만 출력되었으며 실제 파일은 LF로 확인했다.
+- 허용된 7개 파일만 변경 / 생성했으며 LF / 제어 문자 없음 / AGENTS.md 단일 Status 변경 / TASKS 3개 상태 IN_PROGRESS를 확인했다.
+
+### 남은 Gate / 다음 단계
+
+- Claude A단계 자동 Review와 DEC-026 / Human Decision Matrix 승인 대기. PASS / Human Approved로 처리하지 않았다.
+- B단계 구현은 수행하지 않았다. TASK-018 IN_PROGRESS, TASK-019 이후 BLOCKED 유지.
+- 승인 후 B / C / D단계와 최종 Human Review가 필요하다.
+
+### Review 2회차: Branch 전략 / 승인 채널 반영 (2026-10-02)
+
+- Reviewer(Claude)의 `CHANGES_REQUIRED` Finding F1 ~ F6만 지정된 4개 파일에 반영했다.
+- Human이 확정한 Task별 Branch / PR / Squash Merge 전략과 TASK-018 ~ TASK-020의 Human 승인 후 Claude 세션 또는 Human Git 작업, TASK-021 Script Git 자동화 경계를 기록했다.
+- Task 완료 승인 = Human의 PR Squash Merge, Required approvals 0 / Required status checks / Auto Merge 비활성 유지, TASK-021 작성자 분리 검토를 반영했다.
+- 기존 Codex Co-author Trailer의 Squash Commit 메시지 포함과 Human의 gh 설치 / 로그인 완료, Human 로그인 → Agent 사용 원칙을 기록했다. 계정명 / Token은 기록하지 않았다.
+- DEC-026은 `Pending Human Approval`, TASK-018은 `IN_PROGRESS`로 유지하고 다른 Human 결정 항목은 미정으로 남겼다. Git 변경 작업과 B / C / D단계는 수행하지 않았다.
+
+- Review 2회차 Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 지정된 4개 파일 UTF-8 / LF / 제어 문자 없음 확인. 문서 Rework이므로 Test / Build는 실행하지 않았다.
+
+### A단계 Human 승인 (2026-10-02)
+
+- Reviewer(Claude) PASS(Review 2회차) 후 Human이 DEC-026 / Decision Matrix의 모든 항목을 권장안대로 승인했다.
+- Windows Codex Sandbox는 `unelevated`로 시작한다 (사전 검증 완료, 추가 설정 없음). `elevated` 전환은 TASK-020(Orchestrator Hardening)에서 검증 후 다시 결정한다.
+- Human 승인 후 Claude 세션이 `gh api`로 GitHub 설정을 적용했다 (2026-10-02).
+- Squash Merge만 허용하고 Merge Commit / Rebase는 비활성화했다. Squash Commit 제목 = PR 제목, 본문 = PR 본문이며 Merge 후 Head Branch를 자동 삭제한다.
+- Branch Ruleset `main-protection`: Active, 기본 Branch 대상, Bypass 없음. 삭제 금지 / Force Push 금지 / Linear History / PR 필수(Required approvals 0, Squash만 허용) / Required status checks `frontend` / `backend`를 적용했다.
+- Agent가 Human의 GitHub 로그인을 사용하므로 Bypass가 있으면 Agent도 main에 직접 Push할 수 있어 Bypass를 두지 않았다. 긴급 시 Human이 Ruleset을 일시 Disabled로 전환한다.
+- A단계 결과의 Task Branch Commit / Push / Draft PR 생성을 승인했다. Git 작업은 Claude 세션이 수행하며 이번 Executor 실행에서는 수행하지 않았다.
+- A단계 완료(DEC-026 Human Approved), B단계 진행 예정. TASK-018 IN_PROGRESS / TASK-019 이후 BLOCKED 유지. AGENTS.md 정책 반영은 D단계에서 수행한다.
+
+- Human 승인 반영 Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 지정된 5개 파일 UTF-8 / LF / 제어 문자 없음 확인. 문서 변경이므로 Test / Build는 실행하지 않았다.
+
+### B단계 최소 Orchestrator 구현 (2026-10-02)
+
+- Human의 명시적 B단계 실행 지시와 DEC-026 Human Approved를 확인하고 설계 문서를 먼저 작성한 뒤 구현했다. 현재 Branch `task/TASK-018-harness-bootstrap`, 시작 Working Tree clean을 확인했다.
+- `docs/12-ORCHESTRATOR-DESIGN.md`: 구성 / 폴더, Phase / Verdict / 최대 3회 Review, Agent 명령 / JSON Schema / stdin 종료 / Timeout / 오류 분류, Contract / 경로 / 실행 / 정지 / 기록 / Exit Code를 정의했다.
+- `harness/`: Executor / Reviewer JSON Schema, 역할 Template, CLI 명령 배열 / unelevated / Timeout 설정 예시, TASK-019 조사 단계 Contract를 작성했다. TASK-019의 CI 변경은 Human Gate 전 forbidden_paths로 차단하며 승인 후 별도 Contract 검토가 필요하다. TASK-019를 실행하지 않았다.
+- `scripts/orchestrator/`: Preflight → Execute → Guard → Verify → Review → Decide를 구현했다. Verify 실패는 승인 정책대로 BLOCKED이며 Rework하지 않는다. 세 번째 CHANGES_REQUIRED 후 HUMAN_REQUIRED로 정지한다.
+- CLI는 shell:false, Prompt는 stdin.end로 전달한다. Windows npm .cmd Shim은 직접 실행하지 않고 node + Codex JS 경로 배열을 설정한다. Claude 실행 파일은 설정으로 받는다. Reviewer Read / Grep / Glob 도구 제한, 자기 설명 제외, 신규 파일 포함 Diff, 결과 JSON 추출 / Schema 검증을 구현했다.
+- 실제 Git status와 누적 changed_files 대조, allowed / forbidden 경로, Symlink / 경로 탈출, Verify / Reviewer 변경 검사를 구현했다. Run 입력 / 출력 / Log / 최종 state는 Redaction 후 저장하며 Executor 원본 결과는 OS 임시 파일에서 읽고 삭제한다.
+- `.gitignore`에 `.harness/runs/`, `harness/config.local.json`을 추가했다. Node 내장 Module만 사용했다. 실제 CLI / Git Commit·Push·PR·Branch / worktree / Resume / Lock / CI Workflow / AGENTS.md 변경은 수행하지 않았다.
+
+### B단계 Verification
+
+- `node --test scripts/orchestrator/`: 실패 (Exit Code 1). 현재 실행 환경에서 Node Test Runner의 자식 Process 생성이 `spawn EPERM`으로 차단되어 테스트 본체 실행 전 정지했다. 전체 통과를 주장하지 않는다.
+- `node --test --test-isolation=none scripts/orchestrator/`: 실패 (Exit Code 1), Node 24.21.0의 `ERR_UNSUPPORTED_DIR_IMPORT`. 지정 디렉터리 명령을 지원할 `index.js` 호환 진입점 하나 또는 `.test.mjs` 직접 지정 명령 변경은 Human 확인 대기다. `.mjs` 확정 조건을 임의로 변경하지 않았다.
+- `node --test --test-isolation=none scripts/orchestrator/orchestrator.test.mjs`: 실패 (Exit Code 1), 25개 중 1개 순수 Unit Test 성공 / 24개 Git·Fake CLI 통합 시나리오는 `spawn EPERM`으로 실행 차단. 테스트 Skip / 성공 강제 처리는 하지 않았다.
+- `node --test --test-isolation=none scripts/orchestrator/lib.test.mjs`: 5 / 5 통과 (Exit Code 0). Guard 누적 파일 / Path 위반 / Schema / Reviewer JSON 추출 / Redaction / 실패 분류를 검증했다.
+- `node --check`로 run.mjs / lib.mjs / orchestrator.test.mjs / lib.test.mjs / fixtures/fake-cli.mjs의 문법 검사 통과.
+- `git diff --check`: 통과 (Exit Code 0). package.json / package-lock.json / build.gradle 변경 없음 확인. Frontend / Backend 무변경으로 전체 verify Script는 미실행.
+
+### B단계 남은 검증 / Gate
+
+- 구현 산출물 작성 완료, 필수 통합 Test 전체 통과와 Claude B단계 Review PASS는 미확인이다. 자식 Process를 실행할 수 있는 Human / Claude 환경에서 필수 Test 재실행이 필요하다.
+- 지정 Test 명령 진입점에 대한 Human 확인 후 C단계에서 전체 Fake CLI Test / 실제 CLI Smoke Run을 수행한다. D단계 AGENTS.md 정책 반영 / 최종 Human Review가 남아 있다.
+- TASK-018 IN_PROGRESS 유지, 상태 설명은 "B단계 구현 완료, C단계 검증 예정"으로 갱신하되 검증 차단을 함께 명시했다. TASK-019 이후 BLOCKED 유지.
+
+### B단계 Review 1회차 (2026-10-02)
+
+- Reviewer(Claude) 판정: `CHANGES_REQUIRED`. Finding F1 ~ F4만 허용된 문서 6개에 반영했다. 코드 / harness / Git 변경 작업은 수행하지 않았다.
+- Executor의 `HUMAN_REQUIRED` 사유: Node 24 폴더 Test 명령의 진입점 / 명령 변경 확인과 Sandbox 자식 Process 차단으로 인한 전체 Test 미확인, Claude CLI 필수 옵션 확인. 두 항목은 Human 결정이 아니라 Reviewer가 해결했다.
+- Reviewer가 Sandbox 밖에서 Node 24.21.0으로 `node --test "scripts/orchestrator/*.test.mjs"`를 직접 실행했다: tests 30 / pass 30 / fail 0, 약 22.7초. `.mjs` 조건을 유지하며 `index.js` 예외는 필요 없다.
+- Reviewer가 Claude CLI 2.1.286의 `--tools`, `--strict-mcp-config`, `--allowedTools`, `--output-format` 옵션 존재를 확인했다.
+- 설계 / TASK-018 / TASK-020의 Test 명령을 glob 명령으로 통일했다. 설계에 `unelevated` Sandbox의 `spawn EPERM` 제약, Orchestrator의 Sandbox 밖 Deterministic Verification, Executor verification은 참고 정보 / Orchestrator Verify가 기준임을 명시했다. `elevated` 전환 재검증은 TASK-020에 기록했다.
+- TASKS의 미확인 문단을 Reviewer 확인 결과로 교체했다. TASK-018은 `IN_PROGRESS`, 설명은 "B단계 구현 / Review 진행, C단계 검증 예정"이다. Review PASS는 미확정이며 C단계 / D단계 / 최종 Human Review가 남아 있다. 기존 B단계 실패 / Human 확인 대기 기록은 당시 이력이며 이번 Reviewer 확인 결과로 해소되었다.
+- Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 수정 문서 6개 UTF-8 / LF / 제어 문자 없음 확인. 문서 Rework이므로 Test / Build는 재실행하지 않았으며 30 / 30 통과는 Reviewer 제공 결과다.
+
+### C?? Smoke Run 1?? ? CHANGES_REQUIRED / F1 ~ F4 Rework (2026-10-02)
+
+- Reviewer(Claude) ??: Repository ? ?? Git Repo?? TASK-901? ?? codex / claude CLI? ????. ? ??? Reviewer ?? ??? ??? ?? ??? Dirty Working Tree Guard? BLOCKED???? Guard ?? ??? ????.
+- ? ?? ??? codex --version / login status / claude --version Preflight? ????? Execute exit 1? BLOCKED???. Codex stderr? invalid_request_error / invalid_json_schema? changed_files? uniqueItems ???? ?????. C?? Review 1?? ??? CHANGES_REQUIRED?.
+- Human? F1 ~ F4 ?? ??? ?? Codex ??? ?? Schema? ???? run.mjs? ?? Schema ?? ??? ????. ?? ?? Schema? ?? ??? ???? ?? / ? ??? ????. ?? Schema? ?? properties? required? ???? additionalProperties: false? ????.
+- Fake CLI? --output-schema ??? ?? ??? Keyword / object ?? ?? ? exit 1? invalid_json_schema? ????. uniqueItems / minLength ?? Test? ?? Schema / ?? ?? Unit Test? ????. ?? ?? ?? ??? ?? ??? Smoke ?? ??? ????.
+- Verification: run.mjs / fake-cli.mjs / orchestrator.test.mjs ?? ?? ??. node --test --test-isolation=none scripts/orchestrator/lib.test.mjs? tests 6 / pass 6 / fail 0??.
+- ? Fake CLI ?? Test? ??? ?? ?? Process ?? ???? exit code null? ???? ????. Process ?? ??? Assertion? ????? ????. ?? ?? Test? ???? ???? Reviewer? Sandbox ??? ?????. ?? codex / claude ??, Dependency ??, Git ?? ??? ???? ???.
+- git diff --check: exit 0, ?? ?? ??. ?? tracked ??? Git? LF ? CRLF ??? ??? ?? ?? ??? LF / ?? ?? ???? ????.
+- TASK-018? IN_PROGRESS ??. C?? Smoke ??? / Reviewer ???, D?? ?? ?? / ?? Human Review? ?? ??. ?? Rework ??? Task DONE ?? Review PASS? ??? ???.
+
+### C단계 Smoke Run (2026-10-02, Reviewer 실행 결과)
+
+- Repository 밖 임시 Git Repo에서 TASK-901(`hello.md` 생성)과 실제 codex / claude CLI로 실행했다.
+- 1회차: Reviewer가 실행 출력 파일을 임시 저장소 안에 만들어 Preflight Dirty Working Tree Guard로 `BLOCKED`. Guard 정상 동작을 확인했다.
+- 2회차: Execute에서 `BLOCKED`. Codex `--output-schema`가 strict 규칙상 `uniqueItems`를 거부했다. C단계 Review 1회차 `CHANGES_REQUIRED`에 따라 Codex 전달용 strict Schema를 분리하고 Fake CLI 회귀 Test를 추가했다.
+- 수정 후 Reviewer가 Sandbox 밖에서 `node --test "scripts/orchestrator/*.test.mjs"`를 실행했다: tests 32 / pass 32 / fail 0.
+- 3회차: `PASS` (Exit 0, 약 39초). Preflight → Execute(`DONE`, changed_files `[hello.md]`) → Guard → Verify(`node check.mjs` 통과) → Review(Claude `PASS`, findings 없음) → Decide를 확인했다.
+- 위 Test / 실제 CLI 결과는 Reviewer 제공 기록이며 이번 문서 작업에서 재실행하지 않았다. 앞선 C단계 Rework 기록의 검증 대기는 이 결과로 해소되었다.
+
+### D단계 AGENTS.md 반영 (2026-10-02)
+
+- DEC-026(Human Approved) / 확정 정책 / Orchestrator 설계에 따라 Multi-Agent 역할 / 권한 / 금지, 읽기 순서, 자동 Verify / Review / Rework 상한 / Human Gate 정지를 반영했다.
+- Task Branch / PR / Human Squash Merge, TASK-018 ~ TASK-020의 승인 후 Git 수행 역할과 TASK-021 Git 자동화 경계, Commit / Codex Co-author Trailer / DEC-025를 반영했다.
+- Agent API Key 미사용 / Human 로그인 / 자격 증명 출력 금지 / Run Redaction을 반영하고 기존 문서 읽기 / Task 단위 / 검증 / 기록 / Prompt / UI·UX / 보안 / 승인 규칙을 유지했다.
+- A ~ D단계 완료, TASK-018 `REVIEW`, 최종 Human Review(PR Squash Merge) 대기. 이번 D단계 Claude 자동 Review는 후속 검토 대상이다. TASK-019 이후 `BLOCKED` 유지, 다음 Task는 실행하지 않았다.
+- 허용된 문서 5개만 수정했다. 기존 B / C단계 변경을 유지했으며 TASK-018 Contract / scripts / harness / docs/11 / docs/12와 Git 변경 작업은 수행하지 않았다.
+- Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 수정 문서 5개 UTF-8 / LF / 제어 문자 없음 확인. 문서 변경이므로 Test / Build는 재실행하지 않았다.
+
+### Human Review 승인
+
+- 승인 방식: PR #1 Squash Merge. 이 Commit이 포함된 PR의 Merge가 Human Review 승인 시점이다.
+- Human이 B ~ D단계 Commit / Push / PR Ready 전환을 승인했으며, Merge 전 마지막 Commit용 문서에 TASK-018 DONE / TASK-019 READY를 반영했다.
+- Merge 후 Sync Milestones가 Milestone 18을 닫는다.
+- 결과: Human Review 완료 / DONE (PR Squash Merge 시 확정).
+- Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 허용 문서 5개 UTF-8 / LF / 제어 문자 없음 확인. 문서 상태 변경이므로 Test / Build는 재실행하지 않았다.
