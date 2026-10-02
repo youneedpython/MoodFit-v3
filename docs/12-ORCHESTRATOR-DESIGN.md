@@ -1,5 +1,29 @@
 # 12. Local Orchestrator 설계
 
+## TASK-022 PR 관찰
+
+Git 변경 전과 Commit / Push 전에 전체 페이지의 open PR / 원격 Task ref를 확인한다. 같은 Branch 또는 Task ID의 PR과 원격 SHA 충돌은 BLOCKED다. Draft PR 생성 뒤 repository / PR 번호 / main / Task Branch / head SHA를 git-result.json에 고정한다.
+
+`node scripts/orchestrator/pr-gate.mjs <run-id>`는 저장된 PR을 한 번 관찰한다. 공통 Repository Lock, 기존 gh 인증, 30초 명령 Timeout, redacted Audit를 사용한다. 자동 polling / 재시도는 없다. ci.yml의 최신 current head pull_request Run에서 frontend / backend가 각각 completed / success일 때만 HUMAN_REVIEW_PENDING이다. 이전 SHA / 누락 / pending은 CI_PENDING이며 non-success는 BLOCKED다. concurrency queue의 이전 Run 성공이 최신 Run 성공을 대신하지 않는다.
+
+Changes Requested는 head SHA와 Review ID / commit 근거를 보존한 REWORK_REQUIRED로 정지한다. PR Approve / Label / Comment는 완료 승인이나 Gate 입력이 아니다. Gate는 resume-approval.json을 유지한다. MERGED는 merged_by / merge SHA / 단일 parent 근거를 기록하며 승인된 Squash 전용 Ruleset을 전제로 한다. Merge / Auto Merge / 다음 Task 실행 / READY 승격은 수행하지 않는다.
+
+dependency_evidence의 merged_by는 병합 수행자의 login이다. 단일 parent만으로 Squash와 Rebase Merge를 구분할 수 없으므로 Squash-only Ruleset에 의존한다. 해제되지 않은 이전 CHANGES_REQUESTED Review가 있으면 이미 병합된 PR도 MERGED보다 먼저 REWORK_REQUIRED로 정지한다. 이 안전한 판정 순서는 유지하며 Human이 오래된 Review를 검토하고 Dismiss한 뒤 관찰 명령을 다시 실행한다.
+
+CI non-success와 identity 확인 후 조회 실패 / Timeout은 고정 상태 Comment를 기존 PR에 남긴다. 인증 실패 / identity 충돌은 Comment를 보내지 않는다. Comment 실패도 Audit에 남기고 재시도하지 않는다. 강제 취소 / Timeout은 Summary Step 실행을 보장하지 않으므로 로컬 관찰 Audit / Comment로 보완한다.
+
+Comment 중복 제거는 없다. 같은 실패 head에서 pr-gate를 명시적으로 다시 실행하면 같은 형식의 Comment를 다시 시도한다. 1회 실행은 1회 관찰이며 자동 재시도는 수행하지 않는다.
+
+CI가 성공했지만 Merge 없이 닫힌 PR은 BLOCKED / PR closed without Merge를 Audit에 기록하며 CI 실패 Comment를 보내지 않는다.
+
+실제 E2E는 아직 수행하지 않았다. 승인된 Git Phase 후 관찰 명령으로 최신 SHA CI 근거를 남기고 Human Squash Merge 후 다시 관찰하여 dependency_evidence를 기록한다. TASK-022는 E2E 확인 전 IN_PROGRESS를 유지한다.
+
+이번 Run이 직접 생성하는 Draft PR을 E2E 대상으로 삼는다. 최신 head의 frontend / backend success를 관찰하고 Human Squash Merge 후 다시 관찰한다. 이전 CHANGES_REQUESTED로 정지하면 Human의 오래된 Review Dismiss 후 다시 관찰하여 merged_by를 포함한 dependency_evidence를 남긴다. PR 번호 / CI Run / Merge 결과는 Merge 후 Claude 세션이 기록한다.
+
+strict Required Checks로 인해 main이 이동하면 Human이 기존 PR Branch를 최신 main 기준으로 갱신해야 한다. 이때 head.sha가 바뀌므로 기존 Run의 관찰은 PR identity / head SHA conflict로 정지한다. 자동으로 저장 SHA를 따라가거나 identity 검사를 우회하지 않는다. E2E 복구는 Human이 기존 Run / PR 번호 / Task Branch / 이전·새 head SHA / main 기준 / 갱신 Diff를 검토하고 새 head에 대한 검증 및 Claude Review 근거와 저장 identity 갱신을 명시적으로 승인한 뒤 진행한다. 승인된 Human이 원래 git-result.json과 정지 Audit를 보존하고 승인 참조 / 이전·새 SHA를 별도 redacted Audit에 남긴 후 같은 PR의 commit_sha를 승인된 새 SHA로 갱신한다. Executor는 이 작업을 수행하지 않으며 관찰 CLI는 resume-approval.json을 소비하거나 identity 갱신을 자동 수행하지 않는다. Human이 관찰 명령을 명시적으로 다시 실행해 새 head의 최신 frontend / backend success를 확인하고, Human Squash Merge 후 동일 identity로 dependency_evidence를 기록한다. 이전 SHA의 CI / Review 근거만으로 Merge하지 않으며 Merge / Force Push / 다음 Task 자동 실행은 허용하지 않는다.
+
+E2E 사전 확인에서 설치된 gh의 `gh api --help`에 --paginate / --slurp가 있는지 확인한다. 2026-10-02 Executor 환경에서 두 옵션 지원을 확인했으며 CLI 설치 / 업데이트는 수행하지 않았다. 다른 실행 환경에서 미지원이면 설치 / 업데이트 승인 없이 진행하지 않는다. Task ID가 후속 PR 본문의 선행 Task 참조로만 등장해도 현재 중복 검사에서 BLOCKED될 수 있다. 이 안전 정지는 Audit와 PR identity를 Human이 검토하며 자동 우회하지 않는다. 매칭 정밀화는 이번 Rework에서 수행하지 않았다.
+
 ## 범위 / 구성
 
 TASK-018의 최소 설계를 기반으로 DEC-026과 TASK-020 / TASK-021을 구현한다. Node.js 24 / JavaScript ES Module / Node 내장 Module만 사용한다. TASK-021 승인 범위에서 기존 Task Branch의 Stage / Commit / Push / Draft PR 계층을 추가한다. Branch 생성과 Merge / Auto Merge는 수행하지 않는다.
@@ -60,6 +84,8 @@ TASK-022 ~ TASK-031의 Decide 결과가 PASS / HANDOFF_PENDING이며 Executor DO
 Human이 준비한 task/<Task ID>-<slug> Branch와 최초 HEAD를 고정한다. detached worktree의 검토된 누적 Diff를 다시 Guard한 뒤 Workspace의 ignored Secret, Source Branch / HEAD / clean Working Tree 충돌, gh 인증과 origin/main 읽기 접근을 확인한다. Source의 Git 비추적 ignored Secret은 존재만으로 차단하지 않는다. changed_files / Stage 대상과 실제 staged 목록에 기존 secretFile 규칙의 Secret 경로가 있으면 BLOCKED한다. 인증 실패는 HUMAN_REQUIRED이며 설치 / 로그인은 시도하지 않는다. 인증 출력은 저장하지 않고 Exit / Failure만 기록한다. Process 실패 / Timeout은 BLOCKED이며 자동 재시도하지 않는다.
 
 검토한 binary patch와 untracked 파일을 Source에 전달하고 Diff를 대조한다. allowed_paths 안의 파일별 literal pathspec Stage, staged 목록의 Secret 검사 / Allowlist 대조 후 기존 한국어 Commit 형식과 Codex / Claude Trailer로 Commit한다. Commit 직전에도 staged 목록의 Secret 검사 / Allowlist 대조를 다시 수행한다. origin의 같은 Task Branch로 Force 없는 Push 후 gh pr create --draft --base main으로 생성한다. PR 전 Base / Head / SHA / 신규 파일 포함 목록 / Diff Summary / Test 결과를 기록하고 본문에 Task ID / Verification / PASS / Human Gate / Trailer를 포함한다. Run 기록은 .harness/runs 아래 저장하며 명령별 Audit를 보존한다.
+
+Commit 직전 Workspace Snapshot이 검토 당시와 동일한지 다시 확인한다. 삭제되지 않은 각 파일은 Source Repository에서 `git hash-object --path <file> -- <Workspace 파일>`로 Git clean filter(core.autocrlf / attributes 포함)를 적용한 blob hash를 계산하고 `git rev-parse :<file>`의 실제 index blob hash와 대조한다. Source CRLF / Workspace LF라도 실제 Commit 내용이 같으면 허용하며, 실제 문자 변경 또는 binary 바이트 변경은 BLOCKED다. Working Tree 바이트 동일성으로 Commit 내용을 판정하지 않는다.
 
 실패 후 자동 Rollback / 재시도는 없다. Commit / Push / PR 중 일부가 성공했다면 Audit와 Source Working Tree를 Human이 확인한다. Git 작업 실패 Run은 일반 Resume로 Git 작업을 다시 시도하지 못하도록 Source HEAD / clean 조건이 충돌을 차단한다. Human Squash Merge와 Remote CI는 후속 단계다.
 

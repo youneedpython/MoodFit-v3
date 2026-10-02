@@ -58,12 +58,12 @@ TASK-022 — GitHub CI Integration / PR Gate
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
 Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. TASK-021의 Git 자동화 계층은 DONE이며 TASK-023 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED이다.
-Current Task는 TASK-022 / READY이다. 실행 전 `harness/tasks/TASK-022.json` Contract가 Human 승인으로 준비되어야 한다. Human 실행 지시 후 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs TASK-022`로 시작한다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행하며, CI 동작 변경 / Branch Protection Gate는 Task 안에서 Human 승인을 받는다.
+Current Task는 TASK-022 / IN_PROGRESS이다. Human 승인된 `harness/tasks/TASK-022.json` Contract와 명시적 실행 지시에 따라 구현 중이다. CI 동작 변경 / Branch Protection Gate C는 2026-10-02 권장안 A / PR 상태 Comment / strict Required Checks로 승인되었다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.

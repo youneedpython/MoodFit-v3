@@ -1,5 +1,13 @@
 # MoodFit v3 Multi-Agent Orchestration Policy
 
+## TASK-022 승인 변경 이력 (2026-10-02)
+
+Human이 Gate C 권장안 A를 승인했다. DEC-021의 보류된 PR Comment 자동화는 로컬 gh의 고정 상태 Comment(실패 / 취소 / Timeout)에 한해 추가 승인되었다. Workflow는 contents: read를 유지하며 Agent / 새 Secret / pull_request_target을 추가하지 않는다.
+
+DEC-026의 완료 승인은 Human Squash Merge다. Label / Comment / AI PASS / PR Approve는 Gate 또는 완료 승인이 아니다. Changes Requested는 근거를 보존하고 정지한다. Gate는 resume-approval.json으로만 해제한다. 중복 Task PR / 원격 SHA 충돌은 Git 변경 전 BLOCKED다.
+
+Human 승인으로 Claude 세션이 main-protection의 strict_required_status_checks_policy를 true로 적용했다. Required Checks frontend / backend, approvals 0, Bypass 없음, Squash 전용을 유지한다. 최신 main 기준 CI 통과를 강제하며 Agent Merge / Auto Merge는 금지한다. DEC-021 / DEC-026 본문 반영은 허용 경로 밖이므로 Claude 세션이 수행한다.
+
 ## 1. 목적 / 상태
 
 - 상태: `Human Approved (DEC-026, 2026-10-02)`

@@ -86,7 +86,14 @@ async function fixture(t) {
   const calls = [], records = new Map();
   const invoke = async (args, options) => {
     calls.push(args);
-    if (args[0] === 'gh') return { code: 0, stdout: args[1] === 'pr' ? 'https://example.invalid/pr/1\n' : 'account detail omitted', stderr: '' };
+    if (args[0] === 'gh') {
+      let stdout = 'account detail omitted';
+      if (args[1] === 'repo') stdout = JSON.stringify({ nameWithOwner: 'fixture/repo' });
+      if (args[1] === 'api') stdout = '[[]]';
+      if (args[1] === 'pr' && args[2] === 'create') stdout = 'https://example.invalid/pr/1\n';
+      if (args[1] === 'pr' && args[2] === 'view') stdout = JSON.stringify({ number: 1, headRefOid: (await git(sourceRoot, ['rev-parse', 'HEAD'])).trim(), headRefName: evidence.branch, baseRefName: 'main' });
+      return { code: 0, stdout, stderr: '' };
+    }
     return processRun(args, options);
   };
   return { ...evidence, sourceRoot, workspace, revision, reviewed, runDir, invoke, record: async (name, value) => records.set(name, value), calls, records };
@@ -123,6 +130,46 @@ test('reported Secret paths and Workspace ignored Secrets block before mutation'
   await assert.rejects(automateGit(options), error => error.status === 'BLOCKED' && /Workspace/.test(error.message));
   assert.equal(options.calls.length, 0);
 });
+
+test('autocrlf accepts reviewed LF bytes and Source CRLF with identical committed blobs', async t => {
+  const options = await fixture(t);
+  await git(options.sourceRoot, ['config', 'core.autocrlf', 'true']);
+  const invoke = options.invoke;
+  options.invoke = async (args, context) => {
+    const result = await invoke(args, context);
+    if (args[1] === 'apply' && !args.includes('--check')) {
+      await writeFile(path.join(options.sourceRoot, 'src/a.txt'), 'new\r\n');
+    }
+    return result;
+  };
+  const result = await automateGit(options);
+  assert.match(result.commit_sha, /^[a-f0-9]{40}$/);
+  assert.equal(await readFile(path.join(options.sourceRoot, 'src/a.txt'), 'utf8'), 'new\r\n');
+  assert.equal(await readFile(path.join(options.workspace, 'src/a.txt'), 'utf8'), 'new\n');
+  assert.equal(await git(options.sourceRoot, ['show', 'HEAD:src/a.txt']), 'new\n');
+});
+
+for (const binary of [false, true]) {
+  test(`post-review ${binary ? 'binary byte' : 'text character'} change in staged content blocks Commit`, async t => {
+    const options = await fixture(t);
+    if (binary) {
+      await writeFile(path.join(options.workspace, 'src/a.txt'), Buffer.from([0, 13, 10, 255]));
+      options.reviewed = await snapshot(options.workspace);
+    }
+    const invoke = options.invoke;
+    options.invoke = async (args, context) => {
+      const result = await invoke(args, context);
+      if (args.includes('add') && args.at(-1) === options.reviewed.entries.at(-1).file) {
+        await writeFile(path.join(options.sourceRoot, 'src/a.txt'), binary ? Buffer.from([0, 13, 10, 254]) : 'nex\n');
+        await git(options.sourceRoot, ['add', '--', 'src/a.txt']);
+      }
+      return result;
+    };
+    await assert.rejects(automateGit(options), error => error.status === 'BLOCKED' && /Reviewed content changed before Commit/.test(error.message));
+    assert.ok(!options.calls.some(args => args.includes('commit') || args.includes('push')));
+    assert.equal((await git(options.sourceRoot, ['rev-parse', 'HEAD'])).trim(), options.revision);
+  });
+}
 
 test('injected staged Secret paths block Commit and Push', async t => {
   for (const file of ['.env.local', 'key.pem']) {

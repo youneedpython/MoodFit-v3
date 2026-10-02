@@ -1056,6 +1056,14 @@ TASK-012 GitHub Actions Bot의 초기 범위를 Gate C Human Review를 통해 �
 - 실패 경로의 Summary 기록 방식을 확인한다. (`if: always()`와 Step outcome 사용)
 - Remote CI 결과 확인 후 TASK-012를 REVIEW로 전환한다.
 
+### 변경 이력
+
+- 2026-10-02 (TASK-022 Gate C, Human 승인): `ci.yml` 범위를 다음과 같이 확장했다. Trigger / `contents: read` / Test·Build Command / Cache / MySQL 정책은 그대로 유지한다.
+  - Job `timeout-minutes: 20`, PR 번호 또는 ref 기준 `concurrency`(`cancel-in-progress: false`)
+  - Step Summary에 Task ID / PR 링크 / Head SHA 추가. PR 입력(head ref 등)은 env로만 전달하고 `pull_request_target`는 사용하지 않는다. CI는 AI Review를 실행하거나 재판정하지 않는다.
+- 2026-10-02 (TASK-022 Gate C, Human 승인): 제외 항목이던 **PR Comment 중 PR 상태 Comment를 허용**한다. 주체는 Workflow가 아니라 로컬 Orchestrator(`scripts/orchestrator/pr-gate.mjs`)이며, Human이 로그인한 기존 `gh`로 실패 / 취소 / Timeout 상태를 고정 형식으로 기존 PR에 기록한다(로컬 redacted Audit 보존). Workflow 권한 확대 / 새 Secret / PAT는 없다. Label / Comment / PR Approve는 Gate 또는 완료 승인으로 사용하지 않는다.
+- 2026-10-02 (TASK-022 Gate C, Human 승인): Ruleset `main-protection`의 Required Status Checks(`frontend` / `backend`)에 strict 정책을 적용했다. PR Branch가 최신 main 기준으로 CI를 통과해야 Merge할 수 있다.
+
 ### 상태
 
 ```text
@@ -1257,6 +1265,8 @@ TASK-018 A단계의 Multi-Agent Automation Policy를 Human Approved 정책으로
 - 2026-10-02: TASK-020 Review 4회차 PASS 후 Human 결정 A로 Windows Sandbox를 `elevated`로 전환했다. Claude 세션의 임시 Git Repo / codex 0.160.0 재검증에서 파일 쓰기와 `node --version`은 두 모드 모두 성공했으나 Node 자식 Process(`spawnSync(process.execPath, ['--version'])`)는 unelevated에서 EPERM, elevated에서 `child: 0 v24.21.0`으로 성공했다. 이번 elevated 실행은 UAC 확인 창 없이 진행됐다. Sandbox 밖 경로 접근 시도는 UnauthorizedAccessException으로 격리됐으며 작업은 성공했다. 설정은 elevated / unelevated만 허용하고 기본값은 elevated다. Orchestrator Verify가 검증 기준이며 Executor 자체 Test는 참고다.
 - 2026-10-02: TASK-021 첫 실행 Gate에서 Human이 Git 자동화 범위와 (b) 자동 실행을 승인했다. TASK-022 ~ TASK-031은 승인된 task Branch에서 Deterministic Verification 성공, Executor DONE, Claude PASS, 미해결 Gate 없음 이후 Orchestrator가 개별 Allowlist Stage / Commit / Push / Draft PR 생성까지 자동 수행한다. 기존 Commit / Push 개별 Human 승인 규칙을 이 범위에서 대체한다. main Push / Force Push / History Rewrite / Merge / Auto Merge는 금지한다. Human 로그인한 기존 git / gh만 사용하고 Credential 방식 / 권한 확대는 별도 Gate다. TASK-021 자체 Git 작업은 Claude 세션 또는 Human이 수행한다. 자기 Contract 변경 금지 Guard와 Resume 한도 문서화만 포함하고 scripts/verify.* 포함 / Redaction 정밀화는 후속 Task로 남긴다.
 - 2026-10-02: TASK-021 두 번째 실행의 AGENTS Guard BLOCKED 후 Human 결정 2로 `agents_sections` 예외를 승인했다. Human 승인과 Contract 문자열 절 번호 배열 명시가 모두 있을 때 해당 절 본문만 변경 가능하며 제목 변경 / 삭제와 비승인 절 변경은 BLOCKED다. TASK-021은 `["12"]`를 Claude 세션이 Contract에 추가했고 Executor 자기 Contract 변경 금지는 유지한다. 안정 Version 재실행 대신 Task Branch Workspace Rework → 동일 규격 Verify / Claude Review → Claude 세션 Commit / Push / Draft PR로 마무리하며 Human Squash Merge가 Task 승인이다.
+
+- 2026-10-02: TASK-022 Gate C에서 Human이 권장안 A를 승인했다. Orchestrator는 Draft PR 생성 후 로컬 `gh`로 PR 상태를 조회하며(Base main / Task Branch / head SHA / PR 번호 고정), 현재 head의 `frontend` / `backend`가 모두 success일 때만 Human Review 대기로 진행한다. 조회 실패 / Timeout은 정지하고 자동 재시도하지 않는다. Changes Requested는 Rework 필요 상태로 정지하고, Human Squash Merge 확인 시에만 다음 Task 선행 조건 근거(`dependency_evidence`, `merged_by` 포함)를 기록한다. Merge / Auto Merge / 다음 Task 자동 실행 / READY 자동 승격은 하지 않는다. PR 상태 Comment 자동화와 strict Required Status Checks 적용은 DEC-021 변경 이력을 따른다. 첫 구현 Run의 Git 단계 CRLF / LF 오판(BLOCKED)은 index blob 대조로 수정했다.
 
 ### 상태
 

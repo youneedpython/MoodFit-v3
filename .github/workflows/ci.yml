@@ -11,9 +11,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -44,6 +49,9 @@ jobs:
       - name: Write frontend summary
         if: always()
         env:
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
           TEST_OUTCOME: ${{ steps.test.outcome }}
           BUILD_OUTCOME: ${{ steps.build.outcome }}
@@ -59,6 +67,9 @@ jobs:
           }
           {
             echo "## Frontend"
+            task_id=$(printf '%s' "$HEAD_REF" | sed -nE 's@^task/(TASK-[0-9]{3})-[a-z0-9-]+$@\1@p')
+            printf 'Task: %s\nPR: %s\nHead SHA: %s\n' "${task_id:-none}" "$PR_URL" "$HEAD_SHA"
+            echo "- Review Verdict: local Harness audit referenced in PR body; CI does not run AI Review."
             echo ""
             echo "| Step | Command | Result |"
             echo "|---|---|---|"
@@ -73,6 +84,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -103,6 +115,9 @@ jobs:
       - name: Write backend summary
         if: always()
         env:
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           TEST_OUTCOME: ${{ steps.test.outcome }}
           BUILD_OUTCOME: ${{ steps.build.outcome }}
         run: |
@@ -117,6 +132,9 @@ jobs:
           }
           {
             echo "## Backend"
+            task_id=$(printf '%s' "$HEAD_REF" | sed -nE 's@^task/(TASK-[0-9]{3})-[a-z0-9-]+$@\1@p')
+            printf 'Task: %s\nPR: %s\nHead SHA: %s\n' "${task_id:-none}" "$PR_URL" "$HEAD_SHA"
+            echo "- Review Verdict: local Harness audit referenced in PR body; CI does not run AI Review."
             echo ""
             echo "| Step | Command | Result |"
             echo "|---|---|---|"
