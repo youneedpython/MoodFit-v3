@@ -38,11 +38,11 @@ TASK-023 — AWS Deployment Architecture / Cost Gate
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-022는 DONE이다. TASK-022는 PR #5(Orchestrator 자동 Draft PR)의 최신 head CI 성공과 Human Squash Merge(2026-10-02, `f2d0936`)로 완료 승인되었으며 E2E 근거는 WORK_LOG에 기록했다.
-TASK-023은 READY이며 Human 승인된 `harness/tasks/TASK-023.json` Contract와 명시적 실행 지시 후 시작한다. 설계 / 결정 Task이며 AWS Resource를 만들지 않는다. TASK-024 이후는 선행 Task 완료와 필요한 Gate 승인 전까지 BLOCKED다.
+TASK-023은 Human 승인된 Contract와 명시적 실행 지시로 IN_PROGRESS다. 설계 / 결정 Task이며 AWS Resource를 만들지 않는다. `docs/13-AWS-ARCHITECTURE.md`와 DEC-027 초안은 Pending Human Approval이다. TASK-024 이후는 선행 Task 완료와 필요한 Gate 승인 전까지 BLOCKED다.
 
 ---
 
@@ -72,7 +72,7 @@ TASK-023은 READY이며 Human 승인된 `harness/tasks/TASK-023.json` Contract�
 | TASK-020 | Milestone 20 | Orchestrator Hardening (worktree / Resume / Guard) | DONE | TASK-019 완료, A ~ 완료 정리 / Review 4회차 PASS | Human 결정 A, PR Squash Merge 승인으로 확정 |
 | TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | DONE | TASK-020 완료 (충족), Human 결정 1 / 2 반영, Rework 1 / 2회차 Claude PASS | PR Squash Merge 승인으로 확정 |
 | TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | DONE | TASK-021 완료 (충족), Review PASS, E2E(PR #5 → CI → Human Squash Merge) 검증 | Gate C 승인 완료, PR #5 Human Squash Merge로 DONE 승인 완료 |
-| TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | READY | TASK-022 완료 (충족) | 필요 |
+| TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | IN_PROGRESS | TASK-022 완료 (충족), Human 실행 지시 | DEC-027 Pending Human Approval |
 | TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | BLOCKED | TASK-023 완료 | Gate C 조건부 |
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | BLOCKED | TASK-023 완료 (TASK-024 권장) | 필요 |
 | TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-023, TASK-025 완료 | 필요 (비용 Resource Checkpoint) |
@@ -1297,10 +1297,10 @@ Gate C(권장안 A / PR 상태 Comment / strict Required Checks) 구현이 Orche
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-TASK-022 완료로 선행 조건이 충족되었다. Human 승인된 `harness/tasks/TASK-023.json` Contract와 명시적 실행 지시 후 시작한다.
+TASK-022 완료와 Human의 명시적 실행 지시로 시작했다. Architecture / Cost 비교 문서와 DEC-027 초안을 작성했으며 Human Gate 대기다. 공식 근거 / Region별 단가 확인과 Human 승인 전에는 DONE 또는 TASK-024 READY로 전환하지 않는다.
 
 ### 목적
 
@@ -1585,7 +1585,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-DEC-026은 Human Approved이며 TASK-018 ~ TASK-021은 DONE이다. TASK-021은 Human 결정 1 / 2와 Rework 1 / 2회차 Claude PASS를 반영했고 완료 승인은 이 PR의 Human Squash Merge로 확정된다. TASK-022는 IN_PROGRESS이며 Contract Human 승인과 명시적 실행 지시에 따라 구현 중이다. CI 동작 변경 / Branch Protection Gate C는 2026-10-02 권장안 A / PR 상태 Comment / strict Required Checks로 승인되었다. TASK-023 이후는 BLOCKED다. TASK-021 자체 Git 작업은 Claude 세션 또는 Human이 수행하며 TASK-022부터 승인된 Orchestrator Git 자동화를 사용한다.
+DEC-026은 Human Approved이며 TASK-018 ~ TASK-022는 DONE이다. TASK-023은 IN_PROGRESS이며 DEC-027 Architecture / Cost Gate는 Pending Human Approval이다. 공식 근거 확인과 설계 / 비용 승인 후에만 완료 반영을 검토한다. TASK-024 이후는 BLOCKED다. TASK-022부터 승인된 Orchestrator Git 자동화를 사용하며 미해결 Human Gate가 있으면 Git 작업을 수행하지 않는다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

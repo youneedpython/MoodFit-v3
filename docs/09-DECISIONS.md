@@ -1273,3 +1273,28 @@ TASK-018 A단계의 Multi-Agent Automation Policy를 Human Approved 정책으로
 ```text
 Human Approved
 ```
+
+---
+
+## DEC-027 TASK-023 AWS Architecture / Cost Gate 초안
+
+### 상태
+
+```text
+Pending Human Approval
+```
+
+작성일은 2026-10-02이며 Human 승인 기록은 아직 없다. 상세 비교 / Network Diagram / Security Boundary / Cost Matrix / 개별 승인 항목은 [13-AWS-ARCHITECTURE.md](13-AWS-ARCHITECTURE.md)를 따른다. 이 초안은 DEC-023 / DEC-026을 변경하지 않는다.
+
+### 승인 요청
+
+- A 교육 Staging(Public ECS / Private RDS / NAT 없음)과 B Production-like(Private App / Data / AZ별 NAT / Multi-AZ)의 선택. 권장안은 합성 데이터만 사용하는 A부터 시작이다. 인증 없는 MVP의 공개 접근 위험을 승인 항목으로 포함한다.
+- Region 서울 제안, 같은 계정의 전용 환경 Resource로 Staging부터 시작하고 Production은 별도 계정 권장. IAM Identity Center / 최소 권한 Permission Set / Agent Staging 전용 / Human-only Production / GitHub OIDC 환경별 Role 경계를 선택한다. 상세 권한은 TASK-025에서 별도 승인한다.
+- RDS 8.4 LTS 방향을 권장하되 Local / Testcontainers 8.0.46 / CI 변경은 별도 Decision과 승인 Task를 요구한다. 8.0 유지 시 유료 Extended Support 단가 / 기간을 예산에 포함한다. 지원 일정의 공식 근거와 서울 단가 확인 대기는 Architecture 5절을 따른다.
+- A RDS db.t4g.micro / gp3 20 GiB / Single-AZ 및 ECS 0.5 vCPU / 1 GiB / Desired Count 1, B db.t4g.small / Multi-AZ 및 ECS 동일 크기 2개를 제안한다. 가용성과 실측 성능은 확인 필요다.
+- 동일 origin `/api` routing, Private S3 / OAC, 환경별 Domain / HTTPS / origin 보호, Logging / Backup / 삭제 보호 / rollback 경계를 승인한다.
+- 월 USD 상한 A 100 / B 환경당 300(2환경 600), 생성 후 7일 실습, Budget 알림과 Human 정리 승인을 제안한다. 이 값은 AWS 견적이 아니다. Region별 공식 단가를 반영한 합계가 상한을 넘으면 생성 전 재승인한다.
+
+### 승인 전 유지 / 다음 단계
+
+Human Gate에서 Claude 세션이 공식 지원 일정 / 단가 / Region별 가용성 / 인증서 요건을 확인하고 확인일과 근거를 기록한다. Human이 이 Diff와 개별 선택값을 승인한 뒤에만 Human Approved로 변경한다. TASK-023은 IN_PROGRESS, TASK-024 이후는 BLOCKED다. 실제 Resource 생성, IAM 설정, DB 버전 변경, Production 배포는 이 초안이나 설계 승인만으로 수행하지 않는다.

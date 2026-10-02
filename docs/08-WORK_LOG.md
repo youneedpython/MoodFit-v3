@@ -2778,3 +2778,26 @@ DONE
 - 자동 PR에 Task 완료 반영(07-TASKS DONE / 다음 Task READY / AGENTS.md 3절)이 포함되지 않아 Merge 후 Milestone이 닫히지 않았다. 이번에는 TASK-023 Branch의 첫 Commit으로 보완했다.
 - 자동 PR / Squash Commit 제목이 `chore: TASK-022 승인 작업 반영`으로 일반적이다. `TASK-0xx <Task 제목>` 형식이 필요하다.
 - 기존 후보(frozen Run 문서화, CLI ENOENT 분류, scripts/verify.* 포함, Redaction 정밀화)는 유지한다.
+## TASK-023 — AWS Architecture / Cost Gate 초안 (2026-10-02)
+
+### 상태 / 실행 근거
+
+Human의 TASK-023 Contract와 명시적 실행 지시로 시작했다. 최초 Working Tree는 clean이었다. TASK-022 DONE 근거는 앞선 PR #5 Human Squash Merge 기록이다. TASK-023 IN_PROGRESS이며 DEC-027 Pending Human Approval, TASK-024 이후 BLOCKED를 유지한다.
+
+### 산출물 / 남은 Gate
+
+- `docs/13-AWS-ARCHITECTURE.md`: A 교육형 / B Production-like Resource와 Network Flow, Mermaid Diagram, SG / S3 OAC / API cache 경계, NAT / Endpoint 대안, 사람 SSO / Agent / OIDC / ECS Role 분리를 비교했다.
+- RDS 8.0 유료 Extended Support와 8.4 전환을 비교하고 Local / Testcontainers / CI의 별도 변경 승인을 요구했다. 공식 지원 표 / 가격 참고와 서울 단가 / Engine / Class 가용성 확인 대기를 구분했다.
+- 월 730시간 / 단기 80시간 산정 입력, 서비스별 산식 / 공식 URL, 상한 제안, Backup / Snapshot / 정리 / rollback / 인증 없는 공개 API 위험을 기록했다. 비용 합계는 미확인 견적을 확정하지 않았다.
+- DEC-027 초안, TASKS Pending 상태, AGENTS 3절의 오래된 TASK-022 설명, Prompt 45를 동기화했다. Architecture / Region / 계정 / SSO / Network / RDS / ECS / Domain / Logging / 비용과 데이터 노출에 대한 Human 결정이 필요하다.
+
+### Verification / 제한
+
+Executor 자체 검증은 참고 증거이며 Orchestrator Verify가 기준이다. Contract Node Test 결과와 diff / UTF-8 검사는 아래 최종 기록한다. Reviewer PASS나 Human Approval을 미리 주장하지 않는다. AWS CLI / Resource 생성 / 실제 Repository Branch / Commit / Push / PR / Merge는 수행하지 않았다. Node Test의 임시 Git fixture 작업은 프로젝트 Git handoff가 아니다.
+
+Human Gate에서 Claude 세션이 공식 문서로 미확인 단가 / 핵심 수치 / 가용성을 확인하고 선택값 및 이 Diff를 Human에게 제시한다. 실제 Resource / 후속 Task 실행은 별도 승인 범위다.
+
+- `node --test "scripts/orchestrator/*.test.mjs"`: tests 74 / pass 74 / fail 0 / skipped 0, Exit 0, 약 98초. 프로젝트 코드 변경 없이 기존 회귀 검증을 실행했다.
+- `git diff --check`: Exit 0, 공백 오류 없음. autocrlf 안내 경고만 표시됐다.
+- 변경 문서 6개를 UTF-8 strict 디코딩하고 연속 물음표 치환 흔적 및 U+FFFD가 없음을 직접 확인했다. 누적 경로 / Secret / Encoding / AGENTS 승인 3절 Guard 통과.
+- 처음 UTF-8 검사에 사용한 Node inline 명령은 PowerShell 인자 인용 때문에 SyntaxError로 실행되지 않았다. UTF-8 strict 검사와 문자 검사를 PowerShell .NET API로 수행해 통과했다. 이 도구 호출 오류를 Test 성공으로 기록하지 않았다.
