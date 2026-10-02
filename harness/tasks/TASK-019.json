@@ -1,9 +1,31 @@
 {
   "id": "TASK-019",
-  "title": "CI Runner OS Transition Hardening (FU-6) — 조사 / Human Gate",
+  "title": "CI Runner OS Transition Hardening (FU-6) — C→B: ubuntu-26.04 검증 후 ubuntu-latest 복귀",
   "task_file": "docs/tasks/TASK-019_CI_RUNNER_OS_HARDENING.md",
-  "allowed_paths": ["docs/07-TASKS.md", "docs/08-WORK_LOG.md", "prompts/"],
-  "forbidden_paths": [".github/", "frontend/", "backend/", "AGENTS.md", "harness/", "scripts/", "package.json", "package-lock.json"],
-  "verify": [{"command": ["git", "diff", "--check"], "cwd": "."}],
+  "allowed_paths": [
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/",
+    ".github/workflows/"
+  ],
+  "forbidden_paths": [
+    "frontend/",
+    "backend/",
+    "AGENTS.md",
+    "harness/",
+    "scripts/",
+    "package.json",
+    "package-lock.json"
+  ],
+  "verify": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
   "max_review_cycles": 3
 }

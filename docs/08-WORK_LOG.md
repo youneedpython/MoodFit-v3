@@ -2503,3 +2503,53 @@ DONE
 - Merge 후 Sync Milestones가 Milestone 18을 닫는다.
 - 결과: Human Review 완료 / DONE (PR Squash Merge 시 확정).
 - Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 허용 문서 5개 UTF-8 / LF / 제어 문자 없음 확인. 문서 상태 변경이므로 Test / Build는 재실행하지 않았다.
+
+## TASK-019 — Runner OS 조사 / Human Gate (2026-10-02)
+
+### 실행 범위 / 상태
+
+- Human의 명시적 TASK-019 조사 실행 지시, findings 없음. 최초 `git status --short`는 출력 없음(clean), Branch는 `task/TASK-019-ci-runner-os`다. 필수 Context와 Task 원문을 읽고 허용된 문서만 수정했다.
+- TASK-019 IN_PROGRESS, Executor 결과 HUMAN_REQUIRED. Runner 전략 / CI 동작 변경은 TASK-019 Human Gate와 DEC-026 §4 승인 전 수행할 수 없다. FU-6은 미완료이며 TASK-020 이후는 BLOCKED다.
+
+### 최신 공식 근거
+
+- [Runner 전환 공지 #14748](https://github.com/actions/runner-images/issues/14748): 2026-10-19부터 단계적으로 전환하며 2026-11-19 완료 예정이다. 10/19부터 모든 Job이 Ubuntu 26.04로 실행된다고 해석하지 않는다. 공식 완화책은 24.04 고정 또는 26.04 명시 검증이다.
+- [Runner Image 정책](https://github.com/actions/runner-images): latest는 점진적으로 이동하고 GA Image도 매주 갱신된다. OS label 고정은 설치 도구 전체 Version 고정이 아니다.
+- 2026-10-02 조회한 [Ubuntu 24.04 목록](https://raw.githubusercontent.com/actions/runner-images/main/images/ubuntu/Ubuntu2404-Readme.md)과 [Ubuntu 26.04 목록](https://raw.githubusercontent.com/actions/runner-images/main/images/ubuntu/Ubuntu2604-Readme.md): Docker Client/Server 28.0.4 → 29.4.2, Bash 5.2.21 → 5.3.9. 26.04 목록은 Image 20260920.143.1이며 Java 21과 GitHub CLI가 포함된다. 목록은 계속 바뀌므로 실제 Run의 Set up job Image 정보를 다시 확인한다.
+- 공지 표의 기본 Java 17과 26.04 목록의 기본 Java 25는 다르다. 기본값에 의존하지 않고 기존 setup-java Java 21 선택을 유지하므로 이 차이로 Version 변경을 제안하지 않는다.
+- [Testcontainers 런타임 요구사항](https://java.testcontainers.org/supported_docker_environment/): Docker API 호환 런타임이 필요하다. 설치 목록만으로 프로젝트의 Testcontainers 2.0.5 / Docker 29 호환성이나 실제 daemon 접근 성공을 확정할 수 없다.
+
+### 현재 Workflow 의존 조사
+
+| 항목 | Repository 근거 / 영향 |
+|---|---|
+| Runner | ci.yml frontend / backend와 milestones.yml close-done-milestones 모두 ubuntu-latest다. 전환 중 Job마다 OS가 다를 수 있다. |
+| Docker / MySQL | DEC-023은 기본 Runner Docker와 Testcontainers 2.0.5, mysql:8.0.46을 사용한다. MySqlIntegrationTests는 Local Docker 부재 시 skip하지만 DockerAvailabilityTests는 CI=true에서 부재를 실패시킨다. Docker API / socket / 네트워크 / image pull / Ryuk 실행이 실제 검증 대상이다. Runner에 설치된 MySQL은 사용하지 않는다. |
+| Node / Java | setup-node@v7은 24.21.0, setup-java@v6은 Temurin 21을 선택한다. Runner 기본 Version 의존은 줄였으나 OS 라이브러리 / native binary 호환성은 Build로 확인해야 한다. |
+| Gradle | setup-gradle@v6과 ./gradlew 사용, Wrapper 9.8.0이다. System Gradle에 의존하지 않는다. Wrapper download와 Java 실행 / jar 검증을 유지한다. |
+| Shell / 도구 | Linux run의 Bash, summary 함수와 milestones의 set -euo pipefail / here-string / tab read / grep / awk를 사용한다. milestones는 기본 gh와 gh api --jq에 의존한다. OS 도구 Version은 고정되지 않았다. |
+| Permission / Line Ending | git ls-files --stage에서 backend/gradlew 100755, --eol에서 gradlew와 두 Workflow의 index / working tree LF를 확인했다. .gitattributes는 없다. 현재 chmod / 줄바꿈 변환 Step 추가 근거는 없다. |
+| Cache / CI 정책 | DEC-017 npm package-manager-cache:false / Gradle cache-disabled:true 유지. Trigger, Permission, Job 이름 frontend / backend, 실패 전파, DEC-021 Summary와 DEC-018 Milestone 동작은 승인 없이 변경하지 않는다. |
+
+### Human 결정 대안 / 권장안
+
+| 전략 | 승인 후 구체적 변경 | 장점 / 위험 / 롤백 |
+|---|---|---|
+| A: ubuntu-24.04 임시 고정 | 두 Workflow의 runs-on 3곳만 24.04로 변경 | 전환 시점을 직접 관리한다. 도구의 매주 갱신은 계속되며 26.04 검증을 미루는 비용이 있다. latest 복귀는 별도 승인 Diff로 처리한다. |
+| B: ubuntu-latest 유지 (권장) | Workflow 변경 없이 기존 Test / Build와 전환 결과 관찰 | 이미 Runtime 선택과 Docker 실패 Guard가 있다. 불필요한 고정 / Dependency를 피할 수 있다. 실제 26.04 결과는 아직 미확인이고 전환 중 회귀 가능성이 남는다. 실패 시 A로 돌아가는 최소 Diff를 Human Gate에 제출한다. |
+| C: ubuntu-26.04 명시 검증 | 승인된 Task Branch에서 runs-on 3곳을 26.04로 변경해 검증하고 최종 label을 재결정 | 10/19 전에 새 OS 증거를 얻을 수 있다. Workflow 변경 및 milestones 실행은 별도 범위 승인이 필요하다. 검증 후 latest 또는 24.04로 복귀하는 Diff도 승인 범위에 명시한다. |
+
+B안을 권장한다. 실패가 확인되지 않은 상태에서 OS 고정 / 설치 Step / Cache / Container 전략 / Dependency 추가를 확정할 근거는 부족하다. 10/19 전 전략 승인을 받고, B안은 전환 이후 실제 26.04 Run을 확인해야 FU-6 완료 여부를 판단한다. 10/19 전에 완료 증거가 필요하면 C안을 선택할 수 있다. 이 권장안은 Human 승인이나 호환성 PASS가 아니다.
+
+### 승인 후 검증 / 남은 Gate
+
+1. Human이 A / B / C, 최종 label, 검증 및 롤백 범위를 TASK-019에 연결해 승인한다. 후속 실행 Contract를 검토·갱신하고 명시적으로 실행 지시한다. 현재 Contract는 .github/를 금지하므로 전략 승인만으로 쓰기 권한을 추론하지 않는다.
+2. Orchestrator / 승인된 실행 환경에서 scripts/verify.ps1 또는 scripts/verify.sh로 Local Frontend / Backend 검증을 수행한다. Local Docker skip 결과는 Ubuntu 호환성 증거가 아니다.
+3. Remote CI frontend의 npm ci / npm test / npm run build, backend의 ./gradlew test / ./gradlew build를 확인한다. Set up job의 실제 OS / Image Version과 MySqlIntegrationTests 실행(0 skip) / DockerAvailabilityTests 성공을 비민감 기록으로 남긴다. B안에서 24.04 Run만 성공하면 26.04 검증은 여전히 미완료다.
+4. milestones는 승인된 실행에서 실제 OS, 기본 gh 동작, TASKS 파싱과 기존 동작 결과를 확인한다. 이번 조사에서는 외부 Milestone 수정이나 workflow_dispatch를 실행하지 않았다.
+5. Claude 자동 Review / 필요한 Rework / Human Review 후 완료 절차를 따른다. Release v3.0.1은 DEC-025 PATCH 후보일 뿐 생성하지 않는다.
+
+### 이번 Verification
+
+- Workflow / Source / Dependency 수정 없음. 조사 문서만 변경하므로 Test / Build / 전체 verify Script / Remote CI는 실행하지 않았다. Ubuntu 26.04 호환성 PASS를 주장하지 않는다.
+- git diff --check 결과와 누적 변경 경로 확인은 Executor 최종 결과에 기록한다. Orchestrator Verify는 별도로 수행해야 한다.

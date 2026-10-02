@@ -22,6 +22,17 @@ GitHub Actions의 `ubuntu-latest`가 **2026-10-19부터 Ubuntu 26으로 전환**
 - TASK-018이 늦어져도 Human이 "`ubuntu-latest` 유지 후 전환 결과 확인" 전략을 선택하면 10/19 전에 Workflow를 바꿀 필요가 없다. 이 경우 전환 이후 CI 결과를 확인해 DONE 여부를 판단한다.
 - `ubuntu-24.04` 고정이 필요하다고 판단되면 Human이 TASK-018 완료를 기다리지 않고 별도 지시로 먼저 적용할 수 있다.
 
+## Human 결정 (2026-10-02)
+
+조사 결과(전략 A / B / C)와 Claude 자동 Review(HUMAN_REQUIRED, 외부 근거 확인 포함)를 보고 Human이 **C → B**를 승인했다.
+
+1. **검증 단계 (C)**: `.github/workflows/ci.yml`(`frontend` / `backend`)과 `.github/workflows/milestones.yml`의 `runs-on` 3곳을 `ubuntu-26.04`로 바꾼다. 다른 Step / Trigger / Permission / Cache 설정은 바꾸지 않는다. PR CI와 Milestone Workflow(`workflow_dispatch`, Task Branch)를 실제 Ubuntu 26.04에서 실행해 확인한다.
+   - 확인 항목: Set up job의 실제 OS / Image Version, Frontend `npm ci` / Test / Build, Backend Test / Build, `MySqlIntegrationTests` 실행(SKIPPED 0) / `DockerAvailabilityTests` 성공, Milestone Workflow의 `gh` 동작
+2. **복귀 단계 (B)**: 검증이 통과하면 `runs-on` 3곳을 다시 `ubuntu-latest`로 되돌리고 검증 결과를 WORK_LOG에 기록한다. Squash Merge 후 main의 Workflow는 변경되지 않는다.
+3. **실패 시**: 26.04에서 실패하면 원인과 A안(`ubuntu-24.04` 고정) 최소 Diff를 정리해 다시 Human Gate로 정지한다.
+
+Task Contract(`harness/tasks/TASK-019.json`)의 허용 경로에 `.github/workflows/`를 추가했다. (Human 승인)
+
 ## Human Gate
 
 Runner를 특정 OS Version으로 고정할지, `ubuntu-latest`를 유지할지, Tool 설치 / Cache / Container 전략을 바꿀지는 CI 동작 변경이므로 Human Approval을 받는다. Orchestrator는 전략 제시 후 `HUMAN_REQUIRED`로 정지한다.
