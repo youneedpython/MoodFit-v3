@@ -2297,3 +2297,64 @@ Human Review 완료 / DONE
 ### 결과
 
 완료 / v3.0.0 Release 발행
+
+---
+
+## Out-of-Task — Agent 자동화 / AWS 배포 Roadmap 검토와 등록 (TASK-018 ~ TASK-031)
+
+### 상태
+
+완료 / Commit · Push 및 Milestone 생성(Human 실행) 대기 (Human 지시, 2026-10-02)
+
+### 배경
+
+Human이 앞으로의 개발을 Agent 2개로 자동화하고 AWS에 배포한 뒤 CI / CD로 진행하는 Roadmap 문서(TASK-018 ~ TASK-031)를 `docs/`에 추가하고, 다음 기준에 맞는지 검토를 요청했다.
+
+- Agent 2개로 완전 자동화
+- 실행: Codex, 검토: Claude, 승인: Human
+- AWS SSO를 이용한 배포
+
+### 검토 결과와 반영 (Commit `3ca9830`)
+
+| 검토 사항 | 반영 |
+|---|---|
+| AWS SSO가 설계에 없음 (GitHub OIDC만 있음) | TASK-025를 AWS SSO / GitHub OIDC / IAM Gate로 확장. Human SSO 로그인 후 Agent 작업, Permission Set 분리(Production은 Human 전용), 만료 시 `HUMAN_REQUIRED` |
+| DEC 번호 충돌 (정책을 DEC-025로 가정) | Multi-Agent 정책을 DEC-026으로 변경 (DEC-025는 Version / Tag 규칙) |
+| RDS MySQL 8.0 지원 / 비용 | TASK-023에 RDS 8.0 유지 vs 8.4 전환 검토 항목 추가 (AWS 공식 문서로 확인) |
+| Human 승인 채널 미정의 | TASK-019 Decision Matrix에 추가 (PR Approve / Label / Environment Reviewer) |
+| AI 사용 방식 / 비용 | Human 결정: API Key 미사용, VS Code 로그인 계정으로 로컬 실행 → GitHub Actions의 Agent 실행을 제거하고 TASK-022를 GitHub CI Integration / PR Gate로 재정의 |
+| AGENTS.md 반영 Task 없음 | TASK-019 완료 조건에 DEC-026 승인 후 AGENTS.md 반영 추가 |
+| FU-6 일정 (2026-10-19 전환) | Human 결정: 순서 앞당김 → FU-6을 TASK-018로 이동, 기존 TASK-018 ~ TASK-021은 TASK-019 ~ TASK-022로 조정 |
+| Release 연계 | TASK-030 Production 배포 단위를 Release Tag(`v3.x.y`, DEC-025)로 연결 |
+| 문서 구조 | `docs/tasks/`로 이동, 공통 규칙 `COMMON.md`로 분리, Source of Truth 목록 정리, `docs/README.md`를 docs 색인으로 변경 |
+
+- Human 결정: Orchestrator는 Node.js 24 + JavaScript(`.mjs`), Dependency 없음 (TASK-020)
+- 원본 문서는 Repository 밖에 백업한 뒤 `docs/tasks/`로 재구성했다.
+
+### Agent CLI 사전 검증 (Spike)
+
+Repository 밖 임시 폴더에서 확인했다. 결과는 `docs/tasks/TASK-020_LOCAL_ORCHESTRATOR.md` "사전 검증 결과"에 기록했다.
+
+- Claude: VS Code 확장 포함 `claude.exe` 2.1.286, `-p` 비대화형 / JSON 결과 / `--allowedTools "Read"`로 쓰기 차단 확인, API Key 없음
+- Codex: Human 승인 후 `npm install -g @openai/codex`(0.160.0) 설치, 기존 ChatGPT 로그인 재사용, `exec` 비대화형 / `--output-schema` 결과 / 작업 폴더 쓰기 확인
+- 발견 사항: Codex stdin을 닫지 않으면 입력 대기로 멈춤(4분 Timeout 발생), Windows에서는 `windows.sandbox` 설정 없이 `workspace-write`가 `read-only`로 낮아짐, Claude 결과가 Code Block으로 감싸질 수 있음
+
+### Roadmap 등록 (0단계)
+
+- `docs/07-TASKS.md`
+  - Current Task: TASK-018(READY, Human 실행 지시 대기)
+  - 전체 Task 목록에 TASK-018 ~ TASK-031 / Milestone 18 ~ 31 추가 (TASK-019 이후 BLOCKED)
+  - Task별 요약 섹션(상태 / 목적 / Gate / 완료 조건)과 `docs/tasks/` 상세 Task Contract 링크
+  - 5절 Human Approval 필요 Task, 6절 Pending Decision(DEC-026 예정) 갱신
+- `docs/06-PLAN.md`: Milestone 18 ~ 31 목록 추가
+- `scripts/create-milestones.js`: Milestone 18 ~ 31 정의 추가 (기존 Milestone은 제목 기준으로 건너뜀)
+- `AGENTS.md`: Current Task TASK-018 READY, DEC-026 반영 전까지 기존 규칙 유지 명시
+
+### 다음 단계
+
+- Human: `node scripts/create-milestones.js`로 Milestone 18 ~ 31 생성 (`GITHUB_TOKEN` 필요)
+- Human: TASK-018 실행 지시 → Codex 실행(VS Code) → Claude 검토 → Human 승인
+
+### 결과
+
+Roadmap 검토 / 문서 재구성 / 등록 완료

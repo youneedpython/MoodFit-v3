@@ -37,17 +37,21 @@ Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB
 Current Task:
 
 ```text
-없음 (계획된 Task 모두 완료)
+TASK-018 — CI Runner OS Transition Hardening (FU-6)
 ```
 
 Status:
 
 ```text
-ALL DONE
+READY
 ```
 
+Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
+TASK-018은 Human의 실행 지시 후 시작하며, TASK-019 이후는 선행 Task와 Gate 승인 전까지 BLOCKED이다.
+Multi-Agent 자동화 정책(DEC-026)이 승인되어 이 문서에 반영되기 전까지는 아래 기존 규칙(Human 지시 후 Commit / Push 등)을 그대로 따른다.
+
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
-후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 `docs/08-WORK_LOG.md` TASK-014 섹션을 따르며, 진행 시 필요한 승인을 받는다.
+후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 TASK-018로 등록되었다.
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.

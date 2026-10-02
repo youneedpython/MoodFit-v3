@@ -47,9 +47,26 @@ Milestone 14 Gradle Wrapper Version Review (FU-5)
 Milestone 15 Timezone-fixed Date Display Test (FU-4)
 Milestone 16 DB 연동 테스트 — 실제 MySQL (FU-3)
 Milestone 17 API 계약 테스트 — Frontend / Backend (FU-1)
+
+# Agent 자동화 / AWS 배포 (2026-10-02 Human 지시로 추가)
+Milestone 18 CI Runner OS Transition Hardening (FU-6)
+Milestone 19 Multi-Agent Automation Policy / Agent Contract
+Milestone 20 Local Multi-Agent Orchestrator
+Milestone 21 Git Automation / Branch / PR Harness
+Milestone 22 GitHub CI Integration / PR Gate
+Milestone 23 AWS Deployment Architecture / Cost Gate
+Milestone 24 Deployment Artifact / Container / Health Strategy
+Milestone 25 AWS SSO / GitHub OIDC / IAM / Environment Gate
+Milestone 26 AWS Infrastructure as Code Foundation
+Milestone 27 AWS Application Infrastructure (ECS / ALB / RDS)
+Milestone 28 Staging Deployment / Smoke Test
+Milestone 29 Staging Continuous Deployment
+Milestone 30 Production Continuous Deployment / Approval / Rollback
+Milestone 31 Operations / Cost Guard / Cleanup / Final Hardening
 ```
 
 Milestone 13 ~ 17의 상세 범위와 승인 조건은 `docs/07-TASKS.md` TASK-013 ~ TASK-017을 따른다.
+Milestone 18 ~ 31의 상세 범위와 승인 조건은 `docs/07-TASKS.md` TASK-018 ~ TASK-031과 `docs/tasks/`를 따른다.
 
 Local Verification Harness와 GitHub Actions CI를 Core Feature 구현 이후가 아니라 Project Bootstrap 직후에 배치한다.
 초기에는 Frontend Test/Build와 Backend Test/Build를 최소 검증 대상으로 삼고, Feature Task가 추가될 때마다 검증 범위를 점진적으로 확장한다.

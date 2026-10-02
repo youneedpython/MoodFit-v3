@@ -33,18 +33,18 @@ DONE
 
 ## 3. Current Task
 
-없음 — TASK-001 ~ TASK-017 모두 DONE
+TASK-018 — CI Runner OS Transition Hardening (FU-6)
 
 Status:
 
 ```text
-ALL DONE
+READY
 ```
 
-TASK-001 ~ TASK-012(Core MVP)과 TASK-013 ~ TASK-017(Post-MVP 보완, FU-1 ~ FU-5)이 모두 완료되었다.
-Post-MVP 보완 결정: Gradle Wrapper `9.8.0`(DEC-015), 표시 Timezone `Asia/Seoul`(DEC-022), Testcontainers MySQL(DEC-023), 공유 계약 예시 JSON `contracts/`(DEC-024)
-TASK-014 Human Review에서 기록한 후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 `docs/08-WORK_LOG.md` TASK-014 섹션을 따르며, Task 등록 여부는 Human 결정 대기이다.
-새로운 Task를 시작하려면 Human 지시에 따라 Task를 정의하고 필요한 Gate를 거친다.
+TASK-001 ~ TASK-012(Core MVP)과 TASK-013 ~ TASK-017(Post-MVP 보완, FU-1 ~ FU-5)이 모두 완료되었다. (Release `v3.0.0`)
+Human 지시에 따라 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)을 등록했다. 상세 Task Contract는 `docs/tasks/`를 따른다.
+TASK-018(FU-6)은 2026-10-19 Runner OS 전환 전에 완료하기 위해 가장 먼저 진행하며, Human의 실행 지시를 기다린다.
+TASK-019 이후는 선행 Task 완료와 각 Gate 승인 전까지 BLOCKED이다.
 
 ---
 
@@ -69,6 +69,20 @@ TASK-014 Human Review에서 기록한 후속 보완 작업 후보 FU-6(Runner OS
 | TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | DONE | TASK-014 완료 (충족), Human Approval 완료, DEC-022 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | DONE | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 | TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | DONE | TASK-016 완료 (충족), DEC-024 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
+| TASK-018 | Milestone 18 | CI Runner OS Transition Hardening (FU-6) | READY | 선행 Task 없음 (2026-10-19 전환 전 완료 목표) | 필요 (CI 동작 변경) |
+| TASK-019 | Milestone 19 | Multi-Agent Automation Policy / Agent Contract | BLOCKED | TASK-018 완료 | 필요 (DEC-026) |
+| TASK-020 | Milestone 20 | Local Multi-Agent Orchestrator | BLOCKED | TASK-019 완료 | Gate C 조건부 (Runtime / Dependency) |
+| TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | BLOCKED | TASK-020 완료 | 필요 (Git / GitHub 권한) |
+| TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | BLOCKED | TASK-021 완료 | Gate C 필요 |
+| TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | BLOCKED | TASK-022 완료 | 필요 |
+| TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | BLOCKED | TASK-023 완료 | Gate C 조건부 |
+| TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | BLOCKED | TASK-023 완료 (TASK-024 권장) | 필요 |
+| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-023, TASK-025 완료 | 필요 (비용 Resource Checkpoint) |
+| TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | BLOCKED | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
+| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | 필요 (비용 Resource 생성) |
+| TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
+| TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
+| TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
 
 ---
 
@@ -1138,6 +1152,398 @@ Frontend와 Backend가 약속한 API 형식(`docs/05-API_SPEC.md`)을 양쪽이 
 
 ---
 
+## TASK-018 — CI Runner OS Transition Hardening (FU-6)
+
+### 상태
+
+```text
+READY
+```
+
+Roadmap 등록과 함께 READY가 되었다. Human의 실행 지시를 기다린다.
+
+### 목적
+
+`ubuntu-latest` → Ubuntu 26 전환(2026-10-19)에 대비해 CI가 Runner Image 변경에도 안정적으로 동작하도록 보완한다. (FU-6)
+
+### Human Approval 또는 Gate
+
+- Runner 전략(`ubuntu-24.04` 고정 / `ubuntu-latest` 유지 + 보완)은 CI 동작 변경이므로 Human Approval
+
+### 완료 조건
+
+- 승인된 Runner 전략이 Remote CI에서 검증되고 FU-6이 DONE으로 기록된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-018_CI_RUNNER_OS_HARDENING.md`](tasks/TASK-018_CI_RUNNER_OS_HARDENING.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-019 — Multi-Agent Automation Policy / Agent Contract
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-018 완료 후 진행한다.
+
+### 목적
+
+Codex(Executor) / Claude(Reviewer) / Orchestrator / Human의 권한, Human Gate, 승인 채널, 로그인 정책을 정의한다. 정책 / 계약 설계만 하며 자동화 Code는 만들지 않는다.
+
+### Human Approval 또는 Gate
+
+- DEC-026 Human Approval, 승인 후 AGENTS.md 반영
+
+### 완료 조건
+
+- DEC-026이 Human Approved 되고 승인된 정책이 AGENTS.md에 반영된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-019_MULTI_AGENT_POLICY.md`](tasks/TASK-019_MULTI_AGENT_POLICY.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-020 — Local Multi-Agent Orchestrator
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-019 완료 후 진행한다.
+
+### 목적
+
+로컬에서 한 명령으로 Codex 실행 → Deterministic Verify → Claude Review → 제한된 Rework가 동작하는 Orchestrator를 만든다. (Node.js 24 + `.mjs`, Dependency 없음)
+
+### Human Approval 또는 Gate
+
+- 확정된 언어 / Runtime 외 Runtime이나 새 Dependency가 필요하면 Gate C
+
+### 완료 조건
+
+- Local Multi-Agent Loop가 Fake CLI와 실제 로그인된 CLI로 재현 / 검증된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-020_LOCAL_ORCHESTRATOR.md`](tasks/TASK-020_LOCAL_ORCHESTRATOR.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-021 — Git Automation / Branch / PR Harness
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-020 완료 후 진행한다.
+
+### 목적
+
+Orchestrator에 안전한 Branch / Stage / Commit / Push / PR 계층을 추가한다. (Human GitHub 로그인 후 사용)
+
+### Human Approval 또는 Gate
+
+- Git 권한 확대, GitHub CLI 도입, Auto Merge 정책은 Human Approval
+
+### 완료 조건
+
+- Task Branch → Safe Stage → Commit → Push → PR 흐름이 정책대로 검증된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-021_GIT_PR_HARNESS.md`](tasks/TASK-021_GIT_PR_HARNESS.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-022 — GitHub CI Integration / PR Gate
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-021 완료 후 진행한다.
+
+### 목적
+
+로컬 Harness가 만든 PR을 GitHub의 Deterministic CI와 Human 승인으로 마무리하는 흐름을 완성한다. GitHub Actions에서는 Agent를 실행하지 않는다.
+
+### Human Approval 또는 Gate
+
+- CI 동작 변경 / Branch Protection은 Gate C
+
+### 완료 조건
+
+- End-to-End Harness Run(로컬 실행 → PR → CI → Human Approve → Merge)이 검증된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-022_GITHUB_CI_INTEGRATION.md`](tasks/TASK-022_GITHUB_CI_INTEGRATION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-023 — AWS Deployment Architecture / Cost Gate
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-022 완료 후 진행한다.
+
+### 목적
+
+AWS Resource 생성 전 Architecture / Cost / Security / 계정 구조 / RDS Version을 결정한다.
+
+### Human Approval 또는 Gate
+
+- Architecture, Region, 계정 / SSO 범위, Network, RDS, 비용 상한은 Human Approval
+
+### 완료 조건
+
+- Architecture / Cost Decision이 Human Approved 된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-023_AWS_ARCHITECTURE_GATE.md`](tasks/TASK-023_AWS_ARCHITECTURE_GATE.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-024 — Deployment Artifact / Container / Health Strategy
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-023 완료 후 진행한다.
+
+### 목적
+
+Frontend / Backend 배포 Artifact를 재현 가능하게 만들고 Health Check 전략을 확정한다.
+
+### Human Approval 또는 Gate
+
+- 새 Dependency, Health API, API Contract, Base Image 정책 변경 시 Gate C
+
+### 완료 조건
+
+- 배포 Artifact가 로컬에서 재현 / 검증되고 Health 전략이 문서화된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-024_DEPLOYMENT_ARTIFACT_CONTAINER_HEALTH.md`](tasks/TASK-024_DEPLOYMENT_ARTIFACT_CONTAINER_HEALTH.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-025 — AWS SSO / GitHub OIDC / IAM / Environment Gate
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-023 완료 (TASK-024 권장) 후 진행한다.
+
+### 목적
+
+사람 / 로컬 Agent는 AWS SSO(Human 로그인 후 Agent 작업), CI / CD는 GitHub OIDC로 장기 Access Key 없이 접근하도록 설계한다.
+
+### Human Approval 또는 Gate
+
+- IAM Identity Center, Permission Set, IAM, GitHub Environment, Secret 정책은 Human Approval
+
+### 완료 조건
+
+- SSO / OIDC / IAM / Environment 정책이 승인되고 Human이 SSO / Profile 구성을 마친다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-025_AWS_SSO_OIDC_IAM_GATE.md`](tasks/TASK-025_AWS_SSO_OIDC_IAM_GATE.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-026 — AWS Infrastructure as Code Foundation
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-023, TASK-025 완료 후 진행한다.
+
+### 목적
+
+Network / ECR / S3·CloudFront / RDS / Secret Reference를 IaC(CloudFormation 우선)로 정의한다.
+
+### Human Approval 또는 Gate
+
+- 실제 비용 Resource 생성 전 Human Approval Checkpoint
+
+### 완료 조건
+
+- IaC가 정적 검증되고 최초 Apply / Change Set 승인 준비가 된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-026_AWS_IAC_FOUNDATION.md`](tasks/TASK-026_AWS_IAC_FOUNDATION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-027 — AWS Application Infrastructure (ECS / ALB / RDS)
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-024, TASK-026 완료 후 진행한다.
+
+### 목적
+
+ECS Fargate / ALB / RDS 연동과 Frontend → API Routing을 IaC로 완성한다.
+
+### Human Approval 또는 Gate
+
+- IaC 검증과 비용 Gate
+
+### 완료 조건
+
+- Application Infra Template이 검증되고 Staging 적용 준비가 된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-027_AWS_APPLICATION_INFRA.md`](tasks/TASK-027_AWS_APPLICATION_INFRA.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-028 — Staging Deployment / Smoke Test
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-025 승인, TASK-026 / TASK-027 완료 후 진행한다.
+
+### 목적
+
+최초 Staging 환경을 로컬(SSO Staging Profile)에서 배포하고 End-to-End Smoke Test를 한다.
+
+### Human Approval 또는 Gate
+
+- Change Set 적용과 비용 Resource 생성은 Human Approval
+
+### 완료 조건
+
+- Staging URL / API가 동작하고 Smoke Test PASS, Resource / 비용 Inventory가 기록된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-028_STAGING_DEPLOYMENT_SMOKE.md`](tasks/TASK-028_STAGING_DEPLOYMENT_SMOKE.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-029 — Staging Continuous Deployment
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-028 완료 후 진행한다.
+
+### 목적
+
+`main`의 검증된 변경을 GitHub OIDC로 Staging에 자동 배포한다.
+
+### Human Approval 또는 Gate
+
+- CD 동작 변경은 Gate C
+
+### 완료 조건
+
+- 검증된 Commit이 Staging에 자동 배포되고 Smoke Test가 자동 PASS한다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-029_STAGING_CD.md`](tasks/TASK-029_STAGING_CD.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-030 — Production Continuous Deployment / Approval / Rollback
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-029 완료 후 진행한다.
+
+### 목적
+
+Release Tag(`v3.x.y`, DEC-025) 단위로 Staging에서 검증된 Artifact를 Human 승인 후 Production에 배포한다.
+
+### Human Approval 또는 Gate
+
+- Production 배포 / 최초 생성 / 파괴적 Migration은 Human Approval
+
+### 완료 조건
+
+- Human 승인 후 Production 배포와 Smoke Test가 성공하고 Rollback 절차가 검증된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-030_PRODUCTION_CD.md`](tasks/TASK-030_PRODUCTION_CD.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-031 — Operations / Cost Guard / Cleanup / Final Hardening
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-030 완료 후 진행한다.
+
+### 목적
+
+운영 / 비용 / 삭제 / 복구 관점의 최종 Hardening과 문서 동기화를 한다.
+
+### Human Approval 또는 Gate
+
+- Resource 삭제, RDS Snapshot / Delete, Budget, Destructive Cleanup은 Human Approval
+
+### 완료 조건
+
+- 운영 / 비용 / 삭제 / 복구 정책이 Human Review를 통과하고 문서와 실제 환경이 동기화된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-031_OPERATIONS_COST_CLEANUP.md`](tasks/TASK-031_OPERATIONS_COST_CLEANUP.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
 ## 5. Human Approval 필요 Task
 
 다음 Task는 실행 전 Human Approval 또는 Gate 확인이 필요하다.
@@ -1158,12 +1564,28 @@ Frontend와 Backend가 약속한 API 형식(`docs/05-API_SPEC.md`)을 양쪽이 
 - TASK-015: 실행 전 Human Approval 필요
 - TASK-016: DB 연동 테스트 도구와 CI Database Strategy 변경이므로 Gate C 필요
 - TASK-017: API 계약 테스트 방식 / 도구 선택이므로 Gate C 필요
+- TASK-018: Runner 전략(`ubuntu-24.04` 고정 / `ubuntu-latest` 유지 + 보완)은 CI 동작 변경이므로 Human Approval
+- TASK-019: DEC-026 Human Approval, 승인 후 AGENTS.md 반영
+- TASK-020: 확정된 언어 / Runtime 외 Runtime이나 새 Dependency가 필요하면 Gate C
+- TASK-021: Git 권한 확대, GitHub CLI 도입, Auto Merge 정책은 Human Approval
+- TASK-022: CI 동작 변경 / Branch Protection은 Gate C
+- TASK-023: Architecture, Region, 계정 / SSO 범위, Network, RDS, 비용 상한은 Human Approval
+- TASK-024: 새 Dependency, Health API, API Contract, Base Image 정책 변경 시 Gate C
+- TASK-025: IAM Identity Center, Permission Set, IAM, GitHub Environment, Secret 정책은 Human Approval
+- TASK-026: 실제 비용 Resource 생성 전 Human Approval Checkpoint
+- TASK-027: IaC 검증과 비용 Gate
+- TASK-028: Change Set 적용과 비용 Resource 생성은 Human Approval
+- TASK-029: CD 동작 변경은 Gate C
+- TASK-030: Production 배포 / 최초 생성 / 파괴적 Migration은 Human Approval
+- TASK-031: Resource 삭제, RDS Snapshot / Delete, Budget, Destructive Cleanup은 Human Approval
 
 ---
 
 ## 6. 현재 Pending Decision
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
+
+TASK-019에서 DEC-026(Multi-Agent Automation Policy) 초안이 작성될 예정이며, Human Approval 전까지 TASK-020 이후를 시작하지 않는다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

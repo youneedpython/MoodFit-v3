@@ -310,6 +310,217 @@ const milestones = [
 
 완료 조건:
 - API 계약 위반이 Local Verification과 CI에서 자동으로 발견됨`
+  },
+  // Agent 자동화 / AWS 배포 Roadmap (docs/tasks/, TASK-018 ~ TASK-031)
+  {
+    title: 'Milestone 18: CI Runner OS Transition Hardening',
+    description: `목적: \`ubuntu-latest\` → Ubuntu 26 전환(2026-10-19)에 대비해 CI가 Runner Image 변경에도 안정적으로 동작하도록 보완한다. (FU-6)
+
+선행 조건:
+- 선행 Task 없음 (2026-10-19 전환 전 완료 목표)
+
+Gate:
+- Runner 전략(\`ubuntu-24.04\` 고정 / \`ubuntu-latest\` 유지 + 보완)은 CI 동작 변경이므로 Human Approval
+
+완료 조건:
+- 승인된 Runner 전략이 Remote CI에서 검증되고 FU-6이 DONE으로 기록된다.
+
+상세: docs/tasks/TASK-018_CI_RUNNER_OS_HARDENING.md`
+  },
+  {
+    title: 'Milestone 19: Multi-Agent Automation Policy',
+    description: `목적: Codex(Executor) / Claude(Reviewer) / Orchestrator / Human의 권한, Human Gate, 승인 채널, 로그인 정책을 정의한다. 정책 / 계약 설계만 하며 자동화 Code는 만들지 않는다.
+
+선행 조건:
+- TASK-018 완료
+
+Gate:
+- DEC-026 Human Approval, 승인 후 AGENTS.md 반영
+
+완료 조건:
+- DEC-026이 Human Approved 되고 승인된 정책이 AGENTS.md에 반영된다.
+
+상세: docs/tasks/TASK-019_MULTI_AGENT_POLICY.md`
+  },
+  {
+    title: 'Milestone 20: Local Multi-Agent Orchestrator',
+    description: `목적: 로컬에서 한 명령으로 Codex 실행 → Deterministic Verify → Claude Review → 제한된 Rework가 동작하는 Orchestrator를 만든다. (Node.js 24 + \`.mjs\`, Dependency 없음)
+
+선행 조건:
+- TASK-019 완료
+
+Gate:
+- 확정된 언어 / Runtime 외 Runtime이나 새 Dependency가 필요하면 Gate C
+
+완료 조건:
+- Local Multi-Agent Loop가 Fake CLI와 실제 로그인된 CLI로 재현 / 검증된다.
+
+상세: docs/tasks/TASK-020_LOCAL_ORCHESTRATOR.md`
+  },
+  {
+    title: 'Milestone 21: Git / PR Harness',
+    description: `목적: Orchestrator에 안전한 Branch / Stage / Commit / Push / PR 계층을 추가한다. (Human GitHub 로그인 후 사용)
+
+선행 조건:
+- TASK-020 완료
+
+Gate:
+- Git 권한 확대, GitHub CLI 도입, Auto Merge 정책은 Human Approval
+
+완료 조건:
+- Task Branch → Safe Stage → Commit → Push → PR 흐름이 정책대로 검증된다.
+
+상세: docs/tasks/TASK-021_GIT_PR_HARNESS.md`
+  },
+  {
+    title: 'Milestone 22: GitHub CI Integration / PR Gate',
+    description: `목적: 로컬 Harness가 만든 PR을 GitHub의 Deterministic CI와 Human 승인으로 마무리하는 흐름을 완성한다. GitHub Actions에서는 Agent를 실행하지 않는다.
+
+선행 조건:
+- TASK-021 완료
+
+Gate:
+- CI 동작 변경 / Branch Protection은 Gate C
+
+완료 조건:
+- End-to-End Harness Run(로컬 실행 → PR → CI → Human Approve → Merge)이 검증된다.
+
+상세: docs/tasks/TASK-022_GITHUB_CI_INTEGRATION.md`
+  },
+  {
+    title: 'Milestone 23: AWS Architecture / Cost Gate',
+    description: `목적: AWS Resource 생성 전 Architecture / Cost / Security / 계정 구조 / RDS Version을 결정한다.
+
+선행 조건:
+- TASK-022 완료
+
+Gate:
+- Architecture, Region, 계정 / SSO 범위, Network, RDS, 비용 상한은 Human Approval
+
+완료 조건:
+- Architecture / Cost Decision이 Human Approved 된다.
+
+상세: docs/tasks/TASK-023_AWS_ARCHITECTURE_GATE.md`
+  },
+  {
+    title: 'Milestone 24: Deployment Artifact / Container / Health',
+    description: `목적: Frontend / Backend 배포 Artifact를 재현 가능하게 만들고 Health Check 전략을 확정한다.
+
+선행 조건:
+- TASK-023 완료
+
+Gate:
+- 새 Dependency, Health API, API Contract, Base Image 정책 변경 시 Gate C
+
+완료 조건:
+- 배포 Artifact가 로컬에서 재현 / 검증되고 Health 전략이 문서화된다.
+
+상세: docs/tasks/TASK-024_DEPLOYMENT_ARTIFACT_CONTAINER_HEALTH.md`
+  },
+  {
+    title: 'Milestone 25: AWS SSO / GitHub OIDC / IAM Gate',
+    description: `목적: 사람 / 로컬 Agent는 AWS SSO(Human 로그인 후 Agent 작업), CI / CD는 GitHub OIDC로 장기 Access Key 없이 접근하도록 설계한다.
+
+선행 조건:
+- TASK-023 완료 (TASK-024 권장)
+
+Gate:
+- IAM Identity Center, Permission Set, IAM, GitHub Environment, Secret 정책은 Human Approval
+
+완료 조건:
+- SSO / OIDC / IAM / Environment 정책이 승인되고 Human이 SSO / Profile 구성을 마친다.
+
+상세: docs/tasks/TASK-025_AWS_SSO_OIDC_IAM_GATE.md`
+  },
+  {
+    title: 'Milestone 26: AWS IaC Foundation',
+    description: `목적: Network / ECR / S3·CloudFront / RDS / Secret Reference를 IaC(CloudFormation 우선)로 정의한다.
+
+선행 조건:
+- TASK-023, TASK-025 완료
+
+Gate:
+- 실제 비용 Resource 생성 전 Human Approval Checkpoint
+
+완료 조건:
+- IaC가 정적 검증되고 최초 Apply / Change Set 승인 준비가 된다.
+
+상세: docs/tasks/TASK-026_AWS_IAC_FOUNDATION.md`
+  },
+  {
+    title: 'Milestone 27: AWS Application Infrastructure',
+    description: `목적: ECS Fargate / ALB / RDS 연동과 Frontend → API Routing을 IaC로 완성한다.
+
+선행 조건:
+- TASK-024, TASK-026 완료
+
+Gate:
+- IaC 검증과 비용 Gate
+
+완료 조건:
+- Application Infra Template이 검증되고 Staging 적용 준비가 된다.
+
+상세: docs/tasks/TASK-027_AWS_APPLICATION_INFRA.md`
+  },
+  {
+    title: 'Milestone 28: Staging Deployment / Smoke Test',
+    description: `목적: 최초 Staging 환경을 로컬(SSO Staging Profile)에서 배포하고 End-to-End Smoke Test를 한다.
+
+선행 조건:
+- TASK-025 승인, TASK-026 / TASK-027 완료
+
+Gate:
+- Change Set 적용과 비용 Resource 생성은 Human Approval
+
+완료 조건:
+- Staging URL / API가 동작하고 Smoke Test PASS, Resource / 비용 Inventory가 기록된다.
+
+상세: docs/tasks/TASK-028_STAGING_DEPLOYMENT_SMOKE.md`
+  },
+  {
+    title: 'Milestone 29: Staging Continuous Deployment',
+    description: `목적: \`main\`의 검증된 변경을 GitHub OIDC로 Staging에 자동 배포한다.
+
+선행 조건:
+- TASK-028 완료
+
+Gate:
+- CD 동작 변경은 Gate C
+
+완료 조건:
+- 검증된 Commit이 Staging에 자동 배포되고 Smoke Test가 자동 PASS한다.
+
+상세: docs/tasks/TASK-029_STAGING_CD.md`
+  },
+  {
+    title: 'Milestone 30: Production Continuous Deployment',
+    description: `목적: Release Tag(\`v3.x.y\`, DEC-025) 단위로 Staging에서 검증된 Artifact를 Human 승인 후 Production에 배포한다.
+
+선행 조건:
+- TASK-029 완료
+
+Gate:
+- Production 배포 / 최초 생성 / 파괴적 Migration은 Human Approval
+
+완료 조건:
+- Human 승인 후 Production 배포와 Smoke Test가 성공하고 Rollback 절차가 검증된다.
+
+상세: docs/tasks/TASK-030_PRODUCTION_CD.md`
+  },
+  {
+    title: 'Milestone 31: Operations / Cost Guard / Cleanup',
+    description: `목적: 운영 / 비용 / 삭제 / 복구 관점의 최종 Hardening과 문서 동기화를 한다.
+
+선행 조건:
+- TASK-030 완료
+
+Gate:
+- Resource 삭제, RDS Snapshot / Delete, Budget, Destructive Cleanup은 Human Approval
+
+완료 조건:
+- 운영 / 비용 / 삭제 / 복구 정책이 Human Review를 통과하고 문서와 실제 환경이 동기화된다.
+
+상세: docs/tasks/TASK-031_OPERATIONS_COST_CLEANUP.md`
   }
 ];
 
