@@ -43,6 +43,7 @@
   ],
   "max_review_cycles": 3,
   "agents_sections": [
+    "3",
     "12"
   ]
 }
