@@ -38,7 +38,7 @@ TASK-018 — Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-012(Core MVP)과 TASK-013 ~ TASK-017(Post-MVP 보완, FU-1 ~ FU-5)이 모두 완료되었다. (Release `v3.0.0`)
@@ -69,7 +69,7 @@ TASK-019(FU-6)부터는 Orchestrator로 실행한다. TASK-019 이후는 선행 
 | TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | DONE | TASK-014 완료 (충족), Human Approval 완료, DEC-022 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | DONE | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 | TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | DONE | TASK-016 완료 (충족), DEC-024 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
-| TASK-018 | Milestone 18 | Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator) | READY | 선행 Task 없음 | 필요 (DEC-026) |
+| TASK-018 | Milestone 18 | Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator) | IN_PROGRESS | 선행 Task 없음 | 필요 (DEC-026) |
 | TASK-019 | Milestone 19 | CI Runner OS Transition Hardening (FU-6) | BLOCKED | TASK-018 완료 (2026-10-19 전 완료 목표) | 필요 (CI 동작 변경) |
 | TASK-020 | Milestone 20 | Orchestrator Hardening (worktree / Resume / Guard) | BLOCKED | TASK-019 완료 | Gate C 조건부 (Runtime / Dependency) |
 | TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | BLOCKED | TASK-020 완료 | 필요 (Git / GitHub 권한) |
@@ -1157,10 +1157,10 @@ Frontend와 Backend가 약속한 API 형식(`docs/05-API_SPEC.md`)을 양쪽이 
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-Roadmap 재정렬과 함께 READY가 되었다. Human의 실행 지시를 기다린다.
+A단계 완료(DEC-026 Human Approved), B단계 진행 예정
 
 ### 목적
 
@@ -1585,7 +1585,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-TASK-018에서 DEC-026(Multi-Agent Automation Policy) 초안이 작성될 예정이며, Human Approval 전까지 Orchestrator 구현 단계와 TASK-019 이후를 시작하지 않는다.
+DEC-026은 2026-10-02 Human Approved. TASK-018 B단계 진행 예정이며 TASK-019 이후는 선행 Task와 Gate 승인 전까지 BLOCKED를 유지한다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

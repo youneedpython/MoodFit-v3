@@ -43,7 +43,7 @@ TASK-018 — Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.

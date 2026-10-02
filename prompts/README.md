@@ -105,3 +105,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 33 | README 프로젝트 소개 개편 | Documentation | 완료 |
 | 34 | v3.0.0 Tag / Release | Release | 완료 |
 | 35 | Agent 자동화 / AWS 배포 Roadmap 검토와 등록 | Task 생성 | 완료 |
+| 36 | TASK-018 Multi-Agent Harness Bootstrap | A단계 정책 작성 | 진행 중 |

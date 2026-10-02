@@ -2378,3 +2378,56 @@ Human이 이번 작업의 핵심을 다시 확인했다: **Agent를 이용한 �
 ### 결과
 
 Roadmap 검토 / 문서 재구성 / 등록 / Milestone 생성 / 순서 재정렬 완료
+
+---
+
+## TASK-018 — Multi-Agent Harness Bootstrap
+
+### 상태
+
+```text
+IN_PROGRESS
+```
+
+### A단계 작업 내용 (2026-10-02)
+
+- Human 실행 지시에 따라 A단계(정책)만 수행했다. Human 제공 Context에 따라 Claude 세션이 임시 Orchestrator로 `codex exec`를 시작한 Bootstrap 실행을 기록한다.
+- TASKS Current Task / 전체 목록 / TASK-018 섹션 상태를 IN_PROGRESS로 변경하고 시작 안내를 갱신했다.
+- AGENTS.md는 3절 Current Task Status 값만 IN_PROGRESS로 변경했다. 정책 권한은 반영하지 않았다.
+- DEC-026 Pending Human Approval 초안과 정책 문서를 작성했다. A. 정책 1~10과 전체 Human Decision Matrix를 포함하고 신규 결정은 미정으로 남겼다.
+- Prompt 36과 Index 36번(진행 중)을 기록했다. Human 제공 선행 지시 "커밋/푸시 승인!"은 기록만 하고 이번 실행의 Git 작업 금지를 적용했다.
+
+### Verification
+
+- 문서 변경 범위이므로 Source Test / Build / 전체 verify Script / Fake CLI Test / 실제 CLI Smoke Run은 이번 A단계에서 실행하지 않았다. B / C단계 검증은 미수행이다.
+- `git diff --check`: 통과 (Exit Code 0, whitespace 오류 없음). Git의 LF → CRLF 변환 안내만 출력되었으며 실제 파일은 LF로 확인했다.
+- 허용된 7개 파일만 변경 / 생성했으며 LF / 제어 문자 없음 / AGENTS.md 단일 Status 변경 / TASKS 3개 상태 IN_PROGRESS를 확인했다.
+
+### 남은 Gate / 다음 단계
+
+- Claude A단계 자동 Review와 DEC-026 / Human Decision Matrix 승인 대기. PASS / Human Approved로 처리하지 않았다.
+- B단계 구현은 수행하지 않았다. TASK-018 IN_PROGRESS, TASK-019 이후 BLOCKED 유지.
+- 승인 후 B / C / D단계와 최종 Human Review가 필요하다.
+
+### Review 2회차: Branch 전략 / 승인 채널 반영 (2026-10-02)
+
+- Reviewer(Claude)의 `CHANGES_REQUIRED` Finding F1 ~ F6만 지정된 4개 파일에 반영했다.
+- Human이 확정한 Task별 Branch / PR / Squash Merge 전략과 TASK-018 ~ TASK-020의 Human 승인 후 Claude 세션 또는 Human Git 작업, TASK-021 Script Git 자동화 경계를 기록했다.
+- Task 완료 승인 = Human의 PR Squash Merge, Required approvals 0 / Required status checks / Auto Merge 비활성 유지, TASK-021 작성자 분리 검토를 반영했다.
+- 기존 Codex Co-author Trailer의 Squash Commit 메시지 포함과 Human의 gh 설치 / 로그인 완료, Human 로그인 → Agent 사용 원칙을 기록했다. 계정명 / Token은 기록하지 않았다.
+- DEC-026은 `Pending Human Approval`, TASK-018은 `IN_PROGRESS`로 유지하고 다른 Human 결정 항목은 미정으로 남겼다. Git 변경 작업과 B / C / D단계는 수행하지 않았다.
+
+- Review 2회차 Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 지정된 4개 파일 UTF-8 / LF / 제어 문자 없음 확인. 문서 Rework이므로 Test / Build는 실행하지 않았다.
+
+### A단계 Human 승인 (2026-10-02)
+
+- Reviewer(Claude) PASS(Review 2회차) 후 Human이 DEC-026 / Decision Matrix의 모든 항목을 권장안대로 승인했다.
+- Windows Codex Sandbox는 `unelevated`로 시작한다 (사전 검증 완료, 추가 설정 없음). `elevated` 전환은 TASK-020(Orchestrator Hardening)에서 검증 후 다시 결정한다.
+- Human 승인 후 Claude 세션이 `gh api`로 GitHub 설정을 적용했다 (2026-10-02).
+- Squash Merge만 허용하고 Merge Commit / Rebase는 비활성화했다. Squash Commit 제목 = PR 제목, 본문 = PR 본문이며 Merge 후 Head Branch를 자동 삭제한다.
+- Branch Ruleset `main-protection`: Active, 기본 Branch 대상, Bypass 없음. 삭제 금지 / Force Push 금지 / Linear History / PR 필수(Required approvals 0, Squash만 허용) / Required status checks `frontend` / `backend`를 적용했다.
+- Agent가 Human의 GitHub 로그인을 사용하므로 Bypass가 있으면 Agent도 main에 직접 Push할 수 있어 Bypass를 두지 않았다. 긴급 시 Human이 Ruleset을 일시 Disabled로 전환한다.
+- A단계 결과의 Task Branch Commit / Push / Draft PR 생성을 승인했다. Git 작업은 Claude 세션이 수행하며 이번 Executor 실행에서는 수행하지 않았다.
+- A단계 완료(DEC-026 Human Approved), B단계 진행 예정. TASK-018 IN_PROGRESS / TASK-019 이후 BLOCKED 유지. AGENTS.md 정책 반영은 D단계에서 수행한다.
+
+- Human 승인 반영 Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 지정된 5개 파일 UTF-8 / LF / 제어 문자 없음 확인. 문서 변경이므로 Test / Build는 실행하지 않았다.
