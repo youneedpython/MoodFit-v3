@@ -23,7 +23,12 @@ test('Changes Requested preserves review commit and only observed single-parent 
   assert.equal(evaluate(pr, [], [review], expected).status, 'REWORK_REQUIRED');
   const merged = { ...pr, merged: true, state: 'closed', merged_by: { login: 'human' }, merge_commit_sha: 'c'.repeat(40), merged_at: '2026-10-02' };
   assert.throws(() => evaluate(merged, [run], [], expected, { sha: merged.merge_commit_sha, parents: [{}, {}] }));
-  assert.equal(evaluate(merged, [run], [], expected, { sha: merged.merge_commit_sha, parents: [{}] }).status, 'MERGED');
+  const merge = { sha: merged.merge_commit_sha, parents: [{}] };
+  const observed = evaluate(merged, [run], [], expected, merge);
+  assert.equal(observed.status, 'MERGED');
+  assert.deepEqual(observed.dependency_evidence, { task_id: expected.task_id, pr_number: pr.number, head_sha: expected.commit_sha, merge_sha: merge.sha, merged_at: merged.merged_at, merged_by: 'human' });
+  assert.equal(evaluate(merged, [run], [review], expected, merge).status, 'REWORK_REQUIRED');
+  assert.equal(evaluate(merged, [run], [review, { ...review, id: 4, state: 'DISMISSED' }], expected, merge).status, 'MERGED');
   assert.equal(evaluate({ ...pr, state: 'closed' }, [run], [], expected).status, 'BLOCKED');
 });
 test('all pages block duplicates including another head and remote SHA collision', async () => {

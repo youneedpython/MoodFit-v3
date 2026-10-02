@@ -28,7 +28,7 @@ export function evaluate(pr, runs, reviews, expected, merge) {
   }
   if (pr.merged) {
     if (!pr.merged_by || !pr.merge_commit_sha || !merge || merge.parents?.length !== 1 || merge.sha !== pr.merge_commit_sha) blocked('Squash Merge evidence missing');
-    return { status: 'MERGED', dependency_evidence: { task_id: expected.task_id, pr_number: pr.number, head_sha: pr.head.sha, merge_sha: merge.sha, merged_at: pr.merged_at }, reason: 'Human Squash Merge observed; no next Task execution or promotion' };
+    return { status: 'MERGED', dependency_evidence: { task_id: expected.task_id, pr_number: pr.number, head_sha: pr.head.sha, merge_sha: merge.sha, merged_at: pr.merged_at, merged_by: pr.merged_by.login }, reason: 'Human Squash Merge observed; no next Task execution or promotion' };
   }
   if (pr.state !== 'open') return { status: 'BLOCKED', reason: 'PR closed without Merge' };
   return { status: 'HUMAN_REVIEW_PENDING', reason: 'Current head CI success; Human Squash Merge required', head_sha: pr.head.sha, run_id: run.id };

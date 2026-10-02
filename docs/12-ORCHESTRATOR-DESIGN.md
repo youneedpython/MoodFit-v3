@@ -8,11 +8,17 @@ Git 변경 전과 Commit / Push 전에 전체 페이지의 open PR / 원격 Task
 
 Changes Requested는 head SHA와 Review ID / commit 근거를 보존한 REWORK_REQUIRED로 정지한다. PR Approve / Label / Comment는 완료 승인이나 Gate 입력이 아니다. Gate는 resume-approval.json을 유지한다. MERGED는 merged_by / merge SHA / 단일 parent 근거를 기록하며 승인된 Squash 전용 Ruleset을 전제로 한다. Merge / Auto Merge / 다음 Task 실행 / READY 승격은 수행하지 않는다.
 
+dependency_evidence의 merged_by는 병합 수행자의 login이다. 단일 parent만으로 Squash와 Rebase Merge를 구분할 수 없으므로 Squash-only Ruleset에 의존한다. 해제되지 않은 이전 CHANGES_REQUESTED Review가 있으면 이미 병합된 PR도 MERGED보다 먼저 REWORK_REQUIRED로 정지한다. 이 안전한 판정 순서는 유지하며 Human이 오래된 Review를 검토하고 Dismiss한 뒤 관찰 명령을 다시 실행한다.
+
 CI non-success와 identity 확인 후 조회 실패 / Timeout은 고정 상태 Comment를 기존 PR에 남긴다. 인증 실패 / identity 충돌은 Comment를 보내지 않는다. Comment 실패도 Audit에 남기고 재시도하지 않는다. 강제 취소 / Timeout은 Summary Step 실행을 보장하지 않으므로 로컬 관찰 Audit / Comment로 보완한다.
+
+Comment 중복 제거는 없다. 같은 실패 head에서 pr-gate를 명시적으로 다시 실행하면 같은 형식의 Comment를 다시 시도한다. 1회 실행은 1회 관찰이며 자동 재시도는 수행하지 않는다.
 
 CI가 성공했지만 Merge 없이 닫힌 PR은 BLOCKED / PR closed without Merge를 Audit에 기록하며 CI 실패 Comment를 보내지 않는다.
 
 실제 E2E는 아직 수행하지 않았다. 승인된 Git Phase 후 관찰 명령으로 최신 SHA CI 근거를 남기고 Human Squash Merge 후 다시 관찰하여 dependency_evidence를 기록한다. TASK-022는 E2E 확인 전 IN_PROGRESS를 유지한다.
+
+이번 Run이 직접 생성하는 Draft PR을 E2E 대상으로 삼는다. 최신 head의 frontend / backend success를 관찰하고 Human Squash Merge 후 다시 관찰한다. 이전 CHANGES_REQUESTED로 정지하면 Human의 오래된 Review Dismiss 후 다시 관찰하여 merged_by를 포함한 dependency_evidence를 남긴다. PR 번호 / CI Run / Merge 결과는 Merge 후 Claude 세션이 기록한다.
 
 strict Required Checks로 인해 main이 이동하면 Human이 기존 PR Branch를 최신 main 기준으로 갱신해야 한다. 이때 head.sha가 바뀌므로 기존 Run의 관찰은 PR identity / head SHA conflict로 정지한다. 자동으로 저장 SHA를 따라가거나 identity 검사를 우회하지 않는다. E2E 복구는 Human이 기존 Run / PR 번호 / Task Branch / 이전·새 head SHA / main 기준 / 갱신 Diff를 검토하고 새 head에 대한 검증 및 Claude Review 근거와 저장 identity 갱신을 명시적으로 승인한 뒤 진행한다. 승인된 Human이 원래 git-result.json과 정지 Audit를 보존하고 승인 참조 / 이전·새 SHA를 별도 redacted Audit에 남긴 후 같은 PR의 commit_sha를 승인된 새 SHA로 갱신한다. Executor는 이 작업을 수행하지 않으며 관찰 CLI는 resume-approval.json을 소비하거나 identity 갱신을 자동 수행하지 않는다. Human이 관찰 명령을 명시적으로 다시 실행해 새 head의 최신 frontend / backend success를 확인하고, Human Squash Merge 후 동일 identity로 dependency_evidence를 기록한다. 이전 SHA의 CI / Review 근거만으로 Merge하지 않으며 Merge / Force Push / 다음 Task 자동 실행은 허용하지 않는다.
 

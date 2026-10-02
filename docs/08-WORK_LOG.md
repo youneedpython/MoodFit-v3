@@ -2,6 +2,10 @@
 
 ## TASK-022 — 승인 구현 (2026-10-02)
 
+- N1–N3 후속 구현: MERGED dependency_evidence에 merged_by login을 추가하고 전체 병합 근거를 회귀 Test로 확인한다. 병합 후에도 이전 CHANGES_REQUESTED가 남으면 REWORK_REQUIRED로 정지하며 Dismiss 후 MERGED가 되는 기존 판정 순서를 Test로 고정했다. 단일 parent의 Squash / Rebase 구분 한계와 Squash-only Ruleset 의존, 같은 실패 head 재관찰 시 Comment 반복(중복 제거 없음)을 설계 문서에 명시했다.
+- N1–N3 Executor 참고 검증: 전체 Orchestrator Test 74 / pass 74 / fail 0, Exit 0(약 103초). git diff --check와 변경 문서의 UTF-8 / U+FFFD / 연속 물음표 치환 흔적 검사를 통과했다. Orchestrator Verify가 최종 검증 기준이다.
+- E2E 진행 절차: 이번 Run의 승인된 Git Phase가 직접 생성하는 Draft PR → 최신 head frontend / backend CI success 관찰 → Human Squash Merge → 재관찰로 merged_by 포함 dependency_evidence 기록. 오래된 CHANGES_REQUESTED가 남으면 Human이 검토 / Dismiss 후 다시 관찰한다. PR 번호 / CI Run / Merge 결과는 Merge 후 Claude 세션이 기록하며 현재 E2E 미완료 / TASK-022 IN_PROGRESS를 유지한다.
+
 - F1 Comment 실패 Rework: CI non-success Comment를 별도 try/catch로 처리하여 실패를 pr-comment-failure.json에만 기록하고 기존 pr-observation.json과 BLOCKED 결과를 보존한다. Comment 재시도는 하지 않는다. Exit 1 / Timeout 각각에 대해 Comment 1회, 관찰 기록 보존, 별도 실패 Audit 회귀 Test를 추가했다.
 - F1 Rework 참고 검증: 전체 Orchestrator Test 71 / pass 71 / fail 0 (Exit 0, 약 101초). 변경 Markdown의 UTF-8 / U+FFFD / 연속 물음표 검사와 git diff --check를 통과했다. Orchestrator Verify가 검증 기준이며 TASK-022 IN_PROGRESS를 유지한다.
 
