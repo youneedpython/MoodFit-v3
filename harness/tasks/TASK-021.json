@@ -41,5 +41,8 @@
       "cwd": "."
     }
   ],
-  "max_review_cycles": 3
+  "max_review_cycles": 3,
+  "agents_sections": [
+    "12"
+  ]
 }

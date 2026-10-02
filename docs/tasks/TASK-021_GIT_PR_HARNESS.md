@@ -39,6 +39,15 @@ Codex는 Working Tree 수정만 담당하고, Orchestrator가 Policy 통과 후 
 4. 첫 실행 Reviewer Finding F-001 ~ F-005(Git 계층 구현, 필수 실패 Test, Allowlist Stage, PR 기록 / 본문, 문서 갱신)를 작업 목록으로 사용한다.
 5. TASK-021 자체의 Branch / Commit / Push / PR은 Git 계층 구현 전이므로 Claude 세션이 수행한다. TASK-022부터 Orchestrator Git 자동화를 사용한다.
 
+## Human 결정 2 (2026-10-02, 두 번째 실행 Guard BLOCKED 후)
+
+두 번째 Orchestrator 실행에서 Codex 구현(Test 60 / 60)은 완료되었으나, AGENTS.md 12절 변경이 AGENTS Guard(3절 상태 동기화만 허용)에 막혀 BLOCKED 되었다. Human이 다음을 승인했다.
+
+1. **승인된 AGENTS.md 절 예외를 TASK-021 범위에 추가**: Task Contract의 `agents_sections`(예: `["12"]`)에 Human이 승인한 절 번호를 명시하면 Guard는 3절 상태 동기화와 함께 해당 절의 변경만 허용한다. Contract는 자기 Contract Guard로 Executor가 바꿀 수 없다.
+2. **TASK-021 Contract에 `agents_sections: ["12"]` 추가**: 이번 Task에서 AGENTS.md 12절(Git / Commit 규칙) 변경을 허용한다. (Claude 세션이 Human 승인으로 수정)
+3. **TASK-021 마무리 방식**: 안정 Version(main) Orchestrator에는 예외 기능이 없어 재실행해도 같은 이유로 막히므로, Claude 세션이 Workspace 결과를 Task Branch로 가져와 Codex Rework 호출 → 같은 규격 Verify / Claude Review → Commit / Push / PR을 수행한다. TASK-022부터 Orchestrator가 예외 기능과 Git 자동화를 사용한다.
+4. AGENTS.md 12절은 덮어쓰기 메모가 아니라 본문 규칙을 결정 내용(Git 자동화 범위, (b) 자동 Commit / Push / Draft PR, Merge는 Human)에 맞게 고쳐 쓴다.
+
 ## Human Gate
 
 Git 권한 확대, GitHub Token / PAT / App 사용, Auto Merge 정책 변경은 Human Approval 대상이다. 승인되지 않은 Credential 방식을 임의로 도입하지 않는다.
