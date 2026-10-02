@@ -11,6 +11,11 @@
     "verify"
   ],
   "properties": {
+    "agents_sections": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[1-9]\\d*(?:\\.\\d+)*$" }
+    },
     "id": {
       "type": "string",
       "minLength": 1

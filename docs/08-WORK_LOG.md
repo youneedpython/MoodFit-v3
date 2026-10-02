@@ -2660,3 +2660,77 @@ B안을 권장한다. 실패가 확인되지 않은 상태에서 OS 고정 / 설
 - 변경 Markdown의 추가 줄에서 연속 물음표 치환 흔적 / U+FFFD 없음. 수정한 TASKS / WORK_LOG UTF-8 strict 디코딩 성공.
 - hardening.test.mjs 실제 파일에서 CR 바이트 없음: LF만 사용한다.
 - `git diff --check`: Exit 0, 공백 오류 없음. Git autocrlf 안내 경고만 표시됐다. Git 변경 작업은 수행하지 않았다.
+
+## TASK-021 — Git Automation / Branch / PR Harness (2026-10-02)
+
+### 상태
+
+DONE
+
+### 승인 / 범위
+
+- Human의 첫 실행 Git Gate 결정과 (b) 자동 실행 승인을 반영했다. TASK-021 자체 Git 작업은 Claude 세션 또는 Human이 수행하며 Executor는 Repository Branch / Commit / Push / PR을 수행하지 않았다.
+- TASK-022 ~ TASK-031에만 승인된 Task Branch의 자동 Stage / Commit / Push / Draft PR을 연결했다. Dependency / GitHub Workflow / Frontend / Backend / 자기 Task Contract는 수정하지 않았다.
+- Human 승인에 따라 DONE을 PR 안에 반영했다. 완료 승인은 이 PR의 Human Squash Merge로 확정된다. TASK-022는 READY이며 TASK-023 이후는 BLOCKED다.
+
+### 구현
+
+- git-automation.mjs: Executor DONE, 모든 Contract Verify 성공, Claude PASS, 미해결 Human Gate 없음과 Task Branch 일치 후에만 실행한다. main / 다른 Task Branch / Force Push / Merge / Auto Merge를 차단한다.
+- Source HEAD / Branch / clean Working Tree와 검토된 worktree Diff를 다시 확인한다. 기존 gh 인증과 origin/main 읽기 접근을 확인하고 인증 미확인은 HUMAN_REQUIRED, Process 실패는 BLOCKED로 정지한다. 로그인 / 설치 / Credential 저장은 하지 않는다. 인증 출력은 계정 정보가 포함될 수 있어 Exit / Failure만 기록한다.
+- 검토된 binary patch / 신규 파일을 Source에 전달하고 Diff를 대조한다. literal pathspec으로 파일별 Stage하고 staged Allowlist / 파일 내용 / Commit Tree / Parent를 검증한다. 고정 SHA를 같은 Task Branch로 Force 없이 Push하고 Draft PR을 생성한다.
+- Base / Head / SHA / 신규 파일 포함 변경 목록 / Diff Summary / Verification / PASS / Human Gate / Codex·Claude Trailer를 비추적 Run Audit와 PR 본문에 기록한다. 명령별 Audit를 보존하며 실패 후 자동 재시도 / Rollback은 하지 않는다.
+- 실행 중인 자기 Contract는 allowed_paths에 있어도 Guard로 차단한다. Human 결정 2에 따라 AGENTS.md 절 본문 예외를 Contract agents_sections로 제한한다. Review 한도에 도달한 Run은 Resume해도 추가 Review가 없음을 문서화했다.
+- DEC-026 / 정책 / 설계 / TASKS / AGENTS / Prompt 기록을 승인 범위에 맞게 갱신했다. 작성자 분리는 새 Token / App을 도입하지 않고 기존 Human 로그인 계정을 유지한다.
+
+### Verification (Executor 참고 증거)
+
+- 최종 `node --test "scripts/orchestrator/*.test.mjs"`: tests 60 / pass 60 / fail 0 / skipped 0, Exit 0, 약 102초. 기존 54개와 신규 Git 계층 6개를 포함한다.
+- 임시 local bare Remote / detached worktree Fixture로 실제 Stage / Commit / Push를 검증했다. 실제 프로젝트 History와 Remote는 변경하지 않았다. gh는 Fake 응답으로 인증 / Draft PR 호출 / 본문 / Audit를 확인했으며 실제 GitHub PR을 생성하지 않았다.
+- 필수 실패 조건: main / Force / Merge / 다른 Branch, Forbidden / Secret Stage, Dirty Working Tree, Verify 실패, 비PASS Reviewer, Human Gate, gh 인증 없음. 실패 시 Mutation 호출 없음과 Source HEAD 보존을 확인했다. 자기 Contract Guard와 AGENTS 고정 문단 예외도 확인했다.
+- 첫 전체 실행은 신규 파일의 Source realpath ENOENT로 tests 60 / pass 59 / fail 1이었다. 존재하는 부모 경로를 검사하고 신규 파일을 exclusive-create하도록 수정했다. 이후 집중 Test에서 Stage 후 untracked 표기가 바뀌어 Diff 비교가 실패했고, Stage 전 Diff 비교와 Stage 후 실제 파일 / Index / Commit Tree 비교로 수정했다. 최종 전체 재실행은 모두 통과했다.
+- 변경 Markdown을 UTF-8 strict 디코딩하고 연속 물음표 치환 흔적 / U+FFFD가 없음을 직접 확인했다. 누적 변경 경로 / Secret / 인코딩 Guard와 TASKS / AGENTS 상태 및 승인 문단 Guard를 확인했다. Orchestrator Verify가 최종 검증 기준이다.
+- 최종 git diff --check 결과와 누적 변경 경로는 Executor JSON에 기록한다. 자동 Review와 실제 GitHub 인증 / PR 결과를 미리 PASS로 기록하지 않는다.
+
+### 후속 작업
+
+- TASK-021 Branch / Commit / Push / Draft PR은 승인된 Claude 세션 또는 Human이 담당한다. Remote CI / Human Review 후 Human이 Squash Merge한다. 후속 Task 구현은 수행하지 않았다.
+
+### 두 번째 실행 BLOCKED / Human 결정 2 / Rework
+
+- 두 번째 Orchestrator 실행은 구현 Test 60 / 60 이후 AGENTS.md 12절 변경이 안정 Version의 3절 동기화 Guard에 막혀 BLOCKED됐다. Claude 세션이 미커밋 13개 파일을 Task Branch로 가져왔다.
+- Human 결정 2는 승인 절 본문 예외와 TASK-021 Contract의 agents_sections ["12"]를 승인했다. Contract 변경은 Claude 세션이 수행했고 Executor는 자기 Contract를 수정하지 않았다. 안정 Version 재실행 대신 Workspace Rework와 동일 규격 Verify / Claude Review로 마무리한다.
+- Schema / run.mjs / guardAgents를 Contract 기반 예외로 변경했다. 전체 절 제목을 보존하고 비승인 본문 / 잘못된 형식은 BLOCKED한다. LF / CRLF 혼용 Test를 포함하며 고정 문단 예외를 제거했다.
+- AGENTS.md 12절 본문에 자동 Git 범위 / 기존 로그인 / Allowlist Stage / Draft PR / Human Squash Merge를 반영했다. 3절 Status IN_PROGRESS를 유지한다.
+- Rework 중 기존 제목 Guard 메시지 기대값과 미지원 Schema pattern 기대값 때문에 전체 Test가 실패했다. Guard 메시지를 기존 exceeds 규약으로 맞추고, pattern 지원에 따라 미지원 키 Test를 maxLength로 변경하며 잘못된 pattern 값 차단도 검증했다. 실패를 완료 증거로 사용하지 않고 전체 Test를 다시 실행했다.
+- 최종 Rework 검증: `node --test "scripts/orchestrator/*.test.mjs"` tests 61 / pass 61 / fail 0 / skipped 0, Exit 0, 약 99초. 누적 변경 경로 / 인코딩 / Secret Guard와 HEAD 기준 AGENTS 절 Guard 통과. 추가 줄 / 신규 파일에 연속 물음표 치환 흔적과 U+FFFD 없음. `git diff --check` Exit 0(autocrlf 안내만 표시). Claude Review / Human Task 승인 대기이며 IN_PROGRESS를 유지한다.
+
+### Rework 2회차 — N-002 수정 / N-001 정리
+
+- Human 제공 결과: Rework 1회차 Claude Review PASS. 후속 운영 결함 N-002는 Source의 ignored Secret 존재만으로 자동 Git이 BLOCKED되는 문제다.
+- Source 존재 검사를 제거하고 changed_files / Stage 대상의 기존 Secret Guard와 실제 staged 목록의 Secret 검사 / Allowlist 대조를 적용했다. Commit 직전 staged 목록을 다시 검사한다. Workspace ignoredSecrets 검사는 유지한다.
+- 임시 Git fixture에 Source ignored .env.local 정상 진행, changed_files의 .env.local / pem 차단, Stage에 주입된 .env.local / pem 차단, Workspace ignored Secret 차단 회귀 Test를 추가했다. 실제 Repository의 Git 변경 작업은 수행하지 않았다.
+- N-001: AGENTS.md는 수정하지 않았다. TASK-021 완료(DONE) 반영 시 Claude 세션이 3절 설명 문장을 현행화한다.
+- Verification 결과는 아래 기록한다. TASK-021 IN_PROGRESS 유지, 자기 Contract / Dependency / 금지 경로 변경 없음.
+- Rework 2회차 Verification: `node --test "scripts/orchestrator/*.test.mjs"` tests 63 / pass 63 / fail 0 / skipped 0, Exit 0(약 113초). 기존 Git 실패 Test와 신규 Secret 경로 회귀 Test 모두 통과했다.
+- 변경 Markdown 추가 줄 / 신규 Prompt에 연속 물음표 치환 흔적과 U+FFFD 없음. 이번 수정 문서 4개 UTF-8 strict 디코딩 성공. `git diff --check` Exit 0, 공백 오류 없음(autocrlf 안내만 표시).
+
+### Human Review 승인
+
+- Human 제공 결과: Rework 1회차 Claude Review PASS(Contract 기반 AGENTS 절 예외 / 승인된 Git 규칙 반영), Rework 2회차 Claude Review PASS(N-002 Source ignored Secret 처리 및 Stage 대상 Secret 차단 회귀 검증).
+- Human이 TASK-021 완료 반영을 승인했다. DEC-026 / AGENTS.md 12절에 따라 DONE 상태 변경을 PR 안에서 처리하며, Task 완료 승인은 Human의 PR Squash Merge로 확정된다. Merge 후 Sync Milestones가 Milestone 21을 종료한다.
+- 완료 반영 Contract의 agents_sections ["3", "12"]는 Human 승인으로 Claude 세션이 준비했다. Executor가 AGENTS.md 3절 설명과 TASK-022 / READY를 동기화해 N-001을 정리했으며 12절은 유지했다. 자기 Contract 수정과 후속 Task 실행은 수행하지 않았다.
+
+### TASK-022 이후 개선 후보 (Review 참고)
+
+- pre-TASK-021 frozen Run은 Git 단계 사용이 불가능함을 문서화한다.
+- CLI ENOENT 오류 분류를 문서화한다.
+- scripts/verify.*를 Contract의 결정적 Verification에 포함하는 방법을 검토한다.
+- Secret Redaction 범위를 정밀화한다.
+
+후속 후보만 기록했으며 이번 Task 범위에 추가 구현하지 않았다.
+
+### 승인된 완료 반영 Verification
+
+- `node --test "scripts/orchestrator/*.test.mjs"`: tests 63 / pass 63 / fail 0 / skipped 0, Exit 0(약 99초).
+- 수정 문서 5개 UTF-8 strict 디코딩 성공. 추가 줄 / 신규 Prompt에 연속 물음표 치환 흔적과 U+FFFD 없음.
+- `git diff --check`: Exit 0, 공백 오류 없음(autocrlf 안내만 표시). 누적 변경 파일은 Executor JSON에 기록한다. Repository Commit / Push / PR / Merge는 수행하지 않았다.
