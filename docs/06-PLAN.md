@@ -49,9 +49,9 @@ Milestone 16 DB 연동 테스트 — 실제 MySQL (FU-3)
 Milestone 17 API 계약 테스트 — Frontend / Backend (FU-1)
 
 # Agent 자동화 / AWS 배포 (2026-10-02 Human 지시로 추가)
-Milestone 18 CI Runner OS Transition Hardening (FU-6)
-Milestone 19 Multi-Agent Automation Policy / Agent Contract
-Milestone 20 Local Multi-Agent Orchestrator
+Milestone 18 Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
+Milestone 19 CI Runner OS Transition Hardening (FU-6)
+Milestone 20 Orchestrator Hardening (worktree / Resume / Guard)
 Milestone 21 Git Automation / Branch / PR Harness
 Milestone 22 GitHub CI Integration / PR Gate
 Milestone 23 AWS Deployment Architecture / Cost Gate

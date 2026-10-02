@@ -37,7 +37,7 @@ Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB
 Current Task:
 
 ```text
-TASK-018 — CI Runner OS Transition Hardening (FU-6)
+TASK-018 — Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
 ```
 
 Status:
@@ -51,7 +51,7 @@ TASK-018은 Human의 실행 지시 후 시작하며, TASK-019 이후는 선행 T
 Multi-Agent 자동화 정책(DEC-026)이 승인되어 이 문서에 반영되기 전까지는 아래 기존 규칙(Human 지시 후 Commit / Push 등)을 그대로 따른다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
-후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 TASK-018로 등록되었다.
+후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 TASK-019로 등록되었다. (Orchestrator로 실행하는 첫 Task)
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.

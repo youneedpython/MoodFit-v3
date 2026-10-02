@@ -2304,7 +2304,7 @@ Human Review 완료 / DONE
 
 ### 상태
 
-완료 / Commit · Push 및 Milestone 생성(Human 실행) 대기 (Human 지시, 2026-10-02)
+완료 (Human 지시, 2026-10-02)
 
 ### 배경
 
@@ -2355,6 +2355,26 @@ Repository 밖 임시 폴더에서 확인했다. 결과는 `docs/tasks/TASK-020_
 - Human: `node scripts/create-milestones.js`로 Milestone 18 ~ 31 생성 (`GITHUB_TOKEN` 필요)
 - Human: TASK-018 실행 지시 → Codex 실행(VS Code) → Claude 검토 → Human 승인
 
+- Commit `5d7d8b4` push 후 CI / Sync Milestones success
+- Human이 Milestone 18 ~ 31을 생성했다. GitHub API로 31개(Closed 17 / Open 14), 중복 없음을 확인했다.
+
+### Roadmap 재정렬 (Human 승인, 2026-10-02)
+
+Human이 이번 작업의 핵심을 다시 확인했다: **Agent를 이용한 완전 자동화 개발**. Codex 실행 후 Claude가 자동으로 검토해야 하며, Human이 Agent 사이에서 결과를 옮기지 않고 승인이 필요한 사항에만 개입한다.
+
+기존 순서는 TASK-018(FU-6)과 TASK-019(정책)가 Human이 결과를 옮기는 "수동 단계"여서 이 원칙과 맞지 않았다. 자동화 기반을 맨 앞으로 옮겼다.
+
+| 번호 | 변경 전 | 변경 후 |
+|---|---|---|
+| TASK-018 | CI Runner OS Transition Hardening (FU-6) | **Multi-Agent Harness Bootstrap** (DEC-026 정책 + 최소 Orchestrator). Claude Code 세션이 임시 Orchestrator로 `codex exec`를 호출 / 자동 검토 (1회 예외) |
+| TASK-019 | Multi-Agent Automation Policy | **CI Runner OS Transition Hardening (FU-6)** — Orchestrator로 실행하는 첫 Task |
+| TASK-020 | Local Multi-Agent Orchestrator | **Orchestrator Hardening** (worktree / Resume / Lock / Guard / 전체 Test) |
+| TASK-021 ~ TASK-031 | 변경 없음 | 변경 없음 (참조 문구만 갱신) |
+
+- FU-6 일정: "`ubuntu-latest` 유지 후 확인" 전략을 선택하면 2026-10-19 전 Workflow 변경이 필요 없어 위험이 작다.
+- 반영: `docs/tasks/`(TASK-018 신규, TASK-019 / TASK-020 재작성, 정책 Task 파일은 TASK-018에 통합), `docs/07-TASKS.md`, `docs/06-PLAN.md`, `AGENTS.md`, `scripts/create-milestones.js`
+- `scripts/create-milestones.js`: 같은 번호의 Milestone이 있으면 제목 / 설명을 갱신하도록 보강했다. (Closed Milestone은 제목이 다를 때만 갱신) GitHub의 Milestone 18 ~ 20 제목은 Human이 Script를 다시 실행해 갱신한다.
+
 ### 결과
 
-Roadmap 검토 / 문서 재구성 / 등록 완료
+Roadmap 검토 / 문서 재구성 / 등록 / Milestone 생성 / 순서 재정렬 완료

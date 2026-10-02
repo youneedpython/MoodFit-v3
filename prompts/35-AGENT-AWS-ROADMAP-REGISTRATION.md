@@ -84,8 +84,9 @@ Orchestrator를 js 파일로 생성해야 하지 않아?
 
 ## 상태
 
-등록 완료 / Commit · Push 및 Milestone 생성(Human 실행) 대기
+완료 (Milestone 18 ~ 31 생성 확인, Human 실행)
 
 ## Related Commit
 
 - `3ca9830` docs: Agent 자동화 / AWS 배포 Roadmap 문서 추가 (TASK-018 ~ TASK-031)
+- `5d7d8b4` docs: TASK-018 ~ TASK-031 Roadmap 등록 및 Milestone 연결

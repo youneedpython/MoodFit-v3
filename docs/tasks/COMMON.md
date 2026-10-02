@@ -8,16 +8,17 @@
 |---|---|---|
 | Executor | Codex | 승인된 Task 범위 안에서 구현 / 테스트 / 문서화. Working Tree만 수정한다 |
 | Reviewer | Claude | Source를 수정하지 않는다(Read-only). Diff, Task Contract, Verification 결과, 승인된 Decision을 검토하고 Verdict를 낸다 |
-| Orchestrator | 로컬 Script (TASK-020 이후) | 실행 순서, Deterministic Verification, Git / PR 작업(TASK-021 이후)을 제어한다 |
+| Orchestrator | 로컬 Script (TASK-018에서 구축) | 실행 순서, Deterministic Verification, Review 호출, Git / PR 작업(TASK-021 이후)을 제어한다 |
 | Human | 사용자 | Gate 결정, 로그인(AWS SSO / GitHub), PR 승인, Production 배포 승인 |
 
 Reviewer Verdict는 `PASS`, `CHANGES_REQUIRED`, `HUMAN_REQUIRED`, `BLOCKED`만 사용한다.
 
 ## 2. Agent 실행 방식
 
-- Codex와 Claude는 **API Key를 사용하지 않는다.** VS Code에 로그인된 구독 계정으로 실행한다.
-  - 수동 단계: VS Code의 Codex / Claude Code 확장에서 실행한다.
-  - 자동화 단계(TASK-020 이후): Orchestrator가 같은 로그인 정보를 공유하는 로컬 CLI(`codex`, `claude`)를 호출한다.
+- Codex와 Claude는 **API Key를 사용하지 않는다.** VS Code에 로그인된 구독 계정과 로그인을 공유하는 로컬 CLI(`codex`, `claude`)로 실행한다.
+- **Codex 실행 후 Claude 검토는 자동으로 이어진다.** Human이 Agent 사이에서 결과를 옮기지 않는다. Human은 승인이 필요한 지점에서만 개입한다.
+  - TASK-018(Bootstrap): Orchestrator가 없으므로 Claude Code 세션이 임시 Orchestrator로 `codex exec`를 호출하고 결과를 검토한다. (1회 예외)
+  - TASK-019 이후: `node scripts/orchestrator/run.mjs <TASK-ID>`로 실행한다.
 - 따라서 Agent는 **로컬 개발 PC에서만** 실행된다. GitHub Actions에서는 Agent를 실행하지 않는다. (GitHub Actions는 Deterministic CI / CD만 담당)
 - 구독 사용량 한도에 도달하면 자동 재시도하지 않고 `BLOCKED`로 멈춘 뒤 Human에게 알린다.
 - OpenAI / Anthropic API Key를 Repository, GitHub Secret, Prompt, Log에 두지 않는다.
@@ -42,7 +43,7 @@ Reviewer Verdict는 `PASS`, `CHANGES_REQUIRED`, `HUMAN_REQUIRED`, `BLOCKED`만 �
 4. `docs/08-WORK_LOG.md`
 5. `docs/09-DECISIONS.md`
 6. `docs/10-WELLNESS-RULE-PROPOSAL.md`
-7. `docs/11-MULTI-AGENT-ORCHESTRATION-POLICY.md` (TASK-019에서 작성, DEC-026 승인 후 유효)
+7. `docs/11-MULTI-AGENT-ORCHESTRATION-POLICY.md`, `docs/12-ORCHESTRATOR-DESIGN.md` (TASK-018에서 작성, DEC-026 승인 후 유효)
 8. `docs/tasks/` 해당 Task 파일
 9. `prompts/README.md`
 

@@ -33,7 +33,7 @@ DONE
 
 ## 3. Current Task
 
-TASK-018 — CI Runner OS Transition Hardening (FU-6)
+TASK-018 — Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
 
 Status:
 
@@ -43,8 +43,8 @@ READY
 
 TASK-001 ~ TASK-012(Core MVP)과 TASK-013 ~ TASK-017(Post-MVP 보완, FU-1 ~ FU-5)이 모두 완료되었다. (Release `v3.0.0`)
 Human 지시에 따라 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)을 등록했다. 상세 Task Contract는 `docs/tasks/`를 따른다.
-TASK-018(FU-6)은 2026-10-19 Runner OS 전환 전에 완료하기 위해 가장 먼저 진행하며, Human의 실행 지시를 기다린다.
-TASK-019 이후는 선행 Task 완료와 각 Gate 승인 전까지 BLOCKED이다.
+핵심은 Agent를 이용한 완전 자동화 개발(Codex 실행 → Claude 자동 Review, Human은 승인 지점에서만 개입)이므로, 자동화 기반인 Harness Bootstrap을 TASK-018로 가장 먼저 진행한다. (Human 승인으로 순서 재정렬)
+TASK-019(FU-6)부터는 Orchestrator로 실행한다. TASK-019 이후는 선행 Task 완료와 각 Gate 승인 전까지 BLOCKED이다.
 
 ---
 
@@ -69,9 +69,9 @@ TASK-019 이후는 선행 Task 완료와 각 Gate 승인 전까지 BLOCKED이다
 | TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | DONE | TASK-014 완료 (충족), Human Approval 완료, DEC-022 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | DONE | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 | TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | DONE | TASK-016 완료 (충족), DEC-024 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
-| TASK-018 | Milestone 18 | CI Runner OS Transition Hardening (FU-6) | READY | 선행 Task 없음 (2026-10-19 전환 전 완료 목표) | 필요 (CI 동작 변경) |
-| TASK-019 | Milestone 19 | Multi-Agent Automation Policy / Agent Contract | BLOCKED | TASK-018 완료 | 필요 (DEC-026) |
-| TASK-020 | Milestone 20 | Local Multi-Agent Orchestrator | BLOCKED | TASK-019 완료 | Gate C 조건부 (Runtime / Dependency) |
+| TASK-018 | Milestone 18 | Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator) | READY | 선행 Task 없음 | 필요 (DEC-026) |
+| TASK-019 | Milestone 19 | CI Runner OS Transition Hardening (FU-6) | BLOCKED | TASK-018 완료 (2026-10-19 전 완료 목표) | 필요 (CI 동작 변경) |
+| TASK-020 | Milestone 20 | Orchestrator Hardening (worktree / Resume / Guard) | BLOCKED | TASK-019 완료 | Gate C 조건부 (Runtime / Dependency) |
 | TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | BLOCKED | TASK-020 완료 | 필요 (Git / GitHub 권한) |
 | TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | BLOCKED | TASK-021 완료 | Gate C 필요 |
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | BLOCKED | TASK-022 완료 | 필요 |
@@ -1152,7 +1152,7 @@ Frontend와 Backend가 약속한 API 형식(`docs/05-API_SPEC.md`)을 양쪽이 
 
 ---
 
-## TASK-018 — CI Runner OS Transition Hardening (FU-6)
+## TASK-018 — Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
 
 ### 상태
 
@@ -1160,11 +1160,39 @@ Frontend와 Backend가 약속한 API 형식(`docs/05-API_SPEC.md`)을 양쪽이 
 READY
 ```
 
-Roadmap 등록과 함께 READY가 되었다. Human의 실행 지시를 기다린다.
+Roadmap 재정렬과 함께 READY가 되었다. Human의 실행 지시를 기다린다.
 
 ### 목적
 
-`ubuntu-latest` → Ubuntu 26 전환(2026-10-19)에 대비해 CI가 Runner Image 변경에도 안정적으로 동작하도록 보완한다. (FU-6)
+Codex 실행 후 Claude가 자동으로 검토하는 자동화 기반을 만든다. 정책(DEC-026)과 최소 Local Orchestrator(`codex exec` → Verify → `claude -p` Review → Rework 최대 3회 → Gate 정지)를 구축한다. 이 Task만 Claude Code 세션이 임시 Orchestrator 역할을 한다.
+
+### Human Approval 또는 Gate
+
+- DEC-026 Human Approval, 승인 후 AGENTS.md 반영
+
+### 완료 조건
+
+- DEC-026이 승인되고 최소 Orchestrator가 Fake CLI Test와 실제 CLI Smoke Run을 통과하며 AGENTS.md에 정책이 반영된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-018_HARNESS_BOOTSTRAP.md`](tasks/TASK-018_HARNESS_BOOTSTRAP.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-019 — CI Runner OS Transition Hardening (FU-6)
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-018 완료 후 Orchestrator로 진행한다. 일정이 늦어지면 "`ubuntu-latest` 유지 후 확인" 전략으로 위험을 줄인다.
+
+### 목적
+
+`ubuntu-latest` → Ubuntu 26 전환(2026-10-19)에 대비해 CI를 보완한다. (FU-6) Orchestrator로 실행하는 첫 Task(시범 운영)다.
 
 ### Human Approval 또는 Gate
 
@@ -1176,39 +1204,11 @@ Roadmap 등록과 함께 READY가 되었다. Human의 실행 지시를 기다린
 
 ### 상세 Task Contract
 
-[`docs/tasks/TASK-018_CI_RUNNER_OS_HARDENING.md`](tasks/TASK-018_CI_RUNNER_OS_HARDENING.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+[`docs/tasks/TASK-019_CI_RUNNER_OS_HARDENING.md`](tasks/TASK-019_CI_RUNNER_OS_HARDENING.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 
-## TASK-019 — Multi-Agent Automation Policy / Agent Contract
-
-### 상태
-
-```text
-BLOCKED
-```
-
-TASK-018 완료 후 진행한다.
-
-### 목적
-
-Codex(Executor) / Claude(Reviewer) / Orchestrator / Human의 권한, Human Gate, 승인 채널, 로그인 정책을 정의한다. 정책 / 계약 설계만 하며 자동화 Code는 만들지 않는다.
-
-### Human Approval 또는 Gate
-
-- DEC-026 Human Approval, 승인 후 AGENTS.md 반영
-
-### 완료 조건
-
-- DEC-026이 Human Approved 되고 승인된 정책이 AGENTS.md에 반영된다.
-
-### 상세 Task Contract
-
-[`docs/tasks/TASK-019_MULTI_AGENT_POLICY.md`](tasks/TASK-019_MULTI_AGENT_POLICY.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
-
----
-
-## TASK-020 — Local Multi-Agent Orchestrator
+## TASK-020 — Orchestrator Hardening (worktree / Resume / Guard)
 
 ### 상태
 
@@ -1220,19 +1220,19 @@ TASK-019 완료 후 진행한다.
 
 ### 목적
 
-로컬에서 한 명령으로 Codex 실행 → Deterministic Verify → Claude Review → 제한된 Rework가 동작하는 Orchestrator를 만든다. (Node.js 24 + `.mjs`, Dependency 없음)
+최소 Orchestrator에 worktree 작업 공간 분리, Resume, 실행 Lock, Path / Secret Guard, 오류 분류, 전체 Test를 더한다. 시범 운영(TASK-019) 결과를 반영한다.
 
 ### Human Approval 또는 Gate
 
-- 확정된 언어 / Runtime 외 Runtime이나 새 Dependency가 필요하면 Gate C
+- 확정된 언어 / Runtime(Node.js 24 + `.mjs`, Dependency 없음) 외 Runtime이나 새 Dependency가 필요하면 Gate C
 
 ### 완료 조건
 
-- Local Multi-Agent Loop가 Fake CLI와 실제 로그인된 CLI로 재현 / 검증된다.
+- 보강된 Orchestrator가 Fake CLI Test와 실제 CLI Run으로 검증되고 설계 문서가 구현과 일치한다.
 
 ### 상세 Task Contract
 
-[`docs/tasks/TASK-020_LOCAL_ORCHESTRATOR.md`](tasks/TASK-020_LOCAL_ORCHESTRATOR.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+[`docs/tasks/TASK-020_ORCHESTRATOR_HARDENING.md`](tasks/TASK-020_ORCHESTRATOR_HARDENING.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 
@@ -1564,9 +1564,9 @@ TASK-030 완료 후 진행한다.
 - TASK-015: 실행 전 Human Approval 필요
 - TASK-016: DB 연동 테스트 도구와 CI Database Strategy 변경이므로 Gate C 필요
 - TASK-017: API 계약 테스트 방식 / 도구 선택이므로 Gate C 필요
-- TASK-018: Runner 전략(`ubuntu-24.04` 고정 / `ubuntu-latest` 유지 + 보완)은 CI 동작 변경이므로 Human Approval
-- TASK-019: DEC-026 Human Approval, 승인 후 AGENTS.md 반영
-- TASK-020: 확정된 언어 / Runtime 외 Runtime이나 새 Dependency가 필요하면 Gate C
+- TASK-018: DEC-026 Human Approval, 승인 후 AGENTS.md 반영
+- TASK-019: Runner 전략(`ubuntu-24.04` 고정 / `ubuntu-latest` 유지 + 보완)은 CI 동작 변경이므로 Human Approval
+- TASK-020: 확정된 언어 / Runtime(Node.js 24 + `.mjs`, Dependency 없음) 외 Runtime이나 새 Dependency가 필요하면 Gate C
 - TASK-021: Git 권한 확대, GitHub CLI 도입, Auto Merge 정책은 Human Approval
 - TASK-022: CI 동작 변경 / Branch Protection은 Gate C
 - TASK-023: Architecture, Region, 계정 / SSO 범위, Network, RDS, 비용 상한은 Human Approval
@@ -1585,7 +1585,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-TASK-019에서 DEC-026(Multi-Agent Automation Policy) 초안이 작성될 예정이며, Human Approval 전까지 TASK-020 이후를 시작하지 않는다.
+TASK-018에서 DEC-026(Multi-Agent Automation Policy) 초안이 작성될 예정이며, Human Approval 전까지 Orchestrator 구현 단계와 TASK-019 이후를 시작하지 않는다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

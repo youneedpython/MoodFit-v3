@@ -4,7 +4,7 @@
 
 ## 목적
 
-TASK-020 Local Orchestrator에 **안전한 Git 작업 계층**을 추가한다.
+TASK-018 / TASK-020에서 만든 Orchestrator에 **안전한 Git 작업 계층**을 추가한다.
 Codex는 Working Tree 수정만 담당하고, Orchestrator가 Policy 통과 후 Branch / Stage / Commit / Push / PR을 수행한다.
 
 ## 초기 상태 / Dependency

@@ -4,7 +4,7 @@
 
 ## 목적
 
-로컬 Multi-Agent Harness(TASK-020 ~ TASK-021)가 만든 PR을 GitHub에서 **Deterministic CI와 Human 승인**으로 마무리하는 흐름을 완성한다.
+로컬 Multi-Agent Harness(TASK-018 / TASK-020 / TASK-021)가 만든 PR을 GitHub에서 **Deterministic CI와 Human 승인**으로 마무리하는 흐름을 완성한다.
 
 Agent는 VS Code에 로그인된 계정으로 로컬에서만 실행되므로(COMMON.md 2절) **GitHub Actions에서 Codex / Claude를 호출하지 않는다.**
 GitHub Actions는 CI(Test / Build / Summary)와 이후 CD만 담당한다.

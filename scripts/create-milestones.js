@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Create GitHub Milestones for MoodFit v3 Project
- * 
+ * Create / sync GitHub Milestones for MoodFit v3 Project
+ *
+ * - 없는 Milestone은 만든다.
+ * - 같은 번호("Milestone N:")의 Milestone이 있으면 제목 / 설명이 다를 때만 갱신한다. (Open / Closed 상태는 바꾸지 않는다)
+ *   Closed Milestone은 제목이 다를 때만 갱신한다. (완료된 Milestone 설명 보존)
+ *
  * Usage:
  *   GITHUB_TOKEN=<your-token> node scripts/create-milestones.js
  * 
@@ -313,11 +317,26 @@ const milestones = [
   },
   // Agent 자동화 / AWS 배포 Roadmap (docs/tasks/, TASK-018 ~ TASK-031)
   {
-    title: 'Milestone 18: CI Runner OS Transition Hardening',
-    description: `목적: \`ubuntu-latest\` → Ubuntu 26 전환(2026-10-19)에 대비해 CI가 Runner Image 변경에도 안정적으로 동작하도록 보완한다. (FU-6)
+    title: 'Milestone 18: Multi-Agent Harness Bootstrap',
+    description: `목적: Codex 실행 후 Claude가 자동으로 검토하는 자동화 기반을 만든다. 정책(DEC-026)과 최소 Local Orchestrator(codex exec → Verify → claude -p Review → Rework 최대 3회 → Gate 정지)를 구축한다. 이 Task만 Claude Code 세션이 임시 Orchestrator 역할을 한다.
 
 선행 조건:
-- 선행 Task 없음 (2026-10-19 전환 전 완료 목표)
+- 선행 Task 없음
+
+Gate:
+- DEC-026 Human Approval, 승인 후 AGENTS.md 반영
+
+완료 조건:
+- DEC-026이 승인되고 최소 Orchestrator가 Fake CLI Test와 실제 CLI Smoke Run을 통과하며 AGENTS.md에 정책이 반영된다.
+
+상세: docs/tasks/TASK-018_HARNESS_BOOTSTRAP.md`
+  },
+  {
+    title: 'Milestone 19: CI Runner OS Transition Hardening',
+    description: `목적: \`ubuntu-latest\` → Ubuntu 26 전환(2026-10-19)에 대비해 CI를 보완한다. (FU-6) Orchestrator로 실행하는 첫 Task(시범 운영)다.
+
+선행 조건:
+- TASK-018 완료 (2026-10-19 전 완료 목표)
 
 Gate:
 - Runner 전략(\`ubuntu-24.04\` 고정 / \`ubuntu-latest\` 유지 + 보완)은 CI 동작 변경이므로 Human Approval
@@ -325,37 +344,22 @@ Gate:
 완료 조건:
 - 승인된 Runner 전략이 Remote CI에서 검증되고 FU-6이 DONE으로 기록된다.
 
-상세: docs/tasks/TASK-018_CI_RUNNER_OS_HARDENING.md`
+상세: docs/tasks/TASK-019_CI_RUNNER_OS_HARDENING.md`
   },
   {
-    title: 'Milestone 19: Multi-Agent Automation Policy',
-    description: `목적: Codex(Executor) / Claude(Reviewer) / Orchestrator / Human의 권한, Human Gate, 승인 채널, 로그인 정책을 정의한다. 정책 / 계약 설계만 하며 자동화 Code는 만들지 않는다.
-
-선행 조건:
-- TASK-018 완료
-
-Gate:
-- DEC-026 Human Approval, 승인 후 AGENTS.md 반영
-
-완료 조건:
-- DEC-026이 Human Approved 되고 승인된 정책이 AGENTS.md에 반영된다.
-
-상세: docs/tasks/TASK-019_MULTI_AGENT_POLICY.md`
-  },
-  {
-    title: 'Milestone 20: Local Multi-Agent Orchestrator',
-    description: `목적: 로컬에서 한 명령으로 Codex 실행 → Deterministic Verify → Claude Review → 제한된 Rework가 동작하는 Orchestrator를 만든다. (Node.js 24 + \`.mjs\`, Dependency 없음)
+    title: 'Milestone 20: Orchestrator Hardening',
+    description: `목적: 최소 Orchestrator에 worktree 작업 공간 분리, Resume, 실행 Lock, Path / Secret Guard, 오류 분류, 전체 Test를 더한다. 시범 운영(TASK-019) 결과를 반영한다.
 
 선행 조건:
 - TASK-019 완료
 
 Gate:
-- 확정된 언어 / Runtime 외 Runtime이나 새 Dependency가 필요하면 Gate C
+- 확정된 언어 / Runtime(Node.js 24 + \`.mjs\`, Dependency 없음) 외 Runtime이나 새 Dependency가 필요하면 Gate C
 
 완료 조건:
-- Local Multi-Agent Loop가 Fake CLI와 실제 로그인된 CLI로 재현 / 검증된다.
+- 보강된 Orchestrator가 Fake CLI Test와 실제 CLI Run으로 검증되고 설계 문서가 구현과 일치한다.
 
-상세: docs/tasks/TASK-020_LOCAL_ORCHESTRATOR.md`
+상세: docs/tasks/TASK-020_ORCHESTRATOR_HARDENING.md`
   },
   {
     title: 'Milestone 21: Git / PR Harness',
@@ -571,39 +575,62 @@ function makeRequest(method, path, body) {
   });
 }
 
-async function createMilestones() {
-  console.log(`Creating ${milestones.length} milestones for ${OWNER}/${REPO}...\n`);
+function milestoneNumber(title) {
+  const match = /^Milestone (\d+):/.exec(title);
+  return match ? Number(match[1]) : null;
+}
 
-  // 다시 실행해도 안전하도록 이미 있는 Milestone(제목 기준, open / closed 모두)은 건너뛴다.
+function normalize(text) {
+  return (text || '').replace(/\r\n/g, '\n').trim();
+}
+
+async function createMilestones() {
+  console.log(`Syncing ${milestones.length} milestones for ${OWNER}/${REPO}...\n`);
+
+  // 다시 실행해도 안전하도록 이미 있는 Milestone(open / closed 모두)을 번호 기준으로 찾는다.
   const existing = await makeRequest('GET', `/repos/${OWNER}/${REPO}/milestones?state=all&per_page=100`);
-  const existingTitles = new Set(existing.data.map((milestone) => milestone.title));
+  const existingByNumber = new Map();
+  for (const milestone of existing.data) {
+    const number = milestoneNumber(milestone.title);
+    if (number !== null) existingByNumber.set(number, milestone);
+  }
 
   let created = 0;
+  let updated = 0;
   let skipped = 0;
   let failed = 0;
 
   for (const milestone of milestones) {
-    if (existingTitles.has(milestone.title)) {
-      console.log(`- Skipped (already exists): ${milestone.title}`);
-      skipped++;
-      continue;
-    }
+    const current = existingByNumber.get(milestoneNumber(milestone.title));
     try {
-      const response = await makeRequest(
-        'POST',
-        `/repos/${OWNER}/${REPO}/milestones`,
-        {
-          title: milestone.title,
-          description: milestone.description,
-          state: 'open'
+      if (current) {
+        const titleChanged = current.title !== milestone.title;
+        const descriptionChanged = normalize(current.description) !== normalize(milestone.description);
+        const shouldUpdate = titleChanged || (current.state === 'open' && descriptionChanged);
+        if (!shouldUpdate) {
+          console.log(`- Skipped (up to date): ${milestone.title}`);
+          skipped++;
+          continue;
         }
-      );
+        await makeRequest('PATCH', `/repos/${OWNER}/${REPO}/milestones/${current.number}`, {
+          title: milestone.title,
+          description: milestone.description
+        });
+        console.log(`~ Updated: ${current.title}${titleChanged ? `  ->  ${milestone.title}` : ' (description)'}`);
+        updated++;
+        continue;
+      }
 
+      const response = await makeRequest('POST', `/repos/${OWNER}/${REPO}/milestones`, {
+        title: milestone.title,
+        description: milestone.description,
+        state: 'open'
+      });
       console.log(`✓ Created: ${milestone.title}`);
       console.log(`  URL: ${response.data.html_url}\n`);
       created++;
     } catch (error) {
-      console.error(`✗ Failed to create: ${milestone.title}`);
+      console.error(`✗ Failed: ${milestone.title}`);
       console.error(`  Status: ${error.status}`);
       console.error(`  Message: ${error.message}\n`);
       failed++;
@@ -613,6 +640,7 @@ async function createMilestones() {
   console.log(`\n========================================`);
   console.log(`Summary:`);
   console.log(`  Created: ${created}/${milestones.length}`);
+  console.log(`  Updated: ${updated}/${milestones.length}`);
   console.log(`  Skipped: ${skipped}/${milestones.length}`);
   console.log(`  Failed: ${failed}/${milestones.length}`);
   console.log(`========================================`);
