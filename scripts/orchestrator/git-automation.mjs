@@ -72,8 +72,13 @@ export async function automateGit({ sourceRoot, workspace, revision, branch, con
   await checkStaged();
   guard(await snapshot(sourceRoot), files, contract);
   if ((await git(sourceRoot, ['branch', '--show-current'])).trim() !== branch || (await git(sourceRoot, ['rev-parse', 'HEAD'])).trim() !== revision || await git(sourceRoot, ['diff', '--no-ext-diff', '--no-textconv', '--'])) blocked('Git conflict before Commit');
+  if (JSON.stringify(await snapshot(workspace)) !== JSON.stringify(reviewed)) blocked('Reviewed diff changed before Commit');
   for (const entry of reviewed.entries.filter(x => !x.status.includes('D'))) {
-    if (!(await readFile(await inside(sourceRoot, entry.file))).equals(await readFile(await inside(workspace, entry.file)))) blocked('Reviewed content changed before Commit');
+    // Apply Source's Git clean filters (including autocrlf and attributes) to
+    // reviewed bytes, then compare with the blob that will actually be committed.
+    const expected = (await git(sourceRoot, ['hash-object', '--path', entry.file, '--', await inside(workspace, entry.file)])).trim();
+    const staged = (await git(sourceRoot, ['rev-parse', `:${entry.file}`])).trim();
+    if (staged !== expected) blocked('Reviewed content changed before Commit');
   }
   const message = `chore: ${contract.id} 승인 작업 반영\n\n- ${contract.title}\n\n${codex}\n${claude}\n`;
   assertNoSecrets(message);

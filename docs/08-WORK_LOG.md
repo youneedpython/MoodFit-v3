@@ -2750,3 +2750,12 @@ DONE
 - `node --test "scripts/orchestrator/*.test.mjs"`: tests 63 / pass 63 / fail 0 / skipped 0, Exit 0(약 99초).
 - 수정 문서 5개 UTF-8 strict 디코딩 성공. 추가 줄 / 신규 Prompt에 연속 물음표 치환 흔적과 U+FFFD 없음.
 - `git diff --check`: Exit 0, 공백 오류 없음(autocrlf 안내만 표시). 누적 변경 파일은 Executor JSON에 기록한다. Repository Commit / Push / PR / Merge는 수행하지 않았다.
+
+## TASK-022 — Git 단계 내용 검증 결함 수정 (2026-10-02)
+
+- Human 제공 실행 근거: Review 3회차 PASS 후 Commit 직전 `Reviewed content changed before Commit`으로 BLOCKED. Stage된 11개 중 8개는 Source CRLF / Workspace LF 또는 혼합 줄바꿈으로 바이트가 달랐지만 CRLF→LF 정규화 후 모두 동일했다. Claude 세션이 검토 내용을 수동 Commit한 근거는 `6b63751`이다.
+- 원인: core.autocrlf=true 환경에서 Source Working Tree와 Workspace의 readFile 바이트 비교가 실제 Commit 내용이 동일한 경우도 차단했다.
+- 수정: Commit 직전 검토 Snapshot을 다시 확인하고 Source Git clean filter를 적용한 Workspace blob hash와 실제 index blob hash를 비교한다. 줄바꿈 변환은 Git 기준으로 처리하며 실제 문자 / binary 바이트 변경은 BLOCKED를 유지한다.
+- 회귀 검증: 임시 Git Repository에서 autocrlf=true / Workspace LF / Source CRLF의 Commit 진행, 검토 후 Stage된 문자 한 글자 변경 차단, binary 바이트 변경 차단을 추가했다. 기존 Git 실패 Test도 전체 실행에 포함한다. 프로젝트 Repository의 Commit / Push / PR / Merge는 수행하지 않았다.
+- Prompt: `prompts/43-TASK-022-GIT-CONTENT-CHECK.md`. TASK-022 IN_PROGRESS를 유지하며 자기 Contract / Dependency는 변경하지 않았다.
+- Verification: `node --test "scripts/orchestrator/*.test.mjs"` tests 74 / pass 74 / fail 0 / skipped 0, Exit 0(약 103초). 신규 3개 회귀 Test와 기존 Git 실패 Test 모두 통과했다. 추가 내용 / 신규 Prompt에 연속 물음표 치환 흔적과 U+FFFD 없음. `git diff --check` Exit 0, 공백 오류 없음(autocrlf 안내만 표시).

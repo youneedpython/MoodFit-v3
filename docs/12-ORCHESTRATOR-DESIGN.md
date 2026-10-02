@@ -79,6 +79,8 @@ Human이 준비한 task/<Task ID>-<slug> Branch와 최초 HEAD를 고정한다. 
 
 검토한 binary patch와 untracked 파일을 Source에 전달하고 Diff를 대조한다. allowed_paths 안의 파일별 literal pathspec Stage, staged 목록의 Secret 검사 / Allowlist 대조 후 기존 한국어 Commit 형식과 Codex / Claude Trailer로 Commit한다. Commit 직전에도 staged 목록의 Secret 검사 / Allowlist 대조를 다시 수행한다. origin의 같은 Task Branch로 Force 없는 Push 후 gh pr create --draft --base main으로 생성한다. PR 전 Base / Head / SHA / 신규 파일 포함 목록 / Diff Summary / Test 결과를 기록하고 본문에 Task ID / Verification / PASS / Human Gate / Trailer를 포함한다. Run 기록은 .harness/runs 아래 저장하며 명령별 Audit를 보존한다.
 
+Commit 직전 Workspace Snapshot이 검토 당시와 동일한지 다시 확인한다. 삭제되지 않은 각 파일은 Source Repository에서 `git hash-object --path <file> -- <Workspace 파일>`로 Git clean filter(core.autocrlf / attributes 포함)를 적용한 blob hash를 계산하고 `git rev-parse :<file>`의 실제 index blob hash와 대조한다. Source CRLF / Workspace LF라도 실제 Commit 내용이 같으면 허용하며, 실제 문자 변경 또는 binary 바이트 변경은 BLOCKED다. Working Tree 바이트 동일성으로 Commit 내용을 판정하지 않는다.
+
 실패 후 자동 Rollback / 재시도는 없다. Commit / Push / PR 중 일부가 성공했다면 Audit와 Source Working Tree를 Human이 확인한다. Git 작업 실패 Run은 일반 Resume로 Git 작업을 다시 시도하지 못하도록 Source HEAD / clean 조건이 충돌을 차단한다. Human Squash Merge와 Remote CI는 후속 단계다.
 
 Review 3회 한도로 정지한 Run은 Resume 승인이 있어도 추가 Review를 실행하지 않고 HUMAN_REQUIRED로 다시 정지한다. Resume는 반복 횟수를 초기화하지 않는다.
