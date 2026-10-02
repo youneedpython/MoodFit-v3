@@ -1,0 +1,44 @@
+{
+  "id": "TASK-020",
+  "title": "Orchestrator Hardening (worktree / Resume / Guard / 시범 운영 보강)",
+  "task_file": "docs/tasks/TASK-020_ORCHESTRATOR_HARDENING.md",
+  "allowed_paths": [
+    "scripts/orchestrator/",
+    "harness/",
+    "docs/12-ORCHESTRATOR-DESIGN.md",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/",
+    ".gitignore",
+    "AGENTS.md",
+    "docs/09-DECISIONS.md",
+    "docs/11-MULTI-AGENT-ORCHESTRATION-POLICY.md"
+  ],
+  "forbidden_paths": [
+    ".github/",
+    "frontend/",
+    "backend/",
+    "docs/tasks/",
+    "package.json",
+    "package-lock.json"
+  ],
+  "verify": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "scripts/orchestrator/*.test.mjs"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

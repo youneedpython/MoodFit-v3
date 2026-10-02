@@ -33,7 +33,7 @@ DONE
 
 ## 3. Current Task
 
-TASK-020 — Orchestrator Hardening (worktree / Resume / Guard)
+TASK-021 — Git Automation / Branch / PR Harness
 
 Status:
 
@@ -41,9 +41,9 @@ Status:
 READY
 ```
 
-TASK-001 ~ TASK-018은 DONE이다. TASK-019는 승인된 C→B 전략에 따라 Ubuntu 26.04 Remote 검증과 ubuntu-latest 복귀를 완료했고, 이 PR의 Human Squash Merge 시 DONE이 확정된다.
-TASK-020 READY도 TASK-019 PR Squash Merge 시 유효하다. Human의 명시적 실행 지시와 필요한 Gate 승인 전에는 시작하지 않는다.
-TASK-021 이후는 선행 Task 완료와 필요한 Gate 승인 전까지 BLOCKED다.
+TASK-001 ~ TASK-019는 DONE이다. TASK-019는 승인된 C→B 전략에 따라 Ubuntu 26.04 Remote 검증과 ubuntu-latest 복귀를 완료했다.
+TASK-020은 A ~ 완료 정리를 마쳤으며 이 PR의 Human Squash Merge로 DONE 승인이 확정된다.
+TASK-021은 READY이며 Human 실행 지시 후 시작한다. Git / GitHub 권한 Gate는 Task 안에서 Human 승인한다. TASK-022 이후는 선행 Task 완료와 필요한 Gate 승인 전까지 BLOCKED다.
 
 ---
 
@@ -69,9 +69,9 @@ TASK-021 이후는 선행 Task 완료와 필요한 Gate 승인 전까지 BLOCKED
 | TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | DONE | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 | TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | DONE | TASK-016 완료 (충족), DEC-024 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 | TASK-018 | Milestone 18 | Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator) | DONE | DEC-026 Human Approved, A ~ D단계 완료, PR Squash Merge 승인 | 승인 완료 |
-| TASK-019 | Milestone 19 | CI Runner OS Transition Hardening (FU-6) | DONE | TASK-018 완료 (충족), Ubuntu 26.04 Remote 검증 성공 / B 단계 복귀 완료 | C→B 승인 완료, 이 PR의 Human Squash Merge 시 DONE 확정 |
-| TASK-020 | Milestone 20 | Orchestrator Hardening (worktree / Resume / Guard) | READY | TASK-019 PR Squash Merge 시 유효, Human 실행 지시 필요 | Gate C 조건부 (Runtime / Dependency) |
-| TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | BLOCKED | TASK-020 완료 | 필요 (Git / GitHub 권한) |
+| TASK-019 | Milestone 19 | CI Runner OS Transition Hardening (FU-6) | DONE | TASK-018 완료 (충족), Ubuntu 26.04 Remote 검증 성공 / B 단계 복귀 완료 | C→B 승인 완료, PR #2 Human Squash Merge로 DONE 승인 완료 |
+| TASK-020 | Milestone 20 | Orchestrator Hardening (worktree / Resume / Guard) | DONE | TASK-019 완료, A ~ 완료 정리 / Review 4회차 PASS | Human 결정 A, PR Squash Merge 승인으로 확정 |
+| TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | READY | TASK-020 완료, Human 실행 지시 후 시작 | Task 안에서 Human 승인 (Git / GitHub 권한) |
 | TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | BLOCKED | TASK-021 완료 | Gate C 필요 |
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | BLOCKED | TASK-022 완료 | 필요 |
 | TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | BLOCKED | TASK-023 완료 | Gate C 조건부 |
@@ -1214,10 +1214,10 @@ DONE
 ### 상태
 
 ```text
-READY
+DONE
 ```
 
-TASK-019 PR Squash Merge 후 READY가 유효하다. 필요한 Gate 승인과 Human의 명시적 실행 지시 후 진행한다. 이번 실행에서 TASK-020 작업은 수행하지 않았다.
+A ~ 완료 정리 / 실제 CLI Smoke Run / 필수 검증 / Review 4회차 PASS를 완료했다. Human 결정 A로 elevated 전환을 반영했다. DONE은 이 PR의 Human Squash Merge 승인으로 확정된다.
 
 ### 목적
 
@@ -1242,10 +1242,10 @@ TASK-019 PR Squash Merge 후 READY가 유효하다. 필요한 Gate 승인과 Hum
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
-TASK-020 완료 후 진행한다.
+TASK-020 완료 후 READY다. Human 실행 지시 후 시작하며 Git / GitHub 권한 Gate는 Task 안에서 Human 승인한다.
 
 ### 목적
 
@@ -1586,7 +1586,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-DEC-026은 Human Approved이며 TASK-018은 DONE이다. TASK-019는 C→B 및 Remote 검증을 완료했다. TASK-019 DONE / TASK-020 READY는 이 PR의 Human Squash Merge 시 확정된다. Codex는 Git 작업을 수행하지 않으며 TASK-020은 Human 실행 지시 전 시작하지 않는다. TASK-021 이후는 BLOCKED다.
+DEC-026은 Human Approved이며 TASK-018 / TASK-019는 DONE이다. TASK-020은 A ~ 완료 정리와 Review 4회차 PASS를 완료했고 DONE 승인은 이 PR의 Human Squash Merge로 확정된다. TASK-021은 READY이며 Human 실행 지시 후 시작한다. Git / GitHub 권한 Gate는 Task 안에서 Human 승인한다. TASK-022 이후는 BLOCKED다. Codex는 Git 작업을 수행하지 않는다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

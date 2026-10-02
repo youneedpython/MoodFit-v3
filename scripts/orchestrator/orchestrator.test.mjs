@@ -14,7 +14,7 @@ async function fixture(t, scenario = 'pass') {
   const git = async (...args) => { const result = await processRun(['git', ...args], { cwd: root, timeout: 10000 }); assert.equal(result.code, 0, result.stderr); };
   await git('init', '-b', scenario === 'main' ? 'main' : 'task/test');
   await mkdir(path.join(root, 'harness/tasks'), { recursive: true });
-  await writeFile(path.join(root, '.gitignore'), '.harness/runs/\nharness/config.local.json\n');
+  await writeFile(path.join(root, '.gitignore'), '.harness/runs/\n.harness/workspaces/\nharness/config.local.json\n');
   await writeFile(path.join(root, 'task.md'), 'Fake Task: implement output.txt');
   await writeFile(path.join(root, 'harness/tasks/TASK-999.json'), JSON.stringify({ id: 'TASK-999', title: 'Fake task', task_file: 'task.md', allowed_paths: ['output.txt'], forbidden_paths: ['forbidden.txt'], verify: [{ command: [process.execPath, fake, scenario, 'verify'], cwd: '.' }], max_review_cycles: 3 }));
   await git('add', '.');
@@ -25,28 +25,50 @@ async function fixture(t, scenario = 'pass') {
 }
 
 const cases = [
+  ['executor-auth', 'HUMAN_REQUIRED', 0], ['verify-sandbox', 'BLOCKED', 0],
   ['pass', 'PASS', 1], ['wrapped', 'PASS', 1], ['executor-failure', 'BLOCKED', 0], ['executor-status-failure', 'BLOCKED', 0],
   ['timeout', 'BLOCKED', 0], ['verify', 'BLOCKED', 0], ['rework', 'PASS', 2], ['human', 'HUMAN_REQUIRED', 1],
   ['blocked', 'BLOCKED', 1], ['limit', 'HUMAN_REQUIRED', 3], ['executor-json', 'BLOCKED', 0], ['reviewer-json', 'BLOCKED', 1],
   ['executor-schema', 'BLOCKED', 0], ['reviewer-schema', 'BLOCKED', 1], ['mismatch', 'BLOCKED', 0], ['path', 'BLOCKED', 0],
   ['main', 'BLOCKED', 0], ['dirty', 'BLOCKED', 0], ['login', 'HUMAN_REQUIRED', 0], ['quota', 'BLOCKED', 0],
-  ['verify-mutation', 'BLOCKED', 0], ['reviewer-mutation', 'BLOCKED', 1], ['secret', 'PASS', 1]
+  ['verify-mutation', 'BLOCKED', 0], ['reviewer-mutation', 'BLOCKED', 1], ['secret', 'PASS', 1], ['executor-human', 'HUMAN_REQUIRED', 1], ['handoff', 'HANDOFF_PENDING', 1], ['secret-file', 'BLOCKED', 0], ['secret-content', 'BLOCKED', 0], ['sandbox', 'BLOCKED', 0]
 ];
+for (const sandbox of ['elevated', 'unelevated', 'invalid', '', null]) test(`sandbox config: ${String(sandbox)}`, async t => {
+  const root = await fixture(t);
+  const configFile = path.join(root, 'harness/config.local.json');
+  const config = JSON.parse(await readFile(configFile, 'utf8'));
+  config.sandbox = sandbox;
+  await writeFile(configFile, JSON.stringify(config));
+  const result = await run('TASK-999', { root });
+  const allowed = ['elevated', 'unelevated'].includes(sandbox);
+  assert.equal(result.status, allowed ? 'PASS' : 'BLOCKED', result.state.reason);
+  if (allowed) {
+    const input = JSON.parse(await readFile(path.join(result.run_dir, 'execute-1.input.json'), 'utf8'));
+    assert.ok(input.command.includes(`windows.sandbox="${sandbox}"`));
+  } else {
+    assert.match(result.state.reason, /Sandbox must be/);
+    assert.ok(!(await readdir(result.run_dir)).includes('execute-1.input.json'));
+  }
+});
 for (const [scenario, status, cycles] of cases) test(`integration: ${scenario}`, async t => {
   const root = await fixture(t, scenario);
   const result = await run('TASK-999', { root });
   assert.equal(result.status, status, result.state.reason);
-  assert.equal(result.code, { PASS: 0, HUMAN_REQUIRED: 2, BLOCKED: 3 }[status]);
+  assert.equal(result.code, { PASS: 0, HUMAN_REQUIRED: 2, BLOCKED: 3, HANDOFF_PENDING: 0 }[status]);
   assert.equal(result.state.review_cycles, cycles);
   const state = JSON.parse(await readFile(path.join(result.run_dir, 'state.json'), 'utf8'));
   assert.equal(state.status, status);
+  const category = { 'executor-auth': 'auth', 'executor-failure': 'execution', sandbox: 'sandbox', 'verify-sandbox': 'verify' }[scenario];
+  if (category) assert.equal(state.error_category, category);
   const files = await readdir(result.run_dir);
   if (cycles === 0) assert.ok(!files.some(x => x.startsWith('review-')));
   if (scenario === 'limit') { assert.ok(files.includes('execute-3.input.json')); assert.ok(!files.includes('execute-4.input.json')); }
   if (scenario === 'rework') assert.match(await readFile(path.join(result.run_dir, 'execute-2.input.json'), 'utf8'), /fix this/);
+  if (result.state.workspace) await assert.rejects(readFile(path.join(root, 'output.txt')), { code: 'ENOENT' });
+  if (scenario === 'executor-human') { assert.ok(files.includes('verify-1-1.output.json')); assert.ok(files.includes('review-1.output.json')); }
   if (status === 'PASS') {
     assert.match(await readFile(path.join(result.run_dir, `review-${cycles}.input.json`), 'utf8'), /untracked: output.txt/);
-    assert.deepEqual(state.history.map(x => x.phase).slice(0, 7), ['Preflight', 'Execute', 'Guard', 'Verify', 'Review', 'Decide', ...(cycles > 1 ? ['Execute'] : [])]);
+    assert.deepEqual(state.history.map(x => x.phase).slice(0, 8), ['Preflight', 'Workspace', 'Execute', 'Guard', 'Verify', 'Review', 'Decide', ...(cycles > 1 ? ['Execute'] : [])]);
   }
   if (scenario === 'secret') for (const file of files) assert.ok(!(await readFile(path.join(result.run_dir, file), 'utf8')).includes('sk-fake0123456789'));
 });

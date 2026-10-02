@@ -46,14 +46,13 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-012(Core MVP)와 TASK-013 ~ TASK-017(Post-MVP 보완)은 모두 DONE 상태이다.
+TASK-001 ~ TASK-020은 DONE 상태이며, TASK-020 완료 승인은 이 PR의 Human Squash Merge로 확정된다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
-후속 보완 작업 FU-1 ~ FU-5는 TASK-013 ~ TASK-017로 등록되었다.
 
 Current Task:
 
 ```text
-TASK-019 — CI Runner OS Transition Hardening (FU-6)
+TASK-021 — Git Automation / Branch / PR Harness
 ```
 
 Status:
@@ -63,12 +62,10 @@ READY
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
-TASK-018은 DONE이며 TASK-019는 READY이다. TASK-020 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED이다.
-Multi-Agent 자동화 정책(DEC-026, Human Approved)을 D단계에서 이 문서에 반영했다. TASK-018은 A ~ D단계와 최소 Orchestrator 구축을 완료했으며 PR Squash Merge로 Human Review 승인 / DONE이 확정된다.
-TASK-019는 Orchestrator로 실행하는 첫 Task이며 2026-10-19 전 완료를 목표로 한다. Human 실행 지시 후 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs TASK-019`로 시작한다. 선행 Task 완료 / 필요한 Gate 승인 / Human의 명시적 실행 지시 없이 시작하지 않는다.
+Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. TASK-022 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED이다.
+Current Task는 TASK-021 / READY이다. 실행 전 `harness/tasks/TASK-021.json` Contract가 Human 승인으로 준비되어야 한다. Human 실행 지시 후 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs TASK-021`로 시작하며, Git / GitHub 권한 Gate는 Task 안에서 Human 승인을 받는다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
-후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 TASK-019로 등록되었다. (Orchestrator로 실행하는 첫 Task)
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
@@ -112,7 +109,7 @@ Task 실행 시에는 다음 규칙을 따른다.
 - Gate / 로그인 만료·미확인 시 `HUMAN_REQUIRED`로 정지하고 사유 / 대안 / 권장안 / Diff / Verification을 제공한다. 승인 입력 없이 정지 상태를 해제하지 않는다.
 - 사용량 한도 / 실행 실패 / Timeout / Verification 실패 / Schema·변경 경로 오류는 `BLOCKED`로 정지한다. 자동 재시도 / 계정 전환 / API 우회를 금지한다.
 - Deterministic Verification 실패를 AI `PASS`로 덮어쓰지 않는다. Reviewer 입력은 Task Contract + 실제 Diff(신규 파일 포함) + Verification Log + 승인 Decision이며 Codex 자기 설명은 전달하지 않는다.
-- Agent는 로컬 로그인 CLI로만 실행한다. GitHub Actions는 Deterministic CI / CD만 담당한다. Codex는 `workspace-write` / Task 허용 경로 / Windows `unelevated` Sandbox를 적용하며 `elevated` 전환은 TASK-020 검증 후 재결정한다. 무승인 CLI 설치 / 업데이트를 금지한다.
+- Agent는 로컬 로그인 CLI로만 실행한다. GitHub Actions는 Deterministic CI / CD만 담당한다. Codex는 `workspace-write` / Task 허용 경로 / Windows `elevated` Sandbox를 적용한다(2026-10-02 TASK-020 재검증 후 Human 승인 전환). 무승인 CLI 설치 / 업데이트를 금지한다.
 
 ---
 

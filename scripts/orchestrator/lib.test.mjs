@@ -58,10 +58,41 @@ test('Codex schema keeps the contract while internal validation rejects duplicat
     if (node.items) check(node.items);
   };
   check(codex);
-  const result = { status: 'DONE', changed_files: ['output.txt'], summary: '', verification: [], human_decisions_needed: [] };
+  const result = { status: 'DONE', changed_files: ['output.txt'], summary: '', verification: [], human_decisions_needed: [], handoff_actions: [] };
   validate(result, internal);
   for (const changed_files of [['output.txt', 'output.txt'], ['']]) {
     validate({ ...result, changed_files }, codex);
     assert.throws(() => validate({ ...result, changed_files }, internal), Stop);
   }
+});
+
+test('CLI diagnostics ignore headers and prompt echo and preserve classification precedence', () => {
+  const header = 'sandbox: workspace-write [workdir, /tmp, $TMPDIR]\nmodel: fake\napproval: never\n';
+  const check = (stderr, category, status = 'BLOCKED', label = 'Executor') => assert.throws(
+    () => requireSuccess({ code: 1, stdout: '', stderr: header + stderr }, label),
+    error => error.category === category && error.status === status);
+  check('Error: authentication failed\nspawn EPERM\ninvalid_json_schema', 'auth', 'HUMAN_REQUIRED');
+  check('usage limit reached\nError: authentication failed', 'quota');
+  check('spawn EPERM\ninvalid_json_schema', 'sandbox');
+  check('Error: sandbox refused', 'sandbox');
+  check('EACCES: access denied', 'sandbox');
+  check('invalid_request_error / invalid_json_schema: invalid schema', 'schema');
+  check('Malformed example schema\nfailure', 'execution');
+  check('user\nError: authentication failed\nspawn EPERM\ninvalid_json_schema\nthinking\nfailure', 'execution');
+  check('integration: sandbox\nusage limit\nError: authentication failed\nspawn EPERM', 'verify', 'BLOCKED', 'Verify');
+});
+
+test('Guard blocks encoding corruption in introduced content only', () => {
+  const contract = { allowed_paths: ['docs/'], forbidden_paths: [] };
+  const entries = [{ file: 'docs/example.md' }];
+  const check = diff => guard({ entries, diff }, ['docs/example.md'], contract);
+  for (const corrupt of ['?'.repeat(3), String.fromCodePoint(0xFFFD)]) {
+    for (const diff of [`--- a/docs/example.md\n+++ b/docs/example.md\n+${corrupt}`, `\n--- untracked: docs/example.md\n${corrupt}\n`]) {
+      assert.throws(() => check(diff), error => error.status === 'BLOCKED' && error.category === 'guard' && /encoding corruption/.test(error.message));
+    }
+    assert.doesNotThrow(() => check(`-${corrupt}\n ${corrupt}\n+정상 한국어`));
+  }
+  assert.doesNotThrow(() => check('+정상 한국어 UTF-8\n+Question?\n+??'));
+  assert.throws(() => guard({ entries, diff: '+' + '?'.repeat(3) }, [], contract), /mismatch/);
+  assert.throws(() => guard({ entries, diff: '+' + '?'.repeat(3) }, ['docs/example.md'], { allowed_paths: [], forbidden_paths: [] }), /violation/);
 });

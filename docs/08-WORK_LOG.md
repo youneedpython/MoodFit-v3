@@ -2467,16 +2467,16 @@ DONE
 - TASKS의 미확인 문단을 Reviewer 확인 결과로 교체했다. TASK-018은 `IN_PROGRESS`, 설명은 "B단계 구현 / Review 진행, C단계 검증 예정"이다. Review PASS는 미확정이며 C단계 / D단계 / 최종 Human Review가 남아 있다. 기존 B단계 실패 / Human 확인 대기 기록은 당시 이력이며 이번 Reviewer 확인 결과로 해소되었다.
 - Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 수정 문서 6개 UTF-8 / LF / 제어 문자 없음 확인. 문서 Rework이므로 Test / Build는 재실행하지 않았으며 30 / 30 통과는 Reviewer 제공 결과다.
 
-### C?? Smoke Run 1?? ? CHANGES_REQUIRED / F1 ~ F4 Rework (2026-10-02)
+### C단계 Smoke Run 1회차 → CHANGES_REQUIRED / F1 ~ F4 Rework (2026-10-02)
 
-- Reviewer(Claude) ??: Repository ? ?? Git Repo?? TASK-901? ?? codex / claude CLI? ????. ? ??? Reviewer ?? ??? ??? ?? ??? Dirty Working Tree Guard? BLOCKED???? Guard ?? ??? ????.
-- ? ?? ??? codex --version / login status / claude --version Preflight? ????? Execute exit 1? BLOCKED???. Codex stderr? invalid_request_error / invalid_json_schema? changed_files? uniqueItems ???? ?????. C?? Review 1?? ??? CHANGES_REQUIRED?.
-- Human? F1 ~ F4 ?? ??? ?? Codex ??? ?? Schema? ???? run.mjs? ?? Schema ?? ??? ????. ?? ?? Schema? ?? ??? ???? ?? / ? ??? ????. ?? Schema? ?? properties? required? ???? additionalProperties: false? ????.
-- Fake CLI? --output-schema ??? ?? ??? Keyword / object ?? ?? ? exit 1? invalid_json_schema? ????. uniqueItems / minLength ?? Test? ?? Schema / ?? ?? Unit Test? ????. ?? ?? ?? ??? ?? ??? Smoke ?? ??? ????.
-- Verification: run.mjs / fake-cli.mjs / orchestrator.test.mjs ?? ?? ??. node --test --test-isolation=none scripts/orchestrator/lib.test.mjs? tests 6 / pass 6 / fail 0??.
-- ? Fake CLI ?? Test? ??? ?? ?? Process ?? ???? exit code null? ???? ????. Process ?? ??? Assertion? ????? ????. ?? ?? Test? ???? ???? Reviewer? Sandbox ??? ?????. ?? codex / claude ??, Dependency ??, Git ?? ??? ???? ???.
-- git diff --check: exit 0, ?? ?? ??. ?? tracked ??? Git? LF ? CRLF ??? ??? ?? ?? ??? LF / ?? ?? ???? ????.
-- TASK-018? IN_PROGRESS ??. C?? Smoke ??? / Reviewer ???, D?? ?? ?? / ?? Human Review? ?? ??. ?? Rework ??? Task DONE ?? Review PASS? ??? ???.
+- Reviewer(Claude) 실행: Repository 밖 임시 Git Repo에서 TASK-901(`hello.md` 생성)을 실제 codex / claude CLI로 실행했다. 첫 실행은 Reviewer가 실행 출력 파일을 저장소 안에 만들어 Preflight Dirty Working Tree Guard로 BLOCKED 되었다. Guard 정상 동작을 확인했다.
+- 두 번째 실행은 codex --version / login status / claude --version Preflight를 통과했지만 Execute가 exit 1로 BLOCKED 되었다. Codex stderr: `invalid_json_schema` — `uniqueItems` is not permitted. codex `--output-schema`는 OpenAI Structured Outputs strict 규칙을 따른다.
+- Human이 승인한 흐름에 따라 Reviewer가 F1 ~ F4를 지시했고, Codex는 Codex 전달용 strict Schema(`executor-result.codex.schema.json`)를 분리했다. run.mjs는 Codex에는 strict Schema를 전달하고, 결과 검증은 기존 내부 엄격 Schema(`uniqueItems` / `minLength` 포함)로 한다.
+- Fake CLI가 `--output-schema` 파일을 읽어 strict 미지원 Keyword(`uniqueItems` / `minLength` 등)가 있으면 exit 1과 `invalid_json_schema`를 내도록 회귀 Test를 추가했다.
+- Verification: run.mjs / fake-cli.mjs / orchestrator.test.mjs 문법 검사 통과. node --test --test-isolation=none scripts/orchestrator/lib.test.mjs는 tests 6 / pass 6 / fail 0이었다.
+- 새 Fake CLI 회귀 Test는 Codex Sandbox에서 자식 Process 생성이 차단되어 실행되지 않았다(exit code null). Sandbox 밖 Reviewer 실행에서 tests 32 / pass 32를 확인했다.
+- git diff --check: exit 0, 공백 오류 없음.
+- TASK-018은 IN_PROGRESS 유지. C단계 Smoke 재실행 / Reviewer 확인 대기.
 
 ### C단계 Smoke Run (2026-10-02, Reviewer 실행 결과)
 
@@ -2575,3 +2575,88 @@ B안을 권장한다. 실패가 확인되지 않은 상태에서 OS 고정 / 설
 - 초기 Working Tree clean. Git 작업과 TASK-020 구현은 수행하지 않았다. AGENTS.md는 금지 경로여서 갱신하지 않았다. Release v3.0.1은 PATCH 후보이며 Tag / Release는 별도 Human 확인 대상이다.
 - Verification: git diff --check 통과(Exit Code 0). Workflow Diff에서 runs-on 3곳만 복귀한 것을 확인했다. Local Test / Build / 전체 verify Script는 재실행하지 않았으며 위 Ubuntu 26.04 결과는 Task 원문 제공 기록이다. Orchestrator Verify는 별도 수행한다.
 - Prompt: prompts/39-TASK-019-RUNNER-B-RETURN.md. Related Commit: Pending (검증 대상 C단계 Commit: 3a59adb).
+
+## TASK-020 — Orchestrator Hardening (2026-10-02)
+
+### Review 1회차 Rework
+
+- Human의 명시적 TASK-020 실행과 Review 1회차 F1~F9 수정 지시를 반영했다. 기존 누적 Working Tree를 유지하고 Git 작업 / Dependency 추가 / 금지 경로 수정은 하지 않았다.
+- TASK-020은 IN_PROGRESS다. 실제 CLI Run과 필수 검증 증거 전 REVIEW / DONE으로 승격하지 않는다.
+- 기존 구현: Executor HUMAN_REQUIRED의 Verify / Review, handoff_actions 분리, detached worktree / Repository Lock / 승인 기반 Resume / frozen 설정 / checkpoint / Review 최대 3회.
+- 기존 구현: 경로 / Secret / ignored Secret Guard와 오류 분류, AGENTS.md 3절 상태 동기화 제한, harness 문서 책임 정책. TASK-021로 미리 동기화하지 않는다.
+- F2 / F3: guard의 누락된 diff 기본값과 Schema Test의 handoff_actions를 수정했다. mismatch / violation을 내용 검사 전에 유지했다.
+- F4~F6 / F8: main 설계 원본을 확인하고 TASK-020 구현에 맞춰 한국어 문서를 UTF-8 apply_patch로 복구했다. 추가 빈 줄과 표 분리 빈 줄을 제거했다. 추가 내용의 연속 물음표 치환 흔적과 U+FFFD를 BLOCKED로 처리하는 Guard와 Test를 추가했다.
+- F9: Template과 설계에 Sandbox 밖 Deterministic Verification을 명시했다. Sandbox 제약만으로 FAILED / HUMAN_REQUIRED를 반환하지 않으며 DONE은 Task 완료 승인이 아니다.
+
+### Verification / 남은 항목
+
+- 이전 Sandbox 밖 Verify: tests 42 / pass 40 / fail 2. 실패는 BLOCKED이며 Review로 진행하면 안 된다. 이번 수정은 Human의 명시적 지시다.
+- 수정 후 전체 glob 명령: Exit 1, 파일 Runner 3개가 spawn EPERM으로 시작되지 않았다. Test 본문 결과가 아니며 전체 PASS로 보고하지 않는다.
+- node --test --experimental-test-isolation=none scripts/orchestrator/lib.test.mjs: tests 7 / pass 7 / fail 0, Exit 0. 기존 두 실패와 새 인코딩 Guard 회귀 검증 통과.
+- Sandbox 밖 전체 Verify 성공 후 다음 Review가 필요하다. 실제 CLI Run / scripts/verify.ps1 또는 verify.sh / elevated 검증은 미완료다. unelevated를 유지했다.
+- 모든 Orchestrator .mjs 문법 검사와 git diff --check는 Exit 0이다. 변경 문서의 UTF-8 디코딩과 신규 내용의 치환 흔적 부재를 확인했다. WORK_LOG의 기존 TASK-018 기록(2472~2479줄)에 남은 손상은 main에도 존재하는 범위 밖 기록이므로 수정하지 않았다.
+- Prompt: prompts/40-TASK-020-ORCHESTRATOR-HARDENING.md. Related Commit: 없음.
+
+### Review 2회차 F1 / F2 / F10 Rework (2026-10-02)
+
+- F1: syncAgents가 Current Task 코드 블록의 값만 교체해 CRLF를 보존한다. guardAgents는 줄바꿈을 정규화한 뒤 두 코드 블록 값 외의 변경을 차단한다. 실제 제목 형식과 CRLF / LF 비교, 본문 / 다음 절 변경 차단 회귀 Test를 추가했다.
+- F2: 완료 기록의 AGENTS.md 편집은 Contract가 허용한 Executor가 수행하고 Orchestrator는 검증만 한다고 설계 / 정책에 명시했다. 실제 07-TASKS / AGENTS 제목 형식과 CRLF fixture로 Executor 편집 → Orchestrator Guard / Verify / Review를 검사하는 Fake CLI 통합 Test를 추가했다.
+- main 기록 한글 손상 복구(TASK-018 C단계 기록, 원인: 당시 Codex 문서 저장 인코딩, Claude 검토에서 `?` 치환 검사 누락).
+- Review 2회차 제공 Verify 결과는 tests 43 / pass 43 / fail 0, git diff --check exit 0이다. 이번 Executor가 재실행한 결과와 구분한다.
+- 이번 전체 glob 명령은 spawn EPERM으로 파일 Runner 3개가 시작되지 않았다(Exit 1). isolation=none hardening Test는 tests 7 / pass 4 / fail 3이며 실패 3개는 임시 Git fixture 자식 Process 생성 차단(exit code null)이다. 새 CRLF 단위 Test는 통과했고 통합 Test는 Sandbox 밖 재검증이 필요하다.
+- TASK-020은 IN_PROGRESS 유지. 실제 CLI Run / scripts/verify.ps1 또는 verify.sh / elevated 재검증(item 10)은 Orchestrator·Claude 세션의 완료 전 검증 항목이다. Git 작업 / Dependency 추가 / 금지 경로 변경 없음.
+- 추가 검증: 자식 Process가 필요 없는 hardening Test만 선택해 tests 4 / pass 4 / fail 0(Exit 0), lib.test.mjs tests 7 / pass 7 / fail 0(Exit 0). 이번 수정 .mjs 3개의 node --check도 Exit 0이다.
+- 변경 / 복구 문서 8개를 UTF-8 strict 디코딩하고 연속 물음표 / U+FFFD 치환 흔적이 없음을 확인했다. 남은 단일 물음표는 기존 URL Query와 위 복구 원인 기록의 인용 문자다. git diff --check Exit 0, 공백 오류 없음(autocrlf 줄바꿈 안내 경고만 있음).
+
+### Review 3회차 → 승인된 4회차 Rework
+
+- Review 3회차: CHANGES_REQUIRED(F1~F3), MAX_REVIEW_CYCLES=3 도달로 HUMAN_REQUIRED 정지. 제공된 Orchestrator Verify는 tests 45 / pass 45다.
+- Human 승인: 같은 TASK-020 Finding 범위에서 추가 Rework 1회(4회차)를 명시적으로 승인했다. 자동 반복 상한은 변경하지 않았다.
+- 4회차 반영: Verify 실패 우선 처리, CLI quota → auth → 실제 sandbox 거부 → schema → 기타 분류, 정보성 Header / Prompt Echo 제외, 실제 Header를 재현한 Fake CLI 회귀 Test와 설계 규칙을 반영했다.
+- 4회차 Verification: isolation=none lib.test.mjs tests 8 / pass 8 / fail 0. 전체 Test는 파일 Runner 3개가 Sandbox spawn EPERM으로 시작되지 않아 통합 검증 미완료이며 Sandbox 밖 Verify가 필요하다. git diff --check 통과, UTF-8 및 물음표 치환 흔적 검사는 Executor 결과에 기록한다.
+
+### Review 4회차 PASS / 완료 정리 (2026-10-02)
+
+- Human 제공 증거: Review 4회차 Orchestrator Test tests 48 / pass 48, Reviewer PASS. MAX_REVIEW_CYCLES 초과 후 추가 Rework 1회는 Human 승인으로 수행했으며 자동 상한 3회는 유지한다.
+- 실제 CLI Smoke Run(Claude 세션, Repository 밖 임시 Repo TASK-901, 강화된 Orchestrator): Preflight → Workspace(.harness/workspaces/<run-id> detached worktree) → Execute → Guard → Verify(node check.mjs 성공) → Review(PASS) → Decide. 약 46초, Exit 0, 최종 HANDOFF_PENDING. Human 작업 폴더 변경 없음.
+- Smoke Run의 HANDOFF_PENDING은 Executor가 이미 성공한 Contract verify 명령 node check.mjs를 handoff_actions에 적은 결과다. Template / 설계에 verify 명령과 자동 단계 제외를 명시하고 Orchestrator 밖 Commit / Push / PR만 후속 작업으로 남긴다. 이 Run을 PASS로 바꾸어 기록하지 않는다.
+- ignoredSecrets는 worktree에서만 실행돼 Human 폴더의 .env.local로 차단되지 않음을 확인했다.
+- Human 제공 검증: sh scripts/verify.sh와 verify.ps1 PASS(Frontend 81, Backend Test / Build). Docker 미실행으로 MySQL 연동 Test는 SKIPPED 표시(정책대로). 이번 Executor가 재실행한 결과와 구분한다.
+- Human 결정 A: 임시 Git Repo / codex 0.160.0에서 파일 쓰기와 node --version은 두 Sandbox 모두 성공했다. spawnSync 자식 Process는 unelevated EPERM, elevated child: 0 v24.21.0 성공. elevated 실행은 UAC 확인 창 없이 진행됐고 Sandbox 밖 접근은 UnauthorizedAccessException으로 격리됐으며 작업은 성공했다.
+- config.sandbox는 elevated / unelevated만 허용하며 기본 elevated로 전환했다. 설정 인자 회귀 Test를 추가하고 fallback 분류 순서와 timeout 위치를 문서화했다. Orchestrator Verify가 기준이며 Executor 자체 Test는 참고다.
+- N1: 설계 문서의 과거 실행 수치를 제거했다. N2: fallback quota → auth → timeout → sandbox → schema → 기타 순서를 명시했다. N3: 로그를 1 → 2 → 3 → 4회차 → 완료 정리 순서로 정리했다.
+- TASK-020은 A ~ 완료 정리를 마쳐 DONE을 PR 안에 반영했다. 승인은 Human PR Squash Merge로 확정된다. Current Task TASK-021 / READY를 TASKS와 AGENTS 코드 블록에 동기화했다. TASK-021은 Human 실행 지시 후 시작하며 Git / GitHub 권한 Gate는 Task 안에서 승인한다.
+- 직접 실행 검증 결과는 아래 완료 Verification에 기록한다. Git 작업 / Dependency 추가 / 금지 경로 변경 없음. Contract의 기존 승인 변경은 유지했다.
+
+### 완료 Verification (Executor 직접 실행)
+
+- `node --test "scripts/orchestrator/*.test.mjs"`: 최종 tests 53 / pass 53 / fail 0 / skipped 0, Exit 0(약 102초). 기존 48개와 Sandbox 설정 회귀 5개를 포함한다. 첫 실행은 Fake CLI의 unelevated 고정 검사로 elevated 1개가 실패(tests 53 / pass 52 / fail 1)했으며 fixture 수정 후 전체 재실행으로 통과했다.
+- 변경 문서 11개 UTF-8 strict 디코딩 성공, 연속 물음표 치환 흔적 / U+FFFD 없음. 단일 물음표는 기존 Query / 기록 인용 문자다.
+- TASKS / AGENTS Current Task와 Status는 syncAgents 결과와 일치한다. fallback quota / auth / timeout 우선순위 확인 PASS.
+- `git diff --check`: Exit 0, 공백 오류 없음. autocrlf 줄바꿈 안내만 표시됐다.
+- Smoke Run / Frontend·Backend verify Script / Sandbox 전환 비교 실험은 위 Human 제공 실행 증거이며 이번 직접 실행 Test와 구분한다. 최종 완료 승인은 PR Squash Merge다.
+
+### 완료 정리 Review(HUMAN_REQUIRED) / Human 확인 H1 ~ H3
+
+- 2026-10-02 완료 정리 Review는 HUMAN_REQUIRED였으며 Human이 H1 ~ H3를 확인하고 N2 ~ N4 수정을 지시했다. 아래 확인은 기존 승인 내용의 기록이며 정책 / Contract 내용을 추가 변경하지 않았다.
+- H1: AGENTS.md 3.2절 Sandbox 문구 `unelevated` → `elevated` 변경은 Human 결정 A에 포함된 승인 변경이다. 3절 상태 동기화 범위 밖 예외로 승인됐다.
+- H2: `elevated` 기본값 전환(DEC-026 변경 이력, docs/11, config.example.json, run.mjs 허용 값)은 Human 결정 A로 승인됐다.
+- H3: TASK-020 Contract(harness/tasks/TASK-020.json)의 docs/09 / docs/11 허용 경로 추가는 Executor가 아니라 Claude 세션(임시 Orchestrator)이 Human 승인(A)에 따라 수정했다.
+- N2: 전체 Task 목록의 TASK-019 승인 상태를 PR #2 Human Squash Merge로 DONE 승인 완료에 맞게 수정했다.
+- AGENTS.md 3절 설명 문장 현행화(Human 승인 A, Review N2 반영)
+- N3: hardening.test.mjs의 실제 파일 줄바꿈을 LF로 통일했다. CRLF 동작 검증용 문자열의 이스케이프는 유지했다.
+- N4: finally의 Lock release 예외를 잡아 BLOCKED / error_category lock / lock_error를 state.json에 기록한다. Lock 파일 소실(ENOENT)과 소유자 변경(Stop BLOCKED)에서 예외 없이 종료하고 저장 상태와 반환 상태가 일치하는 회귀 Test를 추가했다.
+
+### TASK-021 이후 개선 후보
+
+1. 실행 중인 Task의 자기 Contract(harness/tasks/<id>.json) 변경을 금지하는 Guard.
+2. scripts/verify.* 와 실제 CLI Run을 Contract의 결정적 Verify에 포함하는 방법(Docker 의존 고려).
+
+후보 기록만 추가했으며 docs/tasks 수정이나 후속 Task 구현은 수행하지 않았다.
+
+### 승인된 완료 정리 수정 Verification (Executor 직접 실행)
+
+- `node --test "scripts/orchestrator/*.test.mjs"`: tests 54 / pass 54 / fail 0 / skipped 0, Exit 0(약 102초). Lock 해제 실패의 두 경우를 포함한다.
+- 변경 Markdown의 추가 줄에서 연속 물음표 치환 흔적 / U+FFFD 없음. 수정한 TASKS / WORK_LOG UTF-8 strict 디코딩 성공.
+- hardening.test.mjs 실제 파일에서 CR 바이트 없음: LF만 사용한다.
+- `git diff --check`: Exit 0, 공백 오류 없음. Git autocrlf 안내 경고만 표시됐다. Git 변경 작업은 수행하지 않았다.

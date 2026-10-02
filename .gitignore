@@ -37,4 +37,5 @@ coverage/
 
 # Local Orchestrator
 .harness/runs/
+.harness/workspaces/
 harness/config.local.json

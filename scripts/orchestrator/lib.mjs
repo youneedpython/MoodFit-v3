@@ -3,7 +3,18 @@ import { readFile, lstat, realpath } from 'node:fs/promises';
 import path from 'node:path';
 
 export class Stop extends Error {
-  constructor(status, message) { super(message); this.status = status; }
+  constructor(status, message, category) { super(message); this.status = status; this.category = category ?? classify(message); }
+}
+export function classify(message) {
+  if (/quota|usage.limit|rate.limit/i.test(message)) return 'quota';
+  if (/login|authentication|unauthorized/i.test(message)) return 'auth';
+  if (/timeout/i.test(message)) return 'timeout';
+  if (/EPERM|EACCES|sandbox|permission.denied|permission.denial/i.test(message)) return 'sandbox';
+  if (/schema|malformed|contract|configuration/i.test(message)) return 'schema';
+  if (/secret/i.test(message)) return 'secret';
+  if (/path|changed_files|symlink|guard/i.test(message)) return 'guard';
+  if (/verify/i.test(message)) return 'verify';
+  return 'execution';
 }
 export const blocked = message => { throw new Stop('BLOCKED', message); };
 export const readJson = async file => JSON.parse((await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
@@ -88,9 +99,21 @@ export async function processRun(command, { cwd, timeout, input = '', signal } =
 }
 export function requireSuccess(result, label, login = false) {
   if (result.code === 0 && !result.failure) return;
-  const output = result.stdout + result.stderr;
+  if (label.toLowerCase() === 'verify') throw new Stop('BLOCKED', `${label}: ${result.failure ?? `exit ${result.code}`}`, 'verify');
+  // Codex headers and echoed user prompts are context, not process diagnostics.
+  const diagnostics = text => {
+    let prompt = false;
+    return String(text ?? '').split(/\r?\n/).filter(line => {
+      if (/^user\s*$/.test(line)) { prompt = true; return false; }
+      if (/^(?:thinking|assistant|codex|exec)\s*$/.test(line)) { prompt = false; return false; }
+      return !prompt && !/^\s*(?:sandbox|model|approval)\s*:/i.test(line);
+    }).join('\n');
+  };
+  const output = [diagnostics(result.stdout), diagnostics(result.stderr), result.failure ?? ''].join('\n');
   if (/quota|usage limit|rate limit|usage_limit/i.test(output)) blocked(`${label}: quota`);
-  if (login || (label !== 'Verify' && /not logged in|login required|authentication|unauthorized|expired.*(?:login|token)/i.test(output))) throw new Stop('HUMAN_REQUIRED', `${label}: login unconfirmed`);
+  if (login || /^(?:\s*(?:error|fatal)(?:\s*:\s*|\s+))?\s*(?:not logged in|login required|authentication\s+(?:failed|failure|required)|unauthorized|(?:login|token)\s+(?:has\s+)?expired|expired.*(?:login|token))/im.test(output)) throw new Stop('HUMAN_REQUIRED', `${label}: login unconfirmed`, 'auth');
+  if (/^(?:\s*(?:error|fatal)\s*:\s*)?\s*(?:spawn\s*:?\s*(?:EPERM|EACCES)\b|EPERM\b|EACCES\b|permission denied\b|sandbox\s+(?:permission denied|denied|refused)\b)/im.test(output)) blocked(`${label}: sandbox denial`);
+  if (/^(?:\s*(?:error|fatal)\s*:\s*)?\s*(?:invalid_request_error\s*\/\s*)?invalid_json_schema\b|^\s*(?:error|fatal)\s*:\s*(?:malformed\s+(?:JSON|schema)|schema error)\b/im.test(output)) blocked(`${label}: schema error`);
   blocked(`${label}: ${result.failure ?? `exit ${result.code}`}`);
 }
 export function safePath(file, directory = false) {
@@ -159,4 +182,25 @@ export function guard(snapshotValue, reported, contract) {
     return rule.endsWith('/') ? file.startsWith(rule) : file === rule;
   };
   for (const file of actual) if (contract.forbidden_paths.some(rule => match(file, rule)) || !contract.allowed_paths.some(rule => match(file, rule))) blocked(`Path violation: ${file}`);
+  if (actual.some(secretFile)) blocked('Secret file detected');
+  // Check introduced lines, not old/context lines containing deliberate test fixtures.
+  // Untracked content has no '+' prefix and must be checked in full.
+  const [tracked, ...untracked] = (snapshotValue.diff ?? '').split('\n--- untracked: ');
+  const added = tracked.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++')).join('\n');
+  const introduced = [added, ...untracked].join('\n');
+  if (/\?{3,}|\uFFFD/u.test(introduced)) blocked('Guard: encoding corruption detected');
+  assertNoSecrets(introduced);
+}
+
+export function secretFile(file) {
+  return /(?:^|\/)(?:\.env(?:\..*)?|credentials(?:\.json)?|id_(?:rsa|ed25519)|[^/]+\.(?:pem|p12|pfx))$/i.test(file) && !/\.env\.example$/i.test(file);
+}
+
+export function assertNoSecrets(text) {
+  if (redact(text) !== text) blocked('Secret-like input detected (content withheld)');
+}
+
+export async function ignoredSecrets(root) {
+  const raw = await git(root, ['ls-files', '--others', '--ignored', '--exclude-standard', '-z', '--', '.env*', '**/.env*', '*.pem', '**/*.pem', '*.p12', '**/*.p12', '*.pfx', '**/*.pfx', '**/credentials.json', '**/id_rsa', '**/id_ed25519']);
+  return raw.split('\0').filter(Boolean).filter(secretFile);
 }
