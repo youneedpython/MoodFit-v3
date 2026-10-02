@@ -2643,6 +2643,7 @@ B안을 권장한다. 실패가 확인되지 않은 상태에서 OS 고정 / 설
 - H2: `elevated` 기본값 전환(DEC-026 변경 이력, docs/11, config.example.json, run.mjs 허용 값)은 Human 결정 A로 승인됐다.
 - H3: TASK-020 Contract(harness/tasks/TASK-020.json)의 docs/09 / docs/11 허용 경로 추가는 Executor가 아니라 Claude 세션(임시 Orchestrator)이 Human 승인(A)에 따라 수정했다.
 - N2: 전체 Task 목록의 TASK-019 승인 상태를 PR #2 Human Squash Merge로 DONE 승인 완료에 맞게 수정했다.
+- AGENTS.md 3절 설명 문장 현행화(Human 승인 A, Review N2 반영)
 - N3: hardening.test.mjs의 실제 파일 줄바꿈을 LF로 통일했다. CRLF 동작 검증용 문자열의 이스케이프는 유지했다.
 - N4: finally의 Lock release 예외를 잡아 BLOCKED / error_category lock / lock_error를 state.json에 기록한다. Lock 파일 소실(ENOENT)과 소유자 변경(Stop BLOCKED)에서 예외 없이 종료하고 저장 상태와 반환 상태가 일치하는 회귀 Test를 추가했다.
 
