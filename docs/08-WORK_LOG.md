@@ -2503,3 +2503,75 @@ DONE
 - Merge 후 Sync Milestones가 Milestone 18을 닫는다.
 - 결과: Human Review 완료 / DONE (PR Squash Merge 시 확정).
 - Verification: `git diff --check` 통과 (Exit Code 0, whitespace 오류 없음). 허용 문서 5개 UTF-8 / LF / 제어 문자 없음 확인. 문서 상태 변경이므로 Test / Build는 재실행하지 않았다.
+
+## TASK-019 — Runner OS 조사 / Human Gate (2026-10-02)
+
+### 실행 범위 / 상태
+
+- Human의 명시적 TASK-019 조사 실행 지시, findings 없음. 최초 `git status --short`는 출력 없음(clean), Branch는 `task/TASK-019-ci-runner-os`다. 필수 Context와 Task 원문을 읽고 허용된 문서만 수정했다.
+- TASK-019 IN_PROGRESS, Executor 결과 HUMAN_REQUIRED. Runner 전략 / CI 동작 변경은 TASK-019 Human Gate와 DEC-026 §4 승인 전 수행할 수 없다. FU-6은 미완료이며 TASK-020 이후는 BLOCKED다.
+
+### 최신 공식 근거
+
+- [Runner 전환 공지 #14748](https://github.com/actions/runner-images/issues/14748): 2026-10-19부터 단계적으로 전환하며 2026-11-19 완료 예정이다. 10/19부터 모든 Job이 Ubuntu 26.04로 실행된다고 해석하지 않는다. 공식 완화책은 24.04 고정 또는 26.04 명시 검증이다.
+- [Runner Image 정책](https://github.com/actions/runner-images): latest는 점진적으로 이동하고 GA Image도 매주 갱신된다. OS label 고정은 설치 도구 전체 Version 고정이 아니다.
+- 2026-10-02 조회한 [Ubuntu 24.04 목록](https://raw.githubusercontent.com/actions/runner-images/main/images/ubuntu/Ubuntu2404-Readme.md)과 [Ubuntu 26.04 목록](https://raw.githubusercontent.com/actions/runner-images/main/images/ubuntu/Ubuntu2604-Readme.md): Docker Client/Server 28.0.4 → 29.4.2, Bash 5.2.21 → 5.3.9. 26.04 목록은 Image 20260920.143.1이며 Java 21과 GitHub CLI가 포함된다. 목록은 계속 바뀌므로 실제 Run의 Set up job Image 정보를 다시 확인한다.
+- 공지 표의 기본 Java 17과 26.04 목록의 기본 Java 25는 다르다. 기본값에 의존하지 않고 기존 setup-java Java 21 선택을 유지하므로 이 차이로 Version 변경을 제안하지 않는다.
+- [Testcontainers 런타임 요구사항](https://java.testcontainers.org/supported_docker_environment/): Docker API 호환 런타임이 필요하다. 설치 목록만으로 프로젝트의 Testcontainers 2.0.5 / Docker 29 호환성이나 실제 daemon 접근 성공을 확정할 수 없다.
+
+### 현재 Workflow 의존 조사
+
+| 항목 | Repository 근거 / 영향 |
+|---|---|
+| Runner | ci.yml frontend / backend와 milestones.yml close-done-milestones 모두 ubuntu-latest다. 전환 중 Job마다 OS가 다를 수 있다. |
+| Docker / MySQL | DEC-023은 기본 Runner Docker와 Testcontainers 2.0.5, mysql:8.0.46을 사용한다. MySqlIntegrationTests는 Local Docker 부재 시 skip하지만 DockerAvailabilityTests는 CI=true에서 부재를 실패시킨다. Docker API / socket / 네트워크 / image pull / Ryuk 실행이 실제 검증 대상이다. Runner에 설치된 MySQL은 사용하지 않는다. |
+| Node / Java | setup-node@v7은 24.21.0, setup-java@v6은 Temurin 21을 선택한다. Runner 기본 Version 의존은 줄였으나 OS 라이브러리 / native binary 호환성은 Build로 확인해야 한다. |
+| Gradle | setup-gradle@v6과 ./gradlew 사용, Wrapper 9.8.0이다. System Gradle에 의존하지 않는다. Wrapper download와 Java 실행 / jar 검증을 유지한다. |
+| Shell / 도구 | Linux run의 Bash, summary 함수와 milestones의 set -euo pipefail / here-string / tab read / grep / awk를 사용한다. milestones는 기본 gh와 gh api --jq에 의존한다. OS 도구 Version은 고정되지 않았다. |
+| Permission / Line Ending | git ls-files --stage에서 backend/gradlew 100755, --eol에서 gradlew와 두 Workflow의 index / working tree LF를 확인했다. .gitattributes는 없다. 현재 chmod / 줄바꿈 변환 Step 추가 근거는 없다. |
+| Cache / CI 정책 | DEC-017 npm package-manager-cache:false / Gradle cache-disabled:true 유지. Trigger, Permission, Job 이름 frontend / backend, 실패 전파, DEC-021 Summary와 DEC-018 Milestone 동작은 승인 없이 변경하지 않는다. |
+
+### Human 결정 대안 / 권장안
+
+| 전략 | 승인 후 구체적 변경 | 장점 / 위험 / 롤백 |
+|---|---|---|
+| A: ubuntu-24.04 임시 고정 | 두 Workflow의 runs-on 3곳만 24.04로 변경 | 전환 시점을 직접 관리한다. 도구의 매주 갱신은 계속되며 26.04 검증을 미루는 비용이 있다. latest 복귀는 별도 승인 Diff로 처리한다. |
+| B: ubuntu-latest 유지 (권장) | Workflow 변경 없이 기존 Test / Build와 전환 결과 관찰 | 이미 Runtime 선택과 Docker 실패 Guard가 있다. 불필요한 고정 / Dependency를 피할 수 있다. 실제 26.04 결과는 아직 미확인이고 전환 중 회귀 가능성이 남는다. 실패 시 A로 돌아가는 최소 Diff를 Human Gate에 제출한다. |
+| C: ubuntu-26.04 명시 검증 | 승인된 Task Branch에서 runs-on 3곳을 26.04로 변경해 검증하고 최종 label을 재결정 | 10/19 전에 새 OS 증거를 얻을 수 있다. Workflow 변경 및 milestones 실행은 별도 범위 승인이 필요하다. 검증 후 latest 또는 24.04로 복귀하는 Diff도 승인 범위에 명시한다. |
+
+B안을 권장한다. 실패가 확인되지 않은 상태에서 OS 고정 / 설치 Step / Cache / Container 전략 / Dependency 추가를 확정할 근거는 부족하다. 10/19 전 전략 승인을 받고, B안은 전환 이후 실제 26.04 Run을 확인해야 FU-6 완료 여부를 판단한다. 10/19 전에 완료 증거가 필요하면 C안을 선택할 수 있다. 이 권장안은 Human 승인이나 호환성 PASS가 아니다.
+
+### 승인 후 검증 / 남은 Gate
+
+1. Human이 A / B / C, 최종 label, 검증 및 롤백 범위를 TASK-019에 연결해 승인한다. 후속 실행 Contract를 검토·갱신하고 명시적으로 실행 지시한다. 현재 Contract는 .github/를 금지하므로 전략 승인만으로 쓰기 권한을 추론하지 않는다.
+2. Orchestrator / 승인된 실행 환경에서 scripts/verify.ps1 또는 scripts/verify.sh로 Local Frontend / Backend 검증을 수행한다. Local Docker skip 결과는 Ubuntu 호환성 증거가 아니다.
+3. Remote CI frontend의 npm ci / npm test / npm run build, backend의 ./gradlew test / ./gradlew build를 확인한다. Set up job의 실제 OS / Image Version과 MySqlIntegrationTests 실행(0 skip) / DockerAvailabilityTests 성공을 비민감 기록으로 남긴다. B안에서 24.04 Run만 성공하면 26.04 검증은 여전히 미완료다.
+4. milestones는 승인된 실행에서 실제 OS, 기본 gh 동작, TASKS 파싱과 기존 동작 결과를 확인한다. 이번 조사에서는 외부 Milestone 수정이나 workflow_dispatch를 실행하지 않았다.
+5. Claude 자동 Review / 필요한 Rework / Human Review 후 완료 절차를 따른다. Release v3.0.1은 DEC-025 PATCH 후보일 뿐 생성하지 않는다.
+
+### 이번 Verification
+
+- Workflow / Source / Dependency 수정 없음. 조사 문서만 변경하므로 Test / Build / 전체 verify Script / Remote CI는 실행하지 않았다. Ubuntu 26.04 호환성 PASS를 주장하지 않는다.
+- git diff --check 결과와 누적 변경 경로 확인은 Executor 최종 결과에 기록한다. Orchestrator Verify는 별도로 수행해야 한다.
+
+### TASK-019 승인 C→B — C 단계 적용 (2026-10-02)
+
+- Human 결정은 `tasks/TASK-019_CI_RUNNER_OS_HARDENING.md`의 2026-10-02 승인 C→B를 따른다. 초기 Working Tree는 clean이며 기존 Task Branch에서 작업했다.
+- `.github/workflows/ci.yml`의 frontend / backend와 `.github/workflows/milestones.yml`의 runs-on 3곳만 `ubuntu-latest` → `ubuntu-26.04`로 변경했다. Step / Trigger / Permission / Cache / Dependency 변경 없음.
+- 공식 [Runner 전환 안내 #14748](https://github.com/actions/runner-images/issues/14748)를 다시 확인했다. 전환은 2026-10-19 시작 / 2026-11-19 완료 예정이며 명시적인 `ubuntu-26.04` 검증을 안내한다. 이 근거는 실제 프로젝트 호환성 PASS를 대신하지 않는다.
+- Verification: `git diff --check`와 Workflow Diff를 확인한다. 이번 변경은 Runner label만 바꾸므로 Local Test / Build를 Ubuntu 26.04 검증으로 사용하지 않는다. Deterministic Verification은 Orchestrator가 담당한다.
+- 실제 Remote CI / Milestone 실행은 아직 미수행이다. AGENTS.md §12 / DEC-026에 따라 Codex는 Commit / Push / PR / Branch 작업을 수행하지 않았다. 승인된 역할 또는 Human의 Git 작업과 Task Branch workflow_dispatch 실행이 필요하여 Executor는 HUMAN_REQUIRED로 정지한다. Runner 전략 재승인을 요청하는 것은 아니다.
+- Remote 확인 항목: 각 Job Set up job의 실제 Ubuntu 26.04 / Image Version, Frontend npm ci / Test / Build, Backend Test / Build, MySqlIntegrationTests 실행(SKIPPED 0), DockerAvailabilityTests 성공, Milestone Workflow gh 동작. 비민감 Run URL / 검토 Commit / 결과를 후속 기록에 연결한다.
+- B 단계 조건: 위 결과가 통과한 뒤 후속 Executor 실행에서 runs-on 3곳을 `ubuntu-latest`로 복귀하고 결과를 기록한다. 아직 복귀하거나 FU-6 / Task를 DONE으로 처리하지 않는다. 실패하면 원인과 3곳의 `ubuntu-24.04` 대체 최소 Diff를 정리해 Human Gate로 정지한다.
+- Prompt: `prompts/38-TASK-019-CI-RUNNER-C-TO-B.md`. TASK-020 이후는 실행하지 않았다.
+
+### TASK-019 승인 C→B — Remote 검증 / B 단계 복귀 (2026-10-02)
+
+- 근거: Task 원문의 C단계 원격 검증 결과(Claude 세션 실행 / 확인). 검토 Commit은 3a59adb, Draft PR #2다. 이번 Executor는 Remote 실행을 재수행하지 않았다.
+- [CI Run 36963139983](https://github.com/youneedpython/MoodFit-v3/actions/runs/36963139983): frontend success(약 20초), backend success(약 1분 46초). 두 Job Image ubuntu-26.04 / Version 20260927.149.1. Frontend npm ci / Test / Build 성공, Backend Test / Build 성공(BUILD SUCCESSFUL), MySqlIntegrationTests SKIPPED 0, DockerAvailabilityTests SKIPPED / FAILED 0. Test 출력은 skipped / failed만 표시한다.
+- [Sync Milestones Run 36963140373](https://github.com/youneedpython/MoodFit-v3/actions/runs/36963140373): workflow_dispatch(Task Branch), Image ubuntu-26.04, success. Close milestones of DONE tasks의 gh Step 성공(변경 대상 없음).
+- Ubuntu 26.04(Docker 29.4.2 / Bash 5.3.9)에서 기존 Test / Build / Testcontainers MySQL / gh 동작을 확인했다. 승인된 B 단계로 ci.yml frontend / backend와 milestones.yml의 runs-on 3곳만 ubuntu-latest로 복귀했다. 다른 Workflow 설정 변경 없음.
+- FU-6 / TASK-019 DONE과 TASK-020 READY를 PR 안에서 반영했다. 이 PR의 Human Squash Merge 시 확정된다. Claude 자동 Review / 최종 Remote CI / Human Review는 후속 절차이며 Executor DONE은 Human Approval을 대신하지 않는다.
+- 초기 Working Tree clean. Git 작업과 TASK-020 구현은 수행하지 않았다. AGENTS.md는 금지 경로여서 갱신하지 않았다. Release v3.0.1은 PATCH 후보이며 Tag / Release는 별도 Human 확인 대상이다.
+- Verification: git diff --check 통과(Exit Code 0). Workflow Diff에서 runs-on 3곳만 복귀한 것을 확인했다. Local Test / Build / 전체 verify Script는 재실행하지 않았으며 위 Ubuntu 26.04 결과는 Task 원문 제공 기록이다. Orchestrator Verify는 별도 수행한다.
+- Prompt: prompts/39-TASK-019-RUNNER-B-RETURN.md. Related Commit: Pending (검증 대상 C단계 Commit: 3a59adb).
