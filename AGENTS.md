@@ -1,10 +1,23 @@
-# MoodFit v3 — Codex 작업 규칙
+# MoodFit v3 — Multi-Agent 작업 규칙
 
 ## 1. 문서 목적
 
-이 파일은 MoodFit v3 Repository에서 Codex가 작업할 때 따라야 하는 최상위 작업 규칙을 정의한다.
+이 파일은 MoodFit v3 Repository에서 Codex Executor / Claude Reviewer / Orchestrator / Human이 따르는 최상위 작업 규칙을 정의한다.
 
 MoodFit v3의 핵심 목표는 단순히 코드를 빠르게 생성하는 것이 아니라, **명세 → 계획 → 사람 승인 → Task 단위 구현 → 검증 → 기록**의 흐름을 지키는 Harness 기반 개발을 실습하는 것이다.
+
+---
+
+승인 근거는 `docs/09-DECISIONS.md` DEC-026이며 상세 권한 / 금지는 `docs/11-MULTI-AGENT-ORCHESTRATION-POLICY.md`, 실행 설계는 `docs/12-ORCHESTRATOR-DESIGN.md`를 따른다.
+
+| 역할 | 권한 | 금지 |
+|---|---|---|
+| Codex / Executor | Human이 실행 지시한 승인 Task의 허용 경로 Working Tree 수정 / Test / 문서화 / Rework | 임의 Task 시작 / 범위 확대 / Gate 결정 / 독자 Commit / Push / PR / Merge |
+| Claude / Reviewer | 완전 Read-only로 Task Contract / 실제 Diff / Verification / 승인 Decision 검토, Verdict / Finding 작성 | Source / 문서 / Git 수정, 배포, 승인 대행, 임의 실행 도구 사용 |
+| Orchestrator | 승인된 실행 순서 / Verification / 자동 Review / 반복 횟수 / Gate 정지 제어 | 권한 확대 / Gate 우회 / 무한 반복 / 승인 전 Git·배포 자동화 / Merge |
+| Human | Task 실행 지시 / 정책·Gate 결정 / 로그인 / PR Squash Merge / Production 승인 / 최종 Review | AI PASS를 Human Approval로 간주하지 않음 |
+
+TASK-018 Bootstrap에 한정해 Claude Code 세션이 임시 Orchestrator로 실행 / 자동 Review를 연결한다. Reviewer의 Read-only 역할과 12절의 승인된 Git 작업 수행 역할을 구분한다.
 
 ---
 
@@ -21,6 +34,9 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 5. `docs/04-ARCHITECTURE.md`
 6. `docs/05-API_SPEC.md`
 7. `docs/09-DECISIONS.md`
+8. `docs/tasks/COMMON.md`와 해당 Task Contract
+9. `docs/11-MULTI-AGENT-ORCHESTRATION-POLICY.md`
+10. `docs/12-ORCHESTRATOR-DESIGN.md`
 
 `docs/06-PLAN.md`, `docs/07-TASKS.md`가 생성된 이후에는 해당 문서도 반드시 확인한다.
 
@@ -43,12 +59,13 @@ TASK-018 — Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
 Status:
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
 TASK-018은 Human의 실행 지시 후 시작하며, TASK-019 이후는 선행 Task와 Gate 승인 전까지 BLOCKED이다.
-Multi-Agent 자동화 정책(DEC-026)이 승인되어 이 문서에 반영되기 전까지는 아래 기존 규칙(Human 지시 후 Commit / Push 등)을 그대로 따른다.
+Multi-Agent 자동화 정책(DEC-026, Human Approved)을 D단계에서 이 문서에 반영했다. TASK-018은 A ~ D단계 완료, 최종 Human Review(PR Squash Merge) 대기 상태이다.
+TASK-019부터 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs <TASK-ID>`로 실행한다. 선행 Task 완료 / 필요한 Gate 승인 / Human의 명시적 실행 지시 없이 시작하지 않는다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
 후속 보완 작업 후보 FU-6(Runner OS 전환 대응)은 TASK-019로 등록되었다. (Orchestrator로 실행하는 첫 Task)
@@ -88,6 +105,17 @@ Task 실행 시에는 다음 규칙을 따른다.
 
 ---
 
+### 3.2 Multi-Agent 실행 흐름
+
+- Preflight → Codex Execute → 변경 경로 / Schema Guard → Orchestrator Verify → Claude 자동 Review → Decide 순서로 실행한다. Human이 Agent 사이에서 결과를 옮기지 않는다.
+- `CHANGES_REQUIRED` Finding은 같은 Task 범위의 Rework → Verify → Review로 자동 전달한다. `MAX_REVIEW_CYCLES=3`이며 첫 Review를 1회로 센다. 3번째도 `CHANGES_REQUIRED`이면 4번째 실행 없이 `HUMAN_REQUIRED`로 정지한다.
+- Gate / 로그인 만료·미확인 시 `HUMAN_REQUIRED`로 정지하고 사유 / 대안 / 권장안 / Diff / Verification을 제공한다. 승인 입력 없이 정지 상태를 해제하지 않는다.
+- 사용량 한도 / 실행 실패 / Timeout / Verification 실패 / Schema·변경 경로 오류는 `BLOCKED`로 정지한다. 자동 재시도 / 계정 전환 / API 우회를 금지한다.
+- Deterministic Verification 실패를 AI `PASS`로 덮어쓰지 않는다. Reviewer 입력은 Task Contract + 실제 Diff(신규 파일 포함) + Verification Log + 승인 Decision이며 Codex 자기 설명은 전달하지 않는다.
+- Agent는 로컬 로그인 CLI로만 실행한다. GitHub Actions는 Deterministic CI / CD만 담당한다. Codex는 `workspace-write` / Task 허용 경로 / Windows `unelevated` Sandbox를 적용하며 `elevated` 전환은 TASK-020 검증 후 재결정한다. 무승인 CLI 설치 / 업데이트를 금지한다.
+
+---
+
 ## 4. 구현 전 계획 규칙
 
 초기 명세 문서 검토가 완료되면 Codex는 바로 코드를 작성하지 않는다.
@@ -124,7 +152,8 @@ docs/06-PLAN.md
 - CI/CD Workflow의 동작 방식 변경
 - 외부 API 또는 외부 서비스 연동 추가
 
-필요한 경우 변경 이유와 대안을 먼저 제시하고 승인을 요청한다.
+필요한 경우 변경 이유와 대안을 먼저 제시하고 승인을 요청한다. 기존 Gate A / B / C를 유지한다.
+DEC-026에 따라 GitHub Permission / Git 자동화, AWS Architecture, IAM / Network, 비용 Resource 생성·확대, Production 배포·최초 생성·Rollback, 파괴적 DB 작업, Secret 정책 변경도 Human Approval 전에 실행하지 않는다. 승인 범위는 Task / 변경 범위 / 검토 대상 Commit 또는 Diff에 연결하며 범위 밖 승인을 추론하지 않는다. Production은 항상 Human Approval / GitHub Environment Required Reviewer를 요구하며 우회를 금지한다.
 
 ---
 
@@ -266,30 +295,49 @@ MoodFit v3는 단순 입력 Form 형태의 데모 UI를 목표로 하지 않는�
 - Secret Key
 - 개인 인증 정보
 
-민감 정보는 환경변수 또는 GitHub Secrets를 사용한다.
+앱의 민감 정보는 승인된 환경변수 또는 GitHub Secrets를 사용한다.
+
+- Agent는 OpenAI / Anthropic API Key를 사용하지 않는다. Repository / GitHub Secrets / Prompt / Log에 Agent API Key를 두지 않는다. Human 로그인 후 구독 로그인을 공유하는 로컬 CLI로 진행한다.
+- GitHub / AWS 로그인도 Human이 수행한다. Task Contract에 명시되고 Human이 허용한 최소 권한 Profile만 사용하며 Production 관리 Profile은 Human 전용이다. 로그인 만료 / 미확인 시 재로그인 없이 `HUMAN_REQUIRED`로 정지한다.
+- Access Key 생성 / 저장, SSO Token Cache 읽기, 자격 증명 Export / 출력을 금지한다. Secret / Token / Password / 실제 계정 정보 / 인증 Cache를 Source / Prompt / Agent 입력 / Log에 기록하지 않는다.
+- Run 기록은 Git 비추적 `.harness/runs/<run-id>/`에 저장하며 Prompt / 결과 / stdout / stderr / Verify Log는 저장 전 Redaction한다. Redaction만으로 임의 Secret 검출을 보장하지 않으므로 입력 / 명령 인자에 Secret 값을 넣지 않는다.
+- CI / CD는 GitHub OIDC → IAM Role을 사용하며 장기 AWS Access Key를 사용하지 않는다. AWS 상세는 TASK-025에서 확정한다.
 
 ---
 
 ## 12. Git / Commit 규칙
 
-Codex는 사용자의 명시적인 지시 없이 `git commit`, `git push`, 강제 Push, History Rewrite를 수행하지 않는다.
+- Task 하나 = Task Branch 하나 = PR 하나. Branch 이름은 `task/TASK-0XX-<짧은-이름>`이며 TASK-018부터 적용한다.
+- `main` 직접 Push는 금지하며 Branch Ruleset으로 보호한다. Force Push / History Rewrite도 금지한다. PR + Remote CI(`frontend` / `backend`) / Claude PASS / 필요한 Gate / Branch Ruleset 충족 후 Human이 Squash Merge한다. main에는 Task당 Commit 1개를 남긴다.
+- Task 완료 승인 = Human의 PR Squash Merge이다. Agent / Orchestrator Merge를 금지하며 Auto Merge는 비활성으로 유지한다. 같은 `gh` 계정을 사용해 자기 PR Approve가 불가능하므로 Required approvals 0 / Required status checks로 CI를 강제한다. 작성자 분리는 TASK-021에서 검토한다.
+- TASK-018 ~ TASK-020의 Branch / Commit / Push / PR 생성은 Human 승인 후 Claude 세션(임시 Orchestrator) 또는 Human이 수행한다. Codex의 독자 Git 작업은 금지한다. Orchestrator Script의 Git 자동화는 TASK-021에서 별도 승인 / 구현하며 Task Branch에만 허용한다.
+- Task의 DONE 상태 변경은 PR 안에서 처리하고 Merge 후 Sync Milestones가 Milestone을 닫는다. Claude PASS만으로 Task 완료 승인을 대신하지 않는다.
 
-기능 구현 단계의 기본 Checkpoint는 다음과 같다.
+기본 Checkpoint는 다음과 같다.
 
 ```text
 Task 구현
   ↓
-Test / Build / Verify
+Test / Build / Orchestrator Verify
   ↓
-TASKS / WORK_LOG 갱신
+Claude 자동 Review / 필요한 Rework
   ↓
-Human Review
+TASKS / WORK_LOG 갱신 / 필요한 Human Gate
   ↓
-Commit
+승인된 역할의 Commit / Push / PR
+  ↓
+Remote CI / Human Review / Human PR Squash Merge
 ```
 
-Commit은 의미 있는 작업 단위가 완료되고 검증된 시점에 수행한다.
-검증 실패 상태를 정상 Checkpoint로 Commit하지 않는다.
+Commit은 의미 있는 작업 단위가 검증에 성공하고 기록 갱신 / 필요한 Review가 끝난 시점에 수행한다. 검증 실패 상태를 정상 Checkpoint로 Commit하지 않는다.
+Commit 형식은 `docs:` / `feat:` / `test:` / `ci:` / `chore:` + 한국어 요약 + `- ` 목록을 유지한다.
+Codex 작업이 포함되면 Commit과 Squash Merge 메시지에 다음 Trailer를 포함한다.
+
+```text
+Co-authored-by: Codex <199175422+chatgpt-codex-connector[bot]@users.noreply.github.com>
+```
+
+Release / Tag는 DEC-025를 따른다. Semantic Versioning / Annotated Tag / Local Verification과 Remote CI가 성공한 main Commit / 이미 push한 Tag 이동·삭제 금지 / Release 노트 규칙을 유지한다. Tag push / Release 생성은 별도 Human 확인 후 수행하며 Merge 승인을 대신 사용하지 않는다.
 
 ---
 

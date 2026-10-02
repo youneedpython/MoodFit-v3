@@ -34,3 +34,7 @@ coverage/
 
 # Archive
 *.zip
+
+# Local Orchestrator
+.harness/runs/
+harness/config.local.json

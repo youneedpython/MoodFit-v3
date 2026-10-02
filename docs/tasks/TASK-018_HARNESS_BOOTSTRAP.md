@@ -76,7 +76,7 @@ Human Decision Matrix에 반드시 포함할 항목:
 | Runtime | Node.js `24.21.0` (`.nvmrc`) |
 | 언어 | JavaScript ES Module (`.mjs`), 필요 시 JSDoc |
 | Dependency | **없음** — Node 내장 Module만 사용 |
-| Test | `node --test scripts/orchestrator/` (Fake CLI) |
+| Test | `node --test "scripts/orchestrator/*.test.mjs"` (Fake CLI) |
 | 설정 / 계약 형식 | JSON |
 
 Codex 작업 범위:
@@ -128,7 +128,7 @@ Codex 작업 범위:
 
 ## Verification
 
-- `node --test scripts/orchestrator/`
+- `node --test "scripts/orchestrator/*.test.mjs"`
 - 실제 CLI Smoke Run 1회: Repository 밖 임시 Git Repo에서 작은 Task로 Execute → Verify → Review → PASS 확인
 - `scripts/verify.ps1`, `scripts/verify.sh` (기존 Frontend / Backend Regression 없음)
 - `package.json` / `build.gradle` 변경 없음, `git diff --check`

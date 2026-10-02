@@ -38,7 +38,7 @@ TASK-018 — Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator)
 Status:
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
 TASK-001 ~ TASK-012(Core MVP)과 TASK-013 ~ TASK-017(Post-MVP 보완, FU-1 ~ FU-5)이 모두 완료되었다. (Release `v3.0.0`)
@@ -69,7 +69,7 @@ TASK-019(FU-6)부터는 Orchestrator로 실행한다. TASK-019 이후는 선행 
 | TASK-015 | Milestone 15 | Timezone-fixed Date Display Test (FU-4) | DONE | TASK-014 완료 (충족), Human Approval 완료, DEC-022 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | 승인 완료 |
 | TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | DONE | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 | TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | DONE | TASK-016 완료 (충족), DEC-024 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
-| TASK-018 | Milestone 18 | Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator) | IN_PROGRESS | 선행 Task 없음 | 필요 (DEC-026) |
+| TASK-018 | Milestone 18 | Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator) | REVIEW | 선행 Task 없음 | 필요 (DEC-026) |
 | TASK-019 | Milestone 19 | CI Runner OS Transition Hardening (FU-6) | BLOCKED | TASK-018 완료 (2026-10-19 전 완료 목표) | 필요 (CI 동작 변경) |
 | TASK-020 | Milestone 20 | Orchestrator Hardening (worktree / Resume / Guard) | BLOCKED | TASK-019 완료 | Gate C 조건부 (Runtime / Dependency) |
 | TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | BLOCKED | TASK-020 완료 | 필요 (Git / GitHub 권한) |
@@ -1157,10 +1157,12 @@ Frontend와 Backend가 약속한 API 형식(`docs/05-API_SPEC.md`)을 양쪽이 
 ### 상태
 
 ```text
-IN_PROGRESS
+REVIEW
 ```
 
-A단계 완료(DEC-026 Human Approved), B단계 진행 예정
+A ~ D단계 완료, 최종 Human Review(PR Squash Merge) 대기
+
+Reviewer가 Sandbox 밖에서 수정 후 Fake CLI Test tests 32 / pass 32 / fail 0을 확인했다. Repository 밖 임시 Git Repo의 TASK-901 실제 CLI Smoke Run은 3회차 PASS(Exit 0, 약 39초)이며 Execute / Guard / Verify / Claude Review / Decide를 통과했다. DEC-026 정책은 AGENTS.md에 반영했다. 이번 D단계 Claude 자동 Review는 후속 검토 대상이며 최종 Human Review 전 DONE으로 처리하지 않는다.
 
 ### 목적
 
@@ -1585,7 +1587,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-DEC-026은 2026-10-02 Human Approved. TASK-018 B단계 진행 예정이며 TASK-019 이후는 선행 Task와 Gate 승인 전까지 BLOCKED를 유지한다.
+DEC-026은 2026-10-02 Human Approved. TASK-018 A ~ D단계 완료, 최종 Human Review(PR Squash Merge) 대기이며 TASK-019 이후는 선행 Task와 Gate 승인 전까지 BLOCKED를 유지한다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

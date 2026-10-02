@@ -31,6 +31,7 @@ TASK-019(첫 시범 운영)에서 발견한 문제를 반영하고, 작업 공�
 7. **설계 문서 갱신**: `docs/12-ORCHESTRATOR-DESIGN.md`를 실제 구현과 일치시킨다.
 8. Orchestrator Test를 `scripts/verify.*` / CI에 포함할지 제안한다. (CI 변경은 Gate C)
 9. Git Branch / Commit / Push / PR은 하지 않는다. (TASK-021)
+10. Windows Codex Sandbox의 `elevated` 전환 시 자식 Process 생성 / Deterministic Verification을 재검증한다. TASK-018에서 확인한 `unelevated`의 `spawn EPERM` 제약과 Orchestrator의 Sandbox 밖 Verify 기준을 확인한 뒤 전환 여부를 다시 결정한다.
 
 ## 권장 구조 (TASK-018 최소 구현 기준으로 확장)
 
@@ -72,7 +73,7 @@ Agent CLI 사전 검증 결과와 구현 시 주의 사항은 [TASK-018](TASK-01
 
 ## Verification
 
-- `node --test scripts/orchestrator/`
+- `node --test "scripts/orchestrator/*.test.mjs"`
 - `scripts/verify.ps1`, `scripts/verify.sh`
 - `package.json` / `package-lock.json` 변경 없음 (새 Dependency 없음)
 - `git diff --check`
