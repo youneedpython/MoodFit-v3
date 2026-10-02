@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Checkout
@@ -72,7 +72,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   backend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Checkout

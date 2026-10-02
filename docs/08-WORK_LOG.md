@@ -2553,3 +2553,14 @@ B안을 권장한다. 실패가 확인되지 않은 상태에서 OS 고정 / 설
 
 - Workflow / Source / Dependency 수정 없음. 조사 문서만 변경하므로 Test / Build / 전체 verify Script / Remote CI는 실행하지 않았다. Ubuntu 26.04 호환성 PASS를 주장하지 않는다.
 - git diff --check 결과와 누적 변경 경로 확인은 Executor 최종 결과에 기록한다. Orchestrator Verify는 별도로 수행해야 한다.
+
+### TASK-019 승인 C→B — C 단계 적용 (2026-10-02)
+
+- Human 결정은 `tasks/TASK-019_CI_RUNNER_OS_HARDENING.md`의 2026-10-02 승인 C→B를 따른다. 초기 Working Tree는 clean이며 기존 Task Branch에서 작업했다.
+- `.github/workflows/ci.yml`의 frontend / backend와 `.github/workflows/milestones.yml`의 runs-on 3곳만 `ubuntu-latest` → `ubuntu-26.04`로 변경했다. Step / Trigger / Permission / Cache / Dependency 변경 없음.
+- 공식 [Runner 전환 안내 #14748](https://github.com/actions/runner-images/issues/14748)를 다시 확인했다. 전환은 2026-10-19 시작 / 2026-11-19 완료 예정이며 명시적인 `ubuntu-26.04` 검증을 안내한다. 이 근거는 실제 프로젝트 호환성 PASS를 대신하지 않는다.
+- Verification: `git diff --check`와 Workflow Diff를 확인한다. 이번 변경은 Runner label만 바꾸므로 Local Test / Build를 Ubuntu 26.04 검증으로 사용하지 않는다. Deterministic Verification은 Orchestrator가 담당한다.
+- 실제 Remote CI / Milestone 실행은 아직 미수행이다. AGENTS.md §12 / DEC-026에 따라 Codex는 Commit / Push / PR / Branch 작업을 수행하지 않았다. 승인된 역할 또는 Human의 Git 작업과 Task Branch workflow_dispatch 실행이 필요하여 Executor는 HUMAN_REQUIRED로 정지한다. Runner 전략 재승인을 요청하는 것은 아니다.
+- Remote 확인 항목: 각 Job Set up job의 실제 Ubuntu 26.04 / Image Version, Frontend npm ci / Test / Build, Backend Test / Build, MySqlIntegrationTests 실행(SKIPPED 0), DockerAvailabilityTests 성공, Milestone Workflow gh 동작. 비민감 Run URL / 검토 Commit / 결과를 후속 기록에 연결한다.
+- B 단계 조건: 위 결과가 통과한 뒤 후속 Executor 실행에서 runs-on 3곳을 `ubuntu-latest`로 복귀하고 결과를 기록한다. 아직 복귀하거나 FU-6 / Task를 DONE으로 처리하지 않는다. 실패하면 원인과 3곳의 `ubuntu-24.04` 대체 최소 Diff를 정리해 Human Gate로 정지한다.
+- Prompt: `prompts/38-TASK-019-CI-RUNNER-C-TO-B.md`. TASK-020 이후는 실행하지 않았다.

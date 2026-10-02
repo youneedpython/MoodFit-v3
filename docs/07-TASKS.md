@@ -71,7 +71,7 @@ TASK-020 이후는 선행 Task 완료와 필요한 Gate 승인 전까지 BLOCKED
 | TASK-016 | Milestone 16 | DB 연동 테스트 — 실제 MySQL (FU-3) | DONE | TASK-015 완료 (충족), DEC-023 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 | TASK-017 | Milestone 17 | API 계약 테스트 — Frontend / Backend (FU-1) | DONE | TASK-016 완료 (충족), DEC-024 Human Approved, Local / Remote Verification 완료, Human Review 승인 완료 | Gate C 승인 완료 |
 | TASK-018 | Milestone 18 | Multi-Agent Harness Bootstrap (Policy + Minimal Orchestrator) | DONE | DEC-026 Human Approved, A ~ D단계 완료, PR Squash Merge 승인 | 승인 완료 |
-| TASK-019 | Milestone 19 | CI Runner OS Transition Hardening (FU-6) | IN_PROGRESS | TASK-018 완료 (충족), 조사 완료 / Human Gate 대기 | 필요 (Runner 전략 미승인) |
+| TASK-019 | Milestone 19 | CI Runner OS Transition Hardening (FU-6) | IN_PROGRESS | TASK-018 완료 (충족), C 단계 적용 / Ubuntu 26.04 Remote 검증 대기 | C→B 승인 완료, Git 작업 / 최종 Human Review 별도 |
 | TASK-020 | Milestone 20 | Orchestrator Hardening (worktree / Resume / Guard) | BLOCKED | TASK-019 완료 | Gate C 조건부 (Runtime / Dependency) |
 | TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | BLOCKED | TASK-020 완료 | 필요 (Git / GitHub 권한) |
 | TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | BLOCKED | TASK-021 완료 | Gate C 필요 |
@@ -1191,7 +1191,7 @@ Codex 실행 후 Claude가 자동으로 검토하는 자동화 기반을 만든�
 IN_PROGRESS
 ```
 
-2026-10-02 Human 실행 지시로 조사 / 전략 제안을 수행했다. 실행 결과는 `HUMAN_REQUIRED`이며 Task는 IN_PROGRESS를 유지한다. Workflow 수정 / Remote CI 검증 / FU-6 완료는 미수행이다. 공식 전환 일정은 10월 19일 시작 / 11월 19일 완료 예정이다. 조사 근거, 전략 대안과 권장안, 승인 후 검증 계획은 `08-WORK_LOG.md`의 TASK-019 기록을 따른다.
+2026-10-02 조사 / 전략 제안 후 Human이 C→B를 승인했다. 승인된 C 단계로 두 Workflow의 runs-on 3곳만 `ubuntu-26.04`로 변경했다. Task는 IN_PROGRESS이며 Ubuntu 26.04 PR CI / Task Branch Milestone Workflow의 실제 결과를 기다린다. 검증 통과 후에만 승인된 B 단계(`ubuntu-latest` 복귀)를 수행한다. Remote CI 검증 / FU-6 완료는 아직 미수행이다. 공식 전환 일정은 10월 19일 시작 / 11월 19일 완료 예정이다. 근거와 검증 항목은 `08-WORK_LOG.md`의 TASK-019 기록을 따른다.
 
 ### 목적
 
@@ -1588,7 +1588,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-DEC-026은 2026-10-02 Human Approved이며 TASK-018은 DONE이다 (이 PR의 Squash Merge 시 확정). TASK-019는 IN_PROGRESS이며 조사 후 `HUMAN_REQUIRED`로 Runner 전략 승인을 기다린다. Runner 전략의 CI 동작 변경은 Human Approval이 필요하며, TASK-020 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED를 유지한다.
+DEC-026은 2026-10-02 Human Approved이며 TASK-018은 DONE이다 (이 PR의 Squash Merge 시 확정). TASK-019는 IN_PROGRESS이며 Human 승인 C→B의 C 단계를 적용하고 Remote 검증을 기다린다. Codex는 독자 Commit / Push / PR 생성을 수행하지 않는다. 검증 실패 시 A안 최소 Diff와 원인을 제시하고 Human Gate로 정지한다. TASK-020 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED를 유지한다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

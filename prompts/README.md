@@ -107,3 +107,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 35 | Agent 자동화 / AWS 배포 Roadmap 검토와 등록 | Task 생성 | 완료 |
 | 36 | TASK-018 Multi-Agent Harness Bootstrap | A ~ D단계 정책 / 구현 / 검증 / 반영 | 완료 |
 | 37 | TASK-019 CI Runner OS 조사 / Human Gate | 조사 / 전략 제안 | HUMAN_REQUIRED |
+| 38 | TASK-019 승인 C→B 실행 | C 단계 적용 / Remote 검증 대기 | HUMAN_REQUIRED |
