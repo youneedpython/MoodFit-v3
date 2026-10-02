@@ -2763,3 +2763,18 @@ DONE
 - 회귀 검증: 임시 Git Repository에서 autocrlf=true / Workspace LF / Source CRLF의 Commit 진행, 검토 후 Stage된 문자 한 글자 변경 차단, binary 바이트 변경 차단을 추가했다. 기존 Git 실패 Test도 전체 실행에 포함한다. 프로젝트 Repository의 Commit / Push / PR / Merge는 수행하지 않았다.
 - Prompt: `prompts/43-TASK-022-GIT-CONTENT-CHECK.md`. TASK-022 IN_PROGRESS를 유지하며 자기 Contract / Dependency는 변경하지 않았다.
 - Verification: `node --test "scripts/orchestrator/*.test.mjs"` tests 74 / pass 74 / fail 0 / skipped 0, Exit 0(약 103초). 신규 3개 회귀 Test와 기존 Git 실패 Test 모두 통과했다. 추가 내용 / 신규 Prompt에 연속 물음표 치환 흔적과 U+FFFD 없음. `git diff --check` Exit 0, 공백 오류 없음(autocrlf 안내만 표시).
+
+## TASK-022 — E2E 결과 / DONE (2026-10-02)
+
+- 재실행 Run(`2026-10-02T07-59-16-842Z-06da8316`): N1 ~ N3 처리 범위로 Codex 실행 → Verify → Claude Review 1회차 PASS → Orchestrator가 Commit(`b3336bb`) / Push / **Draft PR #5**를 자동 생성했다(Git 단계 결함 수정 후 첫 자동 PR).
+- Claude 세션이 DEC-021 / DEC-026 변경 이력을 별도 Commit(`bdbc9a1`)했다.
+- CI: 이전 head Run 36981960960 진행 중 새 head Run 36982029156이 `concurrency`(`cancel-in-progress: false`)로 대기 후 실행되었고 `frontend` / `backend` 모두 success. Required Check가 최신 head(`bdbc9a1`) 결과로 판정됨을 확인했다.
+- Human이 Ready for review 전환 후 Squash Merge했다: merged_by `youneedpython`, 2026-10-02T08:17:34Z, main `f2d0936`. main push CI / Sync Milestones success.
+- 결론: 로컬 Harness → Draft PR → 최신 head CI → Human Squash Merge E2E 1회를 검증했다. TASK-022 DONE, TASK-023 READY.
+- Review 참고(비차단): N2 회귀 Test는 Dismiss를 별도 id의 DISMISSED Review로 모사한다. GitHub는 기존 Review의 state를 바꾸므로 Fixture 정밀화 후보다.
+
+### TASK-023 이후 Orchestrator 개선 후보
+
+- 자동 PR에 Task 완료 반영(07-TASKS DONE / 다음 Task READY / AGENTS.md 3절)이 포함되지 않아 Merge 후 Milestone이 닫히지 않았다. 이번에는 TASK-023 Branch의 첫 Commit으로 보완했다.
+- 자동 PR / Squash Commit 제목이 `chore: TASK-022 승인 작업 반영`으로 일반적이다. `TASK-0xx <Task 제목>` 형식이 필요하다.
+- 기존 후보(frozen Run 문서화, CLI ENOENT 분류, scripts/verify.* 포함, Redaction 정밀화)는 유지한다.

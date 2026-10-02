@@ -46,19 +46,19 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-021은 DONE 상태이며, TASK-021 완료 승인은 이 PR의 Human Squash Merge로 확정된다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
+TASK-001 ~ TASK-022는 DONE 상태이다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-022 — GitHub CI Integration / PR Gate
+TASK-023 — AWS Deployment Architecture / Cost Gate
 ```
 
 Status:
 
 ```text
-IN_PROGRESS
+READY
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
