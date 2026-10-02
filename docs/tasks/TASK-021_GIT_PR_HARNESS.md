@@ -20,6 +20,25 @@ Codex는 Working Tree 수정만 담당하고, Orchestrator가 Policy 통과 후 
 - 인증이 없거나 만료되면 `HUMAN_REQUIRED`로 멈춘다.
 - GitHub CLI 설치 자체가 새 도구 도입이므로 Human Approval 후 진행한다.
 
+## Human 결정 (2026-10-02, TASK-021 첫 실행 Gate)
+
+첫 Orchestrator 실행에서 Codex가 Git 자동화 범위 승인을 요청하며 수정 전 정지했고(Executor HUMAN_REQUIRED → Verify / Claude Review 후 정지), Human이 다음을 승인했다.
+
+1. **Git 자동화 범위 (Codex 권장안 승인)**
+   - 승인된 `task/TASK-0XX-<짧은-이름>` Branch에서만 작업한다.
+   - Stage는 Contract allowed_paths 안의 파일만 개별 추가한다. `git add .` 금지, forbidden_paths / Secret 파일 차단.
+   - 인증은 Human이 로그인한 기존 `git` / `gh`를 사용한다. Token / PAT를 저장하지 않는다.
+   - PR은 `gh pr create`로 만들고 본문에 Task ID, Verification, Review Verdict, Human Gate 여부, Codex / Claude Co-author Trailer를 포함한다.
+   - 금지: `main` 직접 Push, Force Push, History Rewrite, **Merge / Auto Merge**(Merge는 Human만).
+2. **Git 실행 승인 방식: (b) 자동** — Deterministic Verification 성공 + Claude `PASS`이면 Orchestrator가 **자동으로 Commit / Push / Draft PR 생성**까지 진행한다. Human은 PR Squash Merge로 최종 승인한다. (`main` Ruleset 보호, Draft PR, Human Merge가 안전장치)
+   - `HUMAN_REQUIRED` / `BLOCKED` / `CHANGES_REQUIRED` 상태에서는 Git 작업을 하지 않는다.
+   - 이 결정으로 DEC-026의 "Commit / Push는 Human 승인 후" 규칙이 바뀌므로 DEC-026 변경 이력, docs/11, AGENTS.md 12절을 갱신한다. (Contract 허용 경로에 docs/09-DECISIONS.md 추가 — Claude 세션이 Human 승인으로 수정)
+3. **TASK-020 개선 후보 범위**
+   - 포함: **자기 Contract 변경 금지 Guard**(Orchestrator가 실행 중인 Task의 `harness/tasks/<id>.json` 변경을 차단), **Resume 한도 동작 문서화**(Review 3회 한도로 정지한 Run은 Resume해도 추가 Review 없이 다시 정지함을 설계 문서에 명시).
+   - 제외(TASK-022 이후): `scripts/verify.*`를 Contract Verify에 포함, Secret Redaction 범위 정밀화.
+4. 첫 실행 Reviewer Finding F-001 ~ F-005(Git 계층 구현, 필수 실패 Test, Allowlist Stage, PR 기록 / 본문, 문서 갱신)를 작업 목록으로 사용한다.
+5. TASK-021 자체의 Branch / Commit / Push / PR은 Git 계층 구현 전이므로 Claude 세션이 수행한다. TASK-022부터 Orchestrator Git 자동화를 사용한다.
+
 ## Human Gate
 
 Git 권한 확대, GitHub Token / PAT / App 사용, Auto Merge 정책 변경은 Human Approval 대상이다. 승인되지 않은 Credential 방식을 임의로 도입하지 않는다.
