@@ -33,6 +33,19 @@ GitHub Actions의 `ubuntu-latest`가 **2026-10-19부터 Ubuntu 26으로 전환**
 
 Task Contract(`harness/tasks/TASK-019.json`)의 허용 경로에 `.github/workflows/`를 추가했다. (Human 승인)
 
+## C단계 원격 검증 결과 (2026-10-02, Claude 세션이 실행 / 확인)
+
+Commit `3a59adb`(runs-on 3곳 `ubuntu-26.04`)를 Task Branch에 push하고 Draft PR #2를 열어 확인했다. **모두 통과했으므로 B단계(복귀)를 진행한다.**
+
+| 대상 | Run | 결과 |
+|---|---|---|
+| CI `frontend` | https://github.com/youneedpython/MoodFit-v3/actions/runs/36963139983 | success (약 20초), Image `ubuntu-26.04` / Version `20260927.149.1` |
+| CI `backend` | 같은 Run | success (약 1분 46초), Image `ubuntu-26.04` / Version `20260927.149.1`, BUILD SUCCESSFUL, `MySqlIntegrationTests` SKIPPED 0, `DockerAvailabilityTests` SKIPPED / FAILED 0 (Test 출력은 skipped / failed만 표시) |
+| Sync Milestones (`workflow_dispatch`, Task Branch) | https://github.com/youneedpython/MoodFit-v3/actions/runs/36963140373 | success, Image `ubuntu-26.04`, `Close milestones of DONE tasks`(gh) Step success (변경 대상 없음) |
+
+- 결론: Ubuntu 26.04(Docker 29.4.2 / Bash 5.3.9)에서 Frontend / Backend Test·Build, Testcontainers MySQL 연동, Milestone Workflow가 정상 동작한다. 전환 대비 Workflow 수정이 필요 없다.
+- B단계 작업: `runs-on` 3곳을 `ubuntu-latest`로 되돌리고, 위 결과를 WORK_LOG에 기록하고, TASK-019를 DONE(PR Squash Merge로 승인), TASK-020을 READY로 갱신한다. (AGENTS.md는 이번 Contract에서 금지 경로이므로 수정하지 않는다)
+
 ## Human Gate
 
 Runner를 특정 OS Version으로 고정할지, `ubuntu-latest`를 유지할지, Tool 설치 / Cache / Container 전략을 바꿀지는 CI 동작 변경이므로 Human Approval을 받는다. Orchestrator는 전략 제시 후 `HUMAN_REQUIRED`로 정지한다.
