@@ -1254,6 +1254,7 @@ TASK-018 A단계의 Multi-Agent Automation Policy를 Human Approved 정책으로
 ### 변경 이력
 
 - 2026-10-02: Reviewer(Claude) PASS(Review 2회차) 후 Human이 모든 Matrix 항목을 권장안대로 승인했다. Sandbox는 `unelevated`로 확정하고 `elevated` 전환은 TASK-020에서 검증 후 재결정한다. GitHub 설정 적용 기록을 반영했다. A단계 Commit / Push / Draft PR 생성은 승인되었으며 Claude 세션이 수행한다.
+- 2026-10-02: TASK-020 Review 4회차 PASS 후 Human 결정 A로 Windows Sandbox를 `elevated`로 전환했다. Claude 세션의 임시 Git Repo / codex 0.160.0 재검증에서 파일 쓰기와 `node --version`은 두 모드 모두 성공했으나 Node 자식 Process(`spawnSync(process.execPath, ['--version'])`)는 unelevated에서 EPERM, elevated에서 `child: 0 v24.21.0`으로 성공했다. 이번 elevated 실행은 UAC 확인 창 없이 진행됐다. Sandbox 밖 경로 접근 시도는 UnauthorizedAccessException으로 격리됐으며 작업은 성공했다. 설정은 elevated / unelevated만 허용하고 기본값은 elevated다. Orchestrator Verify가 검증 기준이며 Executor 자체 Test는 참고다.
 
 ### 상태
 

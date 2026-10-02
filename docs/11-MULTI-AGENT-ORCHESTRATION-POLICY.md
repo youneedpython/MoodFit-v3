@@ -26,7 +26,7 @@
 - Agent는 로컬 개발 PC에서만 실행한다. GitHub Actions는 Deterministic CI / CD만 담당한다.
 - 사용량 한도 도달 시 `BLOCKED`로 정지한다. 자동 재시도 / 계정 전환 / API 우회를 금지한다.
 - Claude는 Read-only 도구만 허용하며 쓰기 / 실행 권한을 부여하지 않는다.
-- Codex는 `workspace-write`와 Task 허용 경로를 적용한다. Windows Sandbox는 `unelevated`로 시작한다 (사전 검증 완료, 추가 설정 없음). `elevated` 전환은 TASK-020(Orchestrator Hardening)에서 검증 후 다시 결정한다.
+- Codex는 `workspace-write`와 Task 허용 경로를 적용한다. Windows Sandbox는 `elevated`다(2026-10-02 TASK-020 재검증 후 Human 승인 전환).
 - Codex npm 전역 CLI와 Claude VS Code 확장 실행 파일을 사용한다. Task 문서의 사전 검증 Version을 재현 기준으로 삼고 최신 Version으로 가정하지 않는다.
 - CLI Version / 실행 파일 경로를 설정과 Preflight에서 확인한다. 확장 업데이트로 Claude 경로가 바뀌면 재확인한다. 무승인 설치 / 업데이트를 금지한다.
 - B단계에서 Agent Timeout과 Codex stdin 종료를 구현한다. 권한 제한을 확인할 수 없으면 `BLOCKED`로 정지한다.
@@ -123,7 +123,7 @@
 
 ## 11. Human Decision Matrix
 
-Human은 2026-10-02 Decision Matrix의 모든 항목을 권장안대로 승인했다. Sandbox는 `unelevated`로 시작하며 `elevated` 전환은 TASK-020에서 검증 후 재결정한다.
+Human은 2026-10-02 Decision Matrix의 모든 항목을 권장안대로 승인했다. Sandbox는 같은 날 TASK-020 재검증 후 Human 결정 A로 `elevated`로 전환했다.
 
 | 항목 | 권장안 / 확정 내용 | Human 결정 |
 |---|---|---|
@@ -133,7 +133,7 @@ Human은 2026-10-02 Decision Matrix의 모든 항목을 권장안대로 승인�
 | Claude 완전 Read-only 여부 | Read-only 도구만 허용, Source / 문서 / Git / 배포 변경 금지 | 확정 |
 | Orchestrator Commit / Push / PR 단계별 권한 | TASK-018 ~ TASK-020은 Human 승인 후 Claude 세션(임시 Orchestrator) 또는 Human이 Branch / Commit / Push / PR 생성, Script Git 자동화는 TASK-021 별도 승인 / 구현 | 확정 |
 | Agent 실행 / 사용량 한도 | API Key 없는 로컬 로그인 CLI, 한도 시 BLOCKED / 재시도 금지 | 확정 |
-| Windows Sandbox elevated / unelevated | workspace-write + unelevated 시작, 사전 검증 완료 / 추가 설정 없음, elevated 전환은 TASK-020에서 검증 후 재결정 | 확정: unelevated (elevated 전환은 TASK-020에서 검증 후 재결정) |
+| Windows Sandbox elevated / unelevated | workspace-write + elevated, Node 자식 Process 성공 확인 | 확정: elevated (2026-10-02 TASK-020 재검증 후 전환) |
 | CLI 설치 / Version 관리 | Codex npm 전역 / Claude 확장 실행 파일 경로 설정, Version 기록 / 업데이트 후 재검증 | 확정 |
 | Human 승인 채널 | Task 완료 승인 = Human의 PR Squash Merge, Agent / Orchestrator Merge 금지, 동일 gh 계정으로 자기 PR Approve 불가 / Required approvals 0 / Required status checks로 CI 강제, 작성자 분리는 TASK-021 검토. Bootstrap CLI / 대화 및 Production Environment Reviewer는 확정 | 확정 |
 | AWS / GitHub 로그인 / Agent Profile | Human 로그인 후 Task 지정 최소 권한 Profile, Production 관리 권한 금지, 만료 시 HUMAN_REQUIRED | 확정 |

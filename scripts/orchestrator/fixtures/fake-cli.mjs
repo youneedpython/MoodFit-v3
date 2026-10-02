@@ -4,8 +4,9 @@ if (args.includes('--version')) { console.log('Fake CLI 1.0'); process.exit(0); 
 if (args[0] === 'login') { if (scenario === 'login') process.exit(1); console.log('Logged in'); process.exit(0); }
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
-if (role === 'verify') { console.log('verification output'); if (scenario === 'verify') process.exit(1); if (scenario === 'verify-mutation') await writeFile('output.txt', 'verify mutation'); process.exit(0); }
+if (role === 'verify') { console.log('verification output'); if (scenario === 'verify-sandbox') { console.error('integration: sandbox'); process.exit(1); } if (scenario === 'verify') process.exit(1); if (scenario === 'verify-mutation') await writeFile('output.txt', 'verify mutation'); process.exit(0); }
 if (role === 'executor') {
+  console.error('sandbox: workspace-write [workdir, /tmp, $TMPDIR]\nmodel: fake\napproval: never');
   try {
     const index = args.indexOf('--output-schema');
     if (index < 0 || !args[index + 1]) throw new Error('Missing output schema');
@@ -26,16 +27,23 @@ if (role === 'executor') {
     process.exit(1);
   }
   if (scenario === 'executor-failure') { console.error('failure'); process.exit(1); }
+  if (scenario === 'executor-auth') { console.error('Error: authentication failed: login expired'); process.exit(1); }
+  if (scenario === 'sandbox') { console.error('sandbox permission denied'); process.exit(1); }
   if (scenario === 'quota') { console.error('usage limit reached'); process.exit(1); }
   if (scenario === 'timeout') await new Promise(resolve => setTimeout(resolve, 60000));
-  if (!args.includes('workspace-write') || !args.includes('windows.sandbox="unelevated"') || args.at(-1) !== '-') process.exit(9);
-  const file = scenario === 'path' ? 'forbidden.txt' : 'output.txt';
+  if (!args.includes('workspace-write') || !['windows.sandbox="unelevated"', 'windows.sandbox="elevated"'].some(value => args.includes(value)) || args.at(-1) !== '-') process.exit(9);
+  const file = scenario === 'path' ? 'forbidden.txt' : scenario === 'secret-file' ? '.env.local' : 'output.txt';
   let previous = ''; try { previous = await readFile(file, 'utf8'); } catch {}
   const cycle = previous.includes('cycle=1') ? 2 : previous.includes('cycle=2') ? 3 : 1;
   if (cycle > 1 && !input.includes('fix this')) process.exit(8);
-  await writeFile(file, `cycle=${cycle}\nnew content\n`);
-  const result = { status: scenario === 'executor-human' ? 'HUMAN_REQUIRED' : scenario === 'executor-status-failure' ? 'FAILED' : 'DONE', changed_files: scenario === 'mismatch' ? [] : [file], summary: 'EXECUTOR_SELF_DESCRIPTION_MUST_NOT_REACH_REVIEWER', verification: [], human_decisions_needed: [] };
+  await writeFile(file, scenario === 'secret-content' ? ['api', 'key'].join('_') + '=' + ['sk', 'synthetic0123456789'].join('-') : `cycle=${cycle}\nnew content\n`);
+  if (scenario === 'agents-sync') {
+    const agents = await readFile('AGENTS.md', 'utf8');
+    await writeFile('AGENTS.md', agents.replace('TASK-020 old', 'TASK-021 next').replace('IN_PROGRESS', 'BLOCKED'));
+  }
+  const result = { status: scenario === 'executor-human' ? 'HUMAN_REQUIRED' : scenario === 'executor-status-failure' ? 'FAILED' : 'DONE', changed_files: scenario === 'mismatch' ? [] : [file], summary: 'EXECUTOR_SELF_DESCRIPTION_MUST_NOT_REACH_REVIEWER', verification: [], human_decisions_needed: scenario === 'executor-human' ? ['Approve Task decision'] : [], handoff_actions: scenario === 'handoff' ? ['Approved role prepares PR'] : [] };
   if (scenario === 'executor-schema') result.status = 'PASS';
+  if (scenario === 'agents-sync') result.changed_files.push('AGENTS.md');
   if (scenario === 'secret') result.summary += ' api_key=sk-fake0123456789';
   await writeFile(args[args.indexOf('-o') + 1], scenario === 'executor-json' ? '{wrong' : JSON.stringify(result));
 } else {

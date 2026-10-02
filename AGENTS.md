@@ -53,7 +53,7 @@ Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB
 Current Task:
 
 ```text
-TASK-019 — CI Runner OS Transition Hardening (FU-6)
+TASK-021 — Git Automation / Branch / PR Harness
 ```
 
 Status:
@@ -112,7 +112,7 @@ Task 실행 시에는 다음 규칙을 따른다.
 - Gate / 로그인 만료·미확인 시 `HUMAN_REQUIRED`로 정지하고 사유 / 대안 / 권장안 / Diff / Verification을 제공한다. 승인 입력 없이 정지 상태를 해제하지 않는다.
 - 사용량 한도 / 실행 실패 / Timeout / Verification 실패 / Schema·변경 경로 오류는 `BLOCKED`로 정지한다. 자동 재시도 / 계정 전환 / API 우회를 금지한다.
 - Deterministic Verification 실패를 AI `PASS`로 덮어쓰지 않는다. Reviewer 입력은 Task Contract + 실제 Diff(신규 파일 포함) + Verification Log + 승인 Decision이며 Codex 자기 설명은 전달하지 않는다.
-- Agent는 로컬 로그인 CLI로만 실행한다. GitHub Actions는 Deterministic CI / CD만 담당한다. Codex는 `workspace-write` / Task 허용 경로 / Windows `unelevated` Sandbox를 적용하며 `elevated` 전환은 TASK-020 검증 후 재결정한다. 무승인 CLI 설치 / 업데이트를 금지한다.
+- Agent는 로컬 로그인 CLI로만 실행한다. GitHub Actions는 Deterministic CI / CD만 담당한다. Codex는 `workspace-write` / Task 허용 경로 / Windows `elevated` Sandbox를 적용한다(2026-10-02 TASK-020 재검증 후 Human 승인 전환). 무승인 CLI 설치 / 업데이트를 금지한다.
 
 ---
 

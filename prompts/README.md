@@ -109,3 +109,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 37 | TASK-019 CI Runner OS 조사 / Human Gate | 조사 / 전략 제안 | HUMAN_REQUIRED |
 | 38 | TASK-019 승인 C→B 실행 | C 단계 적용 / Remote 검증 대기 | HUMAN_REQUIRED |
 | 39 | TASK-019 Remote 검증 후 B 단계 복귀 | B 단계 / 완료 기록 | 구현 완료, Human Squash Merge 대기 |
+| 40 | TASK-020 Orchestrator Hardening | 구현 / Finding 수정 / 검증 / 완료 정리 | 완료, PR Squash Merge 승인으로 DONE 확정 |
