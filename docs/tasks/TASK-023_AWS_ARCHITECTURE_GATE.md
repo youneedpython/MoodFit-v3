@@ -18,7 +18,7 @@ Agent는 아래를 시작점으로 검토하되 Human 승인 전 확정하지 �
 - Frontend: Vite Build Artifact → S3 → CloudFront
 - Backend: Spring Boot Container → ECR → ECS Fargate → ALB
 - Database: RDS MySQL
-- Secret: AWS Managed Secret 방식
+- Secret 관리: AWS Managed Secret 방식
 - 사람 / 로컬 Agent 인증: AWS IAM Identity Center(SSO) → Permission Set → `aws sso login` Profile
 - CI / CD 인증: GitHub OIDC → AWS IAM Role
 - `/api/*` Routing 또는 Frontend API Endpoint 전략
@@ -76,6 +76,7 @@ Codex(기본 설정)와 Reviewer Claude(Read / Grep / Glob)는 Web에 접근하�
 
 - Codex는 AWS 공식 문서 기반 사실(RDS MySQL 8.0 표준 지원 종료 / Extended Support 일정·요금, 서비스 가격, Region 가용성 등)마다 근거 URL을 적고, 실행 시점에 확인하지 못한 값은 `확인 필요`로 명확히 표시한다. 추정값을 확정값처럼 쓰지 않는다.
 - Human Gate에서 Claude 세션이 공식 문서로 `확인 필요` 항목과 핵심 수치를 사실 확인해 결과를 함께 제시한다.
+- 작성 규칙(Orchestrator Secret 검사 오탐 방지): 산출물에 `password` / `token` / `secret` / `api key` 바로 뒤에 `:` 또는 `=`를 붙인 Key-Value 표기를 쓰지 않는다. "DB 비밀번호는 Secrets Manager에 저장한다"처럼 문장으로 쓴다. 실제 Secret 값 / 예시 Key는 쓰지 않는다.
 - 산출물 경로: `docs/13-AWS-ARCHITECTURE.md`, Decision 초안은 `docs/09-DECISIONS.md`(DEC-027, Pending Human Approval).
 
 ## 제외 범위
