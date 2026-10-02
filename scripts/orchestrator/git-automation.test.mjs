@@ -86,7 +86,14 @@ async function fixture(t) {
   const calls = [], records = new Map();
   const invoke = async (args, options) => {
     calls.push(args);
-    if (args[0] === 'gh') return { code: 0, stdout: args[1] === 'pr' ? 'https://example.invalid/pr/1\n' : 'account detail omitted', stderr: '' };
+    if (args[0] === 'gh') {
+      let stdout = 'account detail omitted';
+      if (args[1] === 'repo') stdout = JSON.stringify({ nameWithOwner: 'fixture/repo' });
+      if (args[1] === 'api') stdout = '[[]]';
+      if (args[1] === 'pr' && args[2] === 'create') stdout = 'https://example.invalid/pr/1\n';
+      if (args[1] === 'pr' && args[2] === 'view') stdout = JSON.stringify({ number: 1, headRefOid: (await git(sourceRoot, ['rev-parse', 'HEAD'])).trim(), headRefName: evidence.branch, baseRefName: 'main' });
+      return { code: 0, stdout, stderr: '' };
+    }
     return processRun(args, options);
   };
   return { ...evidence, sourceRoot, workspace, revision, reviewed, runDir, invoke, record: async (name, value) => records.set(name, value), calls, records };

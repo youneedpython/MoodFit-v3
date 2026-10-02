@@ -1,5 +1,21 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-022 — 승인 구현 (2026-10-02)
+
+- F1 Comment 실패 Rework: CI non-success Comment를 별도 try/catch로 처리하여 실패를 pr-comment-failure.json에만 기록하고 기존 pr-observation.json과 BLOCKED 결과를 보존한다. Comment 재시도는 하지 않는다. Exit 1 / Timeout 각각에 대해 Comment 1회, 관찰 기록 보존, 별도 실패 Audit 회귀 Test를 추가했다.
+- F1 Rework 참고 검증: 전체 Orchestrator Test 71 / pass 71 / fail 0 (Exit 0, 약 101초). 변경 Markdown의 UTF-8 / U+FFFD / 연속 물음표 검사와 git diff --check를 통과했다. Orchestrator Verify가 검증 기준이며 TASK-022 IN_PROGRESS를 유지한다.
+
+- Finding Rework: F1 / F2의 TASK-022 READY 잔여 문구를 IN_PROGRESS로 맞추고 Gate C의 2026-10-02 승인 범위를 표기했다. F3는 CI 성공 후 Merge 없이 닫힌 PR의 Audit 사유를 유지하고 허위 CI 실패 Comment를 생략하며 회귀 Test를 추가했다. F4는 strict Checks로 head SHA가 바뀔 때 Human의 Diff / 검증 / Review 검토와 명시적 저장 identity 갱신 승인, 기존 Audit 보존, 새 SHA 관찰 절차를 설계 문서에 기록했다. F5의 선행 Task 본문 참조 오탐 위험을 기록하고 설치 gh의 --paginate / --slurp 지원을 로컬 도움말로 확인했다. 매칭 코드 / CLI 설치·업데이트 / Git 작업은 수행하지 않았다.
+- Rework 참고 검증: 전체 Orchestrator Test 69 / pass 69 / fail 0 (Exit 0, 약 98초), PR Gate Test 6 / pass 6 / fail 0. git diff --check와 변경 Markdown 전체의 UTF-8 디코딩 / U+FFFD / 연속 물음표 치환 흔적 검사를 통과했다. Orchestrator Verify가 최종 검증 기준이며 실제 GitHub E2E는 여전히 후속 작업이다.
+
+- Gate C 권장안 A / PR 상태 Comment / strict Required Checks의 Human 승인을 반영했다. DEC-021 보류 Comment 자동화와 DEC-026 승인 변경 이력은 정책 문서에 기록했다. DEC 본문은 Claude 세션이 반영한다.
+- CI Trigger / 명령 / contents: read / Milestone Workflow를 유지하고 Job Timeout 20분, PR 또는 ref concurrency(cancel-in-progress false), env 기반 Task / PR / head SHA Summary를 추가했다. AI Review / pull_request_target은 추가하지 않았다.
+- Git 변경 전 전체 페이지의 중복 Task PR / 원격 SHA를 확인하고 PR 생성 후 고정 identity를 기록한다. 최신 current head CI frontend / backend success만 Human Review 대기로 인정한다. Changes Requested 근거와 Human Squash Merge dependency 근거를 보존한다. 실패 / 취소 / Timeout은 redacted Audit와 승인된 로컬 Comment에 남긴다.
+- Fake CLI 회귀 Test는 양쪽 CI 실패, non-success, 이전 SHA / 누락 / 최신 queue, 중복 PR / 원격 충돌, Changes Requested, Approve 미완료, Squash 근거를 검사한다. 실제 GitHub E2E / Human Merge는 아직 수행하지 않았으며 TASK-022 IN_PROGRESS와 후속 Task BLOCKED를 유지한다.
+- Executor는 Repository Commit / Push / PR / Merge를 수행하지 않았다. 실제 E2E 확인과 DEC 본문 반영은 승인된 역할의 후속 작업이다.
+- Executor 참고 검증: 전체 Orchestrator Test 67 / pass 67 / fail 0, Exit 0(약 101초). 최종 Changes Requested 우선 정지 조정 후 PR Gate Test를 재실행한다. Orchestrator Verify가 최종 기준이다.
+- 최종 PR Gate Test 5 / pass 5 / fail 0: Changes Requested의 CI 이전 정지와 Timeout Audit / 단일 Comment / 조회 재시도 없음도 확인했다. git diff --check 성공, 변경 Markdown의 UTF-8 / U+FFFD / 연속 물음표 치환 흔적 검사를 수행했다.
+
 ## TASK-001 — Project Bootstrap
 
 ### 상태

@@ -38,11 +38,11 @@ TASK-022 — GitHub CI Integration / PR Gate
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-021은 DONE이다. TASK-021은 Human 결정 1 / 2를 반영한 Git 자동화 계층과 Rework 1 / 2회차 Claude Review PASS를 완료했으며, 완료 승인은 이 PR의 Human Squash Merge로 확정된다.
-TASK-022는 READY이며 실행 전 `harness/tasks/TASK-022.json` Contract가 Human 승인으로 준비되어야 한다. Human 실행 지시 후 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs TASK-022`로 시작한다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다. CI 동작 변경 / Branch Protection Gate는 Task 안에서 Human 승인한다. TASK-023 이후는 선행 Task 완료와 필요한 Gate 승인 전까지 BLOCKED다.
+TASK-022는 IN_PROGRESS이며 Human 승인된 `harness/tasks/TASK-022.json` Contract와 명시적 실행 지시에 따라 구현 중이다. CI 동작 변경 / Branch Protection Gate C는 2026-10-02 권장안 A / PR 상태 Comment / strict Required Checks로 승인되었다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다. TASK-023 이후는 선행 Task 완료와 필요한 Gate 승인 전까지 BLOCKED다.
 
 ---
 
@@ -71,7 +71,7 @@ TASK-022는 READY이며 실행 전 `harness/tasks/TASK-022.json` Contract가 Hum
 | TASK-019 | Milestone 19 | CI Runner OS Transition Hardening (FU-6) | DONE | TASK-018 완료 (충족), Ubuntu 26.04 Remote 검증 성공 / B 단계 복귀 완료 | C→B 승인 완료, PR #2 Human Squash Merge로 DONE 승인 완료 |
 | TASK-020 | Milestone 20 | Orchestrator Hardening (worktree / Resume / Guard) | DONE | TASK-019 완료, A ~ 완료 정리 / Review 4회차 PASS | Human 결정 A, PR Squash Merge 승인으로 확정 |
 | TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | DONE | TASK-020 완료 (충족), Human 결정 1 / 2 반영, Rework 1 / 2회차 Claude PASS | PR Squash Merge 승인으로 확정 |
-| TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | READY | TASK-021 완료 (충족) | Contract 사전 승인, CI 동작 변경 / Branch Protection Gate C 필요 |
+| TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | IN_PROGRESS | TASK-021 완료 (충족) | Contract 승인, Gate C 승인 완료 (2026-10-02 권장안 A / PR 상태 Comment / strict Required Checks) |
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | BLOCKED | TASK-022 완료 | 필요 |
 | TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | BLOCKED | TASK-023 완료 | Gate C 조건부 |
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | BLOCKED | TASK-023 완료 (TASK-024 권장) | 필요 |
@@ -1585,7 +1585,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-DEC-026은 Human Approved이며 TASK-018 ~ TASK-021은 DONE이다. TASK-021은 Human 결정 1 / 2와 Rework 1 / 2회차 Claude PASS를 반영했고 완료 승인은 이 PR의 Human Squash Merge로 확정된다. TASK-022는 READY이며 실행 전 Contract Human 승인과 명시적 실행 지시가 필요하다. CI 동작 변경 / Branch Protection Gate는 Task 안에서 Human 승인한다. TASK-023 이후는 BLOCKED다. TASK-021 자체 Git 작업은 Claude 세션 또는 Human이 수행하며 TASK-022부터 승인된 Orchestrator Git 자동화를 사용한다.
+DEC-026은 Human Approved이며 TASK-018 ~ TASK-021은 DONE이다. TASK-021은 Human 결정 1 / 2와 Rework 1 / 2회차 Claude PASS를 반영했고 완료 승인은 이 PR의 Human Squash Merge로 확정된다. TASK-022는 IN_PROGRESS이며 Contract Human 승인과 명시적 실행 지시에 따라 구현 중이다. CI 동작 변경 / Branch Protection Gate C는 2026-10-02 권장안 A / PR 상태 Comment / strict Required Checks로 승인되었다. TASK-023 이후는 BLOCKED다. TASK-021 자체 Git 작업은 Claude 세션 또는 Human이 수행하며 TASK-022부터 승인된 Orchestrator Git 자동화를 사용한다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
