@@ -41,6 +41,20 @@ GitHub Actions는 CI(Test / Build / Summary)와 이후 CD만 담당한다.
 4. 첫 실행 Claude Review의 F2(07-TASKS / AGENTS.md TASK-022 상태 표기 불일치), F3(concurrency 최신 SHA 확인, PR 입력 env 전달, `pull_request_target` 금지)를 구현과 기록에 반영한다.
 5. 구현 Run이 PASS로 끝나면 Orchestrator가 Commit / Push / Draft PR을 자동으로 수행한다(TASK-021 결정 b). 실제 Harness → Draft PR → 최신 head CI 성공 → Human Squash Merge E2E 근거를 최소 1회 기록한다.
 
+## 구현 Run 결과와 남은 작업 (2026-10-02, Claude 세션 기록)
+
+- 구현 Run(`2026-10-02T07-20-16-762Z-58cb23ca`)은 Review 3회차 PASS 후 Git 단계에서 `Reviewed content changed before Commit`으로 BLOCKED 되었다. 원인은 `core.autocrlf=true` 환경의 CRLF / LF 차이에 따른 오판이다. 검토 통과 내용은 Claude 세션이 그대로 Commit했다(`6b63751`).
+- 결함 수정: Commit 전 내용 대조를 Source index blob과 `git hash-object --path` 비교로 변경했다(`076a803`, Codex 실행 → Claude Review PASS).
+- Task Branch는 push 되었고 PR은 아직 없다. **다음 Orchestrator Run이 PASS로 끝나며 직접 만드는 Draft PR을 E2E 근거로 삼는다.**
+
+다음 Run의 Codex 작업 범위 (이것만 수행한다):
+
+1. **N1**: `scripts/orchestrator/pr-gate.mjs`의 `MERGED` 판정 시 `dependency_evidence`에 `merged_by`(login)를 기록하고 Test를 추가한다. 단일 Parent만으로는 Squash와 Rebase Merge를 구분할 수 없으므로 Squash-only Ruleset에 의존한다는 점을 설계 문서에 유지한다.
+2. **N2**: 병합된 PR에 해제되지 않은 이전 `CHANGES_REQUESTED` Review가 남아 있으면 `MERGED`가 아니라 `REWORK_REQUIRED`가 된다. 판정 순서를 바꾸지 않고(안전한 정지 유지) 이 동작과 Human 조치(오래된 Review Dismiss)를 설계 문서 / E2E 절차에 기록한다.
+3. **N3**: 같은 실패 head에서 `pr-gate`를 다시 실행하면 같은 형식의 Comment가 반복된다(중복 제거 없음, 1회 실행 = 1회 관찰). 이 동작을 설계 문서에 명시한다. 중복 제거 기능은 추가하지 않는다.
+4. `docs/08-WORK_LOG.md` TASK-022 기록에 위 처리와 E2E 진행 절차(이 Run의 Draft PR → 최신 head CI → Human Squash Merge)를 남긴다. E2E 결과(PR 번호, CI Run, Merge)는 Merge 후 Claude 세션이 기록한다.
+5. Workflow(`.github/workflows/`)와 `docs/09-DECISIONS.md`는 이번 Run에서 수정하지 않는다. (DEC-021 / DEC-026 반영은 Claude 세션이 별도 Commit)
+
 ## Codex 작업 범위
 
 1. 기존 `.github/workflows/ci.yml`, `milestones.yml`을 존중하고 역할 중복을 최소화한다.
