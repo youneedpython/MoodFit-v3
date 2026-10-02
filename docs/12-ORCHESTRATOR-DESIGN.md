@@ -2,7 +2,7 @@
 
 ## 범위 / 구성
 
-TASK-018의 최소 설계를 기반으로 DEC-026과 TASK-020을 구현한다. Node.js 24 / JavaScript ES Module / Node 내장 Module만 사용한다. Dependency와 Git Branch / Commit / Push / PR / Merge 자동화는 추가하지 않는다.
+TASK-018의 최소 설계를 기반으로 DEC-026과 TASK-020 / TASK-021을 구현한다. Node.js 24 / JavaScript ES Module / Node 내장 Module만 사용한다. TASK-021 승인 범위에서 기존 Task Branch의 Stage / Commit / Push / Draft PR 계층을 추가한다. Branch 생성과 Merge / Auto Merge는 수행하지 않는다.
 
 - run.mjs: 실행 / Resume / Phase 기록 / Agent와 Verify 호출.
 - lib.mjs: Process / Schema / Git Snapshot / 경로·Secret·인코딩 Guard / Redaction / 오류 분류.
@@ -50,16 +50,32 @@ Executor의 human_decisions_needed와 handoff_actions를 구분하며 내부 / C
 
 ## Task Contract / Guard
 
+- 실행 중인 Task의 harness/tasks/<id>.json은 allowed_paths에 포함돼도 변경을 차단한다. 다른 Task Contract 변경도 일반 경로 Guard를 따른다.
+- TASK-021 Human 결정 2에 따라 Contract의 `agents_sections: ["12"]`로 12절 본문 변경을 허용한다. 제목과 비승인 절은 변경할 수 없다.
+
+## TASK-021 Git 계층
+
+TASK-022 ~ TASK-031의 Decide 결과가 PASS / HANDOFF_PENDING이며 Executor DONE, Claude PASS, 모든 Contract Verify Exit 0, 미해결 Human Gate 없음일 때만 Git Phase를 호출한다. HANDOFF_PENDING의 다른 후속 작업은 유지한다. TASK-021 자체는 자동 Git을 호출하지 않는다.
+
+Human이 준비한 task/<Task ID>-<slug> Branch와 최초 HEAD를 고정한다. detached worktree의 검토된 누적 Diff를 다시 Guard한 뒤 Workspace의 ignored Secret, Source Branch / HEAD / clean Working Tree 충돌, gh 인증과 origin/main 읽기 접근을 확인한다. Source의 Git 비추적 ignored Secret은 존재만으로 차단하지 않는다. changed_files / Stage 대상과 실제 staged 목록에 기존 secretFile 규칙의 Secret 경로가 있으면 BLOCKED한다. 인증 실패는 HUMAN_REQUIRED이며 설치 / 로그인은 시도하지 않는다. 인증 출력은 저장하지 않고 Exit / Failure만 기록한다. Process 실패 / Timeout은 BLOCKED이며 자동 재시도하지 않는다.
+
+검토한 binary patch와 untracked 파일을 Source에 전달하고 Diff를 대조한다. allowed_paths 안의 파일별 literal pathspec Stage, staged 목록의 Secret 검사 / Allowlist 대조 후 기존 한국어 Commit 형식과 Codex / Claude Trailer로 Commit한다. Commit 직전에도 staged 목록의 Secret 검사 / Allowlist 대조를 다시 수행한다. origin의 같은 Task Branch로 Force 없는 Push 후 gh pr create --draft --base main으로 생성한다. PR 전 Base / Head / SHA / 신규 파일 포함 목록 / Diff Summary / Test 결과를 기록하고 본문에 Task ID / Verification / PASS / Human Gate / Trailer를 포함한다. Run 기록은 .harness/runs 아래 저장하며 명령별 Audit를 보존한다.
+
+실패 후 자동 Rollback / 재시도는 없다. Commit / Push / PR 중 일부가 성공했다면 Audit와 Source Working Tree를 Human이 확인한다. Git 작업 실패 Run은 일반 Resume로 Git 작업을 다시 시도하지 못하도록 Source HEAD / clean 조건이 충돌을 차단한다. Human Squash Merge와 Remote CI는 후속 단계다.
+
+Review 3회 한도로 정지한 Run은 Resume 승인이 있어도 추가 Review를 실행하지 않고 HUMAN_REQUIRED로 다시 정지한다. Resume는 반복 횟수를 초기화하지 않는다.
+
 classify()의 내부 정지 사유 fallback은 quota → auth → timeout → sandbox → schema → secret → guard → verify → execution 순서다. Timeout은 Process 실행에서 직접 판정하며 BLOCKED다. CLI 진단 신호의 quota → auth → sandbox → schema 우선순위와 일치하고, fallback에서 timeout은 auth 다음에 둔다.
 
 - 필수: id / title / task_file / allowed_paths / forbidden_paths / verify / max_review_cycles=3. verify는 명령 배열과 Repository 내부 상대 cwd를 사용한다.
 - 경로는 정확한 파일 또는 /로 끝나는 디렉터리 Prefix다. Glob은 지원하지 않고 forbidden_paths가 우선한다. 절대 경로 / 역슬래시 / .. / .git / 중복 보고 / Symlink를 거부한다.
 - Git status의 staged / unstaged / 삭제 / untracked를 모두 포함한다. changed_files는 최초 clean baseline 이후 누적 전체 목록이다. HEAD 대비 Diff와 비추적 내용을 Snapshot으로 보존하고 Verify / Review 이후에도 대조한다.
-- Secret 파일과 알려진 Token Prefix / Private Key / Password·Secret·API Key 할당을 차단한다. tracked Diff는 추가 줄, untracked는 전체 내용을 검사한다. 삭제 줄과 Context의 기존 Test fixture는 새 Secret으로 취급하지 않는다. ignored Secret 파일도 Verify / Review 전에 검사한다.
+- Secret 파일과 알려진 Token Prefix / Private Key / Password·Secret·API Key 할당을 차단한다. tracked Diff는 추가 줄, untracked는 전체 내용을 검사한다. 삭제 줄과 Context의 기존 Test fixture는 새 Secret으로 취급하지 않는다. Workspace의 ignored Secret 파일도 Verify / Review 전에 검사한다. Source의 ignored Secret 존재만으로는 차단하지 않으며 Git 대상 경로와 실제 staged 목록에서 차단한다.
 - 인코딩 Guard는 추가 줄과 untracked 내용에 물음표 3개 이상의 연속 치환 흔적 또는 U+FFFD가 있으면 BLOCKED로 정지한다. 정상 문서에는 해당 흔적이 필요하지 않다고 가정한다. 삭제 줄과 Context는 제외한다.
 - 한글 문서는 apply_patch 등 UTF-8 보장 수단으로 작성한다. PowerShell Set-Content / Out-File 기본 인코딩과 Shell 리다이렉션으로 쓰지 않는다. 완료 전 변경 문서를 직접 확인한다.
 - AGENTS.md가 allowed_paths에 있어도 guardAgents를 적용한다. syncAgents는 baseline과 docs/07-TASKS.md를 비교해 **3절 Current Task / Status 코드 블록만** 동기화한다. 임의 DONE / 다음 Task READY 승격은 하지 않으며 TASK-020 완료 전 TASK-021로 동기화하지 않는다.
-- 완료 기록을 반영하는 Executor가 Contract에서 AGENTS.md를 허용할 때 syncAgents와 같은 방식으로 두 코드 블록 값을 편집한다. Orchestrator는 파일을 자동 편집하지 않고 guardAgents로 검증만 한다. 원래 줄바꿈을 보존하며 Guard 비교에서는 CRLF / LF를 정규화한다. 코드 블록 밖의 내용 변경은 차단한다.
+- 완료 기록을 반영하는 Executor가 Contract에서 AGENTS.md를 허용할 때 syncAgents와 같은 방식으로 두 코드 블록 값을 편집한다. Orchestrator는 파일을 자동 편집하지 않고 guardAgents로 검증만 한다. Guard 비교에서는 CRLF / LF 혼용도 LF로 정규화한다.
+- Human 승인 후 Contract의 선택 필드 `agents_sections`에 문자열 절 번호 배열(예: `["12"]`)을 명시한 경우에만 해당 `## <번호>.` 제목 아래부터 다음 같은 수준 제목 직전까지 본문 변경을 허용한다. 모든 같은 수준 절 제목의 순서 / 내용은 보존하며 제목 변경 / 삭제와 비승인 절 변경은 BLOCKED다. 필드가 없으면 기존 3절 코드 블록 동기화만 허용한다. 잘못된 타입 / 절 번호 / 중복은 Schema 및 run.mjs 검증에서 BLOCKED다. Executor는 자기 Contract를 변경할 수 없다.
 
 ## 실행 / 작업 공간 / Lock
 

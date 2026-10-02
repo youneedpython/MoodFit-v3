@@ -46,13 +46,13 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-020은 DONE 상태이며, TASK-020 완료 승인은 이 PR의 Human Squash Merge로 확정된다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
+TASK-001 ~ TASK-021은 DONE 상태이며, TASK-021 완료 승인은 이 PR의 Human Squash Merge로 확정된다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-021 — Git Automation / Branch / PR Harness
+TASK-022 — GitHub CI Integration / PR Gate
 ```
 
 Status:
@@ -62,8 +62,8 @@ READY
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
-Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. TASK-022 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED이다.
-Current Task는 TASK-021 / READY이다. 실행 전 `harness/tasks/TASK-021.json` Contract가 Human 승인으로 준비되어야 한다. Human 실행 지시 후 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs TASK-021`로 시작하며, Git / GitHub 권한 Gate는 Task 안에서 Human 승인을 받는다.
+Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. TASK-021의 Git 자동화 계층은 DONE이며 TASK-023 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED이다.
+Current Task는 TASK-022 / READY이다. 실행 전 `harness/tasks/TASK-022.json` Contract가 Human 승인으로 준비되어야 한다. Human 실행 지시 후 승인된 Task Branch / clean Working Tree에서 `node scripts/orchestrator/run.mjs TASK-022`로 시작한다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행하며, CI 동작 변경 / Branch Protection Gate는 Task 안에서 Human 승인을 받는다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
@@ -306,8 +306,11 @@ MoodFit v3는 단순 입력 Form 형태의 데모 UI를 목표로 하지 않는�
 
 - Task 하나 = Task Branch 하나 = PR 하나. Branch 이름은 `task/TASK-0XX-<짧은-이름>`이며 TASK-018부터 적용한다.
 - `main` 직접 Push는 금지하며 Branch Ruleset으로 보호한다. Force Push / History Rewrite도 금지한다. PR + Remote CI(`frontend` / `backend`) / Claude PASS / 필요한 Gate / Branch Ruleset 충족 후 Human이 Squash Merge한다. main에는 Task당 Commit 1개를 남긴다.
-- Task 완료 승인 = Human의 PR Squash Merge이다. Agent / Orchestrator Merge를 금지하며 Auto Merge는 비활성으로 유지한다. 같은 `gh` 계정을 사용해 자기 PR Approve가 불가능하므로 Required approvals 0 / Required status checks로 CI를 강제한다. 작성자 분리는 TASK-021에서 검토한다.
-- TASK-018 ~ TASK-020의 Branch / Commit / Push / PR 생성은 Human 승인 후 Claude 세션(임시 Orchestrator) 또는 Human이 수행한다. Codex의 독자 Git 작업은 금지한다. Orchestrator Script의 Git 자동화는 TASK-021에서 별도 승인 / 구현하며 Task Branch에만 허용한다.
+- Task 완료 승인 = Human의 PR Squash Merge이다. Agent / Orchestrator Merge와 Auto Merge를 금지한다. 같은 `gh` 계정을 사용해 자기 PR Approve가 불가능하므로 Required approvals 0 / Required status checks로 CI를 강제한다. 기존 Human 로그인 계정을 유지한다.
+- TASK-018 ~ TASK-020의 Branch / Commit / Push / PR 생성은 Human 승인 후 Claude 세션(임시 Orchestrator) 또는 Human이 수행한다. TASK-021 자체 Git 작업은 Claude 세션이 수행한다. Codex의 독자 Git 작업은 금지한다.
+- TASK-022 ~ TASK-031은 승인된 Task Branch에서 Deterministic Verification 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 Orchestrator가 자동으로 Stage / Commit / Push / Draft PR을 수행한다. HUMAN_REQUIRED / BLOCKED / CHANGES_REQUIRED에서는 Git 작업을 수행하지 않는다.
+- Stage는 Contract allowed_paths 안의 파일을 개별 추가한다. `git add .`와 forbidden_paths / Secret 파일 Stage를 금지한다. 인증은 Human이 로그인한 기존 `git` / `gh`를 사용하며 Token / PAT를 저장하지 않는다. 로그인 만료 / 미확인 시 HUMAN_REQUIRED로 정지한다. 권한 확대 / Credential 방식 변경은 별도 Human Gate다.
+- Draft PR은 `gh pr create`로 생성한다. 생성 전 Base / Head, Commit SHA, Diff Summary, Test 결과를 기록하고 본문에 Task ID, Verification, Review Verdict, Human Gate 여부, Codex / Claude Co-author Trailer를 포함한다.
 - Task의 DONE 상태 변경은 PR 안에서 처리하고 Merge 후 Sync Milestones가 Milestone을 닫는다. Claude PASS만으로 Task 완료 승인을 대신하지 않는다.
 
 기본 Checkpoint는 다음과 같다.

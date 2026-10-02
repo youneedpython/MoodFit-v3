@@ -7,7 +7,8 @@ import { Stop, blocked, readJson, redact, sanitize, validate, commandCheck, proc
 
 import { acquireLock, createWorkspace, repositoryIdentity } from './workspace.mjs';
 import { decide } from './state-machine.mjs';
-import { guardAgents } from './status-sync.mjs';
+import { guardAgents, validateAgentsSections } from './status-sync.mjs';
+import { automateGit } from './git-automation.mjs';
 
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const assets = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../harness');
@@ -79,6 +80,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       const contractSchema = frozen?.contractSchema ?? await readJson(path.join(assetRoot, 'schemas/task-contract.schema.json'));
       validate(contract, contractSchema);
       if (contract.id !== taskId) blocked('Task id mismatch');
+      validateAgentsSections(contract);
       for (const rule of [...contract.allowed_paths, ...contract.forbidden_paths]) safePath(rule, true);
       const taskPath = await inside(root, contract.task_file);
       taskText = frozen?.taskText ?? await readFile(taskPath, 'utf8');
@@ -96,7 +98,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
     assertNoSecrets(JSON.stringify({ config, contract, taskText }));
     await record('preflight.contract.json', contract);
     if (!frozen) {
-      frozen = { source_root: sourceRoot, repository: await repositoryIdentity(sourceRoot), workspace: root, workspace_created: false, revision: (await git(root, ['rev-parse', 'HEAD'])).trim(), config, contract, contractSchema: await readJson(path.join(assetRoot, 'schemas/task-contract.schema.json')), executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText };
+      frozen = { source_root: sourceRoot, branch, repository: await repositoryIdentity(sourceRoot), workspace: root, workspace_created: false, revision: (await git(root, ['rev-parse', 'HEAD'])).trim(), config, contract, contractSchema: await readJson(path.join(assetRoot, 'schemas/task-contract.schema.json')), executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText };
       state.workspace = root;
       await record('frozen.json', frozen); await record('checkpoint.json', checkpoint);
     }
@@ -110,7 +112,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       const revision = (await git(sourceRoot, ['rev-parse', 'HEAD'])).trim();
       root = await createWorkspace(sourceRoot, runId, revision);
       try { baselineAgents = await readFile(path.join(root, 'AGENTS.md'), 'utf8'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-      frozen = { source_root: sourceRoot, repository: await repositoryIdentity(sourceRoot), workspace: root, workspace_created: true, revision, config, contract, contractSchema: frozen.contractSchema, executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText, baselineAgents: baselineAgents ?? null };
+      frozen = { source_root: sourceRoot, branch: frozen.branch, repository: await repositoryIdentity(sourceRoot), workspace: root, workspace_created: true, revision, config, contract, contractSchema: frozen.contractSchema, executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText, baselineAgents: baselineAgents ?? null };
       await record('frozen.json', frozen);
       await record('checkpoint.json', checkpoint);
     } else baselineAgents = frozen.baselineAgents;
@@ -142,7 +144,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       guard(before, executor.changed_files, contract);
       if ((await ignoredSecrets(root)).length) blocked('Ignored secret file detected');
       if (baselineAgents !== null && baselineAgents !== undefined && before.entries.some(x => x.file === 'AGENTS.md')) {
-        guardAgents(baselineAgents, await readFile(path.join(root, 'AGENTS.md'), 'utf8'), await readFile(path.join(root, 'docs/07-TASKS.md'), 'utf8'));
+        guardAgents(baselineAgents, await readFile(path.join(root, 'AGENTS.md'), 'utf8'), await readFile(path.join(root, 'docs/07-TASKS.md'), 'utf8'), contract);
       }
       state.executor_request = { status: executor.status, human_decisions_needed: executor.human_decisions_needed, handoff_actions: executor.handoff_actions };
       checkpoint.executor = executor; checkpoint.cycle = cycle;
@@ -178,6 +180,10 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       const effective = checkpoint.approved_cycle === cycle ? { ...executor, status: 'DONE', human_decisions_needed: [] } : executor;
       const decision = decide(effective, verdict, state.review_cycles, contract.max_review_cycles);
       state.status = decision.status; state.reason = decision.reason;
+      if (['PASS', 'HANDOFF_PENDING'].includes(decision.status) && Number(taskId.slice(5)) >= 22 && Number(taskId.slice(5)) <= 31) {
+        await phase('Git');
+        state.git = await automateGit({ sourceRoot, workspace: root, revision: frozen.revision, branch: frozen.branch, contract, status: state.status, executor: effective, reviewer: verdict, verification, reviewed: before, record, runDir, signal: controller.signal });
+      }
       if (decision.status !== 'REWORK') break;
       findings = verdict.findings;
       checkpoint = { cycle: cycle + 1, findings, executor: null };

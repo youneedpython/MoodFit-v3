@@ -20,8 +20,23 @@ export function syncAgents(agents, tasks) {
   return agents.slice(0, section.start) + updated + agents.slice(section.end);
 }
 
-export function guardAgents(before, after, tasks) {
+export function validateAgentsSections(contract) {
+  if (!Object.hasOwn(contract, 'agents_sections')) return;
+  const sections = contract.agents_sections;
+  if (!Array.isArray(sections) || sections.some(x => typeof x !== 'string' || !/^[1-9]\d*(?:\.\d+)*$/.test(x)) || new Set(sections).size !== sections.length) blocked('Invalid Contract agents_sections');
+}
+
+export function guardAgents(before, after, tasks, contract = {}) {
+  validateAgentsSections(contract);
   if (after === before) return;
   const normalize = text => text.replace(/\r\n/g, '\n');
-  if (normalize(after) !== normalize(syncAgents(before, tasks))) blocked('AGENTS modification exceeds Current Task / Status synchronization');
+  const original = normalize(before), candidate = normalize(after);
+  const headings = text => [...text.matchAll(/^## [^\n]+$/gm)].map(match => match[0]);
+  if (JSON.stringify(headings(original)) !== JSON.stringify(headings(candidate))) blocked('AGENTS modification exceeds approval: section headings changed or deleted');
+  const mask = text => text.replace(/(^## ([1-9]\d*(?:\.\d+)*)\. [^\n]+\n)([\s\S]*?)(?=^## |$(?![\s\S]))/gm,
+    (whole, heading, number) => contract.agents_sections?.includes(number) ? heading : whole);
+  for (const number of contract.agents_sections ?? []) {
+    if (!headings(original).some(heading => heading.startsWith(`## ${number}. `))) blocked('AGENTS approved section missing');
+  }
+  if (mask(candidate) !== mask(original) && mask(candidate) !== mask(normalize(syncAgents(before, tasks)))) blocked('AGENTS modification exceeds Current Task / Status synchronization and approved sections');
 }

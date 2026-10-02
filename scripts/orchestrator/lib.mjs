@@ -33,7 +33,7 @@ export function sanitize(value) {
   return value;
 }
 export function validate(value, schema, at = '$') {
-  const supported = new Set(['$schema', 'title', 'description', 'type', 'enum', 'const', 'required', 'properties', 'additionalProperties', 'items', 'uniqueItems', 'minItems', 'minLength']);
+  const supported = new Set(['$schema', 'title', 'description', 'type', 'enum', 'const', 'required', 'properties', 'additionalProperties', 'items', 'uniqueItems', 'minItems', 'minLength', 'pattern']);
   for (const key of Object.keys(schema)) if (!supported.has(key)) blocked(`Unsupported schema keyword: ${key}`);
   const type = Array.isArray(value) ? 'array' : value === null ? 'null' : typeof value;
   if (schema.type && schema.type !== type) blocked(`Schema ${at}: expected ${schema.type}`);
@@ -52,17 +52,18 @@ export function validate(value, schema, at = '$') {
     if (schema.items) value.forEach((item, i) => validate(item, schema.items, `${at}[${i}]`));
   }
   if (type === 'string' && value.length < (schema.minLength ?? 0)) blocked(`Schema ${at}: empty string`);
+  if (type === 'string' && schema.pattern && !new RegExp(schema.pattern).test(value)) blocked(`Schema ${at}: invalid pattern`);
 }
 export function commandCheck(command) {
   if (!Array.isArray(command) || !command.length || command.some(x => typeof x !== 'string' || !x || x.includes('\0'))) blocked('Command must be a nonempty string array');
   if (/\.(cmd|bat)$/i.test(command[0])) blocked('Use node + CLI JS entry instead of .cmd/.bat shim');
 }
-export async function processRun(command, { cwd, timeout, input = '', signal } = {}) {
+export async function processRun(command, { cwd, timeout, input = '', signal, env } = {}) {
   commandCheck(command);
   return new Promise(resolve => {
     let stdout = '', stderr = '', failure = null, finished = false, killer;
     let child;
-    try { child = spawn(command[0], command.slice(1), { cwd, shell: false, windowsHide: true, detached: process.platform !== 'win32', stdio: ['pipe', 'pipe', 'pipe'] }); }
+    try { child = spawn(command[0], command.slice(1), { cwd, env, shell: false, windowsHide: true, detached: process.platform !== 'win32', stdio: ['pipe', 'pipe', 'pipe'] }); }
     catch (error) { resolve({ code: null, failure: `spawn: ${error.code ?? error.message}`, stdout, stderr }); return; }
     const kill = reason => {
       if (finished || failure) return;
@@ -182,6 +183,7 @@ export function guard(snapshotValue, reported, contract) {
     return rule.endsWith('/') ? file.startsWith(rule) : file === rule;
   };
   for (const file of actual) if (contract.forbidden_paths.some(rule => match(file, rule)) || !contract.allowed_paths.some(rule => match(file, rule))) blocked(`Path violation: ${file}`);
+  if (contract.id && actual.some(file => match(file, `harness/tasks/${contract.id}.json`))) blocked('Guard: active Task Contract modification forbidden');
   if (actual.some(secretFile)) blocked('Secret file detected');
   // Check introduced lines, not old/context lines containing deliberate test fixtures.
   // Untracked content has no '+' prefix and must be checked in full.

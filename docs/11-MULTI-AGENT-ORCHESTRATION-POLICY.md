@@ -72,6 +72,8 @@
 
 ## 7. Git / Merge / Release (확정)
 
+TASK-021 Human 승인(2026-10-02)이 아래 과거 단계 기록에 우선한다. TASK-022 ~ TASK-031은 승인 Task Branch에서 Deterministic Verification 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 Orchestrator가 allowed_paths 개별 Stage / Commit / Push / Draft PR을 자동 수행한다. HUMAN_REQUIRED / BLOCKED / CHANGES_REQUIRED에서는 Git 작업을 하지 않는다. TASK-021 자체 Git 작업은 Claude 세션 또는 Human이 수행한다. main Push / Force Push / History Rewrite / Merge / Auto Merge는 금지하며 Human Squash Merge만 완료 승인이다. 기존 Human 로그인 git / gh를 사용하고 Token / PAT / App이나 권한 확대는 별도 승인 대상이다. 작성자 분리는 새로운 Credential 방식을 도입하지 않고 기존 계정을 유지한다.
+
 - DEC-026 승인과 AGENTS.md 반영 전에는 Human 명시 지시 후 Commit / Push하는 기존 규칙을 유지한다. 이번 실행은 Git 작업 금지 지시를 따른다.
 - Human 결정: 확정. Task 하나 = Branch 하나 = PR 하나. Branch 이름은 `task/TASK-0XX-<짧은-이름>`이며 TASK-018부터 적용한다.
 - `main` 직접 Push 금지(Branch Ruleset으로 보호). PR + Remote CI(frontend / backend) 통과 후 Human이 Squash Merge한다. main에는 Task당 Commit 1개를 남긴다.
@@ -114,6 +116,7 @@
 - Run 기록은 Git 비추적 `.harness/runs/<run-id>/`에 저장하는 방안을 권장한다. 이번 A단계에는 생성하지 않는다.
 - 실제 Secret / Token / Password / 계정 ID / 인증 Cache를 Source / Prompt / Agent 입력 / Log에 기록하지 않는다. OpenAI / Anthropic API Key를 GitHub Secret에도 두지 않는다.
 - 앱 Secret은 승인된 환경변수 / GitHub Secrets 정책으로 전달한다. Prompt / 명령 인자에 값을 넣지 않으며 Log에는 저장 전 민감 출력을 제거한 결과만 남긴다.
+- Source의 Git 비추적 ignored Secret(예: Backend 실행용 .env.local)은 존재만으로 Git 자동화를 차단하지 않는다. changed_files / Stage 대상과 실제 staged 목록에 기존 secretFile 규칙의 Secret 경로(.env 계열, pem / p12 / pfx, credentials.json, id_rsa / id_ed25519 등)가 있으면 BLOCKED한다. Stage는 allowed_paths 안의 literal pathspec으로 개별 수행하고 Commit 직전 staged 목록을 다시 검사한다. Agent Workspace의 ignoredSecrets 검사는 유지한다.
 
 ## 10. 배포 경계 (확정)
 
@@ -146,6 +149,8 @@ Human은 2026-10-02 Decision Matrix의 모든 항목을 권장안대로 승인�
 | Release / Tag와 자동화 | DEC-025 유지, Tag push / Release 생성은 Human 확인 | 확정 |
 
 ## 12. 승인 후 절차
+
+- AGENTS.md 절 본문 예외는 Human 승인과 Task Contract의 `agents_sections` 명시가 모두 있을 때만 허용한다. 문자열 절 번호 배열로 승인 범위를 제한하며 절 제목 변경 / 삭제와 그 밖의 절 변경은 BLOCKED다. 필드가 없으면 3절 Current Task / Status 코드 블록 동기화만 허용한다. Executor의 자기 Contract 변경은 금지한다. TASK-021 Human 결정 2에서 `["12"]`를 승인했다.
 
 - Claude가 A단계 실제 Diff / Verification을 자동 Review한다. 작성만으로 PASS를 주장하지 않는다.
 - Human이 DEC-026 / Matrix를 승인한 뒤 명시된 실행 범위에 따라 B단계를 진행한다.
