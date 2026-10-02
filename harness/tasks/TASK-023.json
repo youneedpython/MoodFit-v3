@@ -1,0 +1,31 @@
+{
+  "id": "TASK-023",
+  "title": "AWS Deployment Architecture / Cost Gate",
+  "task_file": "docs/tasks/TASK-023_AWS_ARCHITECTURE_GATE.md",
+  "allowed_paths": [
+    "docs/13-AWS-ARCHITECTURE.md",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "docs/09-DECISIONS.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "harness/tasks/TASK-023.json",
+    "harness/",
+    "scripts/",
+    "frontend/",
+    "backend/",
+    ".github/",
+    "infra/",
+    "docs/tasks/",
+    "package.json",
+    "package-lock.json"
+  ],
+  "agents_sections": ["3"],
+  "verify": [
+    { "command": ["git", "diff", "--check"], "cwd": "." },
+    { "command": ["node", "--test", "scripts/orchestrator/*.test.mjs"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}

@@ -70,6 +70,14 @@ Agent는 아래를 시작점으로 검토하되 Human 승인 전 확정하지 �
 - Cost Decision Matrix
 - 새 Decision 초안 (최신 Decision 다음 번호 사용, 예: DEC-027)
 
+## 외부 근거 확인 방식 (Human 승인, 2026-10-02)
+
+Codex(기본 설정)와 Reviewer Claude(Read / Grep / Glob)는 Web에 접근하지 않는다. Agent 권한 / 설정은 바꾸지 않고 다음과 같이 처리한다.
+
+- Codex는 AWS 공식 문서 기반 사실(RDS MySQL 8.0 표준 지원 종료 / Extended Support 일정·요금, 서비스 가격, Region 가용성 등)마다 근거 URL을 적고, 실행 시점에 확인하지 못한 값은 `확인 필요`로 명확히 표시한다. 추정값을 확정값처럼 쓰지 않는다.
+- Human Gate에서 Claude 세션이 공식 문서로 `확인 필요` 항목과 핵심 수치를 사실 확인해 결과를 함께 제시한다.
+- 산출물 경로: `docs/13-AWS-ARCHITECTURE.md`, Decision 초안은 `docs/09-DECISIONS.md`(DEC-027, Pending Human Approval).
+
 ## 제외 범위
 
 - CloudFormation / Terraform 작성
