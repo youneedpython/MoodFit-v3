@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   close-done-milestones:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout

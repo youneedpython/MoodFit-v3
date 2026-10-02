@@ -2564,3 +2564,14 @@ B안을 권장한다. 실패가 확인되지 않은 상태에서 OS 고정 / 설
 - Remote 확인 항목: 각 Job Set up job의 실제 Ubuntu 26.04 / Image Version, Frontend npm ci / Test / Build, Backend Test / Build, MySqlIntegrationTests 실행(SKIPPED 0), DockerAvailabilityTests 성공, Milestone Workflow gh 동작. 비민감 Run URL / 검토 Commit / 결과를 후속 기록에 연결한다.
 - B 단계 조건: 위 결과가 통과한 뒤 후속 Executor 실행에서 runs-on 3곳을 `ubuntu-latest`로 복귀하고 결과를 기록한다. 아직 복귀하거나 FU-6 / Task를 DONE으로 처리하지 않는다. 실패하면 원인과 3곳의 `ubuntu-24.04` 대체 최소 Diff를 정리해 Human Gate로 정지한다.
 - Prompt: `prompts/38-TASK-019-CI-RUNNER-C-TO-B.md`. TASK-020 이후는 실행하지 않았다.
+
+### TASK-019 승인 C→B — Remote 검증 / B 단계 복귀 (2026-10-02)
+
+- 근거: Task 원문의 C단계 원격 검증 결과(Claude 세션 실행 / 확인). 검토 Commit은 3a59adb, Draft PR #2다. 이번 Executor는 Remote 실행을 재수행하지 않았다.
+- [CI Run 36963139983](https://github.com/youneedpython/MoodFit-v3/actions/runs/36963139983): frontend success(약 20초), backend success(약 1분 46초). 두 Job Image ubuntu-26.04 / Version 20260927.149.1. Frontend npm ci / Test / Build 성공, Backend Test / Build 성공(BUILD SUCCESSFUL), MySqlIntegrationTests SKIPPED 0, DockerAvailabilityTests SKIPPED / FAILED 0. Test 출력은 skipped / failed만 표시한다.
+- [Sync Milestones Run 36963140373](https://github.com/youneedpython/MoodFit-v3/actions/runs/36963140373): workflow_dispatch(Task Branch), Image ubuntu-26.04, success. Close milestones of DONE tasks의 gh Step 성공(변경 대상 없음).
+- Ubuntu 26.04(Docker 29.4.2 / Bash 5.3.9)에서 기존 Test / Build / Testcontainers MySQL / gh 동작을 확인했다. 승인된 B 단계로 ci.yml frontend / backend와 milestones.yml의 runs-on 3곳만 ubuntu-latest로 복귀했다. 다른 Workflow 설정 변경 없음.
+- FU-6 / TASK-019 DONE과 TASK-020 READY를 PR 안에서 반영했다. 이 PR의 Human Squash Merge 시 확정된다. Claude 자동 Review / 최종 Remote CI / Human Review는 후속 절차이며 Executor DONE은 Human Approval을 대신하지 않는다.
+- 초기 Working Tree clean. Git 작업과 TASK-020 구현은 수행하지 않았다. AGENTS.md는 금지 경로여서 갱신하지 않았다. Release v3.0.1은 PATCH 후보이며 Tag / Release는 별도 Human 확인 대상이다.
+- Verification: git diff --check 통과(Exit Code 0). Workflow Diff에서 runs-on 3곳만 복귀한 것을 확인했다. Local Test / Build / 전체 verify Script는 재실행하지 않았으며 위 Ubuntu 26.04 결과는 Task 원문 제공 기록이다. Orchestrator Verify는 별도 수행한다.
+- Prompt: prompts/39-TASK-019-RUNNER-B-RETURN.md. Related Commit: Pending (검증 대상 C단계 Commit: 3a59adb).
