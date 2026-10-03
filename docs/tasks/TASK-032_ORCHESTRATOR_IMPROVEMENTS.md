@@ -101,6 +101,37 @@ Run 2 Codex 작업 범위:
 - **F-007** [비차단 / Human 확인 필요] 자동 Git 단계 조건은 Task 번호 22~31로 그대로다(run.mjs:201). Task 문서는 새 PR 형식을 TASK-033의 PR에서 처음 확인한다고 했으나, 현재 조건으로는 TASK-033에서 자동 Commit / Push / Draft PR이 실행되지 않는다. 범위 확대는 AGENTS.md 12절의 Git 권한 범위 변경이므로 Executor가 임의로 바꾸지 말고, PR의 후속 작업 / 잔여 위험과 WORK_LOG에 Human 결정 필요 사항으로 기록한다.
 - **F-008** [비차단] hardening.test.mjs의 Test 이름 'Human requests persist across all reviewer verdicts'가 바뀐 동작(CHANGES_REQUIRED는 REWORK)과 맞지 않는다. docs/12 Decide 표의 'Reviewer PASS + handoff_actions 존재 → Git 실행 없이 대기' 행도 Git 성공 뒤 상태를 HANDOFF_PENDING으로 바꾸는 새 동작(run.mjs:204)을 반영하지 않는다. 이름과 표를 구현에 맞춘다.
 
+## Run 2 결과, Human 결정(F-007), Run 3 작업 범위 (2026-10-03, Claude 세션 기록)
+
+Run 2(`2026-10-03T06-09-25-106Z-087818bc`, main의 안정 Version Orchestrator로 실행): Verify 성공, Claude Review **CHANGES_REQUIRED**(R2-001 ~ R2-004). Run 1 Finding 중 F-001, F-002, F-004 ~ F-008은 해결을 확인했고 F-003 계열의 Secret 완화 경로(R2-001, R2-002)가 남았다. Executor가 F-007을 Human 결정 필요로 보고해 구 Version 규칙대로 정지했다. 작업 폴더 상태는 **검토 미완료 WIP**로 Commit했다.
+
+### Human 결정 (2026-10-03): 자동 Git 범위 확대 (F-007)
+
+Human이 자동 Commit / Push / Draft PR 범위를 **TASK-022 이후 Human이 Contract를 승인한 모든 Task**로 넓히는 것을 승인했다. 기존 TASK-022 ~ TASK-031 상한을 없앤다. 다른 제한은 그대로다: Verify 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음일 때만 실행, 승인된 `task/` Branch만, main Push / Force Push / History Rewrite / Merge / Auto Merge 금지. Contract `agents_sections`에 `12`를 추가했다(Claude 세션).
+
+### Run 3 Codex 작업 범위
+
+1. **Secret 검사 구조 정리** (R2-001, R2-002, R2-003, R2-004). 예외를 덧붙이는 방식이 새 우회 경로를 만들고 있으므로 다음 원칙으로 단순하게 다시 구성한다.
+   - 한 줄에 후보(자격 증명 단어 + 구분 기호 + 값)가 여러 개면 **모든 후보를 각각 독립적으로** 검사한다. 한 후보를 허용했다고 줄의 나머지 검사를 건너뛰지 않는다.
+   - 허용 판정은 값 전체가 아니라 **값의 첫 단어(공백 전까지)**에만 적용한다. 첫 단어가 허용 형태(Placeholder, ARN, IAM Action 형식, 후행 구두점 / backtick 제거 후 판정)일 때만 그 후보를 허용하고, 그 뒤의 문자열은 계속 검사 대상이다.
+   - 자연어 설명 판정 근거에서 세로선을 빼거나 앞뒤 공백이 있는 표 구분자일 때만 인정한다. 첫 단어가 자격 증명 형태(공백 없는 영숫자 / 기호 연속, 일정 길이 이상, 또는 숫자 / 기호 혼합)이면 뒤에 설명이 와도 차단한다.
+   - 등호 형식(env / properties / URL Query)은 Placeholder 외에는 자연어 예외를 적용하지 않는다.
+   - `redact()`는 내부 문자열 치환 뒤에도 직렬화 결과 전체에 원문 검사를 이어서 적용한다.
+   - 위 규칙으로도 "반드시 차단" 사례와 "허용" 사례를 동시에 만족할 수 없는 경우가 있으면 **차단을 우선**하고, 남는 오탐을 `docs/12`의 한계로 기록한다. 차단 기준을 낮추는 선택이 필요하면 구현하지 않고 Human 결정으로 보고한다.
+   - R2 Finding의 회귀 Test를 추가한다(차단 사례 문자열은 실행 시 조합).
+2. **자동 Git 범위 확대** (위 Human 결정): `run.mjs`의 Task 번호 상한 조건을 없애고 Test를 추가한다(TASK-032 / TASK-033 형태의 ID에서 Git 단계 실행, TASK-021 이하는 미실행 유지). `docs/11`, `docs/12`, AGENTS.md 12절의 범위 문구를 고친다. 12절은 범위 문구만 수정하고 다른 규칙은 바꾸지 않는다.
+3. 구 Version Guard 회피 규칙(Run 2 범위의 2번)은 그대로 적용한다. 이 Run도 main의 안정 Version Guard로 검사된다.
+4. 이번 Run에서 새로 Human 결정이 필요한 사항이 없으면 `human_decisions_needed`를 비운다. F-007은 결정되었다.
+5. 완료 반영과 WORK_LOG 기록을 갱신한다.
+
+### Run 2 Review Finding 원문
+
+- **R2-001** [차단 / Secret 완화] 허용 분기가 같은 줄의 나머지를 다시 검사하지 않아 env 형식 할당이 통과한다. 따옴표 없는 값은 쉼표나 줄 끝까지 한 번에 잡히고(lib.mjs:36), 자연어 예외(lib.mjs:46)와 ARN 예외(lib.mjs:43)는 그 전체를 그대로 반환한다. 그래서 한 줄 안에서 '자격 증명 단어 + 콜론 + 한글 설명' 뒤에 '자격 증명 이름 변수 + 등호 + 실제 값'이 오면(쉼표 없음) 뒤쪽 할당이 검사되지 않는다. Secrets Manager ARN 뒤에 공백을 두고 같은 할당이 오는 줄도 같다. 구 Version은 이 줄을 차단했으므로 Task의 '반드시 차단'(env 형식 Key-Value 할당)을 통과시키는 회귀다. 수정: 따옴표 없는 값에서 허용 분기를 탈 때 값 부분을 같은 검사기로 다시 검사하거나, ARN 분기는 공백 전까지의 ARN만 허용하고 나머지는 계속 검사한다. '한글 설명 뒤 env 할당'과 'ARN 뒤 env 할당' 차단 회귀 Test를 실행 시 조합 방식으로 추가하고, 기존 허용 Test(TASK-023 / TASK-025 오탐 형태)가 계속 통과하는지 확인한다. 추가 줄에는 Task 문서의 구 Version Guard 회피 규칙을 그대로 적용한다.
+- **R2-002** [차단 / Secret 완화] 자연어 예외(lib.mjs:46)는 값에 세로선만 있어도 적용된다. 공백과 한글이 없고 세로선이 든 8자 미만의 콜론 값은 통과하는데, 세로선이 없는 같은 길이의 값은 차단된다. 세로선은 Markdown 표의 칸 구분자일 때만 의미가 있으므로, 세로선 앞뒤에 공백이 있을 때만 자연어 근거로 인정하거나 세로선을 근거에서 빼고 공백 / 한글만 사용한다. 짧은 세로선 포함 값의 차단 Test를 추가하고 docs/12의 판단 기준 문단을 구현에 맞춘다.
+- **R2-003** [비차단 / 오탐 잔존] IAM Action 허용(lib.mjs:42)은 Action 이름이 줄 끝이나 쉼표, 따옴표로 바로 끝날 때만 동작한다. Markdown에서 backtick으로 감싼 Secrets Manager Action 이름이나, Action 이름 뒤에 공백과 설명이 이어지는 목록 줄은 Action 이름이 8자 이상의 ASCII 첫 단어로 판정되어 차단된다. Task의 '허용으로 바꿀 것: IAM Action 이름'이 문서 표기에서는 충족되지 않으며 TASK-026 이후 IAM 문서에서 다시 오탐이 날 수 있다. 수정: 첫 단어에서 backtick / 닫는 괄호 / 마침표 같은 후행 구두점을 떼어 낸 뒤 Action 형식을 판정하고, 나머지 부분은 R2-001 방식으로 계속 검사한다. backtick 형태와 설명이 붙은 형태의 허용 Test를 추가한다.
+- **R2-004** [비차단 / Redaction 불완전] redact()는 입력이 JSON 객체이고 내부 문자열에서 하나라도 치환되면 곧바로 반환한다(lib.mjs:24-30). 이때 객체의 Key-Value 자체가 자격 증명 형태인 항목은 원문 검사를 거치지 않아 반환값에 그대로 남는다. assertNoSecrets는 변경 여부만 보므로 차단에는 영향이 없다. 그러나 run.mjs:145, 183의 Executor / Reviewer 입력 Redaction과 문자열 Run 기록에서는 일부만 가려질 수 있다. 수정: 내부 문자열 치환 뒤에도 직렬화 결과에 원문 검사를 이어서 적용한다. 내부 문자열 일치와 객체 Key 일치가 함께 있는 입력의 Redaction Test를 추가한다.
+- **R2-005** [확인 결과 / 조치 불필요] 이번 Diff의 변수 이름 변경은 Secret 판정 동작을 바꾸지 않는다. F-001, F-002, F-004 ~ F-008은 구현과 Test, docs/12에서 해결을 확인했다: 접두 조건과 직렬화 문자열 재귀 검사, Resume 승인 판정의 pending_gate 포함(run.mjs:63), AWS 설정 파일 한계 문서화, PR 길이 제한의 빈 배열 / surrogate 처리, 자동 Git 범위 22~31 유지(run.mjs:201)와 Human 결정 필요 기록, Test 이름과 Decide 표. F-003은 주석 제거 / 첫 단어 검사 / 이중 중괄호 제한은 반영됐으나 R2-001, R2-002의 경로가 남아 있다. TASK-033 자동 Git 범위는 여전히 Human 결정 대상이며 이 Review는 그 승인을 대신하지 않는다.
+
 ## 제외 범위
 
 - Auto Merge, Merge 자동화, CI Workflow 변경
