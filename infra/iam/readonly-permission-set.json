@@ -16,11 +16,22 @@
         "cloudformation:DescribeStacks",
         "cloudformation:DescribeStackEvents",
         "cloudformation:DescribeStackResources",
+        "cloudformation:DescribeStackResource",
         "cloudformation:ListStackResources",
         "cloudformation:ListChangeSets",
         "cloudformation:DescribeChangeSet"
       ],
-      "Resource": "${StagingAppStackArn}"
+      "Resource": [
+        "arn:aws:cloudformation:ap-northeast-2:${AccountId}:stack/moodfit-staging-*/*",
+        "arn:aws:cloudformation:us-east-1:${AccountId}:stack/moodfit-staging-certificate/*"
+      ]
+    },
+    {
+      "Sid": "InspectTargetHealth",
+      "Effect": "Allow",
+      "Action": ["elasticloadbalancing:DescribeTargetHealth"],
+      "Resource": "*",
+      "Condition": {"StringEquals": {"aws:RequestedRegion": "ap-northeast-2"}}
     },
     {
       "Sid": "InspectStagingService",

@@ -3093,3 +3093,21 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - Gate 준비 중 Claude 세션이 AWS 공식 문서로 확인한 사실: RDS 관리형 관리자 자격 증명은 값을 기본 7일마다 자동 교체한다. TASK-026 Gate에서 이 점을 확인하지 않고 권장한 것은 Claude 세션의 누락이다. Stack 생성 전에 발견해 DEC-031로 방식을 바꿨다(Stack이 생성하는 자격 증명 Resource, 자동 교체 없음).
 - 허용 문구 4개를 실행 전에 Guard로 미리 시험해 정했다. Codex는 Workspace의 Contract 파일에서 문구를 직접 읽어 그대로 사용했고 Guard 정지 없이 통과했다. 여러 줄 block 형태는 Guard가 줄을 이어서 판정해 차단하므로 한 줄 flow 형태를 썼다(개선 후보: 구분 기호 뒤 값 탐색이 줄바꿈을 넘지 않게 하는 방안을 검토).
 - Review N-001 ~ N-003은 TASK-028 문서에 입력으로 기록했다. TASK-028은 BLOCKED를 유지한다(Human의 비용 승인과 Stack 생성 권한 결정 후 READY).
+
+## 2026-10-03 — TASK-028 Run 2 Budget 경고 보완
+
+- Run 1 W2001 원인인 미사용 Environment를 BudgetName의 Sub 참조에 사용했다. staging만 허용하며 기존 Budget 이름을 유지한다. Parameter 예시와 Human Script의 staging 검증도 그대로 유효하다. 경고를 무시하는 검증 완화는 하지 않았다.
+- Budget Stack 생성·조회·검증 Region을 ap-northeast-2로 문서화했다. 기존 세 Script의 Region 선택과 일치하며 certificate만 us-east-1을 사용한다. TASK-028 IN_PROGRESS와 나머지 A단계 WIP 상태를 유지한다.
+- Executor Python에 cfn-lint 모듈이 없어 lint 성공을 주장하지 않는다. 실제 AWS 호출과 Git 후속 작업은 수행하지 않았다. Orchestrator의 Sandbox 밖 검증이 기준이다.
+
+## 2026-10-03 — TASK-028 A단계 Staging 배포 준비
+
+- 승인 Contract와 명시 실행 지시에 따라 Human Change Set 생성·확인·명시 확인 입력 후 실행, clean SHA 기반 임시 checkout 이미지 Build / immutable Push, 임시 Frontend Build / 정적 업로드 / invalidation Script를 작성했다. Profile은 필수이며 moodfit-readonly / Production alias는 거부한다. AWS 쓰기 명령을 Executor가 실행하지 않았다.
+- 고정 moodfit-readonly 상태 조회는 Stack / Change Set 개수 / Event 상태 / ECS rollout / Target Health만 출력한다. 공개 URL Smoke는 HTML·SPA·HTTP redirect·origin 차단·합성 Check-in 생성 / 최신 / History / 400 오류 계약을 검사한다. 실제 Staging Smoke 성공 증거는 없다.
+- 월 USD 300 Budget과 실제 50 / 80 / 100%, forecast 100% 이메일 알림 Template, 로컬 비추적 Parameter 형식, 조회 정책 초안을 준비했다. Budget은 공유 Resource 누락을 피하는 계정 전체 보수적 알림이며 실제 Staging 비용은 별도 확인한다. 조회 권한 적용은 Human만 한다.
+- TASK-027 N-001의 MoodFitEnvironment Tag를 Task Definition에 추가했다. 정적 CloudFront behavior에만 두 SPA 경로 rewrite를 추가하고 API 오류는 보존했다. docs/18에 Human 실행 / Agent 확인, 비용 시점 / 대기 추정 / 실패·재개 / TASK-031 정리 개요와 실환경 확인 항목을 기록했다.
+- TASK-028 상태는 IN_PROGRESS이며 TASK-029 이후 BLOCKED를 유지한다. Executor DONE은 A단계 구현 완료만 의미한다. B단계 배포 결과를 같은 PR에 반영하기 전 Merge하지 않는다. Commit / Push / Branch / PR 작업은 수행하지 않았다.
+- Executor 참고 검증: 6개 Bash Script 구문, inline Python AST, infra JSON 형식, 명시 Profile / 삭제 명령 없음, Human Script의 조회 Profile 거부를 확인했다. Fake AWS로 잘못된 확인 문구가 execute API를 호출하지 않고 정확한 입력만 실행하는 것을 확인했다. 조회 Script가 고정 조회 Profile과 읽기 API만 쓰는 것을 확인했다. 실제 AWS 호출은 없다.
+- 참고 Test의 첫 Python subprocess는 Windows 기본 인코딩 / 시스템 bash 선택으로 실패했고 Git Bash 경로·UTF-8로 수정했다. 이후 stdin CRLF 자동 변환 때문에 확인 문구 비교가 실패해 Test 입력을 raw LF bytes로 수정한 뒤 통과했다. Script의 확인 조건을 완화하지 않았다.
+- Smoke 모의 Test의 최초 PATH 주입은 Git Bash의 curl 우선 경로 때문에 실제 정적 URL을 호출했고 연결 실패로 중단됐다(데이터 생성 단계 전). BASH_ENV 함수로 Fake curl을 명시 주입한 뒤 네트워크 없이 전체 계약 성공과 HTML 오류 본문 차단을 확인했다. request의 연결 실패에는 단계·경로가 포함된 일반 사유를 출력하도록 보완했다. 실제 배포·Smoke 완료로 기록하지 않는다.
+- Sandbox Python에는 YAML / cfn-lint 모듈이 없다. Template parsing / lint / AWS ValidateTemplate / 실환경 배포 성공을 주장하지 않는다. Orchestrator Verify가 Budget 포함 8개 Template를 검증한다. 최종 Diff 공백·문서 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 검사는 Executor 참고 증거다.

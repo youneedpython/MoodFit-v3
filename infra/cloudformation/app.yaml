@@ -240,6 +240,7 @@ Resources:
       Tags:
         - {Key: "Project", Value: "MoodFit"}
         - {Key: "Environment", Value: !Ref Environment}
+        - {Key: "MoodFitEnvironment", Value: !Ref Environment}
         - {Key: "Owner", Value: !Ref Owner}
   Service:
     Type: "AWS::ECS::Service"

@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+fail() { printf 'FAIL: smoke %s\n' "$1" >&2; exit 1; }
+trap 'fail "transport, HTTP or contract check failed"' ERR
+command -v python >/dev/null || fail 'Python required'
+work=$(mktemp -d)
+trap 'rm -rf -- "$work"' EXIT
+base=https://staging.moodfit.8949db.kr
+request() {
+  local expected=$1 path=$2 output=$3
+  shift 3
+  code=$(curl --silent --show-error --connect-timeout 10 --max-time 30 --output "$output" --write-out '%{http_code}' "$@" "$base$path" 2>/dev/null) || fail "transport failed for $path"
+  [[ "$code" == "$expected" ]] || fail "unexpected HTTP status for $path"
+}
+printf 'STEP: static and SPA\n'
+request 200 / "$work/index"
+for path in /check-in /history; do
+  request 200 "$path" "$work/spa"
+  cmp -s "$work/index" "$work/spa" || fail 'SPA route does not return index document'
+done
+python - "$work/index" <<'PY'
+import sys
+assert '<html' in open(sys.argv[1], encoding='utf-8').read().lower(), 'FAIL: missing HTML'
+PY
+redirect=$(curl --silent --connect-timeout 10 --max-time 30 --output /dev/null --write-out '%{http_code} %{redirect_url}' http://staging.moodfit.8949db.kr/ 2>/dev/null)
+[[ "$redirect" == '301 https://staging.moodfit.8949db.kr/' || "$redirect" == '302 https://staging.moodfit.8949db.kr/' || "$redirect" == '307 https://staging.moodfit.8949db.kr/' || "$redirect" == '308 https://staging.moodfit.8949db.kr/' ]] || fail 'HTTP redirect not preserved'
+printf 'STEP: origin protection\n'
+origin_code=000
+if origin_code=$(curl --silent --connect-timeout 10 --max-time 20 --output /dev/null --write-out '%{http_code}' https://origin.staging.moodfit.8949db.kr/api/check-ins/latest 2>/dev/null); then
+  [[ "$origin_code" == 403 ]] || fail 'origin direct access was not blocked'
+else
+  [[ "$origin_code" == 000 ]] || fail 'origin returned unexpected partial response'
+fi
+printf 'STEP: synthetic create and error preservation\n'
+request 400 /api/check-ins "$work/error" -H 'Content-Type: application/json' --data '{"heartRate":181,"respiratoryRate":18,"sleepScore":86,"stressLevel":31,"energyLevel":74,"temperature":19.0,"weather":"RAIN"}'
+request 201 /api/check-ins "$work/create" -H 'Content-Type: application/json' --data '{"heartRate":68,"respiratoryRate":18,"sleepScore":86,"stressLevel":31,"energyLevel":74,"temperature":19.0,"weather":"RAIN"}'
+request 200 /api/check-ins/latest "$work/latest"
+request 200 '/api/check-ins/history?days=7' "$work/history"
+python - "$work" <<'PY'
+import datetime, json, pathlib, sys
+p = pathlib.Path(sys.argv[1])
+def load(name): return json.loads((p / name).read_text(encoding='utf-8'))
+def contract(name): return json.loads(pathlib.Path('contracts/' + name + '.json').read_text(encoding='utf-8'))
+def match(actual, expected):
+    if isinstance(expected, dict):
+        assert isinstance(actual, dict) and actual.keys() == expected.keys()
+        for key, value in expected.items():
+            if key == 'id': assert type(actual[key]) is int and actual[key] > 0
+            elif key == 'recordedAt': datetime.datetime.fromisoformat(actual[key].replace('Z', '+00:00'))
+            else: match(actual[key], value)
+    elif isinstance(expected, list):
+        assert isinstance(actual, list) and len(actual) == len(expected)
+        for a, e in zip(actual, expected): match(a, e)
+    else: assert actual == expected
+created = load('create')
+match(created, contract('checkin-create-201'))
+match(load('error'), contract('checkin-create-400'))
+latest = load('latest')
+match(latest, contract('checkin-latest-200'))
+assert latest == created, 'concurrent write or latest mismatch'
+history = load('history')
+sample = contract('checkin-history-200')
+assert history.keys() == sample.keys() and history['days'] == 7
+item = next(i for i in history['items'] if i['id'] == created['id'])
+match(item, sample['items'][0])
+assert item['recordedAt'] == created['recordedAt']
+print('PASS: create/latest/history and 400 contract preserved')
+PY
+printf 'PASS: staging smoke (synthetic record retained; no deletion)\n'

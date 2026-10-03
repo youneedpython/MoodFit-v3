@@ -27,6 +27,22 @@ Parameters:
     AllowedPattern: "[A-Za-z0-9_-]+"
     Description: "Human supplies the same private value to app and frontend; never output it"
 Resources:
+  SpaRouting:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub "moodfit-${Environment}-spa"
+      AutoPublish: true
+      FunctionConfig:
+        Comment: "Rewrite known static SPA routes only; preserve API errors"
+        Runtime: cloudfront-js-2.0
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          if (request.uri === '/check-in' || request.uri === '/history') {
+            request.uri = '/index.html';
+          }
+          return request;
+        }
   StaticBucket:
     Type: "AWS::S3::Bucket"
     Properties:
@@ -128,6 +144,9 @@ Resources:
             CachePolicyId: "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
             OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
         DefaultCacheBehavior:
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt SpaRouting.FunctionARN
           TargetOriginId: "static"
           ViewerProtocolPolicy: "redirect-to-https"
           AllowedMethods:

@@ -9,7 +9,7 @@ export AWS_CLI_AUTO_PROMPT=off
 command -v aws >/dev/null 2>&1 || fail 'AWS CLI is unavailable'
 shopt -s nullglob
 templates=(infra/cloudformation/*.yaml)
-((${#templates[@]} == 7)) || fail 'Expected seven foundation and application templates'
+((${#templates[@]} == 8)) || fail 'Expected eight foundation, application and budget templates'
 
 printf 'STEP: cfn-lint\n'
 if command -v cfn-lint >/dev/null 2>&1; then

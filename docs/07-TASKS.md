@@ -38,10 +38,11 @@ TASK-028 — Staging Deployment / Smoke Test
 Status:
 
 ```text
-BLOCKED
+IN_PROGRESS
 ```
 
-2026-10-03 승인 Contract와 명시 실행 지시에 따라 TASK-027 Application Template 구현을 이번 PR에 DONE으로 반영한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-028은 BLOCKED를 유지하며 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. 실제 AWS Resource는 생성하거나 변경하지 않았다.
+TASK-001 ~ TASK-027, TASK-032 ~ TASK-034는 DONE이다. TASK-027 완료 근거는 PR #14 Human Squash Merge(2026-10-03)다.
+TASK-028은 2026-10-03 승인 Contract와 명시 실행 지시로 A단계 배포 준비를 구현했다. 상태는 IN_PROGRESS이며 실제 AWS 변경은 없다. B단계 실제 배포와 Smoke 결과를 같은 PR에 반영하기 전 DONE 또는 Merge하지 않는다. TASK-029 이후는 BLOCKED다.
 
 ---
 
@@ -76,7 +77,7 @@ BLOCKED
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | DONE | TASK-023 / TASK-024, DEC-029 Human Approved | B단계 구현 완료 반영, Human Squash Merge로 확정 |
 | TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | DONE | TASK-032 / TASK-033 / TASK-034 구현 완료 반영 (충족), TASK-023 / TASK-025 및 Permission Set / Profile / 실제 Preflight 확인 충족 | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | DONE | TASK-024, TASK-026 완료 | DEC-031 승인, PR 구현 완료 반영 / Human Squash Merge로 확정 |
-| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | Human의 비용 승인과 Stack 생성 권한 결정 후 READY |
+| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | IN_PROGRESS | TASK-025 ~ TASK-027 완료. 비용·운영 기간·Human 직접 실행 승인 | A단계 구현, B단계 배포·Smoke 전 DONE / Merge 금지 |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
@@ -1439,10 +1440,10 @@ ECS Fargate / ALB / RDS 연동과 Frontend → API Routing을 IaC로 완성한�
 ### 상태
 
 ```text
-BLOCKED
+IN_PROGRESS
 ```
 
-TASK-025 승인, TASK-026 / TASK-027 완료에 더해 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. 그 전에는 BLOCKED를 유지하며 실행하지 않는다.
+2026-10-03 승인 Contract와 명시 실행 지시에 따라 A단계 절차 / Script / Budget / 조회 정책 초안을 구현했다. AWS 변경은 수행하지 않았다. B단계는 [배포 절차](18-STAGING-DEPLOYMENT-RUNBOOK.md)를 따라 Human 실행과 조회 확인 / Smoke로 진행하며 결과 기록 전 IN_PROGRESS를 유지한다.
 
 ### 목적
 

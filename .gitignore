@@ -39,3 +39,4 @@ coverage/
 .harness/runs/
 .harness/workspaces/
 harness/config.local.json
+infra/cloudformation/local/
