@@ -41,6 +41,12 @@
 - 데이터 Resource의 DeletionPolicy / UpdateReplacePolicy 검토
 - Account ID / SSO Start URL 등 환경 고유값을 Template에 넣지 않음
 
+## TASK-023에서 넘어온 설계 입력 (2026-10-03)
+
+- DNS: `8949db.kr` 위임 복구 완료(2026-10-03 Claude 세션 확인). 가비아에서 네임서버를 새 Route 53 Public Hosted Zone 값 4개로 변경했다. .kr 레지스트리 반영과 Route 53 응답을 확인했다. Hosted Zone은 Human이 콘솔에서 만들었으므로 IaC에서는 새로 만들지 않고 **기존 Zone을 참조**(import 또는 data source)한다.
+- TASK-023 Review N-001: ALB listener는 HTTPS 443만 사용한다(HTTP 80은 만들지 않거나 443 리다이렉트만 허용, 결정 필요). ALB SG ingress는 CloudFront origin-facing managed prefix list의 443만 허용한다. CloudFront origin protocol policy는 HTTPS only로 한다. 검증 header 조건은 유지한다.
+- 선행 조건 잔여: 최소 권한 Staging Profile / Agent 허용 Profile(TASK-025), MySQL 8.4 Local / Testcontainers / CI 전환 Decision(DEC-023 변경), Region / Engine / Class 가용성 확인
+
 ## Verification
 
 - CloudFormation Validate / Lint 가능한 범위
