@@ -1,0 +1,39 @@
+{
+  "id": "TASK-033",
+  "title": "MySQL 8.4 Alignment (Local / Testcontainers / CI)",
+  "task_file": "docs/tasks/TASK-033_MYSQL_84_ALIGNMENT.md",
+  "allowed_paths": [
+    "backend/src/test/",
+    "scripts/container-smoke.sh",
+    ".github/workflows/ci.yml",
+    "docs/",
+    "README.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "backend/build.gradle",
+    "backend/settings.gradle",
+    "backend/gradle/",
+    "backend/src/main/",
+    "frontend/",
+    "contracts/",
+    "infra/",
+    ".github/workflows/milestones.yml",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "agents_sections": ["3"],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["bash", "scripts/container-smoke.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}
