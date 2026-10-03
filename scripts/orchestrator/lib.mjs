@@ -42,8 +42,8 @@ export function redact(value) {
         if (separator === ':' && key.trim() === 'secretsmanager:' && /^(?:[A-Z][A-Za-z]*\*?|\*)$/.test(candidate)) return match;
         if (separator === ':' && /arn:[^\s]*:$/.test(source.slice(0, offset + prefix.length))) return match;
         // Colon prose is allowed only when unquoted and visibly a sentence.
-        const firstToken = candidate.split(/\s/u)[0];
-        if (!quoted && separator === ':' && /[\s\uAC00-\uD7A3|]/u.test(candidate) && !/^[!-~]{8,}$/.test(firstToken)) return match;
+        const firstPart = candidate.split(/\s/u)[0];
+        if (!quoted && separator === ':' && /[\s\uAC00-\uD7A3|]/u.test(candidate) && !/^[!-~]{8,}$/.test(firstPart)) return match;
         return prefix + key + '"[REDACTED]"';
       });
 }

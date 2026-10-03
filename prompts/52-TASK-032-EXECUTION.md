@@ -13,3 +13,8 @@
 - Context: Task Contract, 실제 누적 Diff, Secret Guard / Resume / PR 길이 제한 / 설계 문서.
 - Human 실행 지시: Secret 할당 경계 및 직렬화 / YAML 주석 / Placeholder 회귀, pending_gate Resume, AWS 한계 문서화, Unicode 및 빈 배열, Git 범위 결정 필요 사항 기록, Test 이름과 Decide 표를 수정한다. Git 권한 확대와 Commit / Push / PR 실행은 금지한다.
 - 결과: Rework 구현과 Fake CLI 회귀 Test 완료. TASK-033 Git 범위는 별도 Human 결정 대상으로 기록했으며 자동 Git 조건은 보존했다. Executor DONE은 Verify / Review / Merge 승인을 대신하지 않는다.
+
+## Run 2 WIP 검증 지시 (2026-10-03)
+
+- 실제 Prompt 요지: WIP 기준선에서 F-001~F-008 해결을 확인하고 미해결 부분만 수정한다. 구 Version Guard에 걸리는 지역 변수 이름을 변경하고 추가 줄을 검사한다. F-007의 Git 권한 범위는 확대하지 않는다.
+- 결과: 기존 회귀 구현 / 문서 / Test를 확인하고 첫 단어를 받는 지역 변수 이름을 firstPart로 수정했다. TASK-032 DONE / TASK-033 READY 완료 반영은 유지한다.
