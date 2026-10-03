@@ -2826,3 +2826,13 @@ Human Gate에서 Claude 세션이 공식 문서로 미확인 단가 / 핵심 수
 - Prompt: prompts/47-TASK-023-DOMAIN-DECISION.md. AWS Resource / IaC / Workflow / Repository Git handoff는 수행하지 않았다. Executor 자체 검증은 참고 증거이며 Orchestrator Verify가 기준이다. 최종 검증 결과는 Executor JSON에 기록한다.
 - Executor 참고 Test: `node --test "scripts/orchestrator/*.test.mjs"` Exit 0, tests 74 / pass 74 / fail 0 / skipped 0, duration_ms 95392.1706. Sandbox 실행 제약 없음. 이번 Run의 Orchestrator Verify / Claude Review 결과를 미리 주장하지 않는다.
 - `git diff --check` Exit 0(autocrlf 안내만 표시). 누적 변경 문서 6개 UTF-8 strict 디코딩 성공, 연속 물음표 치환 흔적 / U+FFFD 없음. 변경은 allowed_paths 안이며 AGENTS 변경은 3절 본문에 한정한다.
+
+## TASK-024 — Deployment Artifact / Health Gate C 제안 (2026-10-03)
+
+- 최초 Working Tree clean. Human 명시 실행 지시 / TASK-024 Contract / 필수 Context / DEC-027과 실제 설정을 확인하고 TASK-024만 IN_PROGRESS로 변경했다. TASK-025 이후 BLOCKED를 유지한다.
+- `docs/14-DEPLOYMENT-ARTIFACT.md`: digest 고정 Java 21 runtime image / non-root Dockerfile / JAR-only context의 구체적 제안, full SHA / Release tag / 동일 artifact 승격, Frontend dist 절차, 현재 동일 origin `/api` 유지, 정적 화면만 SPA rewrite, DB runtime 설정을 기록했다. JVM memory / startup은 제안과 미측정을 구분했다.
+- 기존 Endpoint에는 전용 Health가 없다. Actuator liveness / DB-aware readiness를 권장하고 Dependency 없는 새 API / 기존 history 재사용 대안을 비교했다. build.gradle / contracts / API 문서의 최소 변경과 Contract 허용 경로 확대안, Base Image 정책 / probe 도구 / Docker smoke 검증 포함 여부를 Gate C로 제안했다. Dockerfile / Dependency / Source / API 계약 / CI / scripts / harness는 수정하지 않았다.
+- TASK-024는 IN_PROGRESS / Executor HUMAN_REQUIRED다. 승인 없이 Health / Base Image 정책을 확정하지 않으며 DONE / TASK-025 READY / PR 완료 반영은 마지막 승인 실행에서 처리한다. 승인된 Decision을 임의 추가하거나 수정하지 않았다.
+- 참고 검증: `docker version --format '{{.Server.Version}}'` Exit 1. Docker CLI는 있으나 config 및 daemon named pipe 접근이 Access denied였다. credential 읽기 / 로그인 / 설치 / 권한 변경을 시도하지 않았다. Docker 접근 제약 자체를 Gate 사유로 삼지 않는다. Image build / start / Health smoke / image metadata / JVM 실측은 미실행이다.
+- Gate 제안 단계이므로 Executor 전체 Test / Build는 미실행이다. Orchestrator의 Contract Verify가 검증 기준이며 자체 성공을 주장하지 않는다. `git diff --check` Exit 0(autocrlf 안내만 표시), 변경 문서 UTF-8 strict 디코딩 / 연속 물음표 치환 흔적 / U+FFFD 검사를 수행했다. 최종 결과와 누적 변경 경로는 Executor JSON에 기록한다.
+- ALB fail-open / matcher / 설정 범위는 2026-10-03 [AWS 공식 Health Check 문서](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html)로 확인했다. AWS CLI / Resource / Repository Branch / Commit / Push / PR 작업 없음. Prompt 48과 Index를 기록했다.

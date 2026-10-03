@@ -38,11 +38,11 @@ TASK-024 — Deployment Artifact / Container / Health Strategy
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-022는 DONE이며 TASK-022 완료 근거는 PR #5 Human Squash Merge(2026-10-02, f2d0936)다.
-2026-10-03 Human이 B안 Architecture / Cost Gate를 승인했다(DEC-027). TASK-023 DONE / TASK-024 READY는 이번 PR의 완료 반영이며 Human Squash Merge로 확정한다. TASK-024는 별도 명시 실행 지시가 필요하다. TASK-025 이후는 BLOCKED를 유지한다. AWS Resource는 생성하지 않았다.
+2026-10-03 Human이 B안 Architecture / Cost Gate를 승인했다(DEC-027). TASK-024는 명시 실행 지시로 시작했으며 Health / Container Base Image 정책 Gate C 승인 대기에서 정지했다. 실행 상태는 IN_PROGRESS이고 Executor 결과는 HUMAN_REQUIRED다. 구체적인 대안 / 최소 Diff는 docs/14-DEPLOYMENT-ARTIFACT.md를 따른다. TASK-025 이후는 BLOCKED를 유지한다. AWS Resource는 생성하지 않았다.
 
 ---
 
@@ -73,7 +73,7 @@ TASK-001 ~ TASK-022는 DONE이며 TASK-022 완료 근거는 PR #5 Human Squash M
 | TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | DONE | TASK-020 완료 (충족), Human 결정 1 / 2 반영, Rework 1 / 2회차 Claude PASS | PR Squash Merge 승인으로 확정 |
 | TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | DONE | TASK-021 완료 (충족), Review PASS, E2E(PR #5 → CI → Human Squash Merge) 검증 | Gate C 승인 완료, PR #5 Human Squash Merge로 DONE 승인 완료 |
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | DONE | TASK-022 완료 (충족), Human 실행 지시 | DEC-027 Human Approved (2026-10-03), 완료는 PR Squash Merge로 확정 |
-| TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | READY | TASK-023 완료 반영 (PR Squash Merge로 확정) | Gate C 조건부 |
+| TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | IN_PROGRESS | TASK-023 Architecture 승인(DEC-027), Human 명시 실행 지시 | Health / Base Image 정책 Gate C 승인 대기 |
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | BLOCKED | TASK-023 완료 (TASK-024 권장) | 필요 |
 | TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-023, TASK-025 완료 | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | BLOCKED | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
@@ -1325,10 +1325,10 @@ AWS Resource 생성 전 Architecture / Cost / Security / 계정 구조 / RDS Ver
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-TASK-023 완료 반영 후 별도 Human 실행 지시로 진행한다. PR Squash Merge로 선행 Task 완료를 확정한다.
+2026-10-03 Human 명시 실행 지시로 시작했다. Health / Base Image 정책을 docs/14-DEPLOYMENT-ARTIFACT.md에 제안했으며 Gate C 승인 전 구현을 정지한다. Executor 결과 HUMAN_REQUIRED는 Task 완료가 아니다. TASK-025 READY 승격과 TASK-024 DONE 반영은 마지막 승인 실행의 PR에서 처리한다.
 
 ### 목적
 

@@ -111,3 +111,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 39 | TASK-019 Remote 검증 후 B 단계 복귀 | B 단계 / 완료 기록 | 구현 완료, Human Squash Merge 대기 |
 | 40 | TASK-020 Orchestrator Hardening | 구현 / Finding 수정 / 검증 / 완료 정리 | 완료, PR Squash Merge 승인으로 DONE 확정 |
 | 41 | TASK-021 Git Automation / Branch / PR Harness | 승인된 Git 계층 / Guard / Test / 정책 기록 | 완료, Rework 1 / 2회차 Claude PASS / Human 승인 (PR Squash Merge로 확정) |
+| 48 | TASK-024 Deployment Artifact / Container / Health | 배포 Artifact / Health / Base Image Gate C 제안 | HUMAN_REQUIRED, 승인 전 구현 정지 |
