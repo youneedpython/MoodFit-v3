@@ -2763,3 +2763,66 @@ DONE
 - 회귀 검증: 임시 Git Repository에서 autocrlf=true / Workspace LF / Source CRLF의 Commit 진행, 검토 후 Stage된 문자 한 글자 변경 차단, binary 바이트 변경 차단을 추가했다. 기존 Git 실패 Test도 전체 실행에 포함한다. 프로젝트 Repository의 Commit / Push / PR / Merge는 수행하지 않았다.
 - Prompt: `prompts/43-TASK-022-GIT-CONTENT-CHECK.md`. TASK-022 IN_PROGRESS를 유지하며 자기 Contract / Dependency는 변경하지 않았다.
 - Verification: `node --test "scripts/orchestrator/*.test.mjs"` tests 74 / pass 74 / fail 0 / skipped 0, Exit 0(약 103초). 신규 3개 회귀 Test와 기존 Git 실패 Test 모두 통과했다. 추가 내용 / 신규 Prompt에 연속 물음표 치환 흔적과 U+FFFD 없음. `git diff --check` Exit 0, 공백 오류 없음(autocrlf 안내만 표시).
+
+## TASK-022 — E2E 결과 / DONE (2026-10-02)
+
+- 재실행 Run(`2026-10-02T07-59-16-842Z-06da8316`): N1 ~ N3 처리 범위로 Codex 실행 → Verify → Claude Review 1회차 PASS → Orchestrator가 Commit(`b3336bb`) / Push / **Draft PR #5**를 자동 생성했다(Git 단계 결함 수정 후 첫 자동 PR).
+- Claude 세션이 DEC-021 / DEC-026 변경 이력을 별도 Commit(`bdbc9a1`)했다.
+- CI: 이전 head Run 36981960960 진행 중 새 head Run 36982029156이 `concurrency`(`cancel-in-progress: false`)로 대기 후 실행되었고 `frontend` / `backend` 모두 success. Required Check가 최신 head(`bdbc9a1`) 결과로 판정됨을 확인했다.
+- Human이 Ready for review 전환 후 Squash Merge했다: merged_by `youneedpython`, 2026-10-02T08:17:34Z, main `f2d0936`. main push CI / Sync Milestones success.
+- 결론: 로컬 Harness → Draft PR → 최신 head CI → Human Squash Merge E2E 1회를 검증했다. TASK-022 DONE, TASK-023 READY.
+- Review 참고(비차단): N2 회귀 Test는 Dismiss를 별도 id의 DISMISSED Review로 모사한다. GitHub는 기존 Review의 state를 바꾸므로 Fixture 정밀화 후보다.
+
+### TASK-023 이후 Orchestrator 개선 후보
+
+- 자동 PR에 Task 완료 반영(07-TASKS DONE / 다음 Task READY / AGENTS.md 3절)이 포함되지 않아 Merge 후 Milestone이 닫히지 않았다. 이번에는 TASK-023 Branch의 첫 Commit으로 보완했다.
+- 자동 PR / Squash Commit 제목이 `chore: TASK-022 승인 작업 반영`으로 일반적이다. `TASK-0xx <Task 제목>` 형식이 필요하다.
+- 기존 후보(frozen Run 문서화, CLI ENOENT 분류, scripts/verify.* 포함, Redaction 정밀화)는 유지한다.
+
+## TASK-023 — AWS Architecture / Cost Gate 초안 (2026-10-02)
+
+### 상태 / 실행 근거
+
+Human의 TASK-023 Contract와 명시적 실행 지시로 시작했다. 최초 Working Tree는 clean이었다. TASK-022 DONE 근거는 앞선 PR #5 Human Squash Merge 기록이다. TASK-023 IN_PROGRESS이며 DEC-027 Pending Human Approval, TASK-024 이후 BLOCKED를 유지한다.
+
+### 산출물 / 남은 Gate
+
+- `docs/13-AWS-ARCHITECTURE.md`: A 교육형 / B Production-like Resource와 Network Flow, Mermaid Diagram, SG / S3 OAC / API cache 경계, NAT / Endpoint 대안, 사람 SSO / Agent / OIDC / ECS Role 분리를 비교했다.
+- RDS 8.0 유료 Extended Support와 8.4 전환을 비교하고 Local / Testcontainers / CI의 별도 변경 승인을 요구했다. 공식 지원 표 / 가격 참고와 서울 단가 / Engine / Class 가용성 확인 대기를 구분했다.
+- 월 730시간 / 단기 80시간 산정 입력, 서비스별 산식 / 공식 URL, 상한 제안, Backup / Snapshot / 정리 / rollback / 인증 없는 공개 API 위험을 기록했다. 비용 합계는 미확인 견적을 확정하지 않았다.
+- DEC-027 초안, TASKS Pending 상태, AGENTS 3절의 오래된 TASK-022 설명, Prompt 45를 동기화했다. Architecture / Region / 계정 / SSO / Network / RDS / ECS / Domain / Logging / 비용과 데이터 노출에 대한 Human 결정이 필요하다.
+
+### Verification / 제한
+
+Executor 자체 검증은 참고 증거이며 Orchestrator Verify가 기준이다. Contract Node Test 결과와 diff / UTF-8 검사는 아래 최종 기록한다. Reviewer PASS나 Human Approval을 미리 주장하지 않는다. AWS CLI / Resource 생성 / 실제 Repository Branch / Commit / Push / PR / Merge는 수행하지 않았다. Node Test의 임시 Git fixture 작업은 프로젝트 Git handoff가 아니다.
+
+Human Gate에서 Claude 세션이 공식 문서로 미확인 단가 / 핵심 수치 / 가용성을 확인하고 선택값 및 이 Diff를 Human에게 제시한다. 실제 Resource / 후속 Task 실행은 별도 승인 범위다.
+
+- Executor 참고 실행 `node --test "scripts/orchestrator/*.test.mjs"`: tests 74 / pass 74 / fail 0 / skipped 0, Exit 0, 약 98초(Executor 자체 측정). 별도 Orchestrator Verify는 2차 Run `2026-10-02T08-30-58-975Z-f32eb40a`에서 Test 74개와 `git diff --check` 성공으로 기록되었다(Task 문서 근거). Orchestrator 실행 시간은 제공되지 않았다.
+- `git diff --check`: Exit 0, 공백 오류 없음. autocrlf 안내 경고만 표시됐다.
+- 변경 문서 6개를 UTF-8 strict 디코딩하고 연속 물음표 치환 흔적 및 U+FFFD가 없음을 직접 확인했다. 누적 경로 / Secret / Encoding / AGENTS 승인 3절 Guard 통과.
+- 처음 UTF-8 검사에 사용한 Node inline 명령은 PowerShell 인자 인용 때문에 SyntaxError로 실행되지 않았다. UTF-8 strict 검사와 문자 검사를 PowerShell .NET API로 수행해 통과했다. 이 도구 호출 오류를 Test 성공으로 기록하지 않았다.
+
+## TASK-023 — Human Gate B안 반영 (2026-10-03)
+
+- 초기 Working Tree clean. Task 문서 Human 결정에 따라 B Production-like / 서울 / 같은 계정 Staging 우선 / 환경별 VPC / 2 AZ NAT 2개 / S3 Gateway Endpoint를 반영했다.
+- RDS 8.4 / small / gp3 20 GiB / Multi-AZ DB instance와 ECS 0.5 vCPU / 1 GiB × 2를 확정했다. 지원 일정과 서울 단가는 Claude 세션 2026-10-02 확인 기록을 출처 / 조회일과 함께 인용했다. 730시간 약 USD 250은 추정이며 월 상한 USD 300 / 환경과 별개다.
+- Domain은 TASK-026 전 Human 확정, 기본 CloudFront Domain의 HTTP origin 도청 / 변조 위험을 기록했다. 기타 단가 / orderable 가용성은 TASK-026 전 확인한다. TASK-025 선행 최소 권한 Profile 준비를 명시했다. DEC-023 변경은 별도 Decision / Gate / Task이며 기존 결정은 수정하지 않았다.
+- 앱 / ALB Log 30일, Backup 14일, final snapshot, 수동 Snapshot 30일 후 삭제 승인, 합성 데이터 제한과 기본 7일 후 Human 정리 / 연장 검토를 반영했다.
+- DEC-027 Human Approved(2026-10-03), TASK-023 DONE / TASK-024 READY와 AGENTS 3절을 동기화했다. 완료는 이번 PR의 Human Squash Merge로 확정하며 Merge 완료를 주장하지 않는다. TASK-025 이후 BLOCKED 유지, 후속 구현 없음.
+- F-001: TASK-023 제목 앞 빈 줄 / 구분선은 baseline에 이미 있어 보존했다. 2차 Run Orchestrator Verify 성공 근거와 Executor 자체 Test 시간의 차이를 위 기록에 명시했다.
+- Prompt: prompts/46-TASK-023-HUMAN-GATE-B.md. AWS CLI / Resource / IaC / Workflow / Repository Git handoff는 수행하지 않았다. 회귀 Test의 임시 Git fixture는 프로젝트 handoff가 아니다.
+- 이번 Executor 자체 검증은 참고 증거다. Orchestrator Verify가 기준이며 자동 Review 결과는 아직 주장하지 않는다.
+- Executor 참고 Test: `node --test "scripts/orchestrator/*.test.mjs"` Exit 0, tests 74 / pass 74 / fail 0 / skipped 0, duration_ms 95369.1506. Sandbox 실행 제약 없음. Orchestrator의 이번 Run Verify 결과는 후속 실행 기록에서 확인한다.
+- `git diff --check` Exit 0(autocrlf 안내만 표시). 변경 문서 6개 UTF-8 strict 검사 성공, 연속 물음표 치환 흔적 / U+FFFD 없음. 변경 경로는 allowed_paths 안이며 AGENTS 변경은 승인 3절 본문에 한정한다.
+
+## TASK-023 — Human Domain 결정 반영 / Run 4 (2026-10-03)
+
+- 초기 Working Tree clean. 승인된 Human 결정 2에 따라 Domain 8949db.kr, CloudFront 사용자 정의 hostname / ACM us-east-1, ALB 전용 origin hostname / ACM ap-northeast-2와 HTTPS origin을 Architecture / Diagram / DEC-027 / TASKS / AGENTS 3절에 반영했다. CloudFront prefix list와 검증 header 보호를 유지한다.
+- 기본 Production / Staging / origin hostname과 Apex 미사용을 기록했다. Claude 세션 2026-10-03 DNS / RDAP 조회 기록의 REFUSED / lame delegation과 만료일 2027-02-26을 인용했다. TASK-026 전 Hosted Zone 준비 / Human 네임서버 변경 / DNS 응답 확인 및 hostname 최종 확정, Human 도메인 갱신 책임을 기록했다.
+- Cost Matrix에 Route 53 Hosted Zone / 질의 비용을 명시했다. ACM 비내보내기 공개 인증서 비용은 공식 확인 필요로 표시하고 TASK-026 전 Claude 세션 확인으로 남겼다. Executor는 Web / AWS CLI를 사용하지 않았으며 비용을 확정한 것으로 주장하지 않는다.
+- N-001: 초안 WORK_LOG의 TASK-023 제목 앞 빈 줄을 추가했다. 앞선 Gate 기록은 당시 이력으로 보존한다. TASK-023 DONE / TASK-024 READY와 TASK-025 이후 BLOCKED를 유지하며 완료 승인은 PR Human Squash Merge다.
+- DEC-023은 변경하지 않았다. 별도 MySQL 전환 Decision / Gate / Task, 최소 권한 Profile 준비(TASK-025 전), Region 가용성 확인(TASK-026 전)은 후속 조건이며 이번 Run의 새 Human Gate가 아니다.
+- Prompt: prompts/47-TASK-023-DOMAIN-DECISION.md. AWS Resource / IaC / Workflow / Repository Git handoff는 수행하지 않았다. Executor 자체 검증은 참고 증거이며 Orchestrator Verify가 기준이다. 최종 검증 결과는 Executor JSON에 기록한다.
+- Executor 참고 Test: `node --test "scripts/orchestrator/*.test.mjs"` Exit 0, tests 74 / pass 74 / fail 0 / skipped 0, duration_ms 95392.1706. Sandbox 실행 제약 없음. 이번 Run의 Orchestrator Verify / Claude Review 결과를 미리 주장하지 않는다.
+- `git diff --check` Exit 0(autocrlf 안내만 표시). 누적 변경 문서 6개 UTF-8 strict 디코딩 성공, 연속 물음표 치환 흔적 / U+FFFD 없음. 변경은 allowed_paths 안이며 AGENTS 변경은 3절 본문에 한정한다.
