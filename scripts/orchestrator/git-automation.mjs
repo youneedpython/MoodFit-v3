@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { checkRemoteConflict } from './pr-gate.mjs';
+import { prTitle, prBody } from './pr-description.mjs';
 import { Stop, blocked, guard, changes, snapshot, git, inside, ignoredSecrets, secretFile, processRun, assertNoSecrets } from './lib.mjs';
 
 const codex = 'Co-authored-by: Codex <199175422+chatgpt-codex-connector[bot]@users.noreply.github.com>';
@@ -14,7 +15,7 @@ export function gitPolicy({ contract, branch, status, executor, reviewer, verifi
 }
 
 // Called only by the Orchestrator after Decide; never exposed as an Executor tool.
-export async function automateGit({ sourceRoot, workspace, revision, branch, contract, status, executor, reviewer, verification, reviewed, record, runDir, signal, invoke = processRun }) {
+export async function automateGit({ sourceRoot, workspace, revision, branch, contract, status, executor, reviewer, verification, reviewCycle = 1, reviewed, record, runDir, signal, invoke = processRun }) {
   gitPolicy({ contract, branch, status, executor, reviewer, verification });
   guard(reviewed, executor.changed_files, contract);
   if ((await ignoredSecrets(workspace)).length) blocked('Ignored secret file detected in Workspace before Git');
@@ -46,6 +47,8 @@ export async function automateGit({ sourceRoot, workspace, revision, branch, con
   const files = reviewed.entries.map(x => x.file);
   if (!files.length) blocked('No reviewed changes to commit');
   const metadata = { task_id: contract.id, repository, base: 'main', head: branch, revision, changed_files: files, diff_summary: await git(workspace, ['diff', '--stat', 'HEAD']), verification, review_verdict: reviewer.verdict, human_gate: 'none pending', draft: true };
+  const body = prBody({ contract, executor, reviewer, verification, reviewCycle, files, metadata });
+  assertNoSecrets(prTitle(contract));
   await record('git-pre-pr.json', metadata);
   const patch = await git(workspace, ['diff', 'HEAD', '--binary', '--no-ext-diff', '--no-textconv', '--']);
   if (patch) await command(['git', 'apply', '--check', '--binary', '-'], patch);
@@ -80,7 +83,7 @@ export async function automateGit({ sourceRoot, workspace, revision, branch, con
     const staged = (await git(sourceRoot, ['rev-parse', `:${entry.file}`])).trim();
     if (staged !== expected) blocked('Reviewed content changed before Commit');
   }
-  const message = `chore: ${contract.id} 승인 작업 반영\n\n- ${contract.title}\n\n${codex}\n${claude}\n`;
+  const message = `${prTitle(contract)}\n\n- ${contract.title}\n\n${codex}\n${claude}\n`;
   assertNoSecrets(message);
   await checkStaged();
   await remoteGuard();
@@ -92,12 +95,11 @@ export async function automateGit({ sourceRoot, workspace, revision, branch, con
   if ((await changes(sourceRoot)).length || (await git(sourceRoot, ['branch', '--show-current'])).trim() !== branch) blocked('Git conflict after Commit');
   await remoteGuard();
   await command(['git', 'push', 'origin', `${metadata.commit_sha}:refs/heads/${branch}`]);
-  const body = `${contract.id}: ${contract.title}\n\nBase: main\nHead: ${branch}\nCommit: ${metadata.commit_sha}\n\nChanged files:\n${files.map(x => '- ' + x).join('\n')}\n\nDiff summary:\n${metadata.diff_summary}\nVerification:\n${verification.map(x => '- ' + x.command.join(' ') + ': exit 0').join('\n')}\nReview Verdict: PASS\nHuman Gate: none pending; Human Squash Merge required.\nAuto Merge: disabled.\n\n${codex}\n${claude}\n`;
   assertNoSecrets(body);
   const bodyFile = path.join(runDir, 'git-pr-body.md');
   await writeFile(bodyFile, body, 'utf8');
   await record('git-pr-body.md', body);
-  metadata.pr_url = (await command(['gh', 'pr', 'create', '--draft', '--base', 'main', '--head', branch, '--title', `chore: ${contract.id} 승인 작업 반영`, '--body-file', bodyFile])).trim();
+  metadata.pr_url = (await command(['gh', 'pr', 'create', '--draft', '--base', 'main', '--head', branch, '--title', prTitle(contract), '--body-file', bodyFile])).trim();
   const created = JSON.parse(await command(['gh', 'pr', 'view', metadata.pr_url, '--repo', repository, '--json', 'number,headRefOid,headRefName,baseRefName']));
   if (!Number.isSafeInteger(created.number) || created.headRefOid !== metadata.commit_sha || created.headRefName !== branch || created.baseRefName !== 'main') blocked('Created PR identity conflict');
   metadata.pr_number = created.number;

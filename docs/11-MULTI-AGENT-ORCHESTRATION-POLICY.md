@@ -86,7 +86,7 @@ Human 승인으로 Claude 세션이 main-protection의 strict_required_status_ch
 
 ## 7. Git / Merge / Release (확정)
 
-TASK-021 Human 승인(2026-10-02)이 아래 과거 단계 기록에 우선한다. TASK-022 ~ TASK-031은 승인 Task Branch에서 Deterministic Verification 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 Orchestrator가 allowed_paths 개별 Stage / Commit / Push / Draft PR을 자동 수행한다. HUMAN_REQUIRED / BLOCKED / CHANGES_REQUIRED에서는 Git 작업을 하지 않는다. TASK-021 자체 Git 작업은 Claude 세션 또는 Human이 수행한다. main Push / Force Push / History Rewrite / Merge / Auto Merge는 금지하며 Human Squash Merge만 완료 승인이다. 기존 Human 로그인 git / gh를 사용하고 Token / PAT / App이나 권한 확대는 별도 승인 대상이다. 작성자 분리는 새로운 Credential 방식을 도입하지 않고 기존 계정을 유지한다.
+TASK-021 Human 승인(2026-10-02)이 아래 과거 단계 기록에 우선한다. TASK-022 이후 Human이 Contract를 승인한 모든 Task는 승인 Task Branch에서 Deterministic Verification 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 Orchestrator가 allowed_paths 개별 Stage / Commit / Push / Draft PR을 자동 수행한다. HUMAN_REQUIRED / BLOCKED / CHANGES_REQUIRED에서는 Git 작업을 하지 않는다. TASK-021 자체 Git 작업은 Claude 세션 또는 Human이 수행한다. main Push / Force Push / History Rewrite / Merge / Auto Merge는 금지하며 Human Squash Merge만 완료 승인이다. 기존 Human 로그인 git / gh를 사용하고 Token / PAT / App이나 권한 확대는 별도 승인 대상이다. 작성자 분리는 새로운 Credential 방식을 도입하지 않고 기존 계정을 유지한다.
 
 - DEC-026 승인과 AGENTS.md 반영 전에는 Human 명시 지시 후 Commit / Push하는 기존 규칙을 유지한다. 이번 실행은 Git 작업 금지 지시를 따른다.
 - Human 결정: 확정. Task 하나 = Branch 하나 = PR 하나. Branch 이름은 `task/TASK-0XX-<짧은-이름>`이며 TASK-018부터 적용한다.
@@ -163,6 +163,9 @@ Human은 2026-10-02 Decision Matrix의 모든 항목을 권장안대로 승인�
 | Release / Tag와 자동화 | DEC-025 유지, Tag push / Release 생성은 Human 확인 | 확정 |
 
 ## 12. 승인 후 절차
+
+- TASK-032 승인 범위에서 PR / Commit 제목은 Task ID와 Task 제목으로 구성한다. PR 본문은 한글 작업 개요, 주요 변경, 검증, Review 회차와 판정, 후속 작업 / 위험, Human Squash Merge 안내 및 Co-author를 포함한다. 파일 목록 / 통계는 끝의 접힌 영역으로 보낸다. 완전한 본문을 Secret 검사한 뒤 길이 상한을 적용한다.
+- 기본 Secret 검사는 변경하지 않았다. Human 결정 A에 따라 main의 안정 Version으로 복원하고 오탐 감소는 TASK-034(Contract의 Human 승인 허용 문구 목록)로 분리한다. 기존 오탐 회피 작성 규칙과 PR 본문 assertNoSecrets 적용은 유지한다. Gate와 CHANGES_REQUIRED가 겹치면 Gate를 보존하며 최대 3회 Rework하고, 최종 판정 / 회차와 함께 HUMAN_REQUIRED로 정지한다. 승인 없는 Git 단계는 금지한다.
 
 - AGENTS.md 절 본문 예외는 Human 승인과 Task Contract의 `agents_sections` 명시가 모두 있을 때만 허용한다. 문자열 절 번호 배열로 승인 범위를 제한하며 절 제목 변경 / 삭제와 그 밖의 절 변경은 BLOCKED다. 필드가 없으면 3절 Current Task / Status 코드 블록 동기화만 허용한다. Executor의 자기 Contract 변경은 금지한다. TASK-021 Human 결정 2에서 `["12"]`를 승인했다.
 

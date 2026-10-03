@@ -1,6 +1,6 @@
 import { processRun, Stop, commandCheck } from './lib.mjs';
 
-const providers = /^AWS_(?:ACCESS_KEY(?:_ID)?|SECRET_ACCESS_KEY|SECRET_KEY|SESSION_TOKEN|SECURITY_TOKEN|PROFILE|DEFAULT_PROFILE|ROLE_ARN|ROLE_SESSION_NAME|WEB_IDENTITY_TOKEN_FILE|CONTAINER_CREDENTIALS.*|CREDENTIAL.*|CONFIG_FILE|SHARED_CREDENTIALS_FILE)$/i;
+const providers = /^AWS_(?:ACCESS_KEY(?:_ID)?|SECRET_ACCESS_KEY|SECRET_KEY|SESSION_TOKEN|SECURITY_TOKEN|PROFILE|DEFAULT_PROFILE|ROLE_ARN|ROLE_SESSION_NAME|WEB_IDENTITY_TOKEN_FILE|CONTAINER_CREDENTIALS.*|CREDENTIAL.*|CONFIG_FILE|SHARED_CREDENTIALS_FILE|ENDPOINT_URL.*|CA_BUNDLE|IGNORE_CONFIGURED_ENDPOINT_URLS)$/i;
 const approved = new Set(['moodfit-readonly', 'moodfit-staging']);
 
 // Identity output stays in memory; never use the recorded call wrapper.
@@ -14,6 +14,7 @@ export async function awsPreflight(contract, config, { cwd, timeout, signal, rec
   for (const profile of profiles) {
     if (Object.keys(env).some(key => providers.test(key) && env[key])) await stop(profile, 'credential-source');
     const aws = config.aws;
+    if (!aws) await stop(profile, 'missing-config');
     if (!approved.has(profile) || !Array.isArray(aws?.allowed_profiles) || !aws.allowed_profiles.includes(profile) || aws?.forbidden_profiles?.includes(profile)) await stop(profile, 'forbidden-profile');
     const expected = aws.profiles?.[profile];
     if (!expected || !/^\d{12}$/.test(expected.account ?? '') || !/^[\w+=,.@-]+$/.test(expected.role ?? '')) await stop(profile, 'missing-expectation');

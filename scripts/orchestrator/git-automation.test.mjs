@@ -8,7 +8,7 @@ import { processRun, git, snapshot, guard, validate } from './lib.mjs';
 import { guardAgents, syncAgents } from './status-sync.mjs';
 
 const contract = { id: 'TASK-022', title: 'Git fixture', allowed_paths: ['src/'], forbidden_paths: ['src/forbidden.txt'], verify: [{ command: ['node', '--version'], cwd: '.' }] };
-const evidence = { contract, branch: 'task/TASK-022-fixture', status: 'PASS', executor: { status: 'DONE', human_decisions_needed: [], changed_files: ['src/a.txt', 'src/new.txt', 'src/delete.txt'] }, reviewer: { verdict: 'PASS' }, verification: [{ command: ['node', '--version'], code: 0 }] };
+const evidence = { contract, branch: 'task/TASK-022-fixture', status: 'PASS', executor: { status: 'DONE', pr_overview: 'fixture description', pr_changes: ['fixture description'], pr_follow_up: [], human_decisions_needed: [], changed_files: ['src/a.txt', 'src/new.txt', 'src/delete.txt'] }, reviewer: { verdict: 'PASS' }, verification: [{ command: ['node', '--version'], code: 0 }] };
 
 test('Contract schema validates optional agents_sections and blocks malformed formats', async () => {
   const schema = JSON.parse(await readFile(new URL('../../harness/schemas/task-contract.schema.json', import.meta.url), 'utf8'));
@@ -113,7 +113,7 @@ test('temporary local Git flow transfers reviewed changes, individual Stage, Com
   const pr = options.calls.find(x => x[0] === 'gh' && x[1] === 'pr');
   assert.ok(pr.includes('--draft'));
   const body = await readFile(pr.at(-1), 'utf8');
-  for (const part of ['TASK-022', 'Verification:', 'Review Verdict: PASS', 'Human Gate:', result.commit_sha, 'Co-authored-by: Codex', 'Co-authored-by: Claude', 'src/new.txt']) assert.ok(body.includes(part));
+  for (const part of ['TASK-022', 'exit 0', 'PASS', 'Auto Merge', 'Co-authored-by: Codex', 'Co-authored-by: Claude', 'src/new.txt']) assert.ok(body.includes(part));
   assert.ok(options.records.has('git-pre-pr.json') && options.records.has('git-result.json'));
   assert.ok(!JSON.stringify([...options.records]).includes('account detail omitted'));
   assert.equal(await readFile(path.join(options.sourceRoot, '.env.local'), 'utf8'), 'fixture only\n');

@@ -15,7 +15,7 @@ const digest = value => createHash('sha256').update(JSON.stringify(value)).diges
 const assets = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../harness');
 const exits = { PASS: 0, ERROR: 1, HUMAN_REQUIRED: 2, BLOCKED: 3, HANDOFF_PENDING: 0 };
 
-export async function run(taskId, { root = process.cwd(), configPath = path.join(root, 'harness/config.local.json'), assetRoot = assets, resumeId } = {}) {
+export async function run(taskId, { root = process.cwd(), configPath = path.join(root, 'harness/config.local.json'), assetRoot = assets, resumeId, env = process.env } = {}) {
   const sourceRoot = root;
   if (resumeId && !/^[A-Za-z0-9-]+$/.test(resumeId)) blocked('Invalid resume id');
   const runId = resumeId ?? `${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID()}`;
@@ -35,7 +35,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
   };
   const call = async (name, command, timeout, input = '', cwd = root) => {
     await record(`${name}.input.json`, { command, cwd, timeout, input });
-    const result = await processRun(command, { cwd, timeout, input, signal: controller.signal });
+    const result = await processRun(command, { cwd, timeout, input, signal: controller.signal, env });
     await record(`${name}.output.json`, result);
     return result;
   };
@@ -60,7 +60,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       await rm(path.join(runDir, 'resume-approval.json'));
       resumeAccepted = true;
       recordPrefix = `resume-${state.history.length}-`;
-      if (checkpoint.executor && (checkpoint.executor.status === 'HUMAN_REQUIRED' || checkpoint.executor.human_decisions_needed.length)) checkpoint.approved_cycle = checkpoint.cycle;
+      if (checkpoint.pending_gate?.length || checkpoint.executor && (checkpoint.executor.status === 'HUMAN_REQUIRED' || checkpoint.executor.human_decisions_needed.length)) checkpoint.approved_cycle = checkpoint.cycle;
       else delete checkpoint.approved_cycle;
       state.status = 'RUNNING'; state.reason = '';
     }
@@ -102,7 +102,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
     delete publicConfig.aws;
     let awsCheckNumber = 0;
     const checkAws = async () => {
-      await awsPreflight(contract, config, { cwd: root, timeout: config.timeouts.preflight_ms, signal: controller.signal,
+      await awsPreflight(contract, config, { cwd: root, timeout: config.timeouts.preflight_ms, signal: controller.signal, env,
         record: (name, value) => record(`aws-${++awsCheckNumber}-${name}`, value) });
     };
     await record('preflight.contract.json', contract);
@@ -129,6 +129,9 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       await record('checkpoint.json', checkpoint);
     } else baselineAgents = frozen.baselineAgents;
     state.workspace = root;
+    state.workspace_name = path.basename(root);
+    frozen.workspace_name = state.workspace_name;
+    await record('frozen.json', frozen);
     if ((await ignoredSecrets(root)).length) blocked('Ignored secret file detected');
     temporary = await mkdtemp(path.join(os.tmpdir(), 'moodfit-result-'));
     const schemaFile = path.join(temporary, 'executor-schema.json');
@@ -190,16 +193,19 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       await phase('Decide');
       state.executor_request = { status: executor.status, human_decisions_needed: executor.human_decisions_needed, handoff_actions: executor.handoff_actions };
       state.reviewer_verdict = verdict;
-      const effective = checkpoint.approved_cycle === cycle ? { ...executor, status: 'DONE', human_decisions_needed: [] } : executor;
+      const pending = checkpoint.pending_gate ?? [];
+      const effective = checkpoint.approved_cycle === cycle ? { ...executor, status: 'DONE', human_decisions_needed: [] }
+        : { ...executor, human_decisions_needed: [...new Set([...pending, ...executor.human_decisions_needed])] };
       const decision = decide(effective, verdict, state.review_cycles, contract.max_review_cycles);
       state.status = decision.status; state.reason = decision.reason;
-      if (['PASS', 'HANDOFF_PENDING'].includes(decision.status) && Number(taskId.slice(5)) >= 22 && Number(taskId.slice(5)) <= 31) {
+      if (['PASS', 'HANDOFF_PENDING'].includes(decision.status) && Number(taskId.slice(5)) >= 22) {
         await phase('Git');
-        state.git = await automateGit({ sourceRoot, workspace: root, revision: frozen.revision, branch: frozen.branch, contract, status: state.status, executor: effective, reviewer: verdict, verification, reviewed: before, record, runDir, signal: controller.signal });
+        state.git = await automateGit({ sourceRoot, workspace: root, revision: frozen.revision, branch: frozen.branch, contract, status: state.status, executor: effective, reviewer: verdict, verification, reviewCycle: state.review_cycles, reviewed: before, record, runDir, signal: controller.signal });
+        state.status = 'HANDOFF_PENDING';
       }
       if (decision.status !== 'REWORK') break;
       findings = verdict.findings;
-      checkpoint = { cycle: cycle + 1, findings, executor: null };
+      checkpoint = { cycle: cycle + 1, findings, executor: null, pending_gate: effective.human_decisions_needed.length ? effective.human_decisions_needed : effective.status === 'HUMAN_REQUIRED' && !effective.handoff_actions.length ? ['Executor Human Gate'] : [] };
       await record('checkpoint.json', checkpoint);
     }
   } catch (error) {

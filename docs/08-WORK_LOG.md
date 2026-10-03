@@ -1,5 +1,43 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-032 — Run 4 Human 결정 A 반영 (2026-10-03)
+
+- Secret 검사 변경을 TASK-032에서 제외하고 오탐 감소를 TASK-034의 Human 승인 허용 문구 목록으로 분리했다. 아래 이전 Run의 완화 구현 기록은 당시 이력이며 현재 구현 기준이 아니다.
+- lib.mjs의 redact / sanitize / assertNoSecrets / guard를 main의 안정 Version과 동일하게 복원했다. Secret 판정용 보조 함수 / 정규식 / 분기는 제거했다. 관련 구간의 원문 동일성을 직접 확인했다.
+- 완화 허용 및 완화 회귀 Test를 제거하고 실행 시 조합한 main 대표 차단 사례 Test를 유지했다. 기존 main Test와 PR 본문 assertNoSecrets 적용은 유지한다.
+- 정책 / 설계에서 완화 판단 기준을 제거하고 기존 오탐 회피 작성 규칙의 지속 적용을 기록했다. PR / 자동 Rework / 짧은 작업 폴더 및 명시 정리 / AWS Preflight / 승인 Git 범위 확대는 유지했다.
+- TASK-032 DONE / TASK-033 READY 완료 반영을 유지한다. Orchestrator Verify / Claude Review / Human Squash Merge 전 완료 승인을 주장하지 않는다. Git handoff 및 실제 AWS 호출은 수행하지 않았다.
+- Prompt: `prompts/55-TASK-032-RUN-4-SECRET-RESTORE.md`.
+- Executor 참고 검증: 최초 전체 실행에서 새 Private Key Fixture의 tracked Diff 구성 오류가 발견되어 untracked 전체 내용 검사로 수정했다. 수정 후 관련 Test 8 / 8 및 최종 전체 Test 103 / 103 통과(Exit 0, 실패 / skipped 0). git diff --check, main Secret 구현 동일성, 누적 경로 / Secret Guard, 추가 줄의 구 Version 금지 식별자 검사와 변경 문서 UTF-8 / 연속 물음표 / U+FFFD 검사도 통과했다. package.json / package-lock.json 변경 없음. Orchestrator Verify가 최종 검증 기준이다.
+
+## TASK-032 — R4 Review Rework (2026-10-03)
+
+- R4-001: 줄바꿈을 제외한 모든 공백을 구분 기호 / 설명 / 주석 경계에 적용했다. NBSP / 전각 공백 / form feed / vertical tab의 등호·콜론 할당을 Guard / JSON 입력 / Redaction 회귀 Test로 확인한다.
+- R4-002: 후보 앞 경계를 소비하지 않아 ARN resource 콜론 바로 뒤의 할당도 검사한다. 기존 ARN 허용 사례를 유지한다.
+- R4-003: JSON 민감 Key의 문맥을 중첩 배열 / 객체에 전달하고 Placeholder 외 모든 primitive를 가린다. 비민감한 숫자는 유지한다.
+- R4-004: docs/11을 JSON 구조 검사 방식에 맞추고 docs/12에 공백 / ARN 경계 / 비문자열 값 기준과 빈 컨테이너 한계를 기록했다. R4-005는 조치 불필요로 유지한다.
+- TASK-032 DONE / TASK-033 READY 완료 반영을 유지한다. Executor 구현 완료는 Orchestrator Verify / Claude Review / Human Squash Merge 승인을 대신하지 않는다. Git handoff는 수행하지 않았다.
+- Prompt: `prompts/54-TASK-032-R4-REWORK.md`.
+- Executor 참고 검증: `node --test "scripts/orchestrator/*.test.mjs"` 114 / 114 통과(Exit 0), `git diff --check` 통과. 누적 추가 줄의 구 Version 금지 식별자 형태 0건, 변경 Markdown / 비추적 Prompt의 연속 물음표와 U+FFFD 0건, package.json / package-lock.json 변경 없음. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+
+## TASK-032 — Run 3 Review Rework (2026-10-03)
+
+- R3-001: 후보별 독립 판정을 유지하면서 차단된 따옴표 없는 값의 마스킹 범위를 쉼표 / 줄 끝까지 복구했다.
+- R3-002: JSON 내부 문자열은 복원한 원문으로 검사하고 객체 Key의 문자열 값은 구조적으로 검사한다. 줄 끝 Placeholder / IAM Action / 한글 설명 허용과 실제 할당 차단을 회귀 Test로 추가했다.
+- R3-003 / R3-004: 따옴표 IAM Action을 허용하고 뒤의 할당은 계속 차단한다. ARN 예외에 partition / service 구획을 요구하며 자연어 설명의 시작 문자를 영문 / 한글로 제한했다. 설계 문서를 구현과 맞췄다.
+- R3-005는 추가 구현 대상이 아니다. 승인 Git 범위의 별도 Decision 기록 여부는 Human / Claude 세션이 판단한다. Executor는 Git 작업을 수행하지 않았다.
+- TASK-032 DONE / TASK-033 READY 반영을 유지한다. Executor 완료는 Orchestrator Verify / Claude Review / Human Squash Merge 승인을 대신하지 않는다.
+- Executor 참고 검증: 최종 Orchestrator Test 111 / 111 통과(Exit 0), git diff --check 통과. 최초 검사에서 ARN resource 구분자 허용 Test가 실패하여 전체 ARN 구획 확인으로 수정한 뒤 회귀 Test 16개와 전체 Test를 다시 통과했다. 추가 줄의 구 Version 금지 식별자 형태 0건, 변경 Markdown과 비추적 Prompt의 연속 물음표 / U+FFFD 부재를 확인했다. package.json / package-lock.json 변경 없음.
+
+## TASK-032 — Run 3 Secret 검사 / 승인 Git 범위 Rework (2026-10-03)
+
+- R2-001 ~ R2-004를 수정했다. 같은 줄의 후보를 첫 단어 단위로 독립 검사하여 자연어 / ARN / Placeholder 뒤의 할당을 차단한다. 세로선을 자연어 근거에서 제외하고 숫자 / 기호가 있는 첫 단어도 차단한다. IAM Action의 Markdown 구두점을 허용하며 JSON 내부 치환 이후 직렬화 전체를 검사한다.
+- Human의 2026-10-03 F-007 결정으로 TASK-022 이후 승인 Contract의 자동 Git 상한을 없앴다. Verify / Executor DONE / Claude PASS / 미해결 Gate 없음 / 승인 Branch 제한은 유지한다. 이전 Run의 F-007 결정 대기 기록은 이 승인으로 해소되었다.
+- Fake CLI의 일반 실행 / Resume 시나리오는 Git 범위 밖 TASK-019로 격리했다. TASK-021은 Git 미실행, TASK-032 / TASK-033은 Git 단계 진입 후 승인 Branch Guard 유지 여부를 검증한다. 실제 Repository Git handoff는 수행하지 않았다.
+- TASK-032 DONE / TASK-033 READY 완료 반영을 유지한다. 새 Task 실행은 하지 않는다. Orchestrator Verify / Claude Review / Human Squash Merge가 남아 있으며 Executor DONE은 완료 승인이 아니다.
+- Prompt: `prompts/53-TASK-032-RUN-3-REWORK.md`. 이번 Run의 구 Version PR 제목 / 본문은 Claude 세션이 Merge 전에 한글 작업 설명으로 갱신한다.
+- Executor 참고 검증: 최종 전체 Orchestrator Test 107개 통과 / 실패 0 / skipped 0 (Exit 0). 처음 Git 범위 확대 후 기존 TASK-999 Fixture가 승인 Branch Guard에서 실패하여 일반 시나리오를 TASK-019로 격리했다. Secret 관련 20개 Test와 최종 전체 Test로 재확인했다. git diff --check 통과, 추가 줄의 구 Version 금지 식별자 형태 0건, 변경 Markdown의 연속 물음표 / U+FFFD 부재를 직접 확인했다. package.json / package-lock.json 변경 없음. Orchestrator Verify가 검증 기준이며 이 결과는 참고 증거다.
+
 ## TASK-025 B단계 — 승인 정책 / AWS Profile Preflight (2026-10-03)
 
 Run 2 Claude PASS 설계안(Commit 1d56112)을 Human이 모두 승인했다(DEC-029). 명시 지시된 Run 3 B단계에서 선택 aws_profiles Schema, 로컬 AWS 설정 Placeholder, 기록하지 않는 STS 호출, 정확한 Account / Role 비교, 관리자 / 금지 Profile 및 대체 자격 증명 공급원 차단을 구현했다. 최초 Preflight와 각 Verify 직전에 검사하고 실패 시 HUMAN_REQUIRED로 정지한다. 자동 로그인 / 재시도 / fallback은 없다.
@@ -2923,3 +2961,44 @@ Human이 조직 관리 계정의 IAM Identity Center에서 Permission Set `MoodF
   모든 사례에서 Run 기록에 Account / ARN / UserId가 남지 않음을 확인했다.
 - 주의: 이 PC의 `default` Profile은 MoodFit 계정에 관리자 권한(`aws login` 세션)으로 로그인되어 있다. `--profile` 없이 `aws`를 실행하면 이 세션이 쓰인다. TASK-026부터 Verify / Script의 모든 AWS 명령은 `--profile`을 명시해야 하며 Contract와 Review 기준에 넣는다.
 - 이로써 TASK-026 실행 선행 조건 중 "Permission Set / Profile 구성과 실제 Profile Preflight 확인"을 충족했다. 실제 조회 / 배포 권한은 TASK-026 / TASK-027에서 Resource 이름 확정 후 Permission Set에 추가한다.
+
+## TASK-032 / TASK-033 등록 (2026-10-03, Claude 세션)
+
+- TASK-025 완료: PR #9 Human Squash Merge(2026-10-03, `caa38f0`), main CI / Sync Milestones success, Milestone 25 closed.
+- Human 지적: 자동 PR 본문이 영어 고정 문구와 파일 목록뿐이다. Claude 세션이 PR #9(Merge 전)와 Merge된 PR #5 / #7 / #8의 제목 / 본문을 한글 작업 설명으로 다시 썼다. main의 Squash Commit 메시지는 바꾸지 않았다(History Rewrite 금지).
+- Human 승인: TASK-026 전에 Orchestrator 개선과 MySQL 8.4 전환을 먼저 실행한다. Orchestrator / CI / Milestone 자동화가 `TASK-숫자 3자리`만 인식하므로 TASK-032 / TASK-033으로 등록했다(처음 제안한 TASK-025A / B 표기는 사용할 수 없다). Milestone 32 / 33을 Claude 세션이 `gh`로 만들었다.
+- TASK-026은 BLOCKED로 되돌렸다(선행: TASK-032, TASK-033).
+
+## TASK-032 — Orchestrator 개선 (2026-10-03, Executor)
+
+- 승인된 Task만 구현했으며 Dependency / AWS 실제 호출 / Git 실행 권한은 변경하지 않았다. Executor는 Repository Commit / Push / Branch / PR 작업을 수행하지 않았다.
+- 내부 / Codex strict Schema와 Prompt / Fake CLI에 PR 개요 / 주요 변경 / 후속 작업 필드를 추가했다. 제목은 Task ID와 Task 제목이고 한글 본문은 작업 내용 / 검증 / Review 판정·회차 / 잔여 위험 / 승인 안내와 Co-author를 포함한다. 파일 목록 / 통계는 접힌 영역이며 전체 본문 Secret 검사 후 항목별 생략으로 24,000자 상한과 필수 Section을 유지한다.
+- Secret 검사는 필수 자격 증명 형식을 유지하며 Placeholder / ARN / IAM / Markdown 자연어 오탐을 제거했다. 차단 Fixture는 실행 시 조합한다. 기존 Task의 오탐 회피 문구는 삭제하지 않았다.
+- Gate와 CHANGES_REQUIRED가 겹쳐도 최대 3회 Rework한다. Gate를 checkpoint에 보존하고 마지막 판정 / 회차를 정지 사유에 넣는다. PASS 후에도 Gate가 남으면 Git 없이 HUMAN_REQUIRED다. BLOCKED는 즉시 정지한다.
+- 작업 폴더는 Run ID Hash 16자리로 생성하며 state / frozen에 대응을 저장한다. 기존 긴 경로 Resume를 검증했다. 명시 cleanup 명령은 성공 PR identity / Lock / realpath / HEAD / Snapshot을 확인하고 긴 경로를 정리한다. 정지 / 변경 Run과 Human Source는 보존한다.
+- AWS endpoint / CA 환경변수 차단과 missing-config 구분, run env 주입을 추가했다. Fake CLI로만 검증했다.
+- Executor 참고 검증: 기존 87개를 유지한 전체 99개 Test 통과. PR 형식 변경에 따른 기존 기대값 실패는 새 형식으로 수정 후 통과했다. Secret 보강 / 길이 제한과 필수 Section 유지 변경 후 전체 99개를 다시 통과했다. 마지막 Private Key Fixture 조합 방식 변경은 Secret 관련 16개 Test로 재확인했다. git diff --check, 구 Version Guard의 전체 누적 Diff / 신규 파일 검사, 허용 경로 / AGENTS 승인 절 / 변경 Markdown의 연속 물음표 및 U+FFFD 부재를 확인했다. package.json / package-lock.json 변경 없음. Orchestrator Verify가 최종 결정적 검증 기준이다.
+- TASK-032 DONE / TASK-033 READY는 이번 PR 완료 반영이며 Claude PASS나 Executor DONE이 Human 완료 승인을 대신하지 않는다. TASK-033은 별도 명시 실행 지시 후 진행한다. 이번 Run은 구 Version이 실행하므로 Claude 세션이 Merge 전 PR 제목 / 본문을 한글 설명으로 갱신한다.
+# TASK-032 Review Rework (F-001 ~ F-008)
+
+- Secret 할당 경계 / JSON 직렬화 원문 / YAML 주석 / Placeholder 회귀를 보강했다. PR 길이 제한의 빈 배열과 Unicode 경계를 수정했다.
+- pending_gate만 남은 Rework도 Human Resume 승인으로 진행하도록 수정하고 승인 없는 Resume 정지를 검증한다.
+- AWS 설정 파일 endpoint 재지정과 PR 민감 식별값 검사 한계를 설계에 기록하고 Decide 표 / Test 이름을 구현에 맞췄다.
+- Human 결정 필요: TASK-033 자동 Commit / Push / Draft PR은 현재 TASK-022~031 권한 범위 밖이다. 별도 범위 승인 전 자동 Git 조건을 변경하지 않는다. TASK-033 새 PR 형식 확인에는 해당 결정 또는 승인된 수동 후속 작업이 필요하다.
+- Executor Test는 참고 증거이며 Orchestrator Verify / Claude Review / Human Squash Merge로 완료를 확정한다.
+- Rework Verification: 전체 Orchestrator Test 101개 통과(0 실패), 이후 추가한 Unicode / 빈 배열 Test와 할당 Guard 회귀를 포함한 improvements.test.mjs 10개 통과. git diff --check 통과. 변경 Markdown의 연속 물음표 / U+FFFD 직접 검사 결과 이상 없음. package.json / package-lock.json 변경 없음.
+
+## TASK-032 Run 2 WIP 확인 (2026-10-03, Executor)
+
+- F-001~F-008의 기존 수정과 회귀 Test를 확인했다. 구 Version Guard에 걸리는 첫 단어 지역 변수 이름을 firstPart로 변경했다. Secret 판단 동작과 Git 허용 Task 번호 범위는 유지했다.
+- 참고 검증: 전체 Orchestrator Test 102개 통과 / 실패 0. Diff 추가 줄의 구 Version 금지 식별자 형태 0건, git diff --check 통과. 변경 Markdown의 연속 물음표 및 U+FFFD 부재를 직접 확인했다. package.json / package-lock.json 변경 없음.
+- F-007의 TASK-033 자동 Git 범위 확대는 별도 Human 결정 대상이며 이번 구현 완료를 막는 Gate로 사용하지 않는다. Claude 세션 / Human은 현재 Run의 PR 제목과 본문을 Merge 전에 한글 작업 설명으로 갱신한다. TASK-032 DONE / TASK-033 READY 반영을 유지하며 Orchestrator Verify / Claude Review / Human Squash Merge가 남아 있다.
+
+### TASK-032 Run 4 확인 / 마무리 (Claude 세션, 2026-10-03)
+
+- Run 4(`2026-10-03T07-04-31-876Z-3484ed7d`, main의 안정 Version Orchestrator로 실행): Verify 성공(Orchestrator Test 103 / 103, `git diff --check`), Claude Review 1회차 **PASS**.
+- Review R6-002 권장 확인: `git diff main -- scripts/orchestrator/lib.mjs` 결과 차이가 없다. `redact` / `sanitize` / `assertNoSecrets` / `guard`가 main과 같음을 Claude 세션이 직접 확인했다.
+- 이 Task는 안정 Version(자동 Git 범위 TASK-022 ~ TASK-031)으로 실행했으므로 Commit / Push / PR은 Claude 세션이 수행했다. 검토 미완료 WIP Commit 3개와 Run 4 Commit은 Squash Merge로 하나가 된다.
+- DEC-026 변경 이력에 자동 Git 범위 확대와 PR 형식 변경을 기록했다(docs/09는 Contract 허용 경로 밖이라 Claude 세션이 기록).
+- TASK-034 설계 입력(Review R6-003): 현재 검사는 URL에 포함된 자격 증명, 임시 Access Key ID 형식, 자격 증명 단어 뒤에 다른 단어가 이어지는 변수 이름을 차단하지 않는다. main의 기존 한계이며 TASK-034 Gate에서 다룬다.
+- 새 PR 제목 / 본문 형식과 자동 Git 단계는 TASK-033 Run에서 처음 실제로 확인한다.

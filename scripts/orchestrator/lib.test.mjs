@@ -58,7 +58,7 @@ test('Codex schema keeps the contract while internal validation rejects duplicat
     if (node.items) check(node.items);
   };
   check(codex);
-  const result = { status: 'DONE', changed_files: ['output.txt'], summary: '', verification: [], human_decisions_needed: [], handoff_actions: [] };
+  const result = { status: 'DONE', changed_files: ['output.txt'], pr_overview: 'fixture description', pr_changes: ['fixture description'], pr_follow_up: [], summary: '', verification: [], human_decisions_needed: [], handoff_actions: [] };
   validate(result, internal);
   for (const changed_files of [['output.txt', 'output.txt'], ['']]) {
     validate({ ...result, changed_files }, codex);

@@ -41,7 +41,8 @@ if (role === 'executor') {
     const agents = await readFile('AGENTS.md', 'utf8');
     await writeFile('AGENTS.md', agents.replace('TASK-020 old', 'TASK-021 next').replace('IN_PROGRESS', 'BLOCKED'));
   }
-  const result = { status: scenario === 'executor-human' ? 'HUMAN_REQUIRED' : scenario === 'executor-status-failure' ? 'FAILED' : 'DONE', changed_files: scenario === 'mismatch' ? [] : [file], summary: 'EXECUTOR_SELF_DESCRIPTION_MUST_NOT_REACH_REVIEWER', verification: [], human_decisions_needed: scenario === 'executor-human' ? ['Approve Task decision'] : [], handoff_actions: scenario === 'handoff' ? ['Approved role prepares PR'] : [] };
+  const result = { status: scenario === 'executor-human' ? 'HUMAN_REQUIRED' : scenario === 'executor-status-failure' ? 'FAILED' : 'DONE', changed_files: scenario === 'mismatch' ? [] : [file], pr_overview: 'fixture description', pr_changes: ['fixture description'], pr_follow_up: [], summary: 'EXECUTOR_SELF_DESCRIPTION_MUST_NOT_REACH_REVIEWER', verification: [], human_decisions_needed: scenario === 'executor-human' ? ['Approve Task decision'] : [], handoff_actions: scenario === 'handoff' ? ['Approved role prepares PR'] : [] };
+  if (scenario.startsWith('gate-') && cycle === 1) { result.status = 'HUMAN_REQUIRED'; result.human_decisions_needed = ['Approve Task decision']; }
   if (scenario === 'executor-schema') result.status = 'PASS';
   if (scenario === 'agents-sync') result.changed_files.push('AGENTS.md');
   if (scenario === 'secret') result.summary += ' api_key=sk-fake0123456789';
@@ -52,6 +53,8 @@ if (role === 'executor') {
   if (scenario === 'human') verdict = 'HUMAN_REQUIRED';
   if (scenario === 'blocked') verdict = 'BLOCKED';
   if (scenario === 'limit' || (scenario === 'rework' && input.includes('cycle=1'))) verdict = 'CHANGES_REQUIRED';
+  if (scenario === 'gate-limit' || (scenario === 'gate-rework' && input.includes('cycle=1'))) verdict = 'CHANGES_REQUIRED';
+  if (scenario === 'gate-blocked') verdict = 'BLOCKED';
   if (scenario === 'reviewer-schema') verdict = 'UNKNOWN';
   if (scenario === 'reviewer-mutation') await writeFile('output.txt', 'review mutation');
   const findings = verdict === 'PASS' ? [] : [{ id: 'F1', message: 'fix this', path: 'output.txt' }];
