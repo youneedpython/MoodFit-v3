@@ -46,13 +46,13 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-025는 DONE으로 기록한다. TASK-025 완료 반영은 이번 PR에 포함하며 Orchestrator Verify / Claude PASS 이후 Human Squash Merge로 확정한다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
+TASK-001 ~ TASK-025는 DONE이다. 2026-10-03 Human 승인으로 TASK-032(Orchestrator 개선) → TASK-033(MySQL 8.4 전환) → TASK-026 순서로 실행하며 TASK-033 / TASK-026 이후는 BLOCKED다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-026 — AWS Infrastructure as Code Foundation
+TASK-032 — Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework)
 ```
 
 Status:

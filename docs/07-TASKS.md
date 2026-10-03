@@ -33,7 +33,7 @@ DONE
 
 ## 3. Current Task
 
-TASK-026 — AWS Infrastructure as Code Foundation
+TASK-032 — Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework)
 
 Status:
 
@@ -41,8 +41,8 @@ Status:
 READY
 ```
 
-TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR #7, TASK-024 PR #8 Human Squash Merge이며 TASK-025 완료는 이 PR(#9)의 Human Squash Merge로 확정한다.
-2026-10-03 Human이 TASK-024 Gate C 권장안을 모두 승인했다(DEC-028). 승인된 Health / Container / Smoke는 docs/14-DEPLOYMENT-ARTIFACT.md를 따른다. TASK-025 정책은 DEC-029 Human Approved이며 B단계 Preflight / Fake CLI Test 구현 완료를 반영한다. TASK-026 READY는 Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인 후 실행하는 조건부 상태다. 검증 / Review 이후 Human Squash Merge가 완료 승인이다. AWS Resource는 생성하지 않았다.
+TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR #7, TASK-024 PR #8, TASK-025 PR #9 Human Squash Merge다.
+2026-10-03 Human이 TASK-026 전에 TASK-032(Orchestrator 개선) → TASK-033(MySQL 8.4 전환)을 먼저 실행하도록 승인했다. TASK-032는 READY이며 Human 승인된 `harness/tasks/TASK-032.json` Contract와 명시적 실행 지시 후 시작한다. TASK-033과 TASK-026 이후는 BLOCKED다. TASK-026의 선행 조건 중 Permission Set / Profile 구성과 실제 Profile Preflight 확인, `8949db.kr` DNS 위임 복구는 완료되었다.
 
 ---
 
@@ -75,12 +75,14 @@ TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR 
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | DONE | TASK-022 완료 (충족), Human 실행 지시 | DEC-027 Human Approved (2026-10-03), 완료는 PR Squash Merge로 확정 |
 | TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | DONE | TASK-023 Architecture 승인(DEC-027), Human 명시 실행 지시, DEC-028 승인 | Gate C 승인 완료, 이번 PR Human Squash Merge로 완료 확정 |
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | DONE | TASK-023 / TASK-024, DEC-029 Human Approved | B단계 구현 완료 반영, Human Squash Merge로 확정 |
-| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | READY | TASK-023, TASK-025 완료 반영. Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인 후 실행 | 필요 (비용 Resource Checkpoint) |
+| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-032, TASK-033 완료 (TASK-023 / TASK-025 완료, Permission Set / Profile / 실제 Preflight 확인 충족) | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | BLOCKED | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
 | TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | 필요 (비용 Resource 생성) |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
+| TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | READY | TASK-025 완료 (충족). TASK-026 전에 실행 | Secret 검사 완화 / 새 Dependency 시 Gate |
+| TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | BLOCKED | TASK-032 완료. TASK-026 전에 실행 | Gate C (DEC-023 변경) |
 
 ---
 
@@ -1381,10 +1383,10 @@ DONE
 ### 상태
 
 ```text
-READY
+BLOCKED
 ```
 
-TASK-023, TASK-025 완료 반영. Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인 후 실행한다.
+TASK-032, TASK-033 완료 후 진행한다. (2026-10-03 Human 승인 순서) Permission Set / Profile 구성과 실제 Profile Preflight 확인, DNS 위임 복구는 완료되었다.
 
 ### 목적
 
@@ -1544,6 +1546,62 @@ TASK-030 완료 후 진행한다.
 
 ---
 
+## TASK-032 — Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework)
+
+### 상태
+
+```text
+READY
+```
+
+TASK-025 완료로 선행 조건이 충족되었다. Human 승인된 `harness/tasks/TASK-032.json` Contract와 명시적 실행 지시 후 시작한다. Roadmap 번호는 TASK-031 다음이지만 TASK-026 전에 실행한다.
+
+### 목적
+
+자동 PR 제목 / 본문을 한글 작업 설명으로 만들고, Secret 검사 오탐을 줄이고, Gate 보고와 Review 수정 요구가 겹칠 때 자동 Rework하도록 Orchestrator를 보강한다.
+
+### Human Approval 또는 Gate
+
+- Secret 검사 완화가 차단 기준을 낮추거나 새 Dependency가 필요하면 Human Approval
+
+### 완료 조건
+
+- 개선 사항이 Fake CLI Test로 검증되고 설계 문서가 구현과 일치한다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-032_ORCHESTRATOR_IMPROVEMENTS.md`](tasks/TASK-032_ORCHESTRATOR_IMPROVEMENTS.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-033 — MySQL 8.4 Alignment (Local / Testcontainers / CI)
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-032 완료 후 진행한다. TASK-026의 선행 조건이다.
+
+### 목적
+
+Local / Testcontainers / CI의 MySQL 기준을 DEC-027의 RDS MySQL 8.4에 맞춘다. (DEC-023 변경)
+
+### Human Approval 또는 Gate
+
+- DEC-023 변경, 대상 Version, Dependency Version 변경은 Gate C
+
+### 완료 조건
+
+- Local 검증과 Remote CI가 MySQL 8.4에서 통과하고 Decision이 Human Approved 된다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-033_MYSQL_84_ALIGNMENT.md`](tasks/TASK-033_MYSQL_84_ALIGNMENT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
 ## 5. Human Approval 필요 Task
 
 다음 Task는 실행 전 Human Approval 또는 Gate 확인이 필요하다.
@@ -1578,6 +1636,8 @@ TASK-030 완료 후 진행한다.
 - TASK-029: CD 동작 변경은 Gate C
 - TASK-030: Production 배포 / 최초 생성 / 파괴적 Migration은 Human Approval
 - TASK-031: Resource 삭제, RDS Snapshot / Delete, Budget, Destructive Cleanup은 Human Approval
+- TASK-032: Secret 검사 차단 기준 완화, 새 Dependency는 Human Approval
+- TASK-033: DEC-023 변경(MySQL 8.4), Dependency Version 변경은 Gate C
 
 ---
 

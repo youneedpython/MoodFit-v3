@@ -2923,3 +2923,10 @@ Human이 조직 관리 계정의 IAM Identity Center에서 Permission Set `MoodF
   모든 사례에서 Run 기록에 Account / ARN / UserId가 남지 않음을 확인했다.
 - 주의: 이 PC의 `default` Profile은 MoodFit 계정에 관리자 권한(`aws login` 세션)으로 로그인되어 있다. `--profile` 없이 `aws`를 실행하면 이 세션이 쓰인다. TASK-026부터 Verify / Script의 모든 AWS 명령은 `--profile`을 명시해야 하며 Contract와 Review 기준에 넣는다.
 - 이로써 TASK-026 실행 선행 조건 중 "Permission Set / Profile 구성과 실제 Profile Preflight 확인"을 충족했다. 실제 조회 / 배포 권한은 TASK-026 / TASK-027에서 Resource 이름 확정 후 Permission Set에 추가한다.
+
+## TASK-032 / TASK-033 등록 (2026-10-03, Claude 세션)
+
+- TASK-025 완료: PR #9 Human Squash Merge(2026-10-03, `caa38f0`), main CI / Sync Milestones success, Milestone 25 closed.
+- Human 지적: 자동 PR 본문이 영어 고정 문구와 파일 목록뿐이다. Claude 세션이 PR #9(Merge 전)와 Merge된 PR #5 / #7 / #8의 제목 / 본문을 한글 작업 설명으로 다시 썼다. main의 Squash Commit 메시지는 바꾸지 않았다(History Rewrite 금지).
+- Human 승인: TASK-026 전에 Orchestrator 개선과 MySQL 8.4 전환을 먼저 실행한다. Orchestrator / CI / Milestone 자동화가 `TASK-숫자 3자리`만 인식하므로 TASK-032 / TASK-033으로 등록했다(처음 제안한 TASK-025A / B 표기는 사용할 수 없다). Milestone 32 / 33을 Claude 세션이 `gh`로 만들었다.
+- TASK-026은 BLOCKED로 되돌렸다(선행: TASK-032, TASK-033).
