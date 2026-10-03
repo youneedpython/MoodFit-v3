@@ -95,7 +95,7 @@ API 형식은 [API 명세](docs/05-API_SPEC.md)와 계약 파일 [`contracts/`](
 |---|---|
 | Frontend | React 19, TypeScript 6, Vite 8, React Router 8 |
 | Backend | Java 21, Spring Boot 4.1, Spring Data JPA, Bean Validation |
-| Database | MySQL 8, Flyway |
+| Database | MySQL 8.4 (`mysql:8.4.11` 검증 기준), Flyway |
 | Test | Vitest, React Testing Library, JUnit, MockMvc, Testcontainers |
 | CI | GitHub Actions |
 
@@ -171,8 +171,10 @@ READY → IN_PROGRESS → 구현 → Local Verification → Commit / Push → Re
 
 - Node.js `24.21.0` (`.nvmrc`)
 - Java 21
-- MySQL 8 (Backend 실행용)
+- MySQL (Backend 직접 실행용, 개발 PC의 기존 8.0 서비스는 유지 가능)
 - Docker (선택, DB 연동 테스트용)
+
+Testcontainers / CI / Container Smoke는 DEC-030의 `mysql:8.4.11`을 사용합니다. 개발 PC를 8.4로 전환하는 선택적 절차와 호환성 확인 항목은 [MySQL 8.4 안내](docs/16-MYSQL-84-ALIGNMENT.md)를 참고합니다.
 
 ### 1. Database와 환경변수
 

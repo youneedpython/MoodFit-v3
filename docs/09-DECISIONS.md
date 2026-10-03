@@ -1162,6 +1162,12 @@ Human Approved
 
 ---
 
+### 변경 이력
+
+- 2026-10-03: TASK-033 Gate C 사전 승인(DEC-030)으로 Testcontainers / CI Summary / Container Smoke의 현재 Image를 `mysql:8.4.11`로 고정한다. 위 `8.0.46` 서술은 TASK-016 승인 당시 기록이다. 개발 PC의 설치 MySQL 8.0 서비스는 Agent가 변경하지 않는다. Dependency / 운영 Code / Migration은 유지하며 실제 호환성은 Orchestrator Verify로 판정한다.
+
+---
+
 ## DEC-024 TASK-017 API 계약 테스트
 
 ### 결정
@@ -1356,3 +1362,20 @@ Run 2 Claude PASS 설계안 docs/15-AWS-ACCESS-POLICY.md / infra/iam/ (Commit 1d
 - N-003 / N-004 Parameter 이름은 RepositoryArn / AccountId로 통일한다. 전체 inline 정책의 Resource 이름 렌더링과 적용은 TASK-026 / TASK-027 Gate에서 한다.
 
 B단계 Human은 Permission Set 2종 / 로컬 Profile을 먼저 구성하되 초기 inline 정책은 sts:GetCallerIdentity만 둔다. 전체 IAM 정책 / OIDC Provider / Role / Environment 생성과 Network / RDS / IAM 최초 구성 권한은 후속 Task Gate에서 정한다. Executor는 실제 AWS CLI / 설정을 사용하지 않고 Preflight / Fake CLI Test를 구현한다. TASK-026 실행 전 Human 구성과 실제 Profile Preflight 확인이 필요하다. 설계 승인은 Resource 생성 / Production 실행 승인이 아니다.
+
+---
+
+## DEC-030 TASK-033 MySQL 8.4 Alignment
+
+### 상태
+
+Human Approved (2026-10-03, Gate C 사전 승인)
+
+### 결정
+
+- Testcontainers / CI Summary / Container Smoke는 `mysql:8.4.11` 고정 Tag를 사용한다. Test의 서버 Version 확인은 `8.4.` 계열을 확인한다.
+- Claude 세션은 2026-10-03 AWS 공식 문서의 RDS 최신 minor 8.4.11 / 표준 지원 종료 2029-07-31과 Docker Hub linux/amd64 manifest 존재를 사전 확인했다. Executor가 manifest를 재조회했다는 뜻은 아니다. 근거는 [RDS MySQL versions](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html)와 [Docker Hub mysql Tags](https://hub.docker.com/_/mysql/tags)다.
+- DEC-023의 현재 Image 기준을 변경하고 DEC-027의 별도 Decision / Gate / Task 조건을 충족한다. DEC-027 / DEC-028의 승인 당시 8.0 서술은 이력으로 보존하며 현재 Smoke 기준에는 이 결정을 적용한다.
+- CI는 Summary 표시 한 줄만 변경한다. Job / Step / 명령 / Trigger / 권한 / concurrency를 유지한다.
+- 개발 PC의 MySQL 8.0 서비스는 Agent가 변경하지 않는다. Human이 선택하는 전환 방법과 주의점은 [MySQL 8.4 안내](16-MYSQL-84-ALIGNMENT.md)에 기록한다.
+- Dependency / 운영 Code / Migration 변경이 필요하면 Gate C로 정지한다. 실제 호환성 판정은 전체 Test와 Container Smoke의 Orchestrator Verify이며 승인 자체가 검증 성공을 뜻하지 않는다.

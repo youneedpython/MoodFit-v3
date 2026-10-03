@@ -78,7 +78,7 @@ fi
 step 'Build linux/amd64 image'
 docker build --platform linux/amd64 --build-arg "VCS_REF=$revision" --tag "$image" backend
 
-step 'Start isolated MySQL 8.0.46'
+step 'Start isolated MySQL 8.4.11'
 db_key=$(random_hex)
 root_key=$(random_hex)
 [ "${#db_key}" -eq 48 ] && [ "${#root_key}" -eq 48 ] || fail 'Random generation failed'
@@ -94,7 +94,7 @@ umask 077
 } > "$work_dir/app.env"
 docker network create "$network" >/dev/null
 docker run --detach --name "$db" --network "$network" --platform linux/amd64 \
-  --env-file "$(docker_path "$work_dir/mysql.env")" mysql:8.0.46 >/dev/null
+  --env-file "$(docker_path "$work_dir/mysql.env")" mysql:8.4.11 >/dev/null
 deadline=$((SECONDS + 180))
 until docker exec "$db" mysqladmin --host=127.0.0.1 ping --silent >/dev/null 2>&1; do
   [ "$SECONDS" -lt "$deadline" ] || fail 'MySQL startup timeout (180s)'

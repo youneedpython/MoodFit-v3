@@ -40,7 +40,7 @@ import com.moodfit.repository.WellnessCheckinRepository;
 import jakarta.persistence.EntityManager;
 
 /**
- * DEC-023: 실제 MySQL(mysql:8.0.46)에서 Flyway Schema와 저장 / 조회를 검증한다.
+ * DEC-023 / DEC-030: 실제 MySQL(mysql:8.4.11)에서 Flyway Schema와 저장 / 조회를 검증한다.
  * Docker가 없는 Local 환경에서는 건너뛴다. CI에서는 {@link DockerAvailabilityTests}가 Docker를 요구한다.
  */
 @SpringBootTest
@@ -48,7 +48,7 @@ import jakarta.persistence.EntityManager;
 @Testcontainers(disabledWithoutDocker = true)
 class MySqlIntegrationTests {
 
-    static final String MYSQL_IMAGE = "mysql:8.0.46";
+    static final String MYSQL_IMAGE = "mysql:8.4.11";
 
     @Container
     @ServiceConnection
@@ -76,7 +76,7 @@ class MySqlIntegrationTests {
 
     @Test
     void connectsToMySqlAndAppliesFlywayMigration() {
-        assertThat(jdbcTemplate.queryForObject("SELECT VERSION()", String.class)).startsWith("8.0.46");
+        assertThat(jdbcTemplate.queryForObject("SELECT VERSION()", String.class)).startsWith("8.4.");
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM flyway_schema_history WHERE version = '1' AND success = 1", Integer.class))
                 .isEqualTo(1);

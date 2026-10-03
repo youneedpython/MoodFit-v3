@@ -53,7 +53,7 @@ Reviewer Verdict는 `PASS`, `CHANGES_REQUIRED`, `HUMAN_REQUIRED`, `BLOCKED`만 �
 
 - TASK-001 ~ TASK-017 DONE, Release `v3.0.0` (Tag `v3.0.0`, `v3.0.0-mvp`)
 - Decision: DEC-001 ~ DEC-025 (다음 번호: **DEC-026**)
-- 승인된 기술: Java 21, Spring Boot 4.1.1, Gradle Wrapper 9.8.0, Node.js 24.21.0, React 19.3.0, Vite 8.3.1, MySQL 8.0.46 (Local / Testcontainers)
+- 승인된 기술: Java 21, Spring Boot 4.1.1, Gradle Wrapper 9.8.0, Node.js 24.21.0, React 19.3.0, Vite 8.3.1, MySQL 8.4.11 (Testcontainers / Container Smoke, DEC-030. 개발 PC Local 서비스는 8.0 유지 가능)
 - Version / Tag / Release 규칙: DEC-025
 
 ## 6. 공통 금지
