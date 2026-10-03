@@ -1268,6 +1268,8 @@ TASK-018 A단계의 Multi-Agent Automation Policy를 Human Approved 정책으로
 
 - 2026-10-02: TASK-022 Gate C에서 Human이 권장안 A를 승인했다. Orchestrator는 Draft PR 생성 후 로컬 `gh`로 PR 상태를 조회하며(Base main / Task Branch / head SHA / PR 번호 고정), 현재 head의 `frontend` / `backend`가 모두 success일 때만 Human Review 대기로 진행한다. 조회 실패 / Timeout은 정지하고 자동 재시도하지 않는다. Changes Requested는 Rework 필요 상태로 정지하고, Human Squash Merge 확인 시에만 다음 Task 선행 조건 근거(`dependency_evidence`, `merged_by` 포함)를 기록한다. Merge / Auto Merge / 다음 Task 자동 실행 / READY 자동 승격은 하지 않는다. PR 상태 Comment 자동화와 strict Required Status Checks 적용은 DEC-021 변경 이력을 따른다. 첫 구현 Run의 Git 단계 CRLF / LF 오판(BLOCKED)은 index blob 대조로 수정했다.
 
+- 2026-10-03: TASK-032에서 Human이 자동 Commit / Push / Draft PR 범위를 TASK-022 ~ TASK-031에서 **TASK-022 이후 Human이 Contract를 승인한 모든 Task**로 넓히는 것을 승인했다(번호 상한 제거). Verify 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 조건, 승인된 task Branch 제한, main Push / Force Push / History Rewrite / Merge / Auto Merge 금지는 그대로다. 같은 Task에서 자동 PR 제목을 `<TASK ID> <Task 제목>`으로, 본문을 한글 작업 설명(개요 / 주요 변경 / 검증 / Review 결과 / 후속 작업)으로 바꿨다. Executor가 Human 결정 필요를 보고해도 Reviewer가 수정 요구이면 한도 안에서 자동 Rework한 뒤 정지한다. Secret 검사 기준은 바꾸지 않았으며 오탐 감소는 TASK-034(Human 승인 허용 문구 목록)에서 다룬다.
+
 ### 상태
 
 ```text
