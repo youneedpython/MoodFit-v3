@@ -27,6 +27,16 @@ Spring Boot Actuator 같은 새 Dependency 추가, 새 Health API 추가, API Co
 - Local Container Smoke Run (Docker Desktop 사용)
 - Secret을 Image Layer에 넣지 않음
 
+## 실행 기준 (Human 승인, 2026-10-03)
+
+- Contract: `harness/tasks/TASK-024.json`. Orchestrator Verify에 `scripts/verify.sh` 전체(Frontend / Backend Test·Build, DEC-023 MySQL Testcontainers, DEC-024 계약 Test)를 포함한다.
+- 금지 경로: Dependency 파일(`backend/build.gradle`, `settings.gradle`, `gradle/`, `frontend/package.json` / `package-lock.json`), API 계약(`contracts/`), CI(`.github/`), `scripts/`, `harness/`. 이 경로의 변경이 필요한 제안(예: Spring Boot Actuator 추가, 새 Health API와 계약 파일 변경, CI Image Build)은 구현하지 않는다. 근거와 최소 Diff 제안을 문서에 남기고 `HUMAN_REQUIRED`(Gate C)로 정지한다. 승인 후 Contract 허용 경로를 넓혀 다시 실행한다.
+- 승인된 Architecture: DEC-027(B안, ECS Fargate Linux x86, 0.5 vCPU / 1 GiB, Desired Count 2, CloudFront `/api` → ALB HTTPS origin, Domain `8949db.kr`). 상세는 `docs/13-AWS-ARCHITECTURE.md`를 따른다.
+- 산출 문서: `docs/14-DEPLOYMENT-ARTIFACT.md` (Container Build 방식, Image Tag 정책, Frontend Artifact 절차, Runtime Configuration, Health 전략, Local Smoke 결과)
+- Docker Image Build / 실행 Smoke는 Dockerfile 작성 후 Verify 항목으로 추가할지 Gate에서 결정한다. Executor는 Docker Desktop을 사용한 Local Smoke 결과를 verification에 기록한다.
+- 이후 Task에서 결정 / 수행하기로 기록된 항목(AWS Resource, IAM, CI / CD 변경, MySQL 8.4 Local 전환)은 `human_decisions_needed`로 보고하지 않는다.
+- 완료 반영(TASK-024 DONE / TASK-025 READY / AGENTS.md 3절)은 마지막 Run의 PR에 포함한다.
+
 ## Verification
 
 - Backend Image Build / Start
