@@ -3086,3 +3086,10 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - Executor 참고 검증: bash -n scripts/iac-validate.sh 및 git diff --check 통과. 실행 시작 Version의 Guard로 누적 변경 경로·승인 문구·인코딩 검사 통과. 승인 literal 4개가 각각 한 번 그대로 사용됨을 확인했다. 변경 Markdown 전체를 UTF-8로 직접 읽고 연속 물음표 치환 흔적 / U+FFFD가 없음을 확인했다. App / Data / Frontend Template 크기 제한과 Parameter 예시 일치, AGENTS.md 3절 밖 무변경을 확인했다. 참고 검사 Script의 최초 실행은 CRLF 분리 처리 오류로 종료됐고 줄바꿈 정규화 후 통과했다. 제품 코드 오류가 아니다.
 - Sandbox Python에서 YAML / cfn-lint 모듈이 없었고 Human 사용자 설치 경로 접근이 거부됐다. YAML parsing / cfn-lint / CloudFormation ValidateTemplate / RDS 통합 성공을 주장하지 않는다. 정적 검증 Script는 7개 Template를 대상으로 확장했으며 최종 판정은 Sandbox 밖 Orchestrator Verify다.
 - TASK-027 DONE은 PR 구현 완료 반영이다. TASK-028은 BLOCKED를 유지하고 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. 새 Human 결정은 이 구현에 필요하지 않으며 최종 완료는 Verify / Claude Review / Remote CI 이후 Human Squash Merge로 확정한다. Git 후속 작업은 수행하지 않았다.
+
+### TASK-027 마무리 (Claude 세션, 2026-10-03)
+
+- Run(`2026-10-03T10-16-19-497Z-f1b1efe1`): AWS Profile Preflight 통과, Verify 성공(`scripts/iac-validate.sh`: Template 7개의 cfn-lint / validate-template과 서울 가용성, `git diff --check`), Claude Review 1회차 **PASS**, Orchestrator가 Commit `a18a735` / Push / Draft PR #14를 자동 생성했다. 첫 Run에서 통과했다. Stack은 만들지 않았다.
+- Gate 준비 중 Claude 세션이 AWS 공식 문서로 확인한 사실: RDS 관리형 관리자 자격 증명은 값을 기본 7일마다 자동 교체한다. TASK-026 Gate에서 이 점을 확인하지 않고 권장한 것은 Claude 세션의 누락이다. Stack 생성 전에 발견해 DEC-031로 방식을 바꿨다(Stack이 생성하는 자격 증명 Resource, 자동 교체 없음).
+- 허용 문구 4개를 실행 전에 Guard로 미리 시험해 정했다. Codex는 Workspace의 Contract 파일에서 문구를 직접 읽어 그대로 사용했고 Guard 정지 없이 통과했다. 여러 줄 block 형태는 Guard가 줄을 이어서 판정해 차단하므로 한 줄 flow 형태를 썼다(개선 후보: 구분 기호 뒤 값 탐색이 줄바꿈을 넘지 않게 하는 방안을 검토).
+- Review N-001 ~ N-003은 TASK-028 문서에 입력으로 기록했다. TASK-028은 BLOCKED를 유지한다(Human의 비용 승인과 Stack 생성 권한 결정 후 READY).
