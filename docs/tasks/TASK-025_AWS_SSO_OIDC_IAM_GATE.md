@@ -54,6 +54,27 @@ IAM Identity Center, Permission Set, IAM, GitHub Permission, Production Environm
 
 11. 실제 ARN / Account ID / SSO Start URL 등 환경 고유값은 Placeholder / Parameter로 처리한다.
 
+## 실행 기준 (Human 승인, 2026-10-03)
+
+2단계로 진행한다.
+
+- **A단계 (현재 Contract)**: 설계 문서 `docs/15-AWS-ACCESS-POLICY.md`와 정책 초안 `infra/iam/`(JSON, 환경 고유값은 Placeholder)을 작성하고 Gate에서 Human 승인을 받는다. AWS / GitHub 설정 변경, AWS CLI 사용, Orchestrator Code 변경은 하지 않는다. 새 Decision은 최신 번호 다음(DEC-029)의 Pending Human Approval 초안으로 기록한다. A단계에서 TASK-025를 DONE으로 바꾸지 않는다(IN_PROGRESS 유지).
+- **B단계 (승인 후 Contract 확대)**: Orchestrator AWS Profile Preflight(`aws sts get-caller-identity`로 Account / Role 확인, Session 만료 / 불일치 시 `HUMAN_REQUIRED`)와 Fake CLI Test를 구현한다. Human이 IAM Identity Center Permission Set과 로컬 Profile을 구성한다. 완료 반영(TASK-025 DONE / TASK-026 READY)은 B단계 PR에 포함한다.
+
+확정된 전제 (Human 답변 / Claude 세션 확인, 2026-10-03):
+
+- AWS: IAM Identity Center 조직의 `student11` 계정을 MoodFit 계정으로 사용한다. DEC-027대로 같은 계정에서 Staging부터 시작한다. Human은 IAM Identity Center 관리 권한이 있어 Permission Set을 직접 만들 수 있다. Route 53 Public Hosted Zone(`8949db.kr`)도 이 계정에 있는 것으로 전제하며 B단계 Preflight 준비 때 확인한다. Account ID / SSO Start URL / ARN은 Repository에 기록하지 않는다.
+- 현재 로컬 AWS CLI Profile(`student1` ~ `student11`)은 모두 `AdministratorAccess` Permission Set이다. Agent는 이 Profile을 사용하지 않는다. MoodFit 전용 최소 권한 Permission Set과 Profile(`moodfit-readonly`, `moodfit-staging`)을 새로 만들고, 기존 관리자 Profile은 Human 전용으로 둔다.
+- GitHub: Repository는 Public, 개인 계정 소유, Collaborator는 Human 1명이다. Environment와 Actions Secret은 아직 없다. Environment Required Reviewer는 사용할 수 있으나 승인자가 1명이므로 "본인 승인 방지(prevent self-review)"는 켤 수 없다. 이 잔여 위험과 보완책(Production 배포는 Human이 직접 승인, Deployment Branch를 `main`으로 제한 등)을 설계에 명시한다.
+- 승인된 Architecture / Artifact: DEC-027(B안, 서울, ECS Fargate, RDS MySQL 8.4 Multi-AZ, CloudFront + S3, ALB HTTPS origin, Domain `8949db.kr`), DEC-028(Actuator Health, digest 고정 Image, `sha-<commit>` Tag, ECR immutable).
+- TASK-024 Review 입력: CI Image Build는 깨끗한 checkout의 실제 Commit에서 수행하고 `VCS_REF`를 필수로 전달한다(배포 Role 권한 범위 설계에 반영).
+
+작성 규칙:
+
+- Orchestrator Secret 검사 오탐 방지: `password` / `token` / `secret` / `api key` 바로 뒤에 `:` 또는 `=`와 값이 오는 표기를 쓰지 않는다. IAM 정책 JSON의 Action 이름(예: `secretsmanager:GetSecretValue`)처럼 불가피한 경우는 검사에 걸리지 않는 형태인지 주의하고, 걸릴 수 있는 Key-Value 표기는 문장으로 풀어 쓴다.
+- 확인된 오탐 사례(Claude 세션, 2026-10-03): Secrets Manager ARN을 `arn:aws:secretsmanager:<region>:<account>:` 뒤에 Resource 종류 단어와 `:`와 이름을 그대로 이어 쓰면 Guard가 BLOCKED 된다. 정책 JSON / 문서에서 이 ARN은 전체를 Parameter Placeholder(예: `${AppDbCredentialArn}`)로 쓰고 literal 형태로 쓰지 않는다. 작성 후 추가한 모든 줄에서 위 단어 바로 뒤에 `:` / `=`가 오는 곳이 없는지 스스로 검색해 확인한다.
+- 이후 Task에서 결정 / 수행하기로 기록된 항목은 `human_decisions_needed`로 보고하지 않는다. A단계 Gate에서 Human이 결정할 항목(Permission Set 범위, OIDC Trust 조건, Role 분리, Environment 정책, Session 지속 시간, 감사 방식)만 보고한다.
+
 ## Verification
 
 - SSO: Agent 허용 Profile로 Production Resource 변경이 불가능한지 정책으로 확인
