@@ -57,7 +57,7 @@ TASK-028 — Staging Deployment / Smoke Test
 Status:
 
 ```text
-BLOCKED
+READY
 ```
 
 AWS 기준은 DEC-027(B안 / 서울 / 환경당 월 USD 300), DEC-028(immutable ECR / digest 고정), DEC-029(IAM / OIDC / Secret 정책), DEC-030(MySQL 8.4.11)이다. Domain은 8949db.kr, Staging 사용자 / origin hostname은 staging.moodfit.8949db.kr / origin.staging.moodfit.8949db.kr이며 모두 HTTPS다. DNS 위임 복구와 Permission Set / 승인 Profile / 실제 Preflight 선행 조건은 TASK-026 Contract에서 확인했다. 기존 Hosted Zone을 참조한다.

@@ -38,10 +38,11 @@ TASK-028 — Staging Deployment / Smoke Test
 Status:
 
 ```text
-BLOCKED
+READY
 ```
 
-2026-10-03 승인 Contract와 명시 실행 지시에 따라 TASK-027 Application Template 구현을 이번 PR에 DONE으로 반영한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-028은 BLOCKED를 유지하며 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. 실제 AWS Resource는 생성하거나 변경하지 않았다.
+TASK-001 ~ TASK-027, TASK-032 ~ TASK-034는 DONE이다. TASK-027 완료 근거는 PR #14 Human Squash Merge(2026-10-03)다.
+TASK-028은 2026-10-03 Human 결정(검증 기간만 운영, Human이 Change Set 직접 실행, 단계별 확인)으로 READY다. A단계(절차 / Script 준비, AWS 변경 없음)를 Orchestrator로 실행하고 B단계(실제 Stack 생성)는 Human이 실행한다. TASK-029 이후는 BLOCKED다.
 
 ---
 
@@ -76,7 +77,7 @@ BLOCKED
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | DONE | TASK-023 / TASK-024, DEC-029 Human Approved | B단계 구현 완료 반영, Human Squash Merge로 확정 |
 | TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | DONE | TASK-032 / TASK-033 / TASK-034 구현 완료 반영 (충족), TASK-023 / TASK-025 및 Permission Set / Profile / 실제 Preflight 확인 충족 | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | DONE | TASK-024, TASK-026 완료 | DEC-031 승인, PR 구현 완료 반영 / Human Squash Merge로 확정 |
-| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | Human의 비용 승인과 Stack 생성 권한 결정 후 READY |
+| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | READY | TASK-025 ~ TASK-027 완료. 2026-10-03 Human이 비용(검증 기간만 운영), Human 직접 Change Set 실행, 적용 순서를 승인 | A단계 준비 → B단계 Human 실행, 단계별 Change Set 확인 |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
@@ -1439,10 +1440,10 @@ ECS Fargate / ALB / RDS 연동과 Frontend → API Routing을 IaC로 완성한�
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
-TASK-025 승인, TASK-026 / TASK-027 완료에 더해 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. 그 전에는 BLOCKED를 유지하며 실행하지 않는다.
+2026-10-03 Human이 비용 / 운영 기간(검증 기간만 운영 후 정리), Stack 생성 주체(Human이 관리자 권한으로 Change Set 직접 실행), Header 값과 Image 입력 주체, 적용 순서를 승인했다. Human 승인된 `harness/tasks/TASK-028.json` Contract와 명시적 실행 지시 후 A단계를 시작한다.
 
 ### 목적
 
