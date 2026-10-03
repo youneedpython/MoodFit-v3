@@ -132,6 +132,40 @@ Human이 자동 Commit / Push / Draft PR 범위를 **TASK-022 이후 Human이 Co
 - **R2-004** [비차단 / Redaction 불완전] redact()는 입력이 JSON 객체이고 내부 문자열에서 하나라도 치환되면 곧바로 반환한다(lib.mjs:24-30). 이때 객체의 Key-Value 자체가 자격 증명 형태인 항목은 원문 검사를 거치지 않아 반환값에 그대로 남는다. assertNoSecrets는 변경 여부만 보므로 차단에는 영향이 없다. 그러나 run.mjs:145, 183의 Executor / Reviewer 입력 Redaction과 문자열 Run 기록에서는 일부만 가려질 수 있다. 수정: 내부 문자열 치환 뒤에도 직렬화 결과에 원문 검사를 이어서 적용한다. 내부 문자열 일치와 객체 Key 일치가 함께 있는 입력의 Redaction Test를 추가한다.
 - **R2-005** [확인 결과 / 조치 불필요] 이번 Diff의 변수 이름 변경은 Secret 판정 동작을 바꾸지 않는다. F-001, F-002, F-004 ~ F-008은 구현과 Test, docs/12에서 해결을 확인했다: 접두 조건과 직렬화 문자열 재귀 검사, Resume 승인 판정의 pending_gate 포함(run.mjs:63), AWS 설정 파일 한계 문서화, PR 길이 제한의 빈 배열 / surrogate 처리, 자동 Git 범위 22~31 유지(run.mjs:201)와 Human 결정 필요 기록, Test 이름과 Decide 표. F-003은 주석 제거 / 첫 단어 검사 / 이중 중괄호 제한은 반영됐으나 R2-001, R2-002의 경로가 남아 있다. TASK-033 자동 Git 범위는 여전히 Human 결정 대상이며 이 Review는 그 승인을 대신하지 않는다.
 
+## Run 3 결과와 Human 결정 A — Secret 검사 변경 분리 (2026-10-03, Claude 세션 기록)
+
+Run 3(`2026-10-03T06-17-24-363Z-e1d74891`, main의 안정 Version으로 실행): Review 3회 모두 **CHANGES_REQUIRED**, 한도 도달로 정지했다. 이전 지적은 매번 해결되었지만 Secret 검사 완화에서 매 회차 새 우회 경로가 나왔다(Run 1부터 5회 연속). PR 제목 / 본문, 자동 Rework, 작업 폴더, AWS Preflight 보강, 자동 Git 범위 확대는 Review에서 문제를 찾지 못했다. Verify 114 / 114. 작업 폴더 상태는 검토 미완료 WIP로 Commit했다(`65f33fd`).
+
+차단 Finding 요약:
+
+- **R3-001** [차단 / Redaction 회귀] 차단된 따옴표 없는 후보에서 가리는 범위가 값의 첫 단어(또는 Placeholder 형태 부분)로 줄었다(lib.mjs:38, 53). 이전 구현과 main의 안정 Version은 쉼표 / 줄 끝까지 가렸다. 이제 등호·콜론 뒤 값에 공백이 있으면 첫 단어만 가려지고 나머지는 redact() 결과에 남는다. 꺾쇠나 환경변수 Placeholder 바로 뒤에 붙은 실제 값도 Placeholder 부분만 치환되고 뒤 문자열이 남는다…
+- **R3-002** [차단 / 허용 요구 미충족, Preflight 경로] JSON 객체 입력은 내부 문자열을 원문으로 검사한 뒤 직렬화 문자열 전체를 다시 검사한다(lib.mjs:26-33). 직렬화 형태에서는 줄 끝이 역슬래시+n, 문자열 끝이 따옴표로 보이므로 원문에서 허용되는 값이 차단된다. (1) 줄 끝 / 문자열 끝의 Placeholder는 next 문자가 역슬래시나 따옴표라서 lib.mjs:43의 경계 조건을 통과하지 못하고, 등호 형식이라 차단된다. (2) 줄 끝의 …
+- **R3-003** [비차단 / 오탐 잔존] IAM Action 허용은 key.trim()이 정확히 'secretsmanager:'일 때만 동작한다(lib.mjs:45). Key 정규식이 여는 따옴표를 Key에 포함하므로, IAM Policy JSON의 표준 표기인 따옴표로 감싼 Action 이름은 Key가 따옴표로 시작해 이 분기를 타지 못하고 차단된다. 저장소에 이미 이 형태가 있다(infra/iam/ecs-execution-role-policy.json:35). TASK-02…
+- **R3-004** [비차단 / 허용 범위와 문서] 콜론 뒤 값의 첫 단어가 'arn:'으로 시작하기만 하면 그 후보를 허용한다(lib.mjs:46의 첫 번째 조건). Run 2 구현과 main Version은 차단하던 형태다. Task 문서의 Run 3 범위가 첫 단어 ARN 허용을 요구하므로 방향은 맞다. 다만 실제 ARN 구조를 확인하지 않아 임의 문자열도 통과한다. 수정: partition / service 구획을 갖춘 ARN 형태일 때만 허용하도록 좁히고, 'arn:' 접…
+- **R4-001** [차단 / Secret 완화] 구분 기호 바로 뒤에 ASCII 공백 / Tab이 아닌 공백 문자(NBSP U+00A0, 전각 공백 U+3000, form feed, vertical tab 등)가 오면 후보로 잡히지 않아 검사를 통과한다. 새 정규식(lib.mjs:38)은 구분 기호 뒤를 [ \t]*로만 넘긴 뒤 lookahead의 마지막 대안 [^\s,]+가 곧바로 일치해야 하는데, \s에는 이 문자들이 포함되어 lookahead가 실패한다. 그래서 '자격 증명…
+- **R4-002** [차단 / Secret 완화] 허용된 후보의 구분 기호 바로 뒤에서 시작하는 다음 할당이 검사되지 않는다. 일치는 접두 문자 + Key + 구분 기호를 소비하고(lib.mjs:38), 다음 후보는 접두 조건 (^|[^\w-])에 소비되지 않은 문자가 필요하다. Secrets Manager ARN에서 resource 종류 구분자(자격 증명 단어 + 콜론) 바로 뒤에 '자격 증명 이름 변수 + 등호 + 실제 값'이 붙으면, resource 구분자 후보는 ARN 예외…
+- **R4-003** [비차단 / JSON 구조 검사 누락] 입력 전체가 JSON 객체이면 redact()는 평문 검사를 하지 않고 구조 검사만 한다(lib.mjs:26-31). redactStrings(lib.mjs:77-80)는 자격 증명 이름 Key의 값이 문자열일 때만 가린다. 값이 숫자 / boolean이면 그대로 남고, 값이 배열이나 객체이면 내부 문자열은 Key 문맥 없이 평문 검사만 받아 통과한다. 기준선은 직렬화 문자열에 정규식을 적용해 이 형태를 차단했다. 영향 범…
+- **R5-001** [차단 / Secret 완화] Placeholder 판정(lib.mjs:84, 후보 정규식 lib.mjs:38의 환경변수 형태 분기)은 달러 + 중괄호 안의 내용을 제한하지 않는다. 그래서 shell / Compose의 기본값 확장(중괄호 안에 변수 이름 + 하이픈 또는 콜론-하이픈 + 실제 기본값)이 값 전체로서 Placeholder로 허용된다. 안쪽 변수 이름이 자격 증명 단어를 포함하고 콜론이 뒤따르는 형태는 안쪽 후보가 독립 검사되어 우연히 차단된다. 그…
+- **R5-002** [차단 / Secret 완화] 닫히지 않은 따옴표 바로 뒤에 공백이 오는 값이 빈 값으로 판정되어 통과한다. 따옴표 분기(lib.mjs:38)가 닫는 따옴표를 찾지 못하면 마지막 분기가 따옴표 한 글자만 raw로 잡고, lib.mjs:41에서 앞뒤 따옴표를 떼면 candidate가 빈 문자열이 되어 lib.mjs:43의 Placeholder(빈 값) 허용으로 반환된다. 그 뒤의 실제 값은 후보가 아니므로 검사되지 않는다. 등호 / 콜론 모두 해당하며 구 Vers…
+- **R5-003** [비차단 / 오탐 잔존] ARN 문맥 판정(lib.mjs:47-50)은 후보 앞 문자열을 공백 / 따옴표 / backtick으로만 나눈다. Guard는 tracked Diff의 추가 줄을 '+' 접두사가 붙은 채 검사하므로(lib.mjs:249), 열 0에서 시작하는 Secrets Manager ARN 줄은 before가 '+'로 시작해 ARN으로 인정되지 않고 차단된다. 여는 괄호 / 꺾쇠 / 세로선 / 대괄호 바로 뒤의 ARN도 같다. 통과 방향이 아니라 차…
+- **R5-004** [비차단 / 한계 기록] JSON 구조 검사(lib.mjs:26-31, 74-82)는 JSON.parse 결과만 본다. (1) 객체 Key 문자열 자체는 알려진 Key 형태 / Bearer [REDACTED] URL 자격 증명 검사를 거치지 않는다. (2) 같은 Key가 중복된 JSON 원문은 앞쪽 값이 parse에서 사라지므로 뒤쪽 값이 허용 형태이면 원문이 그대로 반환된다. 현재 assertNoSecrets 호출 경로(run.mjs:58, 100과 guard…
+
+### Human 결정 A (2026-10-03)
+
+- **Secret 검사 변경을 TASK-032에서 제외**한다. 이 문서의 "2. Secret 검사 정밀화"는 수행하지 않는다.
+- Secret 오탐 감소는 **TASK-034**로 분리하고 설계를 "Human 승인 허용 문구 목록(Contract의 literal 문자열)" 방식으로 바꾼다.
+- 실행 순서: TASK-032 → TASK-033 → TASK-034 → TASK-026.
+- 그때까지 Task 문서의 오탐 회피 작성 규칙을 계속 쓴다.
+
+### Run 4 Codex 작업 범위
+
+1. **Secret 검사를 main과 같은 상태로 되돌린다.** `git show main:scripts/orchestrator/lib.mjs`와 비교해 `redact`, `sanitize`, `assertNoSecrets`, `guard`의 Secret 판정과 그 보조 함수를 main의 구현과 동작이 같게 복원한다. 이 Task가 Secret 판정을 위해 추가한 함수 / 정규식 / 분기는 남기지 않는다. `lib.mjs`의 다른 변경(Secret 판정과 무관한 것)은 유지한다.
+2. Secret 완화를 검증하던 Test(허용 사례, 완화 회귀 사례)를 제거한다. 기존 main의 차단 Test는 그대로 통과해야 한다. main과 같은 판정임을 확인하는 Test(대표 차단 사례가 계속 차단됨)는 유지하거나 추가한다. 차단 사례 문자열은 실행 시 조합한다.
+3. `docs/11` / `docs/12`에서 Secret 완화 판단 기준 서술을 제거하고 "기본 검사는 변경하지 않았다. 오탐 감소는 TASK-034(허용 문구 목록)에서 다룬다"로 바꾼다. PR 본문에 `assertNoSecrets`를 적용하는 것은 유지한다.
+4. 나머지 개선(1, 3, 4, 5번과 자동 Git 범위 확대)은 그대로 둔다. Run 3 Review의 비차단 지적 중 Secret과 무관한 것이 있으면 반영한다.
+5. 완료 반영: TASK-032 DONE / **TASK-033 READY** / AGENTS.md 3절. `docs/07`의 TASK-032 설명에서 Secret 검사 정밀화가 TASK-034로 분리되었음을 적는다(TASK-034 등록은 Claude 세션이 이미 했다).
+6. 구 Version Guard 회피 규칙은 그대로 적용한다. `human_decisions_needed`는 새 결정이 필요할 때만 쓴다.
+
 ## 제외 범위
 
 - Auto Merge, Merge 자동화, CI Workflow 변경

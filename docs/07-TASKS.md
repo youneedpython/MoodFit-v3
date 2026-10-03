@@ -75,7 +75,7 @@ TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR 
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | DONE | TASK-022 완료 (충족), Human 실행 지시 | DEC-027 Human Approved (2026-10-03), 완료는 PR Squash Merge로 확정 |
 | TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | DONE | TASK-023 Architecture 승인(DEC-027), Human 명시 실행 지시, DEC-028 승인 | Gate C 승인 완료, 이번 PR Human Squash Merge로 완료 확정 |
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | DONE | TASK-023 / TASK-024, DEC-029 Human Approved | B단계 구현 완료 반영, Human Squash Merge로 확정 |
-| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-032, TASK-033 완료 (TASK-023 / TASK-025 완료, Permission Set / Profile / 실제 Preflight 확인 충족) | 필요 (비용 Resource Checkpoint) |
+| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-032, TASK-033, TASK-034 완료 (TASK-023 / TASK-025 완료, Permission Set / Profile / 실제 Preflight 확인 충족) | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | BLOCKED | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
 | TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | 필요 (비용 Resource 생성) |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
@@ -83,6 +83,7 @@ TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR 
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
 | TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 완화 / 새 Dependency 시 Gate |
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | READY | TASK-032 구현 완료 반영. 별도 명시 실행 지시 후 시작 | Gate C (DEC-023 변경) |
+| TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | BLOCKED | TASK-033 완료. TASK-026 전에 실행 | 허용 문자열 기준은 Gate |
 
 ---
 
@@ -1386,7 +1387,7 @@ DONE
 BLOCKED
 ```
 
-TASK-032, TASK-033 완료 후 진행한다. (2026-10-03 Human 승인 순서) Permission Set / Profile 구성과 실제 Profile Preflight 확인, DNS 위임 복구는 완료되었다.
+TASK-032, TASK-033, TASK-034 완료 후 진행한다. (2026-10-03 Human 승인 순서) Permission Set / Profile 구성과 실제 Profile Preflight 확인, DNS 위임 복구는 완료되었다.
 
 ### 목적
 
@@ -1602,6 +1603,34 @@ Local / Testcontainers / CI의 MySQL 기준을 DEC-027의 RDS MySQL 8.4에 맞�
 
 ---
 
+## TASK-034 — Secret Guard Allowlist (Human 승인 허용 문구)
+
+### 상태
+
+```text
+BLOCKED
+```
+
+TASK-033 완료 후 진행한다. TASK-026의 선행 조건이다. (2026-10-03 Human 결정: TASK-032에서 분리)
+
+### 목적
+
+Secret 검사의 차단 기준은 그대로 두고, Task Contract에 Human이 승인한 정확한 문자열만 검사에서 제외해 오탐을 줄인다.
+
+### Human Approval 또는 Gate
+
+- 허용 문자열 형식 제한 / 자격 증명 형태 거부 기준은 Gate. 기본 차단 규칙 변경은 Human Approval
+
+### 완료 조건
+
+- Fake CLI Test로 검증되고 설계 문서가 구현과 일치한다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-034_SECRET_GUARD_ALLOWLIST.md`](tasks/TASK-034_SECRET_GUARD_ALLOWLIST.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
 ## 5. Human Approval 필요 Task
 
 다음 Task는 실행 전 Human Approval 또는 Gate 확인이 필요하다.
@@ -1638,6 +1667,7 @@ Local / Testcontainers / CI의 MySQL 기준을 DEC-027의 RDS MySQL 8.4에 맞�
 - TASK-031: Resource 삭제, RDS Snapshot / Delete, Budget, Destructive Cleanup은 Human Approval
 - TASK-032: Secret 검사 차단 기준 완화, 새 Dependency는 Human Approval
 - TASK-033: DEC-023 변경(MySQL 8.4), Dependency Version 변경은 Gate C
+- TASK-034: 허용 문자열 기준, 기본 차단 규칙 변경은 Human Approval
 
 ---
 
