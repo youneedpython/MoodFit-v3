@@ -27,7 +27,7 @@ Data의 DatabaseIdentifier는 환경별 고유 이름이다. 로그 그룹을 �
 
 IAM은 RepositoryArn / AccountId로 이름을 통일했다. EnvironmentEcsSourceArnPattern은 같은 계정 서울 ECS 범위만, EnvironmentLogStreamArnPattern은 해당 앱 Log Group stream만 허용한다. Staging / Production 접두 Parameter는 각각 환경 전용 ARN이며 서로 대입하지 않는다. task revision Pattern은 승인된 family의 revision suffix만 허용한다. execution / task Role ARN은 생성할 Role의 예정 ARN으로 앱 입력과 대조한다. 앱 / 서비스 / 정적 Resource의 실제 출력과 예정 ARN이 일치하는지 적용 전에 확인한다.
 
-`infra/iam/`은 DEC-029 정책 내용의 기준이다. `iam.yaml`은 그 정책을 Fn::Sub로 렌더링하는 배포 표현이며 Action / Resource / Condition을 확대하지 않는다. 정책 변경 시 초안과 Template를 함께 비교해야 한다. 초기 Permission Set에 추가한 TASK-026 조회 Action은 Human이 별도로 프로비저닝한 정책이며 Template에서 Identity Center를 변경하지 않는다. CloudFormation 앱 service role의 SourceAccount / SourceArn 조건은 유지한다. 일반 Stack에서 context가 전달되는지 Human이 최초 적용 전에 확인하며 미지원이면 fail closed로 중단하고 별도 정책 검토한다.
+`infra/iam/`은 DEC-029 정책 내용의 기준이다. `iam.yaml`은 그 정책을 구조화된 YAML PolicyDocument와 값 단위 Ref / Sub로 표현한 배포 표현이며 Action / Resource / Condition을 확대하지 않는다. 정책 변경 시 초안과 Template를 함께 비교해야 한다. 초기 Permission Set에 추가한 TASK-026 조회 Action은 Human이 별도로 프로비저닝한 정책이며 Template에서 Identity Center를 변경하지 않는다. CloudFormation 앱 service role의 SourceAccount / SourceArn 조건은 유지한다. 일반 Stack에서 context가 전달되는지 Human이 최초 적용 전에 확인하며 미지원이면 fail closed로 중단하고 별도 정책 검토한다.
 
 ## TASK-027 경계
 
@@ -43,7 +43,7 @@ Run 3에서는 IAM의 신뢰 정책과 inline 정책을 YAML 구조로 전환했
 
 가용성은 MySQL 8.4.11, db.t4g.small Multi-AZ / gp3 / 암호화 / 20 GiB 주문 가능성, 사용 가능한 일반 AZ 2개 이상, CloudFront origin-facing prefix list, 기존 8949db.kr Public Hosted Zone을 조회한다. 조회 결과는 개수로 판정하고 실제 계정 / ARN / Zone ID / 사용자 응답 및 AWS stderr는 출력하지 않는다. 이는 특정 입력 AZ / Zone ID나 DNS 위임의 실환경 검증을 대신하지 않는다. 실제 입력과 DNS 상태는 최초 적용 검토에서 재확인한다.
 
-Executor Sandbox의 Python에서는 cfn-lint 모듈을 확인하지 못했다. AWS / 네트워크 검증은 직접 실행하지 않았으며 Sandbox 밖 Orchestrator Verify가 최종 검증 기준이다. Bash 구문, 6개 YAML 파싱 / Reference / Parameter / 크기 제한, IAM 정책 초안 내용 대조와 Diff / UTF-8 검사 결과는 Executor 참고 증거다.
+Executor Sandbox의 Python에서는 cfn-lint 모듈을 확인하지 못했다. AWS / 네트워크 검증은 직접 실행하지 않았으며 Sandbox 밖 Orchestrator Verify가 최종 검증 기준이다. Bash 구문, 6개 YAML 파싱 / Reference / Parameter / 크기 제한, IAM 정책 초안 내용 대조와 Diff / UTF-8 검사 결과는 Executor 참고 증거다. 이 중 YAML 파싱은 Run 2 시점의 증거이며 Run 3에서는 Sandbox Python에 YAML 모듈이 없어 다시 실행하지 못했다. 최종 판정 근거는 Orchestrator Verify(cfn-lint 6개, validate-template 6개, 서울 가용성 5개 항목 통과)다.
 
 ## Change Set 기반 적용과 비용 Checkpoint
 
