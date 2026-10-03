@@ -63,7 +63,7 @@ READY
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
 Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. DEC-027은 2026-10-03 Human Approved이며 B안 Production-like / 서울 / 환경당 월 USD 300을 확정했다. TASK-024 Gate C는 2026-10-03 Human이 승인했고 DEC-028로 기록했다. 승인된 Actuator Health / digest 고정 Container / Smoke 구현은 docs/14-DEPLOYMENT-ARTIFACT.md를 따른다. TASK-025 DONE / Current Task TASK-026 READY는 이번 PR의 완료 반영이며 검증 / Review / Human Squash Merge 전에 완료 승인을 주장하지 않는다. TASK-025 B단계 실행은 명시 지시되었으며 TASK-026 실행 선행 조건은 아래를 따른다.
-Domain은 2026-10-03 Human이 8949db.kr로 확정했으며 사용자 CloudFront와 ALB origin 모두 HTTPS를 사용한다. TASK-026 전에 DNS 위임 복구 / hostname 확정이 필요하다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. TASK-025 전에 최소 권한 Staging Profile과 Agent 허용 Profile을 준비한다. 설계 승인은 AWS Resource 생성 / IAM / Production 실행 승인이 아니다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 현재 실행의 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다.
+Domain은 2026-10-03 Human이 8949db.kr로 확정했으며 사용자 CloudFront와 ALB origin 모두 HTTPS를 사용한다. TASK-026 전에 DNS 위임 복구 / hostname 확정이 필요하다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. TASK-026 실행 전에 Human이 최소 권한 Permission Set / Agent 허용 Profile을 구성하고 실제 Profile Preflight를 확인한다. 설계 승인은 AWS Resource 생성 / IAM / Production 실행 승인이 아니다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 현재 실행의 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.

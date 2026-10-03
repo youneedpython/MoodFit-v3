@@ -2892,3 +2892,11 @@ Run 2(`2026-10-03T03-02-29-144Z-c18f7254`)의 Sandbox 밖 Verify 결과다. 세 
 - F-003: CloudFormation Trust에 AccountId / 정확한 StagingAppStackArn 조건을 추가했다. 공식 예제의 일반 Stack 지원 한계를 명시하고 적용 전 context 검증 / fail closed / 우회 금지를 기록했다.
 - F-004: Build 이후 OIDC 취득, 요청 / 최대 3600초와 미실측 근거, 만료 시 자동 재취득·재시도 금지 및 Human의 부분 배포 확인 / 재실행·rollback 범위 승인을 Matrix / 흐름 / DEC-029에 반영했다.
 - DEC-029 Pending Human Approval / TASK-025 IN_PROGRESS / TASK-026 이후 BLOCKED를 유지한다. AWS CLI / AWS·GitHub 설정 / Workflow / Orchestrator Code / Git handoff 작업 없음. 최종 참고 검증은 Executor JSON에 기록하며 Orchestrator Verify가 기준이다.
+
+### TASK-025 B단계 Review 참고 / 후속 (Claude 세션, 2026-10-03)
+
+Run 3(`2026-10-03T04-15-30-920Z-301f6f77`): Verify 성공(Orchestrator Test 87 / 87), Claude Review 1회차 PASS, Orchestrator가 Commit `da375ac` / Push / Draft PR #9를 자동 생성했다.
+
+- N-001 / N-002(기록 문구)는 이 Commit에서 정리했다.
+- N-003: TASK-026 READY는 이 PR에 포함하되, Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인을 TASK-026 실행 선행 조건으로 둔다. 실제 Preflight는 Fake CLI로만 검증된 상태이며 Human 구성 후 Claude 세션이 실제 Profile로 확인해 기록한다.
+- 후속 개선 후보(Orchestrator): N-004 `AWS_ENDPOINT_URL` / `AWS_ENDPOINT_URL_STS` / `AWS_CA_BUNDLE` 차단 추가, N-005 aws 설정 전체 누락 시 정지 사유 종류 구분, N-006 Test의 host 환경변수 의존 제거. 기존 후보(Secret 검사 정밀화, 자동 PR 제목, Windows long path 정리)와 함께 TASK-026 전 개선 Task로 묶는 것을 제안한다.
