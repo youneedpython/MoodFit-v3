@@ -1,0 +1,30 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "staging"
+  },
+  {
+    "ParameterKey": "Owner",
+    "ParameterValue": "<Owner>"
+  },
+  {
+    "ParameterKey": "DatabaseIdentifier",
+    "ParameterValue": "<DatabaseIdentifier>"
+  },
+  {
+    "ParameterKey": "DataSubnetA",
+    "ParameterValue": "<DataSubnetA>"
+  },
+  {
+    "ParameterKey": "DataSubnetB",
+    "ParameterValue": "<DataSubnetB>"
+  },
+  {
+    "ParameterKey": "DataSecurityGroupId",
+    "ParameterValue": "<DataSecurityGroupId>"
+  },
+  {
+    "ParameterKey": "AppDbCredentialArn",
+    "ParameterValue": "<AppDbCredentialArn>"
+  }
+]

@@ -4,6 +4,10 @@
 
 이 문서는 승인 검토용 설계다. Resource 생성, IAM 설정, GitHub Environment 변경, 배포를 허가하지 않는다. TASK-022 완료 근거는 WORK_LOG의 PR #5 Human Squash Merge 기록이다. 승인된 DEC-019 / DEC-023 / DEC-024 / DEC-026을 유지한다.
 
+## TASK-026 현재 입력과 Foundation
+
+2026-10-03 Claude 세션에서 DNS 위임 복구와 기존 Public Hosted Zone 확인을 완료했다. hostname은 staging.moodfit.8949db.kr / origin.staging.moodfit.8949db.kr로 확정했다. 기존 Zone은 Parameter로 참조하며 새 Zone을 생성하지 않는다. 아래 TASK-023 당시 DNS 장애와 선행 조건 서술은 이력이다. 현재 Foundation / Parameter / 비용 Checkpoint는 [17-AWS-IAC-FOUNDATION.md](17-AWS-IAC-FOUNDATION.md)를 따른다. ALB Listener는 HTTPS 443만이며 HTTP 80은 생성하지 않는다. ALB / ECS 구현은 TASK-027, 실제 비용 Resource 생성은 TASK-028 별도 승인이다.
+
 ## 1. 승인안과 적용 조건
 
 Human은 2026-10-03 **B안 Production-like**을 승인했다. 서울(ap-northeast-2)의 같은 계정에서 Staging을 먼저 운영한다. A안은 비용이 낮지만 단일 Task / Single-AZ DB와 Public ECS를 사용하므로 격리 / HA 학습 목표에 따라 기각했다. Production 생성은 TASK-030 전 별도 승인이 필요하며 계정 분리를 다시 검토한다. 현재 MVP에는 인증/인가가 없으므로 Private App Subnet만으로 사용자 데이터 접근이 보호되지는 않는다. 합성 데이터만 사용하며 실제 개인 데이터 입력과 공개 Production 운영은 인증 / 접근 제한 Task 승인 전까지 금지한다.

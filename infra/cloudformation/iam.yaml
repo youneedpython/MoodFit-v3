@@ -1,0 +1,624 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "MoodFit GitHub OIDC deploy and ECS runtime roles; Identity Center remains Human managed"
+Parameters:
+  Environment:
+    Type: "String"
+    AllowedValues:
+      - "staging"
+      - "production"
+    Default: "staging"
+  Owner:
+    Type: "String"
+  AccountId:
+    Type: "String"
+    AllowedPattern: "[0-9]{12}"
+  RepositoryOwner:
+    Type: "String"
+    AllowedPattern: "[A-Za-z0-9-]+"
+  RepositoryName:
+    Type: "String"
+    AllowedPattern: "[A-Za-z0-9_.-]+"
+  GitHubOidcProviderArn:
+    Type: "String"
+    Default: ""
+  CreateOidcProvider:
+    Type: "String"
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+  EnvironmentEcsSourceArnPattern:
+    Type: "String"
+  AppDbCredentialArn:
+    Type: "String"
+  RepositoryArn:
+    Type: "String"
+  EnvironmentLogStreamArnPattern:
+    Type: "String"
+  StagingTaskDefinitionArnPattern:
+    Type: "String"
+  StagingStaticObjectArn:
+    Type: "String"
+  StagingDistributionArn:
+    Type: "String"
+  StagingClusterArn:
+    Type: "String"
+  StagingExecutionRoleArn:
+    Type: "String"
+  StagingServiceArn:
+    Type: "String"
+  StagingStaticBucketArn:
+    Type: "String"
+  StagingTaskRoleArn:
+    Type: "String"
+  ProductionTaskRoleArn:
+    Type: "String"
+  ProductionClusterArn:
+    Type: "String"
+  ProductionStaticObjectArn:
+    Type: "String"
+  ProductionStaticBucketArn:
+    Type: "String"
+  ProductionDistributionArn:
+    Type: "String"
+  ProductionTaskDefinitionArnPattern:
+    Type: "String"
+  ProductionExecutionRoleArn:
+    Type: "String"
+  ProductionServiceArn:
+    Type: "String"
+  StagingAppStackArn:
+    Type: "String"
+Resources:
+  GitHubProvider:
+    Type: "AWS::IAM::OIDCProvider"
+    Properties:
+      Url: "https://token.actions.githubusercontent.com"
+      ClientIdList:
+        - "sts.amazonaws.com"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    Condition: "CreateProvider"
+    DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
+  ExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        "Version": "2012-10-17"
+        "Statement":
+          -
+            "Effect": "Allow"
+            "Principal":
+              "Service": "ecs-tasks.amazonaws.com"
+            "Action": "sts:AssumeRole"
+            "Condition":
+              "StringEquals":
+                "aws:SourceAccount": !Ref AccountId
+              "ArnLike":
+                "aws:SourceArn": !Ref EnvironmentEcsSourceArnPattern
+      MaxSessionDuration: 3600
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+      Policies:
+        -
+          PolicyName: "RuntimeExecution"
+          PolicyDocument:
+            "Version": "2012-10-17"
+            "Statement":
+              -
+                "Sid": "RegistryAuthentication"
+                "Effect": "Allow"
+                "Action":
+                  - "ecr:GetAuthorizationToken"
+                "Resource": "*"
+              -
+                "Sid": "PullImage"
+                "Effect": "Allow"
+                "Action":
+                  - "ecr:BatchCheckLayerAvailability"
+                  - "ecr:GetDownloadUrlForLayer"
+                  - "ecr:BatchGetImage"
+                "Resource": !Ref RepositoryArn
+              -
+                "Sid": "WriteApplicationLog"
+                "Effect": "Allow"
+                "Action":
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                "Resource": !Ref EnvironmentLogStreamArnPattern
+              -
+                "Sid": "InjectDbCredential"
+                "Effect": "Allow"
+                Action: ["secretsmanager:GetSecretValue"]
+                "Resource": !Ref AppDbCredentialArn
+  TaskRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        "Version": "2012-10-17"
+        "Statement":
+          -
+            "Effect": "Allow"
+            "Principal":
+              "Service": "ecs-tasks.amazonaws.com"
+            "Action": "sts:AssumeRole"
+            "Condition":
+              "StringEquals":
+                "aws:SourceAccount": !Ref AccountId
+              "ArnLike":
+                "aws:SourceArn": !Ref EnvironmentEcsSourceArnPattern
+      MaxSessionDuration: 3600
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  StagingDeployRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Federated:
+                Fn::If:
+                  - "CreateProvider"
+                  -
+                    Ref: "GitHubProvider"
+                  -
+                    Ref: "GitHubOidcProviderArn"
+            Action: "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                "token.actions.githubusercontent.com:sub":
+                  Fn::Sub: "repo:${RepositoryOwner}/${RepositoryName}:environment:staging"
+      MaxSessionDuration: 3600
+      Policies:
+        -
+          PolicyName: "ApprovedDeploy"
+          PolicyDocument:
+            "Version": "2012-10-17"
+            "Statement":
+              -
+                "Sid": "RegisterEnvironmentTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:RegisterTaskDefinition"
+                "Resource": !Ref StagingTaskDefinitionArnPattern
+                "Condition":
+                  "StringEquals":
+                    "aws:RequestTag/MoodFitEnvironment": "staging"
+              -
+                "Sid": "TagNewTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:TagResource"
+                "Resource": !Ref StagingTaskDefinitionArnPattern
+                "Condition":
+                  "StringEquals":
+                    "ecs:CreateAction": "RegisterTaskDefinition"
+              -
+                "Sid": "InspectTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:DescribeTaskDefinition"
+                "Resource": "*"
+              -
+                "Sid": "RegistryAuthentication"
+                "Effect": "Allow"
+                "Action":
+                  - "ecr:GetAuthorizationToken"
+                "Resource": "*"
+              -
+                "Sid": "PublishImmutableImage"
+                "Effect": "Allow"
+                "Action":
+                  - "ecr:BatchCheckLayerAvailability"
+                  - "ecr:InitiateLayerUpload"
+                  - "ecr:UploadLayerPart"
+                  - "ecr:CompleteLayerUpload"
+                  - "ecr:PutImage"
+                  - "ecr:BatchGetImage"
+                  - "ecr:DescribeImages"
+                "Resource": !Ref RepositoryArn
+              -
+                "Sid": "ReadService"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:DescribeServices"
+                "Resource": !Ref StagingServiceArn
+              -
+                "Sid": "UpdateApprovedService"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:UpdateService"
+                "Resource": !Ref StagingServiceArn
+                "Condition":
+                  "ArnEquals":
+                    "ecs:cluster": !Ref StagingClusterArn
+                  "ArnLike":
+                    "ecs:task-definition": !Ref StagingTaskDefinitionArnPattern
+              -
+                "Sid": "PassRuntimeRoles"
+                "Effect": "Allow"
+                "Action":
+                  - "iam:PassRole"
+                "Resource":
+                  - !Ref StagingExecutionRoleArn
+                  - !Ref StagingTaskRoleArn
+                "Condition":
+                  "StringEquals":
+                    "iam:PassedToService": "ecs-tasks.amazonaws.com"
+              -
+                "Sid": "PublishStaticObjects"
+                "Effect": "Allow"
+                "Action":
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                "Resource": !Ref StagingStaticObjectArn
+              -
+                "Sid": "ListStaticBucket"
+                "Effect": "Allow"
+                "Action":
+                  - "s3:ListBucket"
+                "Resource": !Ref StagingStaticBucketArn
+              -
+                "Sid": "InvalidateStaticCache"
+                "Effect": "Allow"
+                "Action":
+                  - "cloudfront:CreateInvalidation"
+                  - "cloudfront:GetInvalidation"
+                "Resource": !Ref StagingDistributionArn
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    Condition: "IsStaging"
+  ProductionDeployRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Federated:
+                Fn::If:
+                  - "CreateProvider"
+                  -
+                    Ref: "GitHubProvider"
+                  -
+                    Ref: "GitHubOidcProviderArn"
+            Action: "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                "token.actions.githubusercontent.com:sub":
+                  Fn::Sub: "repo:${RepositoryOwner}/${RepositoryName}:environment:production"
+      MaxSessionDuration: 3600
+      Policies:
+        -
+          PolicyName: "ApprovedDeploy"
+          PolicyDocument:
+            "Version": "2012-10-17"
+            "Statement":
+              -
+                "Sid": "RegisterEnvironmentTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:RegisterTaskDefinition"
+                "Resource": !Ref ProductionTaskDefinitionArnPattern
+                "Condition":
+                  "StringEquals":
+                    "aws:RequestTag/MoodFitEnvironment": "production"
+              -
+                "Sid": "TagNewTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:TagResource"
+                "Resource": !Ref ProductionTaskDefinitionArnPattern
+                "Condition":
+                  "StringEquals":
+                    "ecs:CreateAction": "RegisterTaskDefinition"
+              -
+                "Sid": "InspectTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:DescribeTaskDefinition"
+                "Resource": "*"
+              -
+                "Sid": "InspectVerifiedImage"
+                "Effect": "Allow"
+                "Action":
+                  - "ecr:BatchGetImage"
+                  - "ecr:DescribeImages"
+                "Resource": !Ref RepositoryArn
+              -
+                "Sid": "ReadService"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:DescribeServices"
+                "Resource": !Ref ProductionServiceArn
+              -
+                "Sid": "UpdateApprovedService"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:UpdateService"
+                "Resource": !Ref ProductionServiceArn
+                "Condition":
+                  "ArnEquals":
+                    "ecs:cluster": !Ref ProductionClusterArn
+                  "ArnLike":
+                    "ecs:task-definition": !Ref ProductionTaskDefinitionArnPattern
+              -
+                "Sid": "PassRuntimeRoles"
+                "Effect": "Allow"
+                "Action":
+                  - "iam:PassRole"
+                "Resource":
+                  - !Ref ProductionExecutionRoleArn
+                  - !Ref ProductionTaskRoleArn
+                "Condition":
+                  "StringEquals":
+                    "iam:PassedToService": "ecs-tasks.amazonaws.com"
+              -
+                "Sid": "PublishStaticObjects"
+                "Effect": "Allow"
+                "Action":
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                "Resource": !Ref ProductionStaticObjectArn
+              -
+                "Sid": "ListStaticBucket"
+                "Effect": "Allow"
+                "Action":
+                  - "s3:ListBucket"
+                "Resource": !Ref ProductionStaticBucketArn
+              -
+                "Sid": "InvalidateStaticCache"
+                "Effect": "Allow"
+                "Action":
+                  - "cloudfront:CreateInvalidation"
+                  - "cloudfront:GetInvalidation"
+                "Resource": !Ref ProductionDistributionArn
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    Condition: "IsProduction"
+  AppChangeSetRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        "Version": "2012-10-17"
+        "Statement":
+          -
+            "Effect": "Allow"
+            "Principal":
+              "Service": "cloudformation.amazonaws.com"
+            "Action": "sts:AssumeRole"
+            "Condition":
+              "StringEquals":
+                "aws:SourceAccount": !Ref AccountId
+              "ArnEquals":
+                "aws:SourceArn": !Ref StagingAppStackArn
+      Policies:
+        -
+          PolicyName: "ApprovedAppChangeSet"
+          PolicyDocument:
+            "Version": "2012-10-17"
+            "Statement":
+              -
+                "Sid": "ReadService"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:DescribeServices"
+                "Resource": !Ref StagingServiceArn
+              -
+                "Sid": "UpdateStagingService"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:UpdateService"
+                "Resource": !Ref StagingServiceArn
+                "Condition":
+                  "ArnEquals":
+                    "ecs:cluster": !Ref StagingClusterArn
+                  "ArnLike":
+                    "ecs:task-definition": !Ref StagingTaskDefinitionArnPattern
+              -
+                "Sid": "RegisterTaggedTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:RegisterTaskDefinition"
+                "Resource": !Ref StagingTaskDefinitionArnPattern
+                "Condition":
+                  "StringEquals":
+                    "aws:RequestTag/MoodFitEnvironment": "staging"
+              -
+                "Sid": "InspectTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:DescribeTaskDefinition"
+                "Resource": "*"
+              -
+                "Sid": "TagNewTaskRevision"
+                "Effect": "Allow"
+                "Action":
+                  - "ecs:TagResource"
+                "Resource": !Ref StagingTaskDefinitionArnPattern
+                "Condition":
+                  "StringEquals":
+                    "ecs:CreateAction": "RegisterTaskDefinition"
+              -
+                "Sid": "PassStagingRuntimeRoles"
+                "Effect": "Allow"
+                "Action":
+                  - "iam:PassRole"
+                "Resource":
+                  - !Ref StagingExecutionRoleArn
+                  - !Ref StagingTaskRoleArn
+                "Condition":
+                  "StringEquals":
+                    "iam:PassedToService": "ecs-tasks.amazonaws.com"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    Condition: "IsStaging"
+  ApplicationLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName:
+        Fn::Sub: "/moodfit/${Environment}/application"
+      RetentionInDays: 30
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
+Outputs:
+  ExecutionRoleArn:
+    Value:
+      Fn::GetAtt:
+        - "ExecutionRole"
+        - "Arn"
+  TaskRoleArn:
+    Value:
+      Fn::GetAtt:
+        - "TaskRole"
+        - "Arn"
+  StagingDeployRoleArn:
+    Value:
+      Fn::GetAtt:
+        - "StagingDeployRole"
+        - "Arn"
+    Condition: "IsStaging"
+  ProductionDeployRoleArn:
+    Value:
+      Fn::GetAtt:
+        - "ProductionDeployRole"
+        - "Arn"
+    Condition: "IsProduction"
+  AppChangeSetRoleArn:
+    Value:
+      Fn::GetAtt:
+        - "AppChangeSetRole"
+        - "Arn"
+    Condition: "IsStaging"
+  ApplicationLogStreamArnPattern:
+    Value:
+      Fn::Sub: "arn:${AWS::Partition}:logs:${AWS::Region}:${AccountId}:log-group:/moodfit/${Environment}/application:log-stream:*"
+Conditions:
+  CreateProvider:
+    Fn::Equals:
+      -
+        Ref: "CreateOidcProvider"
+      - "true"
+  IsStaging:
+    Fn::Equals:
+      -
+        Ref: "Environment"
+      - "staging"
+  IsProduction:
+    Fn::Equals:
+      -
+        Ref: "Environment"
+      - "production"
+Rules:
+  ProviderSelection:
+    Assertions:
+      -
+        Assert:
+          Fn::Or:
+            -
+              Fn::And:
+                -
+                  Fn::Equals:
+                    -
+                      Ref: "CreateOidcProvider"
+                    - "true"
+                -
+                  Fn::Equals:
+                    -
+                      Ref: "GitHubOidcProviderArn"
+                    - ""
+            -
+              Fn::And:
+                -
+                  Fn::Equals:
+                    -
+                      Ref: "CreateOidcProvider"
+                    - "false"
+                -
+                  Fn::Not:
+                    -
+                      Fn::Equals:
+                        -
+                          Ref: "GitHubOidcProviderArn"
+                        - ""
+        AssertDescription: "Create a provider only if none exists; otherwise pass its exact ARN"

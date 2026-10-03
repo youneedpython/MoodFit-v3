@@ -2,6 +2,10 @@
 
 2026-10-03 Human Approved (DEC-029). Run 2 Claude PASS 설계안(Commit `1d56112`)을 권장안대로 모두 승인했다. B단계는 Preflight 구현 / Fake CLI 검증이며 실제 AWS / GitHub 설정과 Resource 생성은 수행하지 않았다. TASK-025 DONE / TASK-026 READY는 PR 완료 반영이며 Human Squash Merge로 확정한다. TASK-026 실행 전 Human Permission Set / Profile 구성과 실제 Preflight 확인이 필요하다.
 
+## TASK-026 IaC 표현
+
+승인된 정책 초안은 infra/iam/을 기준으로 유지하고 infra/cloudformation/iam.yaml은 Fn::Sub 기반 배포 표현으로 추가했다. RepositoryArn / AccountId 이름을 통일하고 환경별 deploy Role, execution / task Role, Staging 앱 Change Set Role을 분리했다. task Role에 앱 AWS 권한을 추가하지 않는다. OIDC Provider는 기존 ARN 참조 또는 최초 생성 조건을 사용하며 중복 생성하지 않는다. Identity Center / Permission Set은 Human 관리 영역이다. 자세한 Parameter와 적용 전 검토는 [17-AWS-IAC-FOUNDATION.md](17-AWS-IAC-FOUNDATION.md)를 따른다. 실제 IAM 적용은 수행하지 않았다. TASK-026 read-only 검증에 필요한 조회 Action은 Human이 Contract대로 별도 프로비저닝하며 Template로 권한을 확대하지 않는다. 일반 Stack service role의 SourceAccount / SourceArn 조건 확인은 최초 적용 전 유지하며 조건 제거로 우회하지 않는다.
+
 ## 1. 승인 근거와 실행 경계
 
 DEC-026 역할 / Gate, DEC-027 같은 MoodFit 계정에서 Staging 시작 / 서울 / 환경별 Resource 분리, DEC-028 immutable ECR / full Commit SHA / digest 고정 Artifact를 따른다. Human이 확인한 대상 계정과 SSO 값은 로컬에서만 사용한다. 기존 관리자 Profile은 Human 전용이며 Agent에게 제공하지 않는다.

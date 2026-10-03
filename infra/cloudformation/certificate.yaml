@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "MoodFit CloudFront ACM certificate; deploy in us-east-1 only"
+Parameters:
+  Environment:
+    Type: "String"
+    AllowedValues:
+      - "staging"
+      - "production"
+    Default: "staging"
+  Owner:
+    Type: "String"
+  HostedZoneId:
+    Type: "String"
+  ViewerHostname:
+    Type: "String"
+    Default: "staging.moodfit.8949db.kr"
+Resources:
+  ViewerCertificate:
+    Type: "AWS::CertificateManager::Certificate"
+    Properties:
+      DomainName:
+        Ref: "ViewerHostname"
+      ValidationMethod: "DNS"
+      DomainValidationOptions:
+        -
+          DomainName:
+            Ref: "ViewerHostname"
+          HostedZoneId:
+            Ref: "HostedZoneId"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+Outputs:
+  ViewerCertificateArn:
+    Value:
+      Ref: "ViewerCertificate"

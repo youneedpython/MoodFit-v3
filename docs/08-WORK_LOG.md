@@ -3051,3 +3051,28 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - Run 1의 정지 사유 분류 오류(개선 후보): Codex CLI의 "Selected model is at capacity"(일시적 서버 용량 오류)가 `Executor: quota`로 분류되었다. Codex 출력에 포함된 Code Diff 본문이 사용량 한도 판정 정규식에 걸렸다. 판정 대상을 Codex의 오류 줄로 한정하고 용량 오류를 별도 종류로 구분하는 것을 후속 개선 후보로 둔다.
 - Review R2-001 / R2-002(비차단)는 후속 개선 후보로 둔다: 구분 기호 뒤에 영숫자 값이 없는 허용 항목 거부, 세미콜론 / 괄호 접미 사례 Test, `run()` Resume → Git 단계 end-to-end Test. R2-003은 docs/12에, R2-004는 docs/07에 Claude 세션이 반영했다.
 - 운영 방법: Guard가 Secret 판정으로 정지하면 Run 기록의 위치(파일 / 줄 / 규칙)를 보고 Human이 문구를 승인한다. Claude 세션이 Contract `secret_scan_allow`에 추가해 Task Branch에 Commit / Push한 뒤 `resume-approval.json`과 함께 `--resume`한다.
+
+
+## 2026-10-03 — TASK-026 AWS IaC Foundation 구현
+
+- Run 3: WIP 기준 IAM 정책 7개를 구조화된 YAML로 전환했다. 신뢰 조건 / Resource / Action 범위는 유지하고 Parameter를 값 단위 Ref로 표현했다. Secrets Manager 조회 Action은 기존 단독 Statement에서 승인된 한 줄 배열 형태로 작성했다. 다른 Template에는 정책 전체 JSON 문자열이 없음을 확인했다.
+- Run 3 참고 검증: git diff --check와 Bash 구문 검사를 통과했다. Sandbox Python에 YAML 모듈이 없어 YAML 파싱 검증은 실행하지 못했다. 실제 cfn-lint / AWS 검증은 Sandbox 밖 Orchestrator 판정으로 남긴다. 새 Human 결정이나 AWS / Git 변경은 수행하지 않았다.
+
+- 승인 범위: TASK-026 CloudFormation YAML / 정적 검증만. DEC-027 ~ DEC-030을 유지했다.
+- 구현: 6개 Foundation Stack과 Placeholder Parameter 예시, Network 격리 / SG 최소화, immutable 공용 ECR, RDS MySQL 8.4.11 Multi-AZ 암호화 / 관리형 관리자 credential / Snapshot 정책, Private S3 OAC / CloudFront, DNS 검증 인증서와 최소 권한 IAM 표현.
+- 문서: Foundation 의존 순서 / Change Set / Replacement / 잔존 비용 / TASK-028 승인 Checkpoint, Architecture / Access Policy 현재 입력, Prompt 기록을 갱신했다.
+- 참고 Verification: Bash 구문과 git diff --check 통과. 6개 YAML 파싱 / Reference / Parameter 예시 일치 / 51,200 bytes 제한, IAM inline 정책과 승인 초안 내용 일치, 변경 파일 UTF-8 / 연속 물음표 / U+FFFD 검사 통과. Sandbox Python에서 cfn-lint 모듈을 확인하지 못했으며 AWS / 네트워크 조회는 실행하지 않았다. 실제 Lint / ValidateTemplate / 가용성 판정은 Sandbox 밖 Orchestrator Verify 기준이다.
+- 상태: TASK-026 DONE / TASK-027 READY는 이번 PR 구현 완료 반영이다. Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. AWS Resource / 설정 변경과 Git 후속 작업은 수행하지 않았다.
+
+### TASK-026 마무리 / 개선 후보 (Claude 세션, 2026-10-03)
+
+- Run 3(`2026-10-03T09-36-13-001Z-6af32f55`): AWS Profile Preflight 통과(`moodfit-readonly`), Verify 성공(`scripts/iac-validate.sh`: cfn-lint 6개 / validate-template 6개 / 서울 가용성 5개 항목, `git diff --check`), Claude Review 1회차 **PASS**, Orchestrator가 Commit `5786e53` / Push / Draft PR #13을 자동 생성했다. Stack은 만들지 않았다.
+- Human 선행 작업: `MoodFitReadOnly` Permission Set에 조회 Action 6개(Template 검증, RDS Engine / 주문 가능 Class, AZ, managed prefix list, Hosted Zone 조회)를 추가해 프로비저닝했다. Claude 세션이 적용을 확인했다: 서울에서 MySQL 8.4.11 제공, db.t4g.small Multi-AZ gp3 주문 가능, AZ 4개, CloudFront origin-facing prefix list 존재, `8949db.kr` Public Hosted Zone이 MoodFit 계정에 있음. DEC-027에서 미뤄 둔 가용성 확인이 끝났다.
+- 검증 도구: cfn-lint 1.57.1을 이 PC에 `pip --user`로 설치했다(프로젝트 Dependency 변경 없음).
+- 허용 목록(TASK-034)의 첫 실제 사용: Contract에 문구 2개를 Human이 승인했다(RDS 관리형 자격 증명 속성 줄, Secrets Manager 조회 Action을 단독 flow sequence로 쓴 형태). Guard가 정지 위치(파일 / 줄 / 규칙)를 기록했고 값은 남지 않았다.
+- Review N-001 / N-002: `docs/17`의 서술을 구현에 맞게 고쳤다. N-004(IPv6 / AAAA alias)는 TASK-027 문서에 전달했다.
+- Orchestrator 개선 후보:
+  - Agent 입력의 Contract에서 `secret_scan_allow` 항목이 마스킹되어 Executor가 문서 충돌로 판단해 정지했다(Run 1). Human이 승인한 문구이므로 이 필드는 마스킹하지 않거나 마스킹 사실을 입력에 명시한다.
+  - Executor가 변경 없이 `HUMAN_REQUIRED`로 정지했는데 Verify가 실행되어 검증 Script 없음(exit 127)으로 `BLOCKED` 되었다(Run 1). 변경이 없으면 Verify를 건너뛰고 Executor 요청으로 정지하는 편이 정지 사유가 분명하다.
+  - 허용 문구 검증이 "자격 증명 단어로 끝나는 항목"을 모두 거부해 IAM Action 이름만으로는 승인할 수 없다. 주변 구두점을 포함한 형태로 우회했다. IAM Action 형식의 안전한 승인 방법을 검토한다.
+  - 강화된 할당 규칙이 Secrets Manager 서비스 접두를 가진 IAM Action을 모두 차단한다. IaC / IAM 문서에서 반복될 수 있다.

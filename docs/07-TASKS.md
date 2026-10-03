@@ -33,7 +33,7 @@ DONE
 
 ## 3. Current Task
 
-TASK-026 — AWS Infrastructure as Code Foundation
+TASK-027 — AWS Application Infrastructure (ECS / ALB / RDS)
 
 Status:
 
@@ -41,8 +41,7 @@ Status:
 READY
 ```
 
-TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR #7, TASK-024 PR #8, TASK-025 PR #9 Human Squash Merge다.
-2026-10-03 사전 승인과 명시 실행 지시에 따라 TASK-034 구현 완료를 이번 PR에 DONE으로 반영하고 TASK-026을 READY로 전환한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-026은 별도 명시 실행 지시와 해당 Gate 확인 후 시작하며 TASK-027 이후는 BLOCKED다. TASK-026의 TASK-032 / TASK-033 / TASK-034 구현 선행 조건과 Permission Set / Profile 구성 및 실제 Profile Preflight 확인, `8949db.kr` DNS 위임 복구는 충족했다.
+2026-10-03 승인 Contract와 명시 실행 지시에 따라 TASK-026 Foundation 구현을 이번 PR에 DONE으로 반영하고 TASK-027을 READY로 전환한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-027은 별도 명시 실행과 Gate 확인 후 시작하며 TASK-028 이후는 BLOCKED다. 실제 AWS Resource는 생성하거나 변경하지 않았다.
 
 ---
 
@@ -75,8 +74,8 @@ TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR 
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | DONE | TASK-022 완료 (충족), Human 실행 지시 | DEC-027 Human Approved (2026-10-03), 완료는 PR Squash Merge로 확정 |
 | TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | DONE | TASK-023 Architecture 승인(DEC-027), Human 명시 실행 지시, DEC-028 승인 | Gate C 승인 완료, 이번 PR Human Squash Merge로 완료 확정 |
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | DONE | TASK-023 / TASK-024, DEC-029 Human Approved | B단계 구현 완료 반영, Human Squash Merge로 확정 |
-| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | READY | TASK-032 / TASK-033 / TASK-034 구현 완료 반영 (충족), TASK-023 / TASK-025 및 Permission Set / Profile / 실제 Preflight 확인 충족 | 필요 (비용 Resource Checkpoint) |
-| TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | BLOCKED | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
+| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | DONE | TASK-032 / TASK-033 / TASK-034 구현 완료 반영 (충족), TASK-023 / TASK-025 및 Permission Set / Profile / 실제 Preflight 확인 충족 | 필요 (비용 Resource Checkpoint) |
+| TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | READY | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
 | TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | 필요 (비용 Resource 생성) |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
@@ -1384,10 +1383,10 @@ DONE
 ### 상태
 
 ```text
-READY
+DONE
 ```
 
-TASK-032 / TASK-033 / TASK-034 구현 선행 조건은 이번 PR 완료 반영으로 충족 표시한다. (2026-10-03 Human 승인 순서) Orchestrator Verify / Claude Review / Human Squash Merge 전 완료 승인을 뜻하지 않는다. Permission Set / Profile 구성과 실제 Profile Preflight 확인, DNS 위임 복구는 완료되었다. TASK-026은 별도 명시 실행 및 비용 Resource Checkpoint를 확인한 뒤 진행한다.
+승인된 CloudFormation Foundation 구현 완료를 이번 PR에 반영했다. DONE은 Executor 구현 완료 표시이며 최종 확정은 Orchestrator Verify / Claude Review / Human Squash Merge다. 실제 AWS 적용은 TASK-028 별도 승인 대상이다. docs/17-AWS-IAC-FOUNDATION.md를 따른다.
 
 ### 목적
 
@@ -1412,10 +1411,10 @@ Network / ECR / S3·CloudFront / RDS / Secret Reference를 IaC(CloudFormation �
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
-TASK-024, TASK-026 완료 후 진행한다.
+TASK-024 / TASK-026 구현 완료를 반영했다. 별도 명시 실행과 IaC / 비용 Gate 확인 후 시작한다. 이번 PR에서 TASK-027 구현은 시작하지 않는다.
 
 ### 목적
 
@@ -1675,7 +1674,7 @@ Secret 검사의 차단 기준은 그대로 두고, Task Contract에 Human이 �
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-2026-10-03 TASK-034 현재 기준: 사전 승인된 Secret 정책을 구현했으며 새 Human 결정은 없다. Current Task는 TASK-026 READY다. DONE은 PR 구현 완료 반영이며 최종 완료 승인은 Human Squash Merge다. 아래 TASK-025 당시 서술은 이력이며 현재 상태는 3절과 Task 목록을 따른다.
+2026-10-03 TASK-026 현재 기준: 승인된 Foundation을 구현했으며 새 Human 결정은 없다. Current Task는 TASK-027 READY다. DONE은 PR 구현 완료 반영이며 최종 완료 승인은 Human Squash Merge다. 아래 TASK-025 당시 서술은 이력이며 현재 상태는 3절과 Task 목록을 따른다.
 
 DEC-026 / DEC-027 / DEC-028 / DEC-029는 Human Approved다. TASK-025에 미해결 Human Gate는 없다. TASK-025 DONE / TASK-026 READY는 이번 PR 완료 반영이며 Human Squash Merge로 확정한다. TASK-026은 Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인 후 명시 실행하며 TASK-027 이후 BLOCKED다. Domain 8949db.kr / HTTPS origin은 승인 완료이며 DNS 위임 복구와 hostname 최종 확정은 TASK-026 전 후속 조건이다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. 미조회 단가 / ACM 비용 / Region 가용성은 TASK-026 전에 확인한다. 후속 Gate의 해당 실행은 승인 전에 수행하지 않는다.
 

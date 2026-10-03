@@ -1,0 +1,114 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "staging"
+  },
+  {
+    "ParameterKey": "Owner",
+    "ParameterValue": "<Owner>"
+  },
+  {
+    "ParameterKey": "AccountId",
+    "ParameterValue": "<AccountId>"
+  },
+  {
+    "ParameterKey": "RepositoryOwner",
+    "ParameterValue": "<RepositoryOwner>"
+  },
+  {
+    "ParameterKey": "RepositoryName",
+    "ParameterValue": "<RepositoryName>"
+  },
+  {
+    "ParameterKey": "GitHubOidcProviderArn",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "CreateOidcProvider",
+    "ParameterValue": "false"
+  },
+  {
+    "ParameterKey": "EnvironmentEcsSourceArnPattern",
+    "ParameterValue": "<EnvironmentEcsSourceArnPattern>"
+  },
+  {
+    "ParameterKey": "AppDbCredentialArn",
+    "ParameterValue": "<AppDbCredentialArn>"
+  },
+  {
+    "ParameterKey": "RepositoryArn",
+    "ParameterValue": "<RepositoryArn>"
+  },
+  {
+    "ParameterKey": "EnvironmentLogStreamArnPattern",
+    "ParameterValue": "<EnvironmentLogStreamArnPattern>"
+  },
+  {
+    "ParameterKey": "StagingTaskDefinitionArnPattern",
+    "ParameterValue": "<StagingTaskDefinitionArnPattern>"
+  },
+  {
+    "ParameterKey": "StagingStaticObjectArn",
+    "ParameterValue": "<StagingStaticObjectArn>"
+  },
+  {
+    "ParameterKey": "StagingDistributionArn",
+    "ParameterValue": "<StagingDistributionArn>"
+  },
+  {
+    "ParameterKey": "StagingClusterArn",
+    "ParameterValue": "<StagingClusterArn>"
+  },
+  {
+    "ParameterKey": "StagingExecutionRoleArn",
+    "ParameterValue": "<StagingExecutionRoleArn>"
+  },
+  {
+    "ParameterKey": "StagingServiceArn",
+    "ParameterValue": "<StagingServiceArn>"
+  },
+  {
+    "ParameterKey": "StagingStaticBucketArn",
+    "ParameterValue": "<StagingStaticBucketArn>"
+  },
+  {
+    "ParameterKey": "StagingTaskRoleArn",
+    "ParameterValue": "<StagingTaskRoleArn>"
+  },
+  {
+    "ParameterKey": "ProductionTaskRoleArn",
+    "ParameterValue": "<ProductionTaskRoleArn>"
+  },
+  {
+    "ParameterKey": "ProductionClusterArn",
+    "ParameterValue": "<ProductionClusterArn>"
+  },
+  {
+    "ParameterKey": "ProductionStaticObjectArn",
+    "ParameterValue": "<ProductionStaticObjectArn>"
+  },
+  {
+    "ParameterKey": "ProductionStaticBucketArn",
+    "ParameterValue": "<ProductionStaticBucketArn>"
+  },
+  {
+    "ParameterKey": "ProductionDistributionArn",
+    "ParameterValue": "<ProductionDistributionArn>"
+  },
+  {
+    "ParameterKey": "ProductionTaskDefinitionArnPattern",
+    "ParameterValue": "<ProductionTaskDefinitionArnPattern>"
+  },
+  {
+    "ParameterKey": "ProductionExecutionRoleArn",
+    "ParameterValue": "<ProductionExecutionRoleArn>"
+  },
+  {
+    "ParameterKey": "ProductionServiceArn",
+    "ParameterValue": "<ProductionServiceArn>"
+  },
+  {
+    "ParameterKey": "StagingAppStackArn",
+    "ParameterValue": "<StagingAppStackArn>"
+  }
+]
