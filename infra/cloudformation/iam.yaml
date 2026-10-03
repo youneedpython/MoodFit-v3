@@ -31,6 +31,7 @@ Parameters:
     Type: "String"
   AppDbCredentialArn:
     Type: "String"
+    Description: "Use the data stack AppDbCredentialArn output for approved staging runtime"
   RepositoryArn:
     Type: "String"
   EnvironmentLogStreamArnPattern:

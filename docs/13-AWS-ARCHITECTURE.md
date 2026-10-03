@@ -10,6 +10,8 @@
 
 ## 1. 승인안과 적용 조건
 
+2026-10-03 TASK-027 / DEC-031에서 Application Template를 구현했다. Foundation SG의 최소 경로를 그대로 사용하고 Private ECS / HTTPS 443 전용 ALB / 검증 header / uncached API / 사용자 A·AAAA를 연결했다. Data가 자격 증명을 무작위 생성하며 Staging 앱은 관리자 계정을 사용하는 승인 예외다. 아래 최소 DML 계정 원칙은 Production 전 TASK-030에서 충족해야 한다. RDS TLS 암호화는 강제하지만 CA·hostname 검증은 후속 배포에서 검증한다. 실제 Resource / 비용은 생성하지 않았으며 [17번 문서](17-AWS-IAC-FOUNDATION.md)의 의존 순서와 잔여 위험을 따른다.
+
 Human은 2026-10-03 **B안 Production-like**을 승인했다. 서울(ap-northeast-2)의 같은 계정에서 Staging을 먼저 운영한다. A안은 비용이 낮지만 단일 Task / Single-AZ DB와 Public ECS를 사용하므로 격리 / HA 학습 목표에 따라 기각했다. Production 생성은 TASK-030 전 별도 승인이 필요하며 계정 분리를 다시 검토한다. 현재 MVP에는 인증/인가가 없으므로 Private App Subnet만으로 사용자 데이터 접근이 보호되지는 않는다. 합성 데이터만 사용하며 실제 개인 데이터 입력과 공개 Production 운영은 인증 / 접근 제한 Task 승인 전까지 금지한다.
 
 크기와 비용 상한은 승인된 설계 기준이며 실측 용량이나 확정 AWS 견적이 아니다. 공식 사실 확인은 Task 문서의 Claude 세션 2026-10-02 조회 기록을 인용한다. Executor는 Web / AWS CLI를 사용하지 않았다. 미해소 항목의 담당 Task와 시점은 8절을 따른다.

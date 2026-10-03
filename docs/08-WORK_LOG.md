@@ -3076,3 +3076,13 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
   - Executor가 변경 없이 `HUMAN_REQUIRED`로 정지했는데 Verify가 실행되어 검증 Script 없음(exit 127)으로 `BLOCKED` 되었다(Run 1). 변경이 없으면 Verify를 건너뛰고 Executor 요청으로 정지하는 편이 정지 사유가 분명하다.
   - 허용 문구 검증이 "자격 증명 단어로 끝나는 항목"을 모두 거부해 IAM Action 이름만으로는 승인할 수 없다. 주변 구두점을 포함한 형태로 우회했다. IAM Action 형식의 안전한 승인 방법을 검토한다.
   - 강화된 할당 규칙이 Secrets Manager 서비스 접두를 가진 IAM Action을 모두 차단한다. IaC / IAM 문서에서 반복될 수 있다.
+
+## 2026-10-03 — TASK-027 Application Infrastructure 구현
+
+- Human 사전 승인 Contract와 명시 실행 지시에 따라 Data 자격 증명 생성 / 동적 참조 / Retain, ECS Fargate / HTTPS ALB / origin 인증서·DNS / access log 30일 Template를 구현했다. 실제 AWS 조회 / Stack 생성·변경 / IAM 변경 / 비용 Resource 생성은 수행하지 않았다.
+- Foundation SG를 재사용해 CloudFront prefix list 443 → ALB → App 8080 → Data 3306을 유지했다. Listener 기본 403과 origin header 검증, digest 고정, Private ECS / AZ 분산 / rolling 100·200 / circuit breaker / 120초 grace, readiness·liveness를 연결했다. IAM 소유의 30일 앱 Log Group을 Parameter로 받아 중복 생성하지 않는다.
+- Frontend는 /api와 /api/*의 HTTPS-only origin / 캐시 비활성 / query·cookie·Host 외 header·method 전달 / 오류 보존, 사용자 AAAA alias를 추가했다. NoEcho 입력 값은 예시·문서에 남기지 않았다.
+- DEC-031에 TASK-026 Gate 결정 3 대체와 승인 예외를 기록했다. 의존 순서 / 단계별 최초 Change Set / 비용 / 교체·삭제 / Flyway DB 잠금 / Schema rollback / TLS CA·hostname 검증 / writable 임시 경로의 한계를 문서화했다. Staging 관리자 계정 사용은 Production 전 TASK-030에서 분리해야 한다.
+- Executor 참고 검증: bash -n scripts/iac-validate.sh 및 git diff --check 통과. 실행 시작 Version의 Guard로 누적 변경 경로·승인 문구·인코딩 검사 통과. 승인 literal 4개가 각각 한 번 그대로 사용됨을 확인했다. 변경 Markdown 전체를 UTF-8로 직접 읽고 연속 물음표 치환 흔적 / U+FFFD가 없음을 확인했다. App / Data / Frontend Template 크기 제한과 Parameter 예시 일치, AGENTS.md 3절 밖 무변경을 확인했다. 참고 검사 Script의 최초 실행은 CRLF 분리 처리 오류로 종료됐고 줄바꿈 정규화 후 통과했다. 제품 코드 오류가 아니다.
+- Sandbox Python에서 YAML / cfn-lint 모듈이 없었고 Human 사용자 설치 경로 접근이 거부됐다. YAML parsing / cfn-lint / CloudFormation ValidateTemplate / RDS 통합 성공을 주장하지 않는다. 정적 검증 Script는 7개 Template를 대상으로 확장했으며 최종 판정은 Sandbox 밖 Orchestrator Verify다.
+- TASK-027 DONE은 PR 구현 완료 반영이다. TASK-028은 BLOCKED를 유지하고 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. 새 Human 결정은 이 구현에 필요하지 않으며 최종 완료는 Verify / Claude Review / Remote CI 이후 Human Squash Merge로 확정한다. Git 후속 작업은 수행하지 않았다.

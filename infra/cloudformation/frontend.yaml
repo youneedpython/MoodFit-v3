@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "MoodFit private static origin foundation; API origin is added in TASK-027"
+Description: "MoodFit private static origin and uncached HTTPS application routing"
 Parameters:
   Environment:
     Type: "String"
@@ -16,6 +16,16 @@ Parameters:
     Default: "staging.moodfit.8949db.kr"
   ViewerCertificateArn:
     Type: "String"
+  OriginHostname:
+    Type: "String"
+    Default: "origin.staging.moodfit.8949db.kr"
+  OriginVerificationValue:
+    Type: "String"
+    NoEcho: true
+    MinLength: 32
+    MaxLength: 128
+    AllowedPattern: "[A-Za-z0-9_-]+"
+    Description: "Human supplies the same private value to app and frontend; never output it"
 Resources:
   StaticBucket:
     Type: "AWS::S3::Bucket"
@@ -70,6 +80,18 @@ Resources:
         DefaultRootObject: "index.html"
         HttpVersion: "http2and3"
         IPV6Enabled: true
+        CustomErrorResponses:
+          - {ErrorCode: 400, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 403, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 404, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 405, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 414, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 416, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 500, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 501, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 502, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 503, ErrorCachingMinTTL: 0}
+          - {ErrorCode: 504, ErrorCachingMinTTL: 0}
         Origins:
           -
             Id: "static"
@@ -81,6 +103,30 @@ Resources:
               Ref: "OriginAccessControl"
             S3OriginConfig:
               OriginAccessIdentity: ""
+          - Id: "api"
+            DomainName: !Ref OriginHostname
+            OriginCustomHeaders:
+              - HeaderName: "X-MoodFit-Origin"
+                HeaderValue: !Ref OriginVerificationValue
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: "https-only"
+              OriginSSLProtocols: ["TLSv1.2"]
+        CacheBehaviors:
+          - PathPattern: "/api"
+            TargetOriginId: "api"
+            ViewerProtocolPolicy: "https-only"
+            AllowedMethods: ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"]
+            CachedMethods: ["GET", "HEAD"]
+            CachePolicyId: "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          - PathPattern: "/api/*"
+            TargetOriginId: "api"
+            ViewerProtocolPolicy: "https-only"
+            AllowedMethods: ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"]
+            CachedMethods: ["GET", "HEAD"]
+            CachePolicyId: "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
         DefaultCacheBehavior:
           TargetOriginId: "static"
           ViewerProtocolPolicy: "redirect-to-https"
@@ -143,6 +189,27 @@ Resources:
             Condition:
               Bool:
                 aws:SecureTransport: "false"
+  ApiOriginRequestPolicy:
+    Type: "AWS::CloudFront::OriginRequestPolicy"
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub "${AWS::StackName}-api"
+        Comment: "Forward request values except viewer Host; TLS uses the origin hostname"
+        CookiesConfig: {CookieBehavior: "all"}
+        QueryStringsConfig: {QueryStringBehavior: "all"}
+        HeadersConfig:
+          HeaderBehavior: "allExcept"
+          Headers: ["Host"]
+  ViewerIpv6Dns:
+    Type: "AWS::Route53::RecordSet"
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref ViewerHostname
+      Type: "AAAA"
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: "Z2FDTNDATAQYW2"
+        EvaluateTargetHealth: false
   ViewerDns:
     Type: "AWS::Route53::RecordSet"
     Properties:

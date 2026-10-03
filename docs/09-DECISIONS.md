@@ -1379,3 +1379,26 @@ Human Approved (2026-10-03, Gate C 사전 승인)
 - CI는 Summary 표시 한 줄만 변경한다. Job / Step / 명령 / Trigger / 권한 / concurrency를 유지한다.
 - 개발 PC의 MySQL 8.0 서비스는 Agent가 변경하지 않는다. Human이 선택하는 전환 방법과 주의점은 [MySQL 8.4 안내](16-MYSQL-84-ALIGNMENT.md)에 기록한다.
 - Dependency / 운영 Code / Migration 변경이 필요하면 Gate C로 정지한다. 실제 호환성 판정은 전체 Test와 Container Smoke의 Orchestrator Verify이며 승인 자체가 검증 성공을 뜻하지 않는다.
+
+---
+
+## DEC-031 TASK-027 Application Infrastructure Gate
+
+### 상태
+
+Human Approved (2026-10-03, TASK-027 Contract 사전 승인 및 명시 실행 지시)
+
+### 확정 결정
+
+- TASK-026 문서의 Gate 결정 3을 대체한다. RDS 관리형 관리자 자격 증명 대신 Data Stack이 무작위 값을 생성하고 RDS가 동적 참조한다. 자동 교체는 구성하지 않고 자격 증명 Resource는 DeletionPolicy / UpdateReplacePolicy 모두 Retain이다. 관리자 이름은 moodfit_admin이며 실제 값은 Template / Parameter / Repository에 기록하지 않는다.
+- Staging 앱은 이 관리자 계정을 사용한다. Production 전 TASK-030 Gate에서 최소 권한 앱 계정과 migration 계정을 분리한다. ECS는 시작 시에만 값을 주입하므로 수동 교체도 DB와 실행 중 Task의 정합성 검토가 필요하다.
+- App Stack은 ECS / ALB / HTTPS 443 Listener / Target Group / 서울 origin 인증서·DNS / ALB access log Bucket 30일 lifecycle을 구성한다. HTTP 80은 생성하지 않는다. Foundation의 CloudFront prefix list → ALB 443 → ECS 8080 → RDS 3306 경계를 유지한다.
+- CloudFront `/api`와 `/api/*`는 HTTPS-only origin / cache 비활성 / query·header·method 전달 / 오류 상태·본문 보존이다. IPv6를 유지하고 사용자 AAAA alias를 추가한다.
+- Origin 검증 값은 NoEcho Parameter로 두 Stack에 동일하게 전달한다. 값은 Template / 예시 / 문서에 넣지 않는다. Listener 기본 응답 403이며 header가 일치할 때만 Target Group으로 전달한다.
+- Fargate Desired Count 2 / 0.5 vCPU / 1 GiB / AZ 분산, rolling 최소 100% / 최대 200%, circuit breaker와 자동 rollback을 구성한다. Health는 ALB readiness와 Container liveness, service grace 120초다. 검증된 ECR repository digest 형식만 받는다.
+- Flyway 동시 시작은 DB 잠금 근거와 startup 대기 / MySQL DDL / Schema rollback 한계를 문서화한다. 파괴적 migration은 별도 승인 대상이다.
+- Human이 승인한 설정 문구 4개는 활성 Contract의 literal 목록 그대로 Template에 사용한다. 기존 IAM 조회 Statement는 수정하지 않고 Data 출력 연결만 조정한다.
+
+### 실행 경계
+
+이번 승인은 Template 작성과 정적 검증만 허용한다. 실제 AWS 생성 / 변경 / 비용 Resource 확대 / Production 실행 권한은 부여하지 않는다. TASK-027 DONE은 PR 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge로 확정한다. TASK-028은 BLOCKED를 유지하고 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. 상세 입력·위험은 [17-AWS-IAC-FOUNDATION.md](17-AWS-IAC-FOUNDATION.md)를 따른다.

@@ -127,3 +127,5 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 55 | TASK-032 Run 4 Secret Restore | Secret 검사 main 상태 복원, 나머지 개선 유지 | Review PASS, PR #10 Merge |
 | 56 | TASK-033 Approved MySQL 8.4 | DEC-030 사전 승인 Image / 문서 / 완료 반영 | Executor 구현 완료, Orchestrator 검증 / Review 대기 |
 | 57 | TASK-034 Approved Allowlist | 승인 literal 목록 / Resume / 위치 기록 / 차단 강화 | Executor 구현 완료, 최종 완료 승인은 Human Squash Merge |
+| 58 | TASK-026 Approved IaC | Foundation Template / 정적 검증 | 구현 완료, 실제 적용은 별도 승인 |
+| 59 | TASK-027 Approved Application Infra | ECS / ALB / Data 연결 / API Routing | Executor 구현 완료, TASK-028 비용·권한 승인 대기 |
