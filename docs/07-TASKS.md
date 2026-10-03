@@ -33,16 +33,16 @@ DONE
 
 ## 3. Current Task
 
-TASK-024 — Deployment Artifact / Container / Health Strategy
+TASK-025 — AWS SSO / GitHub OIDC / IAM / Environment Gate
 
 Status:
 
 ```text
-IN_PROGRESS
+READY
 ```
 
 TASK-001 ~ TASK-022는 DONE이며 TASK-022 완료 근거는 PR #5 Human Squash Merge(2026-10-02, f2d0936)다.
-2026-10-03 Human이 B안 Architecture / Cost Gate를 승인했다(DEC-027). TASK-024는 명시 실행 지시로 시작했으며 Health / Container Base Image 정책 Gate C 승인 대기에서 정지했다. 실행 상태는 IN_PROGRESS이고 Executor 결과는 HUMAN_REQUIRED다. 구체적인 대안 / 최소 Diff는 docs/14-DEPLOYMENT-ARTIFACT.md를 따른다. TASK-025 이후는 BLOCKED를 유지한다. AWS Resource는 생성하지 않았다.
+2026-10-03 Human이 TASK-024 Gate C 권장안을 모두 승인했다(DEC-028). 승인된 Health / Container / Smoke 구현을 docs/14-DEPLOYMENT-ARTIFACT.md에 기록했다. TASK-024 DONE / TASK-025 READY는 이번 Run의 PR 완료 반영이며 Orchestrator Verify / Claude PASS 후 Human Squash Merge로 확정한다. TASK-025 실행은 별도 명시 지시가 필요하고 TASK-026 이후 BLOCKED를 유지한다. AWS Resource는 생성하지 않았다.
 
 ---
 
@@ -73,8 +73,8 @@ TASK-001 ~ TASK-022는 DONE이며 TASK-022 완료 근거는 PR #5 Human Squash M
 | TASK-021 | Milestone 21 | Git Automation / Branch / PR Harness | DONE | TASK-020 완료 (충족), Human 결정 1 / 2 반영, Rework 1 / 2회차 Claude PASS | PR Squash Merge 승인으로 확정 |
 | TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | DONE | TASK-021 완료 (충족), Review PASS, E2E(PR #5 → CI → Human Squash Merge) 검증 | Gate C 승인 완료, PR #5 Human Squash Merge로 DONE 승인 완료 |
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | DONE | TASK-022 완료 (충족), Human 실행 지시 | DEC-027 Human Approved (2026-10-03), 완료는 PR Squash Merge로 확정 |
-| TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | IN_PROGRESS | TASK-023 Architecture 승인(DEC-027), Human 명시 실행 지시 | Health / Base Image 정책 Gate C 승인 대기 |
-| TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | BLOCKED | TASK-023 완료 (TASK-024 권장) | 필요 |
+| TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | DONE | TASK-023 Architecture 승인(DEC-027), Human 명시 실행 지시, DEC-028 승인 | Gate C 승인 완료, 이번 PR Human Squash Merge로 완료 확정 |
+| TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | READY | TASK-023 완료, TASK-024 이번 PR 완료 반영 | 별도 실행 지시 / 해당 Task Gate 필요 |
 | TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-023, TASK-025 완료 | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | BLOCKED | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
 | TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | 필요 (비용 Resource 생성) |
@@ -1325,10 +1325,10 @@ AWS Resource 생성 전 Architecture / Cost / Security / 계정 구조 / RDS Ver
 ### 상태
 
 ```text
-IN_PROGRESS
+DONE
 ```
 
-2026-10-03 Human 명시 실행 지시로 시작했다. Health / Base Image 정책을 docs/14-DEPLOYMENT-ARTIFACT.md에 제안했으며 Gate C 승인 전 구현을 정지한다. Executor 결과 HUMAN_REQUIRED는 Task 완료가 아니다. TASK-025 READY 승격과 TASK-024 DONE 반영은 마지막 승인 실행의 PR에서 처리한다.
+2026-10-03 Human Gate C 승인(DEC-028) 후 Run 2에서 Actuator / app.jar / digest 고정 non-root Container / Smoke와 운영 Health 회귀 Test를 구현했다. 이번 PR에 DONE / TASK-025 READY를 포함한다. Executor DONE은 구현 완료이며 Orchestrator Verify / Claude PASS 이후 Human Squash Merge가 Task 완료 승인이다. Smoke 실측은 Orchestrator Verify Log 기준으로 보완한다.
 
 ### 목적
 
@@ -1353,10 +1353,10 @@ Frontend / Backend 배포 Artifact를 재현 가능하게 만들고 Health Check
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
-TASK-023 완료 (TASK-024 권장) 후 진행한다.
+TASK-024 이번 PR 완료 반영 이후 별도 Human 실행 지시로 진행한다. 최소 권한 Staging Profile 준비 / Agent 허용 Profile 지정과 해당 Task Gate는 유지한다.
 
 ### 목적
 
@@ -1585,7 +1585,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-DEC-026 / DEC-027은 Human Approved다. TASK-023 DONE / TASK-024 READY는 이번 PR의 완료 반영이며 Human Squash Merge로 확정한다. TASK-025 이후는 BLOCKED다. Domain 8949db.kr / HTTPS origin은 승인 완료이며 DNS 위임 복구와 hostname 최종 확정은 TASK-026 전 후속 조건이다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. 최소 권한 Profile은 TASK-025 선행 조건이며 미조회 단가 / ACM 비용 / Region 가용성은 TASK-026 전에 확인한다. 미해결 후속 Gate의 해당 실행은 승인 전에 수행하지 않는다.
+DEC-026 / DEC-027 / DEC-028은 Human Approved다. TASK-024에 미해결 Human Gate는 없다. TASK-024 DONE / TASK-025 READY는 이번 PR 완료 반영이며 Human Squash Merge로 확정한다. TASK-026 이후 BLOCKED다. Domain 8949db.kr / HTTPS origin은 승인 완료이며 DNS 위임 복구와 hostname 최종 확정은 TASK-026 전 후속 조건이다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. 최소 권한 Profile은 TASK-025 선행 조건이며 미조회 단가 / ACM 비용 / Region 가용성은 TASK-026 전에 확인한다. 후속 Gate의 해당 실행은 승인 전에 수행하지 않는다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

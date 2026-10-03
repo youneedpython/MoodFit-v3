@@ -2836,3 +2836,16 @@ Human Gate에서 Claude 세션이 공식 문서로 미확인 단가 / 핵심 수
 - 참고 검증: `docker version --format '{{.Server.Version}}'` Exit 1. Docker CLI는 있으나 config 및 daemon named pipe 접근이 Access denied였다. credential 읽기 / 로그인 / 설치 / 권한 변경을 시도하지 않았다. Docker 접근 제약 자체를 Gate 사유로 삼지 않는다. Image build / start / Health smoke / image metadata / JVM 실측은 미실행이다.
 - Gate 제안 단계이므로 Executor 전체 Test / Build는 미실행이다. Orchestrator의 Contract Verify가 검증 기준이며 자체 성공을 주장하지 않는다. `git diff --check` Exit 0(autocrlf 안내만 표시), 변경 문서 UTF-8 strict 디코딩 / 연속 물음표 치환 흔적 / U+FFFD 검사를 수행했다. 최종 결과와 누적 변경 경로는 Executor JSON에 기록한다.
 - ALB fail-open / matcher / 설정 범위는 2026-10-03 [AWS 공식 Health Check 문서](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html)로 확인했다. AWS CLI / Resource / Repository Branch / Commit / Push / PR 작업 없음. Prompt 48과 Index를 기록했다.
+
+## TASK-024 — Gate C 승인 구현 / Run 2 (2026-10-03)
+
+- 최초 Working Tree clean. Task 문서 Human 결정과 명시 Contract에 따라 승인된 범위만 구현했다. Run 1 Gate C 권장안 승인 근거를 DEC-028 Human Approved로 기록했다. 업무 API 계약 / 기존 Dependency Version / MySQL Image / Workflow / harness는 변경하지 않았다.
+- Actuator Dependency 1줄과 Version 무관 bootJar app.jar를 추가했다. production properties에서 Health만 read-only HTTP 노출, 다른 Endpoint access none / JMX 제외, livenessState 및 readinessState + db group, 상세 / component 비노출을 설정했다.
+- OperationalHealthTests는 production 설정을 로드하고 정상 DB probe / DataSource 연결 실패의 readiness 503·liveness 200 / status-only 전체 응답 / 다른 Endpoint 404를 검사한다. 실제 MySQL 장애는 Smoke에 분리했다.
+- Dockerfile은 승인된 linux/amd64 Temurin manifest digest, UID/GID 10001, JAR 하나, exec Java PID 1 / heap 비율 / 포함 curl liveness를 사용한다. .dockerignore는 app.jar만 허용한다.
+- container-smoke.sh는 Git Bash MSYS 경로 변환 방지 / 단계·Timeout / 무작위 DB 값 env-file / 실패 log 생성값 치환 / trap 정리를 구현했다. 전용 network의 mysql:8.0.46과 read-only root / tmpfs / 0.5 CPU / 1 GiB 앱에서 정상 probe → metadata·UID·파일 목록 → DB 정지 후 probe를 확인하도록 작성했다. Container 삭제 시 익명 DB volume도 정리한다. Working Tree에 산출물을 쓰지 않는다.
+- docs/14는 승인된 Artifact / full SHA·Release 관계 / Frontend dist / 동일 origin /api / 운영 Health / 검증 한계를 확정 내용으로 갱신했다. prompts/README 누락 42~47을 채우고 Prompt 49를 기록했다.
+- TASK-024 DONE / TASK-025 READY와 AGENTS 3절은 이번 Run PR의 완료 반영이다. Orchestrator Verify / Claude PASS 이후 Human Squash Merge가 완료 승인이다. TASK-025 실행은 별도 지시가 필요하며 TASK-026 이후 BLOCKED를 유지한다. AWS Resource / Git handoff는 수행하지 않았다.
+- Executor 참고 검증: bash -n scripts/container-smoke.sh Exit 0. Backend gradlew.bat test --tests com.moodfit.health.OperationalHealthTests는 C:\.gradle wrapper lock parent 생성 불가로 Test 시작 전에 Exit 1이었다. Sandbox 파일 접근 제약이며 코드 Test 결과가 아니다. 자동 설치 / 권한 변경 / 우회를 시도하지 않았다.
+- Docker 접근 불가가 Task 문서와 Run 1에서 확인된 Sandbox이므로 실제 Container Smoke는 미실행이다. startup / memory 실측 성공을 주장하지 않는다. 전체 verify.sh / Container Smoke는 Sandbox 밖 Orchestrator Verify가 기준이며 Claude 세션이 실제 Log 기준으로 WORK_LOG를 보완할 수 있다.
+- Spring Boot 4.1.1 Health 설정은 2026-10-03 [공식 Actuator 문서](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html)로 확인했다. 최종 diff / UTF-8 strict / 연속 물음표 치환 / U+FFFD와 누적 변경 경로 검사는 Executor JSON에 기록한다.
