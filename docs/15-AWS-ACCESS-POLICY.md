@@ -1,6 +1,6 @@
-# 15. AWS Access Policy — TASK-025 A단계
+# 15. AWS Access Policy — TASK-025 A / B단계
 
-2026-10-03 작성. **Pending Human Approval (DEC-029)**. 이 문서와 `infra/iam/` JSON은 검토용 초안이다. 실제 Permission Set / IAM / Environment / Resource 생성과 배포를 승인하지 않는다. TASK-025는 IN_PROGRESS, TASK-026 이후는 BLOCKED를 유지한다.
+2026-10-03 Human Approved (DEC-029). Run 2 Claude PASS 설계안(Commit `1d56112`)을 권장안대로 모두 승인했다. B단계는 Preflight 구현 / Fake CLI 검증이며 실제 AWS / GitHub 설정과 Resource 생성은 수행하지 않았다. TASK-025 DONE / TASK-026 READY는 PR 완료 반영이며 Human Squash Merge로 확정한다. TASK-026 실행 전 Human Permission Set / Profile 구성과 실제 Preflight 확인이 필요하다.
 
 ## 1. 승인 근거와 실행 경계
 
@@ -20,7 +20,7 @@ A단계는 문서 / JSON / 기록만 작성한다. AWS CLI, GitHub 설정, 인�
 | 감사 | CloudTrail과 비민감 로컬 Run / GitHub Run 기록 대조, 30일 Run 기록 보존 제안 | SSO Human Identity만으로 Agent를 구분할 수 없음. Run ID / UTC / 명령 종류 / 승인 참조와 CloudTrail event 시각을 대조 |
 | 앱 비밀 / 암호화 | 환경별 Secrets Manager, ECS execution role만 DB 값 주입. AWS 관리 암호화 / S3 SSE-S3 기본, 고객 관리 KMS는 초기 제외 | 사용자 정의 KMS 추가는 비용 / Key Policy 재승인. origin 검증 header는 Human이 환경별 관리하고 Agent / CI 조회 금지 |
 
-정책 적용 전에 위 Matrix 전체와 실제 검토 Diff를 Human이 승인해야 한다. 더 넓은 권한이나 Session은 재승인한다.
+위 Matrix는 2026-10-03 Human이 권장안대로 승인했다. 더 넓은 권한이나 Session은 재승인한다.
 
 ## 3. SSO / Profile / Preflight 설계
 
@@ -60,8 +60,8 @@ B단계 실행 순서:
 Parameter 검토 규칙:
 
 - RepositoryOwner / RepositoryName / GitHubOidcProviderArn은 승인 Repository와 해당 계정 Provider 하나다. owner / repo / subject wildcard는 금지한다.
-- StagingRepositoryArn은 Staging에서 검증하고 Production이 참조하는 단일 immutable ECR Repository의 정확한 ARN이다. ProductionRepositoryArn은 사용하지 않는다. ServiceArn, ClusterArn, StaticBucketArn, DistributionArn, ExecutionRoleArn, TaskRoleArn은 환경별 전용 Resource의 정확한 ARN이다. Production 값을 Staging Parameter에 넣지 않는다.
-- ecs-execution-role-policy.json의 EnvironmentRepositoryArn은 두 환경 모두 같은 StagingRepositoryArn으로 치환한다. execution role은 공용 이미지 Pull만, Log / DB credential은 환경별 범위를 유지한다.
+- RepositoryArn은 Staging에서 검증하고 Production이 참조하는 단일 immutable ECR Repository의 정확한 ARN이다. ProductionRepositoryArn은 사용하지 않는다. ServiceArn, ClusterArn, StaticBucketArn, DistributionArn, ExecutionRoleArn, TaskRoleArn은 환경별 전용 Resource의 정확한 ARN이다. Production 값을 Staging Parameter에 넣지 않는다.
+- ecs-execution-role-policy.json도 같은 RepositoryArn을 사용한다. execution role은 공용 이미지 Pull만, Log / DB credential은 환경별 범위를 유지한다.
 - StaticObjectArn은 해당 정적 Bucket의 객체 범위만 나타낸다. Revision family Pattern은 해당 환경의 승인된 family에 revision suffix wildcard만 허용한다. StackArn은 기존 앱 전용 Stack의 정확한 ARN이며 공용 Infrastructure Stack을 지정하지 않는다.
 - EnvironmentLogStreamArnPattern은 해당 Log Group의 stream suffix만 허용한다. AppDbCredentialArn은 전체 ARN을 단일 Parameter로 받는다. 값 / literal credential ARN 표기는 문서에 넣지 않는다.
 - AWS Region / 계정 wildcard와 환경 공용 Resource wildcard는 금지한다. CloudFront는 global ARN이다. 런타임 정책은 환경별 렌더링하며 task role은 앱 AWS 호출이 없으므로 빈 권한을 유지한다.
@@ -99,7 +99,7 @@ Production 배포 Workflow는 main에서 실행하되 Human이 승인한 DEC-025
 
 Image build는 깨끗한 checkout의 실제 full Commit SHA를 VCS_REF 필수 값으로 전달하고 sha-commit Tag / OCI revision / digest를 검증한다. ECR immutable은 Human / IaC가 구성하고 deploy Role에는 변경 권한을 주지 않는다. 배포는 digest 고정 Task revision을 등록하고 해당 Service만 갱신한다. CI는 DB credential을 읽지 않는다. 정적 artifact는 hash 대조 후 전용 S3에 업로드하고 invalidation한다. S3 삭제가 없으므로 기존 hashed asset은 남고 정리는 별도 승인 정책으로 처리한다.
 
-승격 모델은 단일 ECR Repository다. Staging CI deploy Role(또는 승인된 Staging SSO 게시 Task)만 StagingRepositoryArn에 새 immutable sha-commit 이미지를 Push한다. Production deploy Role은 같은 Repository의 BatchGetImage / DescribeImages로 검증된 기존 digest를 조회하며 ECR 인증 / Push / 복사 / 재빌드 권한이 없다. 두 환경 ECS execution role이 같은 Repository에서 Pull한다. Production은 Staging 검증 기록의 동일 digest만 Task Definition에 사용한다. 정적 Artifact는 Staging 검증 hash와 동일한 기존 산출물을 Production S3에 업로드한다. 환경별 ECS / DB / S3 / Role 분리는 유지하며 ECR만 Artifact 공유 대상으로 제안한다.
+승격 모델은 단일 ECR Repository다. Staging CI deploy Role(또는 승인된 Staging SSO 게시 Task)만 RepositoryArn에 새 immutable sha-commit 이미지를 Push한다. Production deploy Role은 같은 Repository의 BatchGetImage / DescribeImages로 검증된 기존 digest를 조회하며 ECR 인증 / Push / 복사 / 재빌드 권한이 없다. 두 환경 ECS execution role이 같은 Repository에서 Pull한다. Production은 Staging 검증 기록의 동일 digest만 Task Definition에 사용한다. 정적 Artifact는 Staging 검증 hash와 동일한 기존 산출물을 Production S3에 업로드한다. 환경별 ECS / DB / S3 / Role 분리는 유지하며 ECR만 Artifact 공유 대상으로 제안한다.
 
 CI는 AWS 권한 없는 Build / 로컬 검증을 먼저 마친 후 Environment 승인과 배포 입력 확인을 통과하고 OIDC 자격을 취득한다. 요청 3600초는 Push / Task revision 등록 / rolling 안정화 / smoke와 확인 시간을 확보하기 위한 제안이며 실제 소요 시간은 미측정이다. 전체 배포 deadline은 Session 만료보다 짧게 설정하고 실제 여유는 Workflow Task에서 검증한다. 만료 / 시간 부족 / 인증 실패 시 자동 재취득·재시도 없이 중단한다. Human은 기존 GitHub Run과 CloudTrail / 승인된 조회 경로로 Push digest, 현재 Service revision, rollout 상태, S3 hash / invalidation 등 부분 반영을 확인하고 재실행 또는 rollback의 구체적 범위를 승인한다. Production rollback에도 새 Environment 승인이 필요하다.
 
@@ -112,6 +112,10 @@ CloudFront origin 검증 header는 환경별로 Human이 생성·보관·교체�
 CloudTrail 기존 관리 이벤트를 Human이 확인하고 새 유료 Trail / S3 보존 저장소는 비용 승인 없이 생성하지 않는다. 로컬 Log는 Run ID, UTC 시작·종료, Profile alias, Task / 승인 Diff 참조, 명령 종류 / 종료 코드만 저장한다. 실제 identity 응답과 credential은 저장하지 않는다. CI는 Run / attempt, environment, Commit / digest, 승인 근거, 비민감 결과를 남긴다. 조회 metadata에도 환경 식별값이 있을 수 있어 출력은 저장 전에 제거한다. CloudTrail 원본은 Human 통제 AWS에서 유지하고 Agent Prompt로 전달하지 않는다. Run Log 30일 보존과 정리는 Human / 승인된 운영 도구가 담당하며 이 Task는 삭제 도구를 만들지 않는다.
 
 ## 7. 검증과 후속 실행
+
+B단계 구현 결과: Contract aws_profiles가 없거나 비어 있으면 기존 동작을 유지한다. Preflight와 각 Verify 명령 직전 명시적 Profile로 STS를 호출하고 정확한 Account / assumed-role Role 이름을 비교한다. 관리자 / 금지 Profile, 대체 자격 증명 공급원, 기대값 없음 / 만료 / 조회 실패 / Timeout / 불일치는 HUMAN_REQUIRED로 정지한다. 실제 AWS CLI를 실행하지 않고 Fake CLI로 검증했다.
+
+로컬 aws 설정의 기대값과 응답 stdout / stderr는 기록하지 않는다. frozen.json에서도 aws 설정을 제외하며 Resume 시 로컬에서 다시 읽는다. Executor / Reviewer에는 Contract의 허용 Profile alias만 전달한다. Run 기록은 alias / 일치 여부 / UTC / 사유 종류만 남긴다. 초기 Human 구성 정책은 sts:GetCallerIdentity만 허용하고 전체 Resource Parameter 렌더링 / IAM 적용과 OIDC / Environment 생성은 TASK-026 이후 Gate에서 수행한다. RepositoryArn은 두 환경의 단일 공용 ECR, AccountId는 같은 MoodFit 계정으로 통일했다.
 
 A단계 참고 검증은 JSON 파싱, 환경별 Resource / Trust 구조 검토, UTF-8 / 손상 문자 / 민감 할당 표기 검사, git diff --check와 Contract Node Test다. 이는 AWS IAM 평가 / 실제 GitHub 보호 Test를 대신하지 않는다.
 
@@ -131,4 +135,4 @@ DEC-029 승인 → B단계 Contract 확대 / 명시 실행 → Preflight 구현 
 - [AWS PassRole](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html): 정확한 Role과 서비스 제한.
 - [ECS 권한 표](https://docs.aws.amazon.com/service-authorization/latest/reference/list_ecs.html): RegisterTaskDefinition family 범위 및 DescribeTaskDefinition 전체 Resource 예외.
 
-이 문서의 Permission Set 범위 / duration / 보존 기간은 위 공식 기능을 사용한 설계 제안이며 Human 승인 전 확정 정책이 아니다.
+Permission Set 범위 / duration / 보존 기간은 2026-10-03 Human이 승인했다. 실제 적용 권한은 후속 Task Gate와 구체적 Diff에 연결한다.

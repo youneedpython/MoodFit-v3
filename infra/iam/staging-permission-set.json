@@ -21,7 +21,7 @@
         "ecr:BatchGetImage",
         "ecr:DescribeImages"
       ],
-      "Resource": "${StagingRepositoryArn}"
+      "Resource": "${RepositoryArn}"
     },
     {
       "Sid": "ReadService",

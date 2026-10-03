@@ -120,3 +120,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 48 | TASK-024 Deployment Artifact / Container / Health | Gate C 제안 | Human 승인 후 Run 2 구현 |
 | 49 | TASK-024 Approved Container / Health | Gate C 승인 구현 | Executor 구현 완료, Orchestrator 검증 / Review 대기 |
 | 50 | TASK-025 AWS Access Policy Gate | A단계 설계 / 정책 JSON 제안 | HUMAN_REQUIRED, DEC-029 Pending Human Approval |
+| 51 | TASK-025 Approved Preflight | 승인 B단계 Profile 검사 / Fake CLI / 완료 반영 | Executor 구현 완료, DEC-029 Human Approved |

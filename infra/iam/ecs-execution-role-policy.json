@@ -17,7 +17,7 @@
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage"
       ],
-      "Resource": "${EnvironmentRepositoryArn}"
+      "Resource": "${RepositoryArn}"
     },
     {
       "Sid": "WriteApplicationLog",

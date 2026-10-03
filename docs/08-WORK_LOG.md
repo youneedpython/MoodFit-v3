@@ -1,5 +1,13 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-025 B단계 — 승인 정책 / AWS Profile Preflight (2026-10-03)
+
+Run 2 Claude PASS 설계안(Commit 1d56112)을 Human이 모두 승인했다(DEC-029). 명시 지시된 Run 3 B단계에서 선택 aws_profiles Schema, 로컬 AWS 설정 Placeholder, 기록하지 않는 STS 호출, 정확한 Account / Role 비교, 관리자 / 금지 Profile 및 대체 자격 증명 공급원 차단을 구현했다. 최초 Preflight와 각 Verify 직전에 검사하고 실패 시 HUMAN_REQUIRED로 정지한다. 자동 로그인 / 재시도 / fallback은 없다.
+
+민감한 로컬 AWS 기대값은 frozen.json에서 제외하고 Resume 시 다시 읽는다. Fake CLI로 성공, 계정 / Role / 부분 일치 거부, 관리자 / 금지 Profile, 만료 / 조회 실패 / Timeout, 대체 자격 증명, Verify 전 재확인 및 전체 Run 기록의 identity 비저장을 검증한다. Executor 참고 검증 node --test scripts/orchestrator/*.test.mjs는 기존 74개를 포함해 87개 통과 / 실패 0 / skipped 0, Exit 0이다. git diff --check와 누적 변경 경로 / Secret / AGENTS Guard, JSON 파싱, UTF-8 strict / 연속 물음표 / U+FFFD 검사도 통과했다. Orchestrator Verify가 최종 검증 기준이다. 정책 Parameter는 RepositoryArn / AccountId로 통일했다.
+
+TASK-025 DONE / TASK-026 READY는 PR 완료 반영이며 Orchestrator Verify / Claude PASS 이후 Human Squash Merge가 완료 승인이다. 실제 AWS CLI / IAM / GitHub 설정 변경은 수행하지 않았다. Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인은 TASK-026 실행 선행 조건이며 후속 실행 지시는 별도로 필요하다.
+
 ## TASK-022 — 승인 구현 (2026-10-02)
 
 - N1–N3 후속 구현: MERGED dependency_evidence에 merged_by login을 추가하고 전체 병합 근거를 회귀 Test로 확인한다. 병합 후에도 이전 CHANGES_REQUESTED가 남으면 REWORK_REQUIRED로 정지하며 Dismiss 후 MERGED가 되는 기존 판정 순서를 Test로 고정했다. 단일 parent의 Squash / Rebase 구분 한계와 Squash-only Ruleset 의존, 같은 실패 head 재관찰 시 Comment 반복(중복 제거 없음)을 설계 문서에 명시했다.

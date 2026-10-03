@@ -37,7 +37,7 @@
         "ecr:DescribeRepositories",
         "ecr:DescribeImages"
       ],
-      "Resource": "${StagingRepositoryArn}"
+      "Resource": "${RepositoryArn}"
     }
   ]
 }

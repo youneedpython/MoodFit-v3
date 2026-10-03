@@ -1,5 +1,11 @@
 # MoodFit v3 Multi-Agent Orchestration Policy
 
+## TASK-025 승인 AWS Profile 규칙 (2026-10-03)
+
+DEC-029 Human Approved에 따라 Contract aws_profiles에 지정된 moodfit-readonly / moodfit-staging만 Agent가 사용한다. 로컬 allowlist / 금지 목록 / 정확한 Account 및 Role 기대값도 일치해야 한다. 관리자 Role과 Production Profile은 Human 전용이다. Preflight 및 매 Verify 직전 STS로 재확인하며 환경변수의 다른 자격 증명 공급원 / 만료 / 조회 실패 / Timeout / 불일치는 HUMAN_REQUIRED다. 로그인 / 재시도 / fallback을 하지 않는다.
+
+계정 기대값과 STS 응답은 메모리에서만 비교하고 Run 기록 / frozen 설정 / Executor / Reviewer 입력에 저장하지 않는다. Run 기록은 Profile alias / 일치 여부 / UTC / 사유 종류만 포함한다. Human은 초기 Permission Set inline 정책을 sts:GetCallerIdentity로만 구성하고 실제 Profile 확인 후 TASK-026 실행을 지시한다. 전체 IAM 정책 적용과 OIDC / Environment 생성은 해당 후속 Gate 범위다.
+
 ## TASK-022 승인 변경 이력 (2026-10-02)
 
 Human이 Gate C 권장안 A를 승인했다. DEC-021의 보류된 PR Comment 자동화는 로컬 gh의 고정 상태 Comment(실패 / 취소 / Timeout)에 한해 추가 승인되었다. Workflow는 contents: read를 유지하며 Agent / 새 Secret / pull_request_target을 추가하지 않는다.
