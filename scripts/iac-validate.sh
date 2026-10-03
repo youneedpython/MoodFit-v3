@@ -9,7 +9,7 @@ export AWS_CLI_AUTO_PROMPT=off
 command -v aws >/dev/null 2>&1 || fail 'AWS CLI is unavailable'
 shopt -s nullglob
 templates=(infra/cloudformation/*.yaml)
-((${#templates[@]} == 6)) || fail 'Expected six foundation templates'
+((${#templates[@]} == 7)) || fail 'Expected seven foundation and application templates'
 
 printf 'STEP: cfn-lint\n'
 if command -v cfn-lint >/dev/null 2>&1; then
@@ -69,4 +69,4 @@ count=$(read_aws ap-northeast-2 ec2 describe-managed-prefix-lists --filters Name
 positive_count 'CloudFront origin-facing managed prefix list' "$count" 1
 count=$(read_aws ap-northeast-2 route53 list-hosted-zones-by-name --dns-name 8949db.kr --query 'length(HostedZones[?Name==`8949db.kr.` && Config.PrivateZone==`false`])' --output text)
 positive_count 'Existing domain public hosted zone' "$count" 1
-printf 'PASS: IaC foundation validation complete; no resources changed\n'
+printf 'PASS: IaC foundation and application validation complete; no resources changed\n'

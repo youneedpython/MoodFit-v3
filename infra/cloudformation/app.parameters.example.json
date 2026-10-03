@@ -1,0 +1,86 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "staging"
+  },
+  {
+    "ParameterKey": "Owner",
+    "ParameterValue": "<Owner>"
+  },
+  {
+    "ParameterKey": "VpcId",
+    "ParameterValue": "<VpcId>"
+  },
+  {
+    "ParameterKey": "PublicSubnetA",
+    "ParameterValue": "<PublicSubnetA>"
+  },
+  {
+    "ParameterKey": "PublicSubnetB",
+    "ParameterValue": "<PublicSubnetB>"
+  },
+  {
+    "ParameterKey": "AppSubnetA",
+    "ParameterValue": "<AppSubnetA>"
+  },
+  {
+    "ParameterKey": "AppSubnetB",
+    "ParameterValue": "<AppSubnetB>"
+  },
+  {
+    "ParameterKey": "AlbSecurityGroupId",
+    "ParameterValue": "<AlbSecurityGroupId>"
+  },
+  {
+    "ParameterKey": "AppSecurityGroupId",
+    "ParameterValue": "<AppSecurityGroupId>"
+  },
+  {
+    "ParameterKey": "HostedZoneId",
+    "ParameterValue": "<HostedZoneId>"
+  },
+  {
+    "ParameterKey": "OriginHostname",
+    "ParameterValue": "origin.staging.moodfit.8949db.kr"
+  },
+  {
+    "ParameterKey": "BackendImage",
+    "ParameterValue": "<BackendImage>"
+  },
+  {
+    "ParameterKey": "ExecutionRoleArn",
+    "ParameterValue": "<ExecutionRoleArn>"
+  },
+  {
+    "ParameterKey": "TaskRoleArn",
+    "ParameterValue": "<TaskRoleArn>"
+  },
+  {
+    "ParameterKey": "ApplicationLogGroupName",
+    "ParameterValue": "/moodfit/staging/application"
+  },
+  {
+    "ParameterKey": "DatabaseEndpoint",
+    "ParameterValue": "<DatabaseEndpoint>"
+  },
+  {
+    "ParameterKey": "DatabaseName",
+    "ParameterValue": "moodfit"
+  },
+  {
+    "ParameterKey": "DbCredentialArn",
+    "ParameterValue": "<DbCredentialArn>"
+  },
+  {
+    "ParameterKey": "DesiredCount",
+    "ParameterValue": "2"
+  },
+  {
+    "ParameterKey": "TaskCpu",
+    "ParameterValue": "512"
+  },
+  {
+    "ParameterKey": "TaskMemory",
+    "ParameterValue": "1024"
+  }
+]

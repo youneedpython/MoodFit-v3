@@ -44,6 +44,8 @@ SPA rewrite는 정적 behavior GET / HEAD 화면 경로(/, /check-in, /history)�
 
 ## 5. 승인된 운영 Health 계약
 
+TASK-027은 ECS에 Dockerfile과 같은 curl liveness를 명시하고 ALB readiness / 8080 / 120초 grace를 연결했다. ECR digest Parameter와 non-root 실행을 사용한다. DB 암호화 연결과 Data 생성 자격 증명의 시작 시 주입도 IaC에 반영했다. ECS는 /tmp 쓰기를 위한 기본 writable filesystem을 사용하며 Docker Smoke의 read-only / tmpfs 결과를 ECS의 증거로 간주하지 않는다. App은 IAM 소유의 기존 30일 Log Group을 사용한다. Flyway 2개 Task 동시 시작과 rolling 중 Schema 호환성 / rollback 위험은 [17번 문서](17-AWS-IAC-FOUNDATION.md)를 따르고 실제 검증은 TASK-028 범위다.
+
 Spring Boot BOM 관리 spring-boot-starter-actuator를 Version 없이 추가했다. Health는 DEC-024 업무 API 계약과 별개이며 contracts / docs/05-API_SPEC.md는 변경하지 않는다.
 
 | Endpoint | 구성 | 정상 | DB 장애 |

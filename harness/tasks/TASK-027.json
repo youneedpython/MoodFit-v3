@@ -1,0 +1,58 @@
+{
+  "id": "TASK-027",
+  "title": "AWS Application Infrastructure (ECS / ALB / RDS Integration)",
+  "task_file": "docs/tasks/TASK-027_AWS_APPLICATION_INFRA.md",
+  "allowed_paths": [
+    "infra/",
+    "scripts/iac-validate.sh",
+    "docs/",
+    "README.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/container-smoke.sh",
+    "frontend/",
+    "backend/",
+    "contracts/",
+    ".github/",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "agents_sections": [
+    "3"
+  ],
+  "aws_profiles": [
+    "moodfit-readonly"
+  ],
+  "secret_scan_allow": [
+    "Secrets: [{Name: \"DB_USERNAME\", ValueFrom: !Sub \"${DbCredentialArn}:username::\"}, {Name: \"DB_PASSWORD\", ValueFrom: !Sub \"${DbCredentialArn}:password::\"}]",
+    "MasterUserPassword: !Sub \"{{resolve:secretsmanager:${DbCredential}:SecretString:password}}\"",
+    "Type: \"AWS::SecretsManager::Secret\" # generated database credential",
+    "GenerateSecretString: {SecretStringTemplate: '{\"username\": \"moodfit_admin\"}', GenerateStringKey: \"password\", PasswordLength: 32, ExcludePunctuation: true}"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/iac-validate.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

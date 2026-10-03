@@ -48,6 +48,8 @@ B단계 실행 순서:
 
 ## 4. IAM 파일과 최소 권한
 
+TASK-027 / DEC-031은 Data Stack이 무작위 생성한 자격 증명 ARN을 IAM execution Role과 App에 동일하게 전달하도록 연결한다. 기존 조회 Statement / Action / Resource 범위는 변경하지 않는다. Staging의 관리자 계정 사용만 승인된 예외이며 Production 전 TASK-030에서 최소 권한 앱 / migration 계정을 분리한다. Origin 검증 입력은 app / frontend의 NoEcho Parameter를 사용하며 예시에 포함하지 않는다. NoEcho가 Listener / Distribution 조회 응답까지 가리지는 않으므로 Human의 보호 입력 경로와 Agent / CI 값 출력 금지를 유지한다. Role / Log Group의 단일 소유권과 최초 생성 순서는 [17번 문서](17-AWS-IAC-FOUNDATION.md)를 따른다.
+
 모든 `${...}` 값은 **외부 치환 Parameter**이며 그대로 AWS에 제출할 수 없다. IAM policy variable 자동 해석이나 CloudFormation Template로 간주하지 않는다. 실제 값은 Human이 비추적 로컬 입력에서 제공하고 적용 전 렌더링 정책을 검토한다. Repository의 파일에는 실제 값이 없다.
 
 | 파일 | 적용 주체 / 범위 |

@@ -18,5 +18,9 @@
   {
     "ParameterKey": "ViewerCertificateArn",
     "ParameterValue": "<ViewerCertificateArn>"
+  },
+  {
+    "ParameterKey": "OriginHostname",
+    "ParameterValue": "origin.staging.moodfit.8949db.kr"
   }
 ]

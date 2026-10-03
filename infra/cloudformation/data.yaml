@@ -18,10 +18,18 @@ Parameters:
     Type: "AWS::EC2::Subnet::Id"
   DataSecurityGroupId:
     Type: "AWS::EC2::SecurityGroup::Id"
-  AppDbCredentialArn:
-    Type: "String"
-    Description: "Human-managed app DML credential reference; never the master credential"
 Resources:
+  DbCredential:
+    Type: "AWS::SecretsManager::Secret" # generated database credential
+    DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
+    Properties:
+      Description: "Generated database administrator credential without automatic rotation"
+      GenerateSecretString: {SecretStringTemplate: '{"username": "moodfit_admin"}', GenerateStringKey: "password", PasswordLength: 32, ExcludePunctuation: true}
+      Tags:
+        - {Key: "Project", Value: "MoodFit"}
+        - {Key: "Environment", Value: !Ref Environment}
+        - {Key: "Owner", Value: !Ref Owner}
   DbSubnetGroup:
     Type: "AWS::RDS::DBSubnetGroup"
     Properties:
@@ -80,8 +88,8 @@ Resources:
       AutoMinorVersionUpgrade: false
       CopyTagsToSnapshot: true
       DBName: "moodfit"
-      MasterUsername: "moodfitadmin"
-      ManageMasterUserPassword: true
+      MasterUsername: "moodfit_admin"
+      MasterUserPassword: !Sub "{{resolve:secretsmanager:${DbCredential}:SecretString:password}}"
       DBSubnetGroupName:
         Ref: "DbSubnetGroup"
       DBParameterGroupName:
@@ -159,9 +167,9 @@ Outputs:
         - "Endpoint.Address"
   MasterCredentialArn:
     Value:
-      Fn::GetAtt:
-        - "Database"
-        - "MasterUserSecret.SecretArn"
+      Ref: "DbCredential"
   AppDbCredentialArn:
     Value:
-      Ref: "AppDbCredentialArn"
+      Ref: "DbCredential"
+  DatabaseName:
+    Value: "moodfit"

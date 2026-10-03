@@ -22,9 +22,5 @@
   {
     "ParameterKey": "DataSecurityGroupId",
     "ParameterValue": "<DataSecurityGroupId>"
-  },
-  {
-    "ParameterKey": "AppDbCredentialArn",
-    "ParameterValue": "<AppDbCredentialArn>"
   }
 ]
