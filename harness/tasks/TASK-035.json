@@ -1,0 +1,35 @@
+{
+  "id": "TASK-035",
+  "title": "Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회)",
+  "task_file": "docs/tasks/TASK-035_LOCATION_WEATHER_AUTOFILL.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "docs/08-WORK_LOG.md",
+    "docs/19-LOCATION-WEATHER.md",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/07-TASKS.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}
