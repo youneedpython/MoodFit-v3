@@ -73,7 +73,8 @@ Human이 아래를 승인했다. 이 Task는 Template 작성과 정적 검증만
    - 읽기 전용 API만 쓴다. `create-` / `update-` / `delete-` / `deploy` / `execute-` 계열 명령을 넣지 않는다.
 3. 문서: `docs/17-AWS-IAC-FOUNDATION.md`(Stack 구성과 의존 순서, Parameter, Change Set 기반 적용 절차, Replacement / 삭제 위험 Resource, DeletionPolicy / UpdateReplacePolicy, 비용이 발생하는 Resource 목록과 TASK-028 승인 Checkpoint), `docs/13` / `docs/15` 갱신.
 4. 안전 규칙(이 문서의 "안전 규칙" 절)을 지킨다. RDS / S3 등 데이터 Resource에 DeletionPolicy / UpdateReplacePolicy를 명시한다.
-5. Secret 검사: Contract의 `secret_scan_allow`에 RDS 관리형 자격 증명을 켜는 CloudFormation 속성 줄(속성 이름, 콜론, 공백, true)이 허용 문구로 승인되어 있다. Template에는 이 표기를 정확히 그대로 쓴다(뒤에 주석이나 다른 문자를 붙이지 않는다). 그 밖에 자격 증명 단어 뒤에 콜론 / 등호와 값이 오는 표기가 필요하면 그대로 쓰되, Guard에서 정지하면 Human이 문구를 승인해 Resume한다. 실제 자격 증명 값은 어디에도 쓰지 않는다.
+5. Secret 검사: Contract의 `secret_scan_allow`에 RDS 관리형 자격 증명을 켜는 CloudFormation 속성 줄(속성 이름, 콜론, 공백, true)이 허용 문구로 승인되어 있다. Template에는 이 표기를 정확히 그대로 쓴다(뒤에 주석이나 다른 문자를 붙이지 않는다).
+   - **Executor 입력에서 Contract의 허용 문구 값이 마스킹되어 보이는 것은 정상이다.** Orchestrator는 허용 목록과 무관하게 Agent 입력과 Run 기록을 엄격하게 마스킹한다(TASK-034 결정 3). 그래서 입력으로 받은 Contract JSON에서는 속성 이름 뒤의 값이 가려져 보이지만, 실제 Contract 파일과 Guard 판정에는 원래 문구(속성 이름, 콜론, 공백 한 칸, 소문자 true)가 적용된다. 이것을 문서 충돌로 보고 정지하지 않는다. Run 1(`2026-10-03T09-12-07-335Z-765f02b7`)은 이 마스킹을 충돌로 판단해 편집 전에 정지했고, Claude 세션이 원인을 확인했다. 그 밖에 자격 증명 단어 뒤에 콜론 / 등호와 값이 오는 표기가 필요하면 그대로 쓰되, Guard에서 정지하면 Human이 문구를 승인해 Resume한다. 실제 자격 증명 값은 어디에도 쓰지 않는다.
 6. 완료 반영: TASK-026 DONE / **TASK-027 READY** / AGENTS.md 3절.
 7. 새로 Human 결정이 필요한 사항만 `human_decisions_needed`로 보고한다(예: 승인된 Architecture와 다른 구성이 필요한 경우, 가용성 문제로 Class / Version을 바꿔야 하는 경우). 이후 Task의 항목은 보고하지 않는다.
 
