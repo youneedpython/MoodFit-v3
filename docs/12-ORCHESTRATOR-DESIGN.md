@@ -152,6 +152,8 @@ Run 기록과 Executor / Reviewer 입력은 허용 목록과 무관하게 마스
 
 Resume은 실행을 시작한 Repository의 현재 Contract 파일에서 허용 목록만 갱신한다. 다른 필드와 중첩 값은 frozen fingerprint와 비교하여 변경되면 BLOCKED다. 허용 목록을 다시 검증하며 마스킹된 frozen 기록과 비교하는 대신 비목록 필드의 원본 fingerprint를 사용한다. Task 문서는 frozen baseline Commit의 blob과 줄바꿈을 정규화한 fingerprint로 복원 / 확인한다. 마스킹된 Run 문서를 검사 원문으로 쓰지 않는다. Workspace 생성 전 Secret 정지에도 frozen / checkpoint / Snapshot을 남긴다. 이 단계의 Snapshot은 활성 Contract 변경만 제외하고 나머지 Diff를 비교한다. Workspace 생성 후에는 기존 전체 Snapshot 검사를 유지한다. 기존 `resume-approval.json`의 정지 사유 / Snapshot 연결 승인이 필수이며 목록 변경만으로 재개하지 않는다. Executor의 자기 Contract 수정 금지 Guard는 유지한다.
 
+원격 Task Branch가 이미 있으면 Human(또는 승인된 Claude 세션)이 허용 목록 Contract Commit을 Push한 뒤 Resume한다. 로컬에만 Commit하면 Git 단계의 원격 Branch SHA 검사에서 BLOCKED 된다.
+
 기본 강화는 URL 사용자 정보, 임시 AWS Access Key ID 및 자격 증명 단어 뒤의 영숫자 / 밑줄 / 하이픈 접미가 있는 할당을 차단과 마스킹에 추가한다. 기존 네 규칙은 유지한다. 임의 Secret의 완전 탐지는 보장하지 않으며 입력 금지 정책은 계속 적용한다. Human이 넓은 문구를 승인하면 해당 정확한 문구 전체가 제외되므로 승인 범위를 검토해야 한다. 기존 Task 문서의 오탐 회피 작성 규칙은 Human이 해당 문구를 Contract에 승인한 범위에서 허용 목록으로 대체할 수 있다. 이 Run은 시작 Version의 Guard로 검사하므로 그 작성 규칙을 지킨다.
 
 ## Resume

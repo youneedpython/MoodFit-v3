@@ -3039,3 +3039,15 @@ Run(`2026-10-03T07-44-20-715Z-29577f23`, TASK-032로 개선된 Orchestrator의 �
 - Executor 참고 검증: 전체 Orchestrator Test 111 / 111 통과(기존 103개 포함). frozen Task 원문 복원 보강 후 관련 Resume / Guard Test 18 / 18 재검증 통과. 초기 Test에서 발견한 Schema 마스킹과 Resume의 Contract 변경 Snapshot 문제를 수정한 뒤 통과했다. Sandbox 밖 Orchestrator Verify가 최종 검증 기준이다.
 - 정책 / 설계 / Prompt / 상태 문서를 갱신했다. TASK-034 DONE / TASK-026 READY는 이번 PR 구현 완료 반영이며 Verify / Claude Review / Remote CI와 Human Squash Merge 전 최종 완료 승인을 주장하지 않는다. Git handoff / AWS / 금지 경로 변경은 수행하지 않았다.
 - `git diff --check` 통과. 실행 시작 Version의 Guard를 누적 추가 줄과 untracked 전체에 적용하여 통과했다. 변경 Markdown 문서를 UTF-8로 직접 읽고 연속 물음표와 U+FFFD가 없음을 확인했다.
+
+### TASK-034 독립 확인 / 마무리 (Claude 세션, 2026-10-03)
+
+Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator로 실행): Verify 성공(Orchestrator Test 114 / 114, `git diff --check`), Claude Review 1회차 **PASS**, Orchestrator가 Commit `8b7b8c0` / Push / Draft PR #12를 자동 생성했다.
+
+- Claude 세션 독립 확인(main의 `lib.mjs`와 이 Branch의 `lib.mjs`를 직접 불러 비교, 값은 실행 시 조합):
+  - 접두 10종 × 자격 증명 단어 9종 × 구분 기호 7종 × 값 10종 × 접미 6종 = 37,800개 조합에서 "main은 차단하고 새 Version은 통과"하는 경우 0건. 허용 목록이 없으면 기존 차단 범위가 그대로다.
+  - 강화 규칙 3종(URL 안의 자격 증명, 임시 AWS Access Key ID 형식, 자격 증명 단어 뒤에 다른 단어가 이어지는 변수 이름 할당)은 main에서는 통과했고 새 Version에서는 차단된다.
+  - 허용 목록: 정확히 일치하는 문구(TASK-023 형태의 목록 줄, Secrets Manager ARN)는 통과. 허용 문구 뒤에 값을 붙여 쓴 경우, 같은 줄의 다른 할당, 대소문자가 다른 경우는 차단. "단어 + 구분 기호"로 끝나는 항목, Token 형식 항목, 3자 미만 항목은 Contract 검증에서 거부.
+- Run 1의 정지 사유 분류 오류(개선 후보): Codex CLI의 "Selected model is at capacity"(일시적 서버 용량 오류)가 `Executor: quota`로 분류되었다. Codex 출력에 포함된 Code Diff 본문이 사용량 한도 판정 정규식에 걸렸다. 판정 대상을 Codex의 오류 줄로 한정하고 용량 오류를 별도 종류로 구분하는 것을 후속 개선 후보로 둔다.
+- Review R2-001 / R2-002(비차단)는 후속 개선 후보로 둔다: 구분 기호 뒤에 영숫자 값이 없는 허용 항목 거부, 세미콜론 / 괄호 접미 사례 Test, `run()` Resume → Git 단계 end-to-end Test. R2-003은 docs/12에, R2-004는 docs/07에 Claude 세션이 반영했다.
+- 운영 방법: Guard가 Secret 판정으로 정지하면 Run 기록의 위치(파일 / 줄 / 규칙)를 보고 Human이 문구를 승인한다. Claude 세션이 Contract `secret_scan_allow`에 추가해 Task Branch에 Commit / Push한 뒤 `resume-approval.json`과 함께 `--resume`한다.
