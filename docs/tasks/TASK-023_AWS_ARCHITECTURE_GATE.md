@@ -151,6 +151,37 @@ Resume은 Human 결정을 Executor에 전달하지 않으므로 TASK-022와 같�
 - Git에 없는 항목은 새 PC에서 준비한다: `harness/config.local.json`(Codex / Claude 실행 파일 경로), `.env.local`, `codex login`, VS Code Claude 로그인, `gh auth login`, `git config core.autocrlf true`, Node.js 24.21.0.
 - 이전 PC의 `.harness/runs` / `.harness/workspaces`는 이어받지 않는다. 산출물은 `053529f`에 있다.
 
+## Human 결정 (2026-10-03, Gate)
+
+Human이 Gate 검토 자료를 보고 **B안(Production-like)**을 선택했다. 나머지 항목은 권장값을 승인하되, A안 기준이던 값은 B안에 맞춰 아래처럼 확정한다.
+
+| # | 항목 | 확정 |
+|---|---|---|
+| 1 | Architecture | **B안 Production-like**. Staging 환경을 먼저 만들고 Production 환경은 TASK-030 전에 별도 승인으로 만든다. |
+| 2 | Region | ap-northeast-2 (서울) |
+| 3 | 계정 구조 | 같은 계정에서 Staging을 먼저 운영한다. Production 생성 전 계정 분리를 다시 검토한다. |
+| 4 | SSO Permission Set | ReadOnly / Staging 범위 운영자 / Production은 Human 전용 (상세 TASK-025) |
+| 5 | Network | 환경별 VPC, 2 AZ Public(ALB / NAT) + Private App(ECS) + Private Data(RDS), AZ별 NAT 2개, S3 Gateway Endpoint. Interface Endpoint는 초기 제외 |
+| 6 | RDS | **MySQL 8.4**, db.t4g.small, gp3 20 GiB, **Multi-AZ DB instance**, Public 접근 차단, 암호화, 삭제 보호. 8.0은 선택하지 않는다(Extended Support 비용). DEC-023(Local / Testcontainers 8.0.46) 변경은 별도 Decision / Task로 **TASK-026 전에** 진행하며 DEC-027이 DEC-023을 대체하지 않는다. |
+| 7 | ECS | Fargate Linux x86, 0.5 vCPU / 1 GiB, **Desired Count 2**(AZ 분산), JVM memory / startup은 TASK-024에서 실측 |
+| 8 | Domain / HTTPS | Human 답변 대기. 확정 전 기본값은 CloudFront 기본 Domain으로 시작한다. 이 경우 CloudFront → ALB 구간에 유효한 ALB 인증서를 둘 수 없다. 기본값으로 진행하면 HTTP origin + 검증 header + CloudFront prefix list 제한의 잔여 위험을 문서에 명시하고, 소유 Domain을 쓰면 ALB ACM 인증서로 HTTPS origin을 쓴다. TASK-026 전에 Human이 확정한다. |
+| 9 | Logging / Backup | 앱 Log 30일, ALB access log S3 30일, RDS Backup 14일, 삭제 보호, 삭제 전 final snapshot, 수동 Snapshot 30일 보관 후 별도 삭제 승인 |
+| 10 | 데이터 노출 | 인증이 없으므로 합성 데이터만 사용한다. 실제 개인 데이터 입력과 공개 Production 운영은 인증 / 접근 제한 Task 승인 전까지 금지한다. |
+| 11 | 비용 / 정리 | 월 상한 **USD 300 / 환경**(Staging + Production 동시 운영 시 USD 600). Budget 알림 50 / 80 / 100% 및 forecast. 실습 / 검증 기간이 끝나면 Human이 정리 또는 연장을 결정하며 기본 7일 후 정리 검토. 자동 파괴적 삭제는 하지 않는다. |
+
+추가 기록:
+
+- 비용 근거: Gate 검토 자료의 B안 추정 약 USD 250 / 월(환경 1개, 730시간, NAT 처리 GB 별도)은 상한 USD 300 안에 있다. 공식 견적이 상한을 넘으면 생성 전 Human 재승인을 받는다.
+- AWS 로그인 상태 (Claude 세션 확인, 2026-10-03): 이 PC의 AWS CLI SSO Profile은 모두 `AdministratorAccess`다. 정책상 로컬 Agent는 관리자 권한 Profile을 사용하지 않으므로 이번 Task에서 AWS를 조회하지 않았다. **최소 권한 Staging Profile 준비와 Agent 허용 Profile 지정은 TASK-025의 선행 조건**이다. Region / Engine / Class 가용성(`describe-db-engine-versions`, orderable option)은 승인된 Profile로 TASK-026 전에 확인한다.
+
+### 이번 Run의 Codex 작업 범위
+
+1. `docs/13-AWS-ARCHITECTURE.md`를 위 확정값 기준으로 정리한다. B안을 확정안으로, A안을 비교 / 기각 사유로 남긴다. `확인 필요` 항목 중 Gate 검토 자료의 공식 사실 확인 표로 해소된 값은 근거와 조회일을 적어 반영한다. 미해소 항목(Region 가용성, 기타 서비스 단가, Domain)은 담당 Task와 시점을 명시한다.
+2. `docs/09-DECISIONS.md`의 DEC-027을 **Human Approved**(2026-10-03)로 바꾸고 확정값을 기록한다. DEC-023은 변경하지 않는다.
+3. 07-TASKS / AGENTS.md 3절 / WORK_LOG에 Gate 결정과 이번 Run 결과를 기록한다. 완료 반영을 이 PR에 포함한다: **TASK-023 DONE**(PR Squash Merge로 확정), **TASK-024 READY**, AGENTS.md 3절 Current Task를 TASK-024 / READY로 맞춘다.
+4. 2차 Run Review의 F-001(07-TASKS의 `## TASK-023` 제목 앞 구분선 누락, WORK_LOG Test 시간 표기)을 고친다.
+5. AWS Resource 생성, AWS CLI 사용, IaC 작성, Workflow 변경은 하지 않는다.
+
 ## 제외 범위
 
 - CloudFormation / Terraform 작성
