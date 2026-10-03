@@ -3010,3 +3010,13 @@ Human이 조직 관리 계정의 IAM Identity Center에서 Permission Set `MoodF
 - Local 설치 MySQL 8.0 서비스는 변경하지 않았다. Human이 선택할 수 있는 백업 / Upgrade Checker / 별도 8.4 인스턴스 / 복원 / 앱 확인 / 복귀 주의점을 안내했다. Dependency / 운영 Code / Migration과 금지 경로는 변경하지 않았다.
 - TASK-033 DONE / TASK-034 READY를 이번 PR 구현 완료 반영으로 기록하고 TASK-026의 TASK-033 선행 조건을 충족 표시했다. 최종 완료 승인은 Orchestrator Verify / Claude Review / Remote CI 이후 Human Squash Merge로 확정한다.
 - Executor 참고 검증: `git diff --check`와 `bash -n scripts/container-smoke.sh` 통과. 변경 문서를 UTF-8로 직접 읽고 연속 물음표와 U+FFFD가 없음을 확인했다. Sandbox의 Docker 접근 제한으로 전체 Test / Container Smoke는 실행하지 않았으며 실제 호환성은 Sandbox 밖의 Orchestrator Verify가 판정한다. 검증 성공을 주장하지 않는다.
+
+### TASK-033 Orchestrator Verify 실측 / 마무리 (Claude 세션, 2026-10-03)
+
+Run(`2026-10-03T07-44-20-715Z-29577f23`, TASK-032로 개선된 Orchestrator의 첫 실행): Verify 3개 명령 성공, Claude Review 1회차 **PASS**, Orchestrator가 Commit `c676f19` / Push / Draft PR #11을 자동 생성했다. 자동 Git 범위 확대와 한글 PR 제목 / 본문 형식이 실제로 동작함을 확인했다.
+
+- Review N-003 확인: 작업 폴더의 Gradle 결과 파일에서 `MySqlIntegrationTests` 5개 실행, skipped 0, failures 0을 확인했다. 이 Test는 서버 Version이 `8.4.`로 시작하는지 검사하므로 MySQL 8.4.11 Testcontainers에서 Flyway Migration과 저장 / 조회가 통과한 것이다. Dependency / Migration 변경은 필요하지 않았다.
+- Container Smoke(MySQL 8.4.11): readiness 200 도달 34초(polling 포함), 관측 Memory 332.7 MiB / 1 GiB, UID 10001, MySQL 정지 시 readiness 503 / liveness 200.
+- Review N-001: `docs/tasks/COMMON.md`의 승인된 기술 표기를 MySQL 8.4.11 기준으로 고쳤다(Executor 금지 경로라 Claude 세션이 수정).
+- Review N-004: `prompts/README.md` 색인에 52 ~ 55(TASK-032) 행을 추가했다.
+- 새 PR 형식 관찰(TASK-034 이후 개선 후보): Executor의 후속 작업 서술은 Verify / Review 전에 쓰이므로 "검증이 남아 있다" 같은 문구가 본문에 남는다. Review Finding 전문이 그대로 들어가 길다. Claude 세션이 PR #11 본문을 정리했다.
