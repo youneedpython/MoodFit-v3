@@ -45,6 +45,12 @@ Human이 2026-10-04 기능 추가를 지시했고, TASK-028(Staging 배포) / TA
 6. **수정하지 않는 것**: `docs/07-TASKS.md`, `AGENTS.md`, `docs/09-DECISIONS.md`. 이 Task는 병행 개발 중이라 TASK-028 / TASK-029와 문서가 충돌하지 않게 Task 등록, Decision 기록, 완료 반영은 Claude 세션이 Merge 시점에 정리한다.
 7. 새로 Human 결정이 필요한 사항만 `human_decisions_needed`로 보고한다. API 계약이나 Backend 변경이 필요하다고 판단되면 구현하지 않고 보고한다.
 
+## Run 중단과 이어서 작업 (2026-10-04, Claude 세션 기록)
+
+첫 Run은 Claude 실행 파일 경로 변경(VS Code 확장 갱신)으로 Preflight에서 정지했다. 경로를 고친 두 번째 Run(`2026-10-03T23-15-30-369Z-cd5f601e`)은 Execute 단계에서 세션 종료로 중단되었다. Codex가 작성하던 변경(날씨 Service와 Test, Check-in 화면 연동, 문서)은 **검토 미완료 WIP**로 Commit했다. 구현이 끝났는지 확인되지 않았다.
+
+이번 Run의 Codex 작업 범위: WIP 상태에서 이어서 작업한다. 이 문서의 결정과 작업 범위 전체를 기준으로 구현과 Test가 빠짐없이 되어 있는지 확인하고 미완성 부분을 완성한다. 이미 맞게 된 부분은 다시 쓰지 않는다.
+
 ## 제외 범위
 
 - Backend / API 계약 / DB 변경, 새 Dependency
