@@ -1,0 +1,36 @@
+{
+  "id": "TASK-026",
+  "title": "AWS Infrastructure as Code Foundation",
+  "task_file": "docs/tasks/TASK-026_AWS_IAC_FOUNDATION.md",
+  "allowed_paths": [
+    "infra/",
+    "scripts/iac-validate.sh",
+    "docs/",
+    "README.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/container-smoke.sh",
+    "frontend/",
+    "backend/",
+    "contracts/",
+    ".github/",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "agents_sections": ["3"],
+  "aws_profiles": ["moodfit-readonly"],
+  "secret_scan_allow": ["ManageMasterUserPassword: true"],
+  "verify": [
+    { "command": ["bash", "scripts/iac-validate.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}
