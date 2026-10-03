@@ -14,11 +14,13 @@
 | iam | ap-northeast-2 | 공용 ECR 및 환경별 앱 / 정적 Resource ARN, OIDC Provider 참조 또는 최초 생성, execution / task / 환경별 deploy Role, Staging 앱 Change Set Role, 앱 Log Group |
 | app | ap-northeast-2 | Network / Data / IAM 출력, ECS Cluster / Task Definition / Service, ALB / Target Group / HTTPS Listener / origin 인증서·DNS / access log Bucket |
 
-Network / ECR / 인증서는 독립적으로 검토한다. Network → Data → IAM → App → Frontend 순서가 기본이다. IAM이 Frontend ARN도 요구하므로 최초 적용에서는 Frontend의 정적 구성과 실제 출력 확보 → IAM → App → Frontend API 연결 UPDATE의 두 단계 Change Set을 Human이 검토한다. 정적 구성은 TASK-026의 검토된 Template를 사용하고 API가 없는 시점에는 앱을 공개하지 않는다. IAM의 앱 참조는 이름이 고정된 Cluster moodfit-<환경>, Service / family moodfit-<환경>-backend의 예정 ARN을 전달한다. IAM Role은 자동 생성 이름이므로 IAM 실제 Role 출력으로 앱 입력을 채우고 deploy 정책의 자기 Role 참조도 실제 출력으로 UPDATE한다. 이 단계별 입력과 Change Set은 TASK-028에서 승인하며 이번 Task는 적용 도구를 만들지 않는다. cross-region Export / ImportValue는 사용하지 않고 실제 ARN / ID는 비추적 Human 입력으로 전달한다.
+TASK-028 승인 순서는 Network → Data → certificate(us-east-1) → Frontend → IAM → App이다. 독립 Budget을 비용 Resource 전에, 공용 ECR을 이미지 Push 전에 확인·생성한다. Frontend는 App Resource 대신 origin hostname 문자열을 참조하므로 최초부터 API behavior를 생성하고 App 생성 후 연결 UPDATE는 하지 않는다. API가 동작하기 전 배포 수락을 주장하지 않는다. IAM의 앱 참조는 고정 Cluster moodfit-<환경>, Service / family moodfit-<환경>-backend의 예정 ARN을 전달한다. 자동 이름 Role은 실제 IAM 출력을 App에 전달하고 deploy 정책의 자기 Role 참조도 실제 출력으로 UPDATE한다. 상세 Human 실행과 Agent 조회는 [TASK-028 절차](18-STAGING-DEPLOYMENT-RUNBOOK.md)를 따른다. cross-region Export / ImportValue는 사용하지 않고 실제 ARN / ID는 비추적 Human 입력으로 전달한다.
 
 `iam`은 Environment에 해당하는 deploy Role만 생성한다. Staging 앱 Change Set Role은 staging에서만 생성한다. Production 실행 승인 없이 production Parameter로 적용하지 않는다. IAM Identity Center 인스턴스 / Permission Set / 할당 / 로그인은 Human 관리 영역으로 남긴다. 기존 OIDC Provider가 있으면 GitHubOidcProviderArn을 전달하고 CreateOidcProvider는 false다. 최초 생성만 true와 빈 기존 ARN을 사용한다. 계정당 같은 GitHub Provider를 중복 생성하지 않는다.
 
 ## Parameter와 예시
+
+TASK-028의 실제 입력은 Git 비추적 `infra/cloudformation/local/<stack>.parameters.json`에 둔다. Budget은 월 USD 300 계정 전체 비용 보수적 알림(실제 50 / 80 / 100%, forecast 100%)이며 강제 비용 차단이 아니다. 실제 Staging 원가는 별도 inventory로 확인한다. App Task Definition에 MoodFitEnvironment Tag를 추가해 승인 배포 Role 조건과 맞췄다. Frontend의 정적 behavior에만 /check-in·/history rewrite를 추가해 SPA 직접 접근을 지원하며 API 오류 변환은 없다. 검증 Script는 Budget 포함 8개 Template를 검사한다.
 
 각 Template 옆의 `*.parameters.example.json`은 입력 형식만 보여준다. 꺾쇠 Placeholder는 비추적 Human 입력으로 바꾸며 그대로 적용할 수 없다. 예시의 기본 staging, VPC CIDR, hostname은 승인된 비민감 설정이다. AccountId / HostedZoneId / 인증서 / Provider / Resource ARN에는 실제 값이 없다.
 

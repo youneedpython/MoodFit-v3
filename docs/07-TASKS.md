@@ -38,11 +38,11 @@ TASK-028 — Staging Deployment / Smoke Test
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-027, TASK-032 ~ TASK-034는 DONE이다. TASK-027 완료 근거는 PR #14 Human Squash Merge(2026-10-03)다.
-TASK-028은 2026-10-03 Human 결정(검증 기간만 운영, Human이 Change Set 직접 실행, 단계별 확인)으로 READY다. A단계(절차 / Script 준비, AWS 변경 없음)를 Orchestrator로 실행하고 B단계(실제 Stack 생성)는 Human이 실행한다. TASK-029 이후는 BLOCKED다.
+TASK-028은 2026-10-03 승인 Contract와 명시 실행 지시로 A단계 배포 준비를 구현했다. 상태는 IN_PROGRESS이며 실제 AWS 변경은 없다. B단계 실제 배포와 Smoke 결과를 같은 PR에 반영하기 전 DONE 또는 Merge하지 않는다. TASK-029 이후는 BLOCKED다.
 
 ---
 
@@ -77,7 +77,7 @@ TASK-028은 2026-10-03 Human 결정(검증 기간만 운영, Human이 Change Set
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | DONE | TASK-023 / TASK-024, DEC-029 Human Approved | B단계 구현 완료 반영, Human Squash Merge로 확정 |
 | TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | DONE | TASK-032 / TASK-033 / TASK-034 구현 완료 반영 (충족), TASK-023 / TASK-025 및 Permission Set / Profile / 실제 Preflight 확인 충족 | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | DONE | TASK-024, TASK-026 완료 | DEC-031 승인, PR 구현 완료 반영 / Human Squash Merge로 확정 |
-| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | READY | TASK-025 ~ TASK-027 완료. 2026-10-03 Human이 비용(검증 기간만 운영), Human 직접 Change Set 실행, 적용 순서를 승인 | A단계 준비 → B단계 Human 실행, 단계별 Change Set 확인 |
+| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | IN_PROGRESS | TASK-025 ~ TASK-027 완료. 비용·운영 기간·Human 직접 실행 승인 | A단계 구현, B단계 배포·Smoke 전 DONE / Merge 금지 |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
@@ -1440,10 +1440,10 @@ ECS Fargate / ALB / RDS 연동과 Frontend → API Routing을 IaC로 완성한�
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-2026-10-03 Human이 비용 / 운영 기간(검증 기간만 운영 후 정리), Stack 생성 주체(Human이 관리자 권한으로 Change Set 직접 실행), Header 값과 Image 입력 주체, 적용 순서를 승인했다. Human 승인된 `harness/tasks/TASK-028.json` Contract와 명시적 실행 지시 후 A단계를 시작한다.
+2026-10-03 승인 Contract와 명시 실행 지시에 따라 A단계 절차 / Script / Budget / 조회 정책 초안을 구현했다. AWS 변경은 수행하지 않았다. B단계는 [배포 절차](18-STAGING-DEPLOYMENT-RUNBOOK.md)를 따라 Human 실행과 조회 확인 / Smoke로 진행하며 결과 기록 전 IN_PROGRESS를 유지한다.
 
 ### 목적
 
