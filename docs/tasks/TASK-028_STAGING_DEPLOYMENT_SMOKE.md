@@ -78,6 +78,18 @@ Human이 다음을 승인했다.
    - Secret 검사: Contract에 승인된 문구 5개가 있다(TASK-026 / TASK-027에서 승인된 것과 같다). 정확한 문구는 Workspace의 `harness/tasks/TASK-028.json`에서 읽는다. Executor 입력에서 가려져 보이는 것은 정상이다. 이미 Commit된 Template의 해당 줄은 고치지 않는다. 새로 쓰는 줄에는 자격 증명 단어 뒤에 콜론 / 등호와 값이 오는 표기를 넣지 않는다(Script 변수 이름도 그 단어로 끝내지 않는다). ECR 로그인처럼 CLI 하위 명령 이름에 그 단어가 들어가는 경우는 뒤에 구분 기호와 값이 오지 않으므로 그대로 쓴다.
 9. 새로 Human 결정이 필요한 사항만 `human_decisions_needed`로 보고한다. B단계의 Human 작업(Stack 실행, 권한 적용)은 `handoff_actions`가 아니라 절차 문서에 적는다.
 
+### Run 1 결과와 Run 2 작업 범위 (2026-10-03, Claude 세션 기록)
+
+Run 1(`2026-10-03T11-29-20-519Z-126f913b`): Codex가 절차 문서, Script 5개, Budget Template, 로컬 Parameter 형식, 조회 권한 정책안을 작성했다. Verify의 `scripts/iac-validate.sh`가 `budget.yaml`에서 실패해 **BLOCKED** 했다. 작업 폴더 상태는 검토 미완료 WIP로 Commit했다.
+
+- 원인(Claude 세션 확인): cfn-lint 1.57.1이 `budget.yaml`에 경고 W2001(Parameter `Environment`가 사용되지 않음, 4행)을 낸다. 검증 Script는 경고도 실패로 처리한다. 다른 Template 7개는 경고 없이 통과하고, `budget.yaml`의 `validate-template`(us-east-1)도 통과한다. Script 5개와 `iac-validate.sh`의 `bash -n` 구문 검사는 모두 통과한다.
+
+Run 2 Codex 작업 범위:
+
+1. `budget.yaml`의 미사용 Parameter를 제거하거나 실제로 사용한다(예: Budget 이름이나 Tag에 반영). Parameter 예시 파일과 절차 문서도 맞춘다. cfn-lint가 경고 없이 통과해야 한다. 경고를 무시하도록 검증 Script를 완화하지 않는다.
+2. `budget.yaml`을 어느 Region에서 검증 / 생성하는지(Budgets는 global 서비스) 절차 문서와 검증 Script가 일치하는지 확인한다.
+3. 그 밖의 A단계 범위는 WIP 상태를 유지한다. 필요한 보완이 있으면 함께 한다.
+
 ## Codex 작업 범위 (원래 범위)
 
 1. Change Set을 먼저 만들고 검토 결과를 기록한다.
