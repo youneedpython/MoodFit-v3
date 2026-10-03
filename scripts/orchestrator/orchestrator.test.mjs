@@ -24,7 +24,8 @@ for (const awsMode of ['ok', 'recheck']) test(`AWS identity ${awsMode}: rechecke
   await mkdir(path.join(root, '.harness/runs'), { recursive: true });
   cfg.aws = { command: [process.execPath, fakeAws, awsMode, path.join(root, '.harness/runs/aws-count')], allowed_profiles: ['moodfit-readonly'], profiles: { 'moodfit-readonly': { account: '111111111111', role: 'AWSReservedSSO_MoodFitReadOnly_fake' } } };
   await writeFile(configFile, JSON.stringify(cfg));
-  const result = await run('TASK-999', { root });
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^AWS_/i.test(key)));
+  const result = await run('TASK-999', { root, env });
   assert.equal(result.status, awsMode === 'ok' ? 'PASS' : 'HUMAN_REQUIRED', result.state.reason);
   assert.equal(result.state.phase, awsMode === 'ok' ? 'Decide' : 'Verify');
   assert.equal(result.state.review_cycles, awsMode === 'ok' ? 1 : 0);
@@ -54,6 +55,7 @@ async function fixture(t, scenario = 'pass') {
 }
 
 const cases = [
+  ['gate-rework', 'HUMAN_REQUIRED', 2], ['gate-limit', 'HUMAN_REQUIRED', 3], ['gate-blocked', 'BLOCKED', 1],
   ['executor-auth', 'HUMAN_REQUIRED', 0], ['verify-sandbox', 'BLOCKED', 0],
   ['pass', 'PASS', 1], ['wrapped', 'PASS', 1], ['executor-failure', 'BLOCKED', 0], ['executor-status-failure', 'BLOCKED', 0],
   ['timeout', 'BLOCKED', 0], ['verify', 'BLOCKED', 0], ['rework', 'PASS', 2], ['human', 'HUMAN_REQUIRED', 1],
@@ -90,6 +92,12 @@ for (const [scenario, status, cycles] of cases) test(`integration: ${scenario}`,
   const category = { 'executor-auth': 'auth', 'executor-failure': 'execution', sandbox: 'sandbox', 'verify-sandbox': 'verify' }[scenario];
   if (category) assert.equal(state.error_category, category);
   const files = await readdir(result.run_dir);
+  if (scenario.startsWith('gate-')) {
+    assert.ok(!state.history.some(x => x.phase === 'Git'));
+    assert.ok(!files.includes('git-result.json'));
+    if (scenario === 'gate-rework') assert.match(state.reason, /PASS cycle 2/);
+    if (scenario === 'gate-limit') assert.match(state.reason, /CHANGES_REQUIRED cycle 3/);
+  }
   if (cycles === 0) assert.ok(!files.some(x => x.startsWith('review-')));
   if (scenario === 'limit') { assert.ok(files.includes('execute-3.input.json')); assert.ok(!files.includes('execute-4.input.json')); }
   if (scenario === 'rework') assert.match(await readFile(path.join(result.run_dir, 'execute-2.input.json'), 'utf8'), /fix this/);

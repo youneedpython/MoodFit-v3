@@ -62,10 +62,11 @@ Preflight → Workspace → Execute → Guard → Verify → Review → Decide �
 | 변경 파일 불일치 / 경로 위반 / Symlink / Secret / 인코딩 손상 | BLOCKED, Review 호출 없음 |
 | Verify 실패 / Verify 또는 Review의 Working Tree 변경 | BLOCKED, 자동 Rework 없음 |
 | Reviewer BLOCKED | BLOCKED, Executor 재호출 없음 |
-| 실제 Human 결정 요청과 Reviewer PASS / CHANGES_REQUIRED / HUMAN_REQUIRED | HUMAN_REQUIRED, Verdict와 Finding 보존, 자동 Rework 없음 |
+| 실제 Human 결정 요청과 Reviewer PASS / HUMAN_REQUIRED | HUMAN_REQUIRED, 마지막 Verdict와 회차 보존 |
+| 실제 Human 결정 요청과 Reviewer CHANGES_REQUIRED | Gate를 보존하며 같은 Task Rework, 최대 3회 후 HUMAN_REQUIRED |
 | Human 결정 요청 없이 Reviewer CHANGES_REQUIRED | 같은 Task Finding만 Rework, 최대 3회 |
 | Reviewer HUMAN_REQUIRED | HUMAN_REQUIRED |
-| Reviewer PASS + handoff_actions 존재 | HANDOFF_PENDING, Git 실행 없이 후속 작업 대기 |
+| Reviewer PASS + handoff_actions 존재 | HANDOFF_PENDING, 승인된 TASK-022~031은 Git 단계 성공 후 후속 작업 대기 |
 | Reviewer PASS, 후속 작업 없음 | PASS |
 | 세 번째 Review도 CHANGES_REQUIRED / Review 한도 도달 | HUMAN_REQUIRED, 네 번째 Execute / Review 없음 |
 | Script 내부 오류 | ERROR |
@@ -79,7 +80,7 @@ Executor의 human_decisions_needed와 handoff_actions를 구분하며 내부 / C
 - Codex: exec -s workspace-write -c windows.sandbox="<config.sandbox>" --output-schema <strict-schema> -o <temporary-result> -. 설정은 elevated / unelevated만 허용하고 그 외는 BLOCKED다. 기본값은 elevated(2026-10-02 TASK-020 재검증 / Human 결정 A)다. Template / Contract / Task / Finding을 stdin으로 전달하고 stdin.end(prompt)로 닫는다.
 - Claude: -p --output-format json --allowedTools Read,Grep,Glob --tools Read,Grep,Glob --strict-mcp-config. 쓰기 / Shell / MCP 도구는 제공하지 않는다. 입력은 Template / 결과 Schema / Contract / Task / 실제 누적 Diff / Verify Log다. Executor summary / verification 자기 설명은 전달하지 않는다.
 - Claude envelope의 result는 순수 JSON / Code Block / 설명으로 둘러싼 단일 JSON 객체를 허용한다. 여러 객체 / is_error / permission_denials는 BLOCKED다.
-- Executor 필수 필드: status / changed_files / summary / verification / human_decisions_needed / handoff_actions. Reviewer 필수 필드: verdict / findings. 추가 필드를 거부하며 CHANGES_REQUIRED는 하나 이상의 Finding을 요구한다.
+- Executor 필수 필드: status / changed_files / summary / verification / human_decisions_needed / handoff_actions / pr_overview / pr_changes / pr_follow_up. PR용 필드는 한글 개요 문자열 / 주요 변경 배열 / 후속 작업·잔여 위험 배열이다. Reviewer 필수 필드: verdict / findings. 추가 필드를 거부하며 CHANGES_REQUIRED는 하나 이상의 Finding을 요구한다. 기존 Resume는 frozen Schema / Template을 그대로 사용한다.
 - 내장 Validator는 type / enum / const / required / properties / additionalProperties / items / uniqueItems / minItems / minLength만 지원한다. strict transport Schema는 CLI 지원 Keyword를 사용하고 내부 검증은 중복과 빈 경로도 검사한다.
 - Timeout 설정은 양의 정수다. stdout / stderr는 각각 최대 8 MiB다. Timeout / 출력 초과 / SIGINT / SIGTERM 시 Windows taskkill /T /F 또는 POSIX Process Group을 종료한다.
 - CLI 실패 분류 우선순위: quota → auth → sandbox → schema → 기타. auth는 HUMAN_REQUIRED, 나머지는 BLOCKED다. 실제 CLI Process의 spawn EPERM / EACCES / Sandbox denied·refused 등 오류 신호만 sandbox로 분류한다. CLI 정보성 Sandbox Header(`sandbox: workspace-write [workdir, /tmp, $TMPDIR]`)는 거부 신호가 아니다. model / approval Header와 user Prompt Echo도 분류에서 제외하며, 단순 sandbox / schema / Malformed 단어는 오류 신호가 아니다. Verify 실패는 출력 내용과 관계없이 verify / BLOCKED로 먼저 처리한다.
@@ -95,7 +96,7 @@ TASK-022 ~ TASK-031의 Decide 결과가 PASS / HANDOFF_PENDING이며 Executor DO
 
 Human이 준비한 task/<Task ID>-<slug> Branch와 최초 HEAD를 고정한다. detached worktree의 검토된 누적 Diff를 다시 Guard한 뒤 Workspace의 ignored Secret, Source Branch / HEAD / clean Working Tree 충돌, gh 인증과 origin/main 읽기 접근을 확인한다. Source의 Git 비추적 ignored Secret은 존재만으로 차단하지 않는다. changed_files / Stage 대상과 실제 staged 목록에 기존 secretFile 규칙의 Secret 경로가 있으면 BLOCKED한다. 인증 실패는 HUMAN_REQUIRED이며 설치 / 로그인은 시도하지 않는다. 인증 출력은 저장하지 않고 Exit / Failure만 기록한다. Process 실패 / Timeout은 BLOCKED이며 자동 재시도하지 않는다.
 
-검토한 binary patch와 untracked 파일을 Source에 전달하고 Diff를 대조한다. allowed_paths 안의 파일별 literal pathspec Stage, staged 목록의 Secret 검사 / Allowlist 대조 후 기존 한국어 Commit 형식과 Codex / Claude Trailer로 Commit한다. Commit 직전에도 staged 목록의 Secret 검사 / Allowlist 대조를 다시 수행한다. origin의 같은 Task Branch로 Force 없는 Push 후 gh pr create --draft --base main으로 생성한다. PR 전 Base / Head / SHA / 신규 파일 포함 목록 / Diff Summary / Test 결과를 기록하고 본문에 Task ID / Verification / PASS / Human Gate / Trailer를 포함한다. Run 기록은 .harness/runs 아래 저장하며 명령별 Audit를 보존한다.
+검토한 binary patch와 untracked 파일을 Source에 전달하고 Diff를 대조한다. allowed_paths 안의 파일별 literal pathspec Stage, staged 목록의 Secret 검사 / Allowlist 대조 후 Task ID와 Task 제목을 Commit 제목으로 쓰고 Codex / Claude Trailer를 넣는다. Commit 직전에도 staged 목록의 Secret 검사 / Allowlist 대조를 다시 수행한다. origin의 같은 Task Branch로 Force 없는 Push 후 gh pr create --draft --base main으로 생성한다. PR 전 Base / Head / SHA / 신규 파일 포함 목록 / Diff Summary / Test 결과를 기록하고 TASK-032의 한글 본문 형식을 적용한다. Run 기록은 .harness/runs 아래 저장하며 명령별 Audit를 보존한다.
 
 Commit 직전 Workspace Snapshot이 검토 당시와 동일한지 다시 확인한다. 삭제되지 않은 각 파일은 Source Repository에서 `git hash-object --path <file> -- <Workspace 파일>`로 Git clean filter(core.autocrlf / attributes 포함)를 적용한 blob hash를 계산하고 `git rev-parse :<file>`의 실제 index blob hash와 대조한다. Source CRLF / Workspace LF라도 실제 Commit 내용이 같으면 허용하며, 실제 문자 변경 또는 binary 바이트 변경은 BLOCKED다. Working Tree 바이트 동일성으로 Commit 내용을 판정하지 않는다.
 
@@ -121,7 +122,23 @@ Human이 승인한 Task Branch / clean Working Tree / 비민감 harness/config.l
 
 Repository 공통 Git directory의 realpath Hash로 OS 임시 경로에 exclusive-create Lock을 만든다. 다른 Task / worktree도 같은 Lock을 공유한다. 충돌은 BLOCKED이며 기존 기록을 덮어쓰지 않는다. stale Lock은 자동 제거하지 않고 Human이 소유 PID / Run을 확인한다.
 
-.harness/workspaces/<run-id>에 승인 HEAD의 detached worktree를 생성한다. Execute / Guard / Verify / Review는 이 폴더에서 실행하며 Human 작업 폴더의 소스는 변경하지 않는다. 변경 worktree는 Diff 검토와 Resume를 위해 보존한다. cleanupWorkspace는 저장 루트 내부 realpath와 clean 상태를 확인한 뒤 정리하며 강제 삭제하지 않는다.
+.harness/workspaces/<run-id의 SHA-256 앞 16자리>에 승인 HEAD의 detached worktree를 생성한다. state.json / frozen.json의 workspace와 workspace_name으로 Run 기록과 대응한다. 기존 Resume는 frozen.workspace의 절대 경로를 사용하므로 긴 이름도 유지한다. Execute / Guard / Verify / Review는 이 폴더에서 실행하며 Human 작업 폴더의 소스는 변경하지 않는다. 변경 worktree는 Diff 검토와 Resume를 위해 보존한다. cleanupWorkspace는 저장 루트 내부 realpath와 clean 상태를 확인한 뒤 정리하며 강제 삭제하지 않는다.
+
+PR 생성 완료 후 상태는 HANDOFF_PENDING이다. 명시적 정리는 `node scripts/orchestrator/cleanup.mjs <run-id>`로 수행한다. 공통 Lock, state / frozen / git-result의 PR identity, Repository identity, 저장 루트의 직접 자식 realpath, baseline HEAD, 저장된 누적 Snapshot Hash를 확인한다. Node의 Windows 확장 경로로 작업 폴더를 삭제한 뒤 해당 worktree 등록만 제거한다. 정지 / 실패 / PR 미생성 / 이후 Diff 변경 Run은 정리하지 않는다. 자동 삭제는 없다. Run 기록과 Human Source는 보존한다.
+
+## TASK-032 PR / Secret / AWS 보강
+
+PR과 Commit 제목은 Contract id와 title을 공백으로 연결한다. 한글 본문에는 개요 / 기능·문서 단위 주요 변경 / Verify 결과 / Reviewer 판정·회차·비차단 Finding / 후속 작업·잔여 위험 / Human Squash Merge 안내와 Auto Merge 없음 / Co-author Trailer를 넣는다. 파일 목록과 Diff 통계는 끝의 details 영역에 둔다. PR 설명은 Git 변경 전에 완전한 본문과 제목의 Secret 검사를 통과해야 한다. 본문은 24,000 UTF-16 code unit을 넘으면 항목별 길이 상한과 생략 표시를 적용하여 필수 Section / Trailer / details 닫힘을 보존한다. 표시되지 않는 부분도 검사한다. 이 Task의 PR은 실행 시작 시점 Version으로 생성되므로 Claude 세션이 Merge 전에 제목 / 본문을 한글로 갱신한다.
+
+Secret 검사는 결정적 정규식으로 Private Key / Bearer(HTTP 인증) / 알려진 Key Prefix / AWS Access Key ID / URL 자격 증명 / 자격 증명 이름을 포함한 env 할당과 따옴표 JSON·YAML 값을 차단한다. 빈 값, 꺾쇠·환경변수·이중 중괄호 Placeholder와 REDACTED 표기는 허용한다. ARN resource 구분자는 값 판정에서 허용하며 Secrets Manager IAM Action도 허용한다. 따옴표 없는 콜론 설명은 후행 YAML 주석 제거와 첫 Token 검사 뒤 공백 / 한글 / 표 구분자가 있을 때 자연어로 판단한다. 등호 할당과 따옴표 값은 이 예외를 적용하지 않는다. 알려진 Key 형태는 자연어 안에서도 우선 차단한다. 임의 비표준 Secret과 자연어처럼 작성한 따옴표 없는 값까지 검출한다는 보장은 없다. Secret 값을 입력 / Source / Log에 넣지 않는 정책은 유지한다. 기존 Task의 오탐 회피 문구는 보존하며 다음 Task 문서부터 불필요하다.
+
+Gate가 있는 Rework는 checkpoint.pending_gate에 결정 요청을 보존한다. 다음 Executor가 요청을 생략해도 Gate는 유지된다. Resume의 명시 승인 범위는 기존 cycle 규칙을 유지하고 회차를 초기화하지 않는다. Reviewer BLOCKED는 즉시 정지하며 Gate 대기 중 Git은 실행하지 않는다.
+
+AWS Preflight는 endpoint override 환경변수 전체와 CA bundle 환경변수를 차단한다. AWS 설정 파일의 endpoint 재지정은 검사하지 않는 한계가 있다. aws 설정이 없으면 missing-config로 구분한다. run의 env 주입을 Process와 AWS Preflight에 전달하여 Fake CLI Test를 host의 AWS 환경과 격리할 수 있다. 실제 AWS 호출 / 로그인 / 설정 변경은 이번 Task에서 수행하지 않는다.
+
+Rework Secret 검사 보강: Diff의 추가 줄 접두사, 점으로 연결된 속성, URL Query / 연결 문자열 구분자, 대괄호 / 소괄호 뒤 할당도 검사한다. JSON 직렬화 문자열은 원문 문자열을 재귀적으로 검사하여 escaped newline과 quote가 할당을 숨기지 않도록 한다. 콜론의 따옴표 없는 값은 후행 공백 + # 주석을 제거한 뒤 판단한다. 첫 Token이 공백 없는 ASCII 영숫자·기호 8자 이상이면 자연어 예외보다 먼저 차단한다. 이중 중괄호 Placeholder 내부에는 중괄호를 허용하지 않는다. 이 규칙은 설명의 긴 영어 첫 단어를 차단할 수 있으며 짧거나 자연어 형태인 비표준 Secret 검출은 보장하지 않는다.
+
+PR 길이 제한은 surrogate pair를 나누지 않고 빈 Finding / 후속 작업 배열을 유지한다. 계정 ID / ARN 같은 민감 식별값은 Secret 검사 대상이 아니므로 Executor Prompt의 입력 금지 지시에 의존한다. Git 자동화는 TASK-022~031로 한정되어 TASK-033의 새 PR 형식 자동 실행에는 Human의 별도 권한 범위 결정이 필요하다. 범위를 승인 없이 확대하지 않는다. Rework에서 Executor가 결정 요청을 생략해도 pending_gate를 보존하며 기존 Diff / 정지 사유에 연결된 Resume 승인이 이를 해제한다.
 
 자기 구현을 변경하는 TASK-020은 실행 시작 시점의 안정 Module / Template / Schema로 실행하며 변경 중인 Module을 동적으로 import하지 않는다. Resume도 검증된 안정 Entrypoint로 실행한다.
 

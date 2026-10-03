@@ -19,11 +19,42 @@ export function classify(message) {
 export const blocked = message => { throw new Stop('BLOCKED', message); };
 export const readJson = async file => JSON.parse((await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
 export function redact(value) {
+  // Inspect serialized strings as their original text, before escaped newlines
+  // or quotes can hide assignment boundaries.
+  try {
+    const parsed = JSON.parse(String(value));
+    if (parsed && typeof parsed === 'object') {
+      const clean = redactStrings(parsed);
+      if (JSON.stringify(clean) !== JSON.stringify(parsed)) return JSON.stringify(clean);
+    }
+  } catch { /* Plain text uses the same deterministic scanner below. */ }
   return String(value)
     .replace(/-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?-----END [^-]*PRIVATE KEY-----/g, '[REDACTED PRIVATE KEY]')
-    .replace(/\bBearer\s+[^\s"']+/gi, 'Bearer [REDACTED]')
-    .replace(/\b(?:sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|github_pat_[A-Za-z0-9_]{8,}|AKIA[A-Z0-9]{16})\b/g, '[REDACTED]')
-    .replace(/((?:["']?)(?:password|passwd|api[_-]?key|access[_-]?token|secret(?:[_-]?key)?|token)(?:["']?)\s*[:=]\s*)("[^"\r\n]*"|'[^'\r\n]*'|[^\s,}\r\n]+)/gi, '$1"[REDACTED]"');
+    .replace(/\bBearer\s+[^\s"']+/gi, match => placeholder(match.slice(7)) ? match : 'Bearer [REDACTED]')
+    .replace(/\b(?:sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|github_pat_[A-Za-z0-9_]{8,}|(?:AKIA|ASIA)[A-Z0-9]{16})\b/g, '[REDACTED]')
+    .replace(/\b[a-z][a-z0-9+.-]*:\/\/[^\s/@:]+:[^\s/@]+@/gi, '[REDACTED URL]@')
+    .replace(/(^|[^\w-])(["']?[\w-]*(?:password|passwd|api[ _-]?key|access[_-]?token|secret|token)[\w-]*["']?[ \t]*([:=])[ \t]*)("[^"\r\n]*"|'[^'\r\n]*'|[^\r\n,]+)/gim,
+      (match, prefix, key, separator, raw, offset, source) => {
+        const quoted = /^["']/.test(raw);
+        const candidate = (quoted ? raw : raw.replace(/[ \t]+#.*$/, '')).trim().replace(/^["']|["']$/g, '');
+        const next = source[offset + match.length];
+        if (placeholder(candidate) && (!next || /[\s,}\]]/.test(next))) return match;
+        if (separator === ':' && key.trim() === 'secretsmanager:' && /^(?:[A-Z][A-Za-z]*\*?|\*)$/.test(candidate)) return match;
+        if (separator === ':' && /arn:[^\s]*:$/.test(source.slice(0, offset + prefix.length))) return match;
+        // Colon prose is allowed only when unquoted and visibly a sentence.
+        const firstToken = candidate.split(/\s/u)[0];
+        if (!quoted && separator === ':' && /[\s\uAC00-\uD7A3|]/u.test(candidate) && !/^[!-~]{8,}$/.test(firstToken)) return match;
+        return prefix + key + '"[REDACTED]"';
+      });
+}
+function redactStrings(value) {
+  if (typeof value === 'string') return redact(value);
+  if (Array.isArray(value)) return value.map(redactStrings);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, redactStrings(item)]));
+  return value;
+}
+function placeholder(value) {
+  return !value || /^(?:<[^<>]*>|\$\{[^}]*\}|\{\{[^{}]*\}\}|\[?REDACTED\]?)$/i.test(value);
 }
 export function sanitize(value) {
   if (typeof value === 'string') return redact(value);

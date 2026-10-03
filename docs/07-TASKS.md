@@ -33,7 +33,7 @@ DONE
 
 ## 3. Current Task
 
-TASK-032 — Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework)
+TASK-033 — MySQL 8.4 Alignment (Local / Testcontainers / CI)
 
 Status:
 
@@ -42,7 +42,7 @@ READY
 ```
 
 TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR #7, TASK-024 PR #8, TASK-025 PR #9 Human Squash Merge다.
-2026-10-03 Human이 TASK-026 전에 TASK-032(Orchestrator 개선) → TASK-033(MySQL 8.4 전환)을 먼저 실행하도록 승인했다. TASK-032는 READY이며 Human 승인된 `harness/tasks/TASK-032.json` Contract와 명시적 실행 지시 후 시작한다. TASK-033과 TASK-026 이후는 BLOCKED다. TASK-026의 선행 조건 중 Permission Set / Profile 구성과 실제 Profile Preflight 확인, `8949db.kr` DNS 위임 복구는 완료되었다.
+2026-10-03 Human 승인 순서에 따라 TASK-032 구현 완료를 이번 PR에 DONE으로 반영하고 TASK-033을 READY로 전환한다. Orchestrator Verify / Claude Review / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-033은 별도 명시 실행 지시와 해당 Gate를 확인한 뒤 시작한다. TASK-026 이후는 BLOCKED다. TASK-026의 선행 조건 중 Permission Set / Profile 구성과 실제 Profile Preflight 확인, `8949db.kr` DNS 위임 복구는 완료되었다.
 
 ---
 
@@ -81,8 +81,8 @@ TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR 
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
-| TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | READY | TASK-025 완료 (충족). TASK-026 전에 실행 | Secret 검사 완화 / 새 Dependency 시 Gate |
-| TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | BLOCKED | TASK-032 완료. TASK-026 전에 실행 | Gate C (DEC-023 변경) |
+| TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 완화 / 새 Dependency 시 Gate |
+| TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | READY | TASK-032 구현 완료 반영. 별도 명시 실행 지시 후 시작 | Gate C (DEC-023 변경) |
 
 ---
 
@@ -1551,10 +1551,10 @@ TASK-030 완료 후 진행한다.
 ### 상태
 
 ```text
-READY
+DONE
 ```
 
-TASK-025 완료로 선행 조건이 충족되었다. Human 승인된 `harness/tasks/TASK-032.json` Contract와 명시적 실행 지시 후 시작한다. Roadmap 번호는 TASK-031 다음이지만 TASK-026 전에 실행한다.
+승인된 Contract와 명시 실행 지시에 따라 구현했다. Fake CLI 회귀 Test와 설계 문서를 보강했다. 이번 PR의 DONE 반영이며 최종 완료 승인은 Human Squash Merge다.
 
 ### 목적
 
@@ -1579,7 +1579,7 @@ TASK-025 완료로 선행 조건이 충족되었다. Human 승인된 `harness/ta
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
 TASK-032 완료 후 진행한다. TASK-026의 선행 조건이다.

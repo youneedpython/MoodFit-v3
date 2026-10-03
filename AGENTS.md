@@ -46,13 +46,13 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-025는 DONE이다. 2026-10-03 Human 승인으로 TASK-032(Orchestrator 개선) → TASK-033(MySQL 8.4 전환) → TASK-026 순서로 실행하며 TASK-033 / TASK-026 이후는 BLOCKED다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
+TASK-001 ~ TASK-025는 DONE이다. 2026-10-03 Human 승인 순서에 따라 TASK-032 구현 완료를 이번 PR에 DONE으로 반영하고 TASK-033(MySQL 8.4 전환)을 READY로 전환한다. Verify / Claude Review / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-033은 별도 명시 실행 지시와 해당 Gate를 확인한 뒤 시작하며 TASK-026 이후는 BLOCKED다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-032 — Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework)
+TASK-033 — MySQL 8.4 Alignment (Local / Testcontainers / CI)
 ```
 
 Status:

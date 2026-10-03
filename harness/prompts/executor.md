@@ -8,4 +8,6 @@ Deterministic Verification은 Orchestrator가 Sandbox 밖에서 실행한다. Sa
 
 한글 문서는 apply_patch 등 UTF-8을 보장하는 방법으로만 작성한다. PowerShell Set-Content / Out-File 기본 인코딩과 Shell 리다이렉션으로 한글 문서를 쓰지 않는다. 완료 전 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 확인한다.
 
+PR용 pr_overview(무엇을 왜 변경했는지), pr_changes(기능 / 문서별 설명 배열), pr_follow_up(후속 작업 / 잔여 위험 배열)을 한글로 작성한다. 민감 정보와 파일 목록만 나열한 설명은 넣지 않는다.
+
 {{INPUT}}

@@ -8,15 +8,16 @@ import { createHash } from 'node:crypto';
 import { decide } from './state-machine.mjs';
 import { syncAgents, guardAgents } from './status-sync.mjs';
 import { classify, guard, processRun } from './lib.mjs';
-import { acquireLock, createWorkspace, cleanupWorkspace, repositoryIdentity } from './workspace.mjs';
+import { acquireLock, createWorkspace, cleanupWorkspace, cleanupSuccessfulRun, repositoryIdentity } from './workspace.mjs';
 import { run } from './run.mjs';
 
 const fake = fileURLToPath(new URL('./fixtures/fake-cli.mjs', import.meta.url));
 const executor = { status: 'HUMAN_REQUIRED', human_decisions_needed: ['Decision'], handoff_actions: [] };
 const review = verdict => ({ verdict, findings: verdict === 'PASS' ? [] : [{ id: 'F1', message: 'fix this', path: 'output.txt' }] });
 
-test('Human requests persist across all reviewer verdicts; BLOCKED takes precedence', () => {
-  for (const verdict of ['PASS', 'CHANGES_REQUIRED', 'HUMAN_REQUIRED']) assert.equal(decide(executor, review(verdict), 1).status, 'HUMAN_REQUIRED');
+test('Human requests require rework for CHANGES_REQUIRED; BLOCKED takes precedence', () => {
+  for (const verdict of ['PASS', 'HUMAN_REQUIRED']) assert.equal(decide(executor, review(verdict), 1).status, 'HUMAN_REQUIRED');
+  assert.equal(decide(executor, review('CHANGES_REQUIRED'), 1).status, 'REWORK');
   assert.equal(decide(executor, review('BLOCKED'), 1).status, 'BLOCKED');
   assert.equal(decide({ ...executor, human_decisions_needed: [], handoff_actions: ['Prepare PR'] }, review('PASS'), 1).status, 'HANDOFF_PENDING');
   assert.equal(decide({ ...executor, status: 'DONE', human_decisions_needed: [] }, review('CHANGES_REQUIRED'), 3).status, 'HUMAN_REQUIRED');
@@ -137,10 +138,34 @@ test('worktree cleanup, source isolation, and common repository lock', async t =
   } finally { await release(); }
 });
 
+test('Gate rework retains pending decisions until approved Resume', async t => {
+  const root = await fixture(t, 'gate-rework');
+  const stopped = await run('TASK-999', { root });
+  assert.equal(stopped.status, 'HUMAN_REQUIRED', stopped.state.reason);
+  const denied = await run(undefined, { root, resumeId: stopped.state.run_id });
+  assert.equal(denied.status, 'HUMAN_REQUIRED');
+  assert.ok(!denied.state.history.some(x => x.phase === 'Git'));
+  await writeFile(path.join(stopped.run_dir, 'resume-approval.json'), JSON.stringify({ approved: true, run_id: stopped.state.run_id, snapshot_hash: stopped.state.snapshot_hash, stop_reason: stopped.state.reason, reference: 'Human test approval' }));
+  const resumed = await run(undefined, { root, resumeId: stopped.state.run_id });
+  assert.equal(resumed.status, 'PASS', resumed.state.reason);
+  assert.equal(resumed.state.review_cycles, 3);
+});
+
 test('Resume requires approval tied to diff; approved resume skips duplicate Executor', async t => {
   const root = await fixture(t);
   const stopped = await run('TASK-999', { root });
   assert.equal(stopped.status, 'HUMAN_REQUIRED', stopped.state.reason);
+  // A frozen absolute path from the old long-name layout remains authoritative.
+  const legacy = path.join(root, '.harness/workspaces', stopped.state.run_id);
+  const moved = await processRun(['git', 'worktree', 'move', stopped.state.workspace, legacy], { cwd: root, timeout: 10000 });
+  assert.equal(moved.code, 0, moved.stderr);
+  stopped.state.workspace = legacy;
+  const frozenFile = path.join(stopped.run_dir, 'frozen.json');
+  const frozen = JSON.parse(await readFile(frozenFile, 'utf8'));
+  frozen.workspace = legacy;
+  delete frozen.workspace_name;
+  await writeFile(frozenFile, JSON.stringify(frozen));
+  await writeFile(path.join(stopped.run_dir, 'state.json'), JSON.stringify(stopped.state));
   const before = await readFile(path.join(stopped.state.workspace, 'output.txt'), 'utf8');
   const stoppedRecord = await readFile(path.join(stopped.run_dir, 'state.json'), 'utf8');
   const denied = await run(undefined, { root, resumeId: stopped.state.run_id });
@@ -157,4 +182,25 @@ test('Resume requires approval tied to diff; approved resume skips duplicate Exe
   assert.equal(resumed.status, 'PASS', resumed.state.reason);
   assert.equal(resumed.state.review_cycles, 2);
   assert.equal(await readFile(path.join(stopped.state.workspace, 'output.txt'), 'utf8'), before);
+});
+
+test('successful handoff cleanup handles long paths and retains stopped or changed runs', async t => {
+  const root = await fixture(t);
+  const stopped = await run('TASK-999', { root });
+  const runId = stopped.state.run_id;
+  await assert.rejects(cleanupSuccessfulRun(root, runId));
+  assert.equal(await readFile(path.join(stopped.state.workspace, 'output.txt'), 'utf8'), 'cycle=1\nnew content\n');
+  const result = { pr_url: 'https://example.invalid/pr/1', commit_sha: 'a'.repeat(40) };
+  const state = { ...stopped.state, status: 'HANDOFF_PENDING', git: result };
+  await writeFile(path.join(stopped.run_dir, 'state.json'), JSON.stringify(state));
+  await writeFile(path.join(stopped.run_dir, 'git-result.json'), JSON.stringify(result));
+  await writeFile(path.join(stopped.state.workspace, 'output.txt'), 'changed');
+  await assert.rejects(cleanupSuccessfulRun(root, runId), /changed since handoff/);
+  await writeFile(path.join(stopped.state.workspace, 'output.txt'), 'cycle=1\nnew content\n');
+  const long = path.join(stopped.state.workspace, '.harness', ...Array(12).fill('long-directory-name-123456789'));
+  await mkdir(process.platform === 'win32' ? path.toNamespacedPath(long) : long, { recursive: true });
+  await writeFile(process.platform === 'win32' ? path.toNamespacedPath(path.join(long, 'ignored.txt')) : path.join(long, 'ignored.txt'), 'fixture');
+  await cleanupSuccessfulRun(root, runId);
+  await assert.rejects(readFile(path.join(stopped.state.workspace, 'task.md')), { code: 'ENOENT' });
+  assert.equal(await readFile(path.join(root, 'task.md'), 'utf8'), 'Fake task');
 });

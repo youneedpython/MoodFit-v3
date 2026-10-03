@@ -2930,3 +2930,22 @@ Human이 조직 관리 계정의 IAM Identity Center에서 Permission Set `MoodF
 - Human 지적: 자동 PR 본문이 영어 고정 문구와 파일 목록뿐이다. Claude 세션이 PR #9(Merge 전)와 Merge된 PR #5 / #7 / #8의 제목 / 본문을 한글 작업 설명으로 다시 썼다. main의 Squash Commit 메시지는 바꾸지 않았다(History Rewrite 금지).
 - Human 승인: TASK-026 전에 Orchestrator 개선과 MySQL 8.4 전환을 먼저 실행한다. Orchestrator / CI / Milestone 자동화가 `TASK-숫자 3자리`만 인식하므로 TASK-032 / TASK-033으로 등록했다(처음 제안한 TASK-025A / B 표기는 사용할 수 없다). Milestone 32 / 33을 Claude 세션이 `gh`로 만들었다.
 - TASK-026은 BLOCKED로 되돌렸다(선행: TASK-032, TASK-033).
+
+## TASK-032 — Orchestrator 개선 (2026-10-03, Executor)
+
+- 승인된 Task만 구현했으며 Dependency / AWS 실제 호출 / Git 실행 권한은 변경하지 않았다. Executor는 Repository Commit / Push / Branch / PR 작업을 수행하지 않았다.
+- 내부 / Codex strict Schema와 Prompt / Fake CLI에 PR 개요 / 주요 변경 / 후속 작업 필드를 추가했다. 제목은 Task ID와 Task 제목이고 한글 본문은 작업 내용 / 검증 / Review 판정·회차 / 잔여 위험 / 승인 안내와 Co-author를 포함한다. 파일 목록 / 통계는 접힌 영역이며 전체 본문 Secret 검사 후 항목별 생략으로 24,000자 상한과 필수 Section을 유지한다.
+- Secret 검사는 필수 자격 증명 형식을 유지하며 Placeholder / ARN / IAM / Markdown 자연어 오탐을 제거했다. 차단 Fixture는 실행 시 조합한다. 기존 Task의 오탐 회피 문구는 삭제하지 않았다.
+- Gate와 CHANGES_REQUIRED가 겹쳐도 최대 3회 Rework한다. Gate를 checkpoint에 보존하고 마지막 판정 / 회차를 정지 사유에 넣는다. PASS 후에도 Gate가 남으면 Git 없이 HUMAN_REQUIRED다. BLOCKED는 즉시 정지한다.
+- 작업 폴더는 Run ID Hash 16자리로 생성하며 state / frozen에 대응을 저장한다. 기존 긴 경로 Resume를 검증했다. 명시 cleanup 명령은 성공 PR identity / Lock / realpath / HEAD / Snapshot을 확인하고 긴 경로를 정리한다. 정지 / 변경 Run과 Human Source는 보존한다.
+- AWS endpoint / CA 환경변수 차단과 missing-config 구분, run env 주입을 추가했다. Fake CLI로만 검증했다.
+- Executor 참고 검증: 기존 87개를 유지한 전체 99개 Test 통과. PR 형식 변경에 따른 기존 기대값 실패는 새 형식으로 수정 후 통과했다. Secret 보강 / 길이 제한과 필수 Section 유지 변경 후 전체 99개를 다시 통과했다. 마지막 Private Key Fixture 조합 방식 변경은 Secret 관련 16개 Test로 재확인했다. git diff --check, 구 Version Guard의 전체 누적 Diff / 신규 파일 검사, 허용 경로 / AGENTS 승인 절 / 변경 Markdown의 연속 물음표 및 U+FFFD 부재를 확인했다. package.json / package-lock.json 변경 없음. Orchestrator Verify가 최종 결정적 검증 기준이다.
+- TASK-032 DONE / TASK-033 READY는 이번 PR 완료 반영이며 Claude PASS나 Executor DONE이 Human 완료 승인을 대신하지 않는다. TASK-033은 별도 명시 실행 지시 후 진행한다. 이번 Run은 구 Version이 실행하므로 Claude 세션이 Merge 전 PR 제목 / 본문을 한글 설명으로 갱신한다.
+# TASK-032 Review Rework (F-001 ~ F-008)
+
+- Secret 할당 경계 / JSON 직렬화 원문 / YAML 주석 / Placeholder 회귀를 보강했다. PR 길이 제한의 빈 배열과 Unicode 경계를 수정했다.
+- pending_gate만 남은 Rework도 Human Resume 승인으로 진행하도록 수정하고 승인 없는 Resume 정지를 검증한다.
+- AWS 설정 파일 endpoint 재지정과 PR 민감 식별값 검사 한계를 설계에 기록하고 Decide 표 / Test 이름을 구현에 맞췄다.
+- Human 결정 필요: TASK-033 자동 Commit / Push / Draft PR은 현재 TASK-022~031 권한 범위 밖이다. 별도 범위 승인 전 자동 Git 조건을 변경하지 않는다. TASK-033 새 PR 형식 확인에는 해당 결정 또는 승인된 수동 후속 작업이 필요하다.
+- Executor Test는 참고 증거이며 Orchestrator Verify / Claude Review / Human Squash Merge로 완료를 확정한다.
+- Rework Verification: 전체 Orchestrator Test 101개 통과(0 실패), 이후 추가한 Unicode / 빈 배열 Test와 할당 Guard 회귀를 포함한 improvements.test.mjs 10개 통과. git diff --check 통과. 변경 Markdown의 연속 물음표 / U+FFFD 직접 검사 결과 이상 없음. package.json / package-lock.json 변경 없음.
