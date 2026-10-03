@@ -2778,6 +2778,7 @@ DONE
 - 자동 PR에 Task 완료 반영(07-TASKS DONE / 다음 Task READY / AGENTS.md 3절)이 포함되지 않아 Merge 후 Milestone이 닫히지 않았다. 이번에는 TASK-023 Branch의 첫 Commit으로 보완했다.
 - 자동 PR / Squash Commit 제목이 `chore: TASK-022 승인 작업 반영`으로 일반적이다. `TASK-0xx <Task 제목>` 형식이 필요하다.
 - 기존 후보(frozen Run 문서화, CLI ENOENT 분류, scripts/verify.* 포함, Redaction 정밀화)는 유지한다.
+
 ## TASK-023 — AWS Architecture / Cost Gate 초안 (2026-10-02)
 
 ### 상태 / 실행 근거
@@ -2814,3 +2815,14 @@ Human Gate에서 Claude 세션이 공식 문서로 미확인 단가 / 핵심 수
 - 이번 Executor 자체 검증은 참고 증거다. Orchestrator Verify가 기준이며 자동 Review 결과는 아직 주장하지 않는다.
 - Executor 참고 Test: `node --test "scripts/orchestrator/*.test.mjs"` Exit 0, tests 74 / pass 74 / fail 0 / skipped 0, duration_ms 95369.1506. Sandbox 실행 제약 없음. Orchestrator의 이번 Run Verify 결과는 후속 실행 기록에서 확인한다.
 - `git diff --check` Exit 0(autocrlf 안내만 표시). 변경 문서 6개 UTF-8 strict 검사 성공, 연속 물음표 치환 흔적 / U+FFFD 없음. 변경 경로는 allowed_paths 안이며 AGENTS 변경은 승인 3절 본문에 한정한다.
+
+## TASK-023 — Human Domain 결정 반영 / Run 4 (2026-10-03)
+
+- 초기 Working Tree clean. 승인된 Human 결정 2에 따라 Domain 8949db.kr, CloudFront 사용자 정의 hostname / ACM us-east-1, ALB 전용 origin hostname / ACM ap-northeast-2와 HTTPS origin을 Architecture / Diagram / DEC-027 / TASKS / AGENTS 3절에 반영했다. CloudFront prefix list와 검증 header 보호를 유지한다.
+- 기본 Production / Staging / origin hostname과 Apex 미사용을 기록했다. Claude 세션 2026-10-03 DNS / RDAP 조회 기록의 REFUSED / lame delegation과 만료일 2027-02-26을 인용했다. TASK-026 전 Hosted Zone 준비 / Human 네임서버 변경 / DNS 응답 확인 및 hostname 최종 확정, Human 도메인 갱신 책임을 기록했다.
+- Cost Matrix에 Route 53 Hosted Zone / 질의 비용을 명시했다. ACM 비내보내기 공개 인증서 비용은 공식 확인 필요로 표시하고 TASK-026 전 Claude 세션 확인으로 남겼다. Executor는 Web / AWS CLI를 사용하지 않았으며 비용을 확정한 것으로 주장하지 않는다.
+- N-001: 초안 WORK_LOG의 TASK-023 제목 앞 빈 줄을 추가했다. 앞선 Gate 기록은 당시 이력으로 보존한다. TASK-023 DONE / TASK-024 READY와 TASK-025 이후 BLOCKED를 유지하며 완료 승인은 PR Human Squash Merge다.
+- DEC-023은 변경하지 않았다. 별도 MySQL 전환 Decision / Gate / Task, 최소 권한 Profile 준비(TASK-025 전), Region 가용성 확인(TASK-026 전)은 후속 조건이며 이번 Run의 새 Human Gate가 아니다.
+- Prompt: prompts/47-TASK-023-DOMAIN-DECISION.md. AWS Resource / IaC / Workflow / Repository Git handoff는 수행하지 않았다. Executor 자체 검증은 참고 증거이며 Orchestrator Verify가 기준이다. 최종 검증 결과는 Executor JSON에 기록한다.
+- Executor 참고 Test: `node --test "scripts/orchestrator/*.test.mjs"` Exit 0, tests 74 / pass 74 / fail 0 / skipped 0, duration_ms 95392.1706. Sandbox 실행 제약 없음. 이번 Run의 Orchestrator Verify / Claude Review 결과를 미리 주장하지 않는다.
+- `git diff --check` Exit 0(autocrlf 안내만 표시). 누적 변경 문서 6개 UTF-8 strict 디코딩 성공, 연속 물음표 치환 흔적 / U+FFFD 없음. 변경은 allowed_paths 안이며 AGENTS 변경은 3절 본문에 한정한다.

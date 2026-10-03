@@ -35,7 +35,7 @@ B의 저비용 변형인 NAT 1개는 cross-AZ 전송비와 NAT AZ 장애라는 S
 flowchart LR
   User[Browser] -->|HTTPS| CF[CloudFront]
   CF -->|default / OAC| S3[Private S3 / Vite artifact]
-  CF -->|api paths / HTTP default or HTTPS with domain / no cache| ALB[Public ALB / 2 AZ]
+  CF -->|api paths / HTTPS origin / no cache| ALB[Public ALB / 2 AZ]
   subgraph VPC[Environment VPC]
     ALB -->|App SG / TCP 8080| ECS[ECS Fargate / B Private App / 2 AZ]
     ECS -->|DB SG / MySQL TLS 3306| RDS[Private Data / RDS MySQL]
@@ -48,7 +48,9 @@ flowchart LR
 - CloudFront의 default origin은 S3 REST origin이며 Website endpoint를 쓰지 않는다. S3 Block Public Access + OAC로 distribution 한정 읽기만 허용한다.
 - `/api`와 `/api/*`는 ALB origin으로 보내고 path를 그대로 보존한다. POST 포함 필요한 HTTP method, query(days 등), Content-Type과 필요한 header를 전달하며 API cache는 비활성화한다. API 4xx / 5xx를 SPA HTML / 200으로 바꾸지 않는다.
 - SPA fallback은 정적 origin의 확장자 없는 화면 경로에만 적용하도록 TASK-024에서 설계한다. distribution 전체 403 / 404 변환은 API 오류를 숨길 수 있다. HTML은 짧은 cache, hash asset은 긴 cache를 제안한다.
-- Domain은 TASK-026 전에 Human이 확정한다. 기본값은 CloudFront 기본 Domain으로 viewer HTTPS를 제공한다. 이 경우 ALB에 유효한 origin 인증서를 둘 수 없어 CloudFront → ALB는 HTTP이며 전송 중 도청 / 변조 위험이 남는다. 검증 header와 CloudFront origin-facing managed prefix list 제한은 암호화를 대체하지 않는다. 소유 Domain을 쓰면 ALB Region의 ACM 인증서와 origin DNS 이름을 일치시켜 HTTPS origin을 쓴다. CloudFront 사용자 Domain 인증서는 us-east-1에서 준비한다. Prefix list만으로 다른 distribution을 구별할 수 없으므로 listener의 검증 header 조건으로 우회를 차단한다. 값은 문서에 기록하지 않으며 저장 / 교체 정책은 TASK-025에서 승인한다.
+- Human 결정 2(2026-10-03)는 Domain을 `8949db.kr`로 확정했다. 사용자 진입은 CloudFront 사용자 정의 hostname과 us-east-1 ACM 인증서로 HTTPS를 제공하고, CloudFront → ALB는 전용 origin hostname과 ap-northeast-2 ACM 인증서로 HTTPS origin을 사용한다. 인증서 이름과 origin DNS 이름을 일치시키고 ACM은 DNS 검증을 사용한다. CloudFront 기본 Domain / HTTP origin 구성은 사용하지 않는다. CloudFront origin-facing managed prefix list와 listener 검증 header 제한을 유지한다. Prefix list만으로 다른 distribution을 구별할 수 없으므로 header 조건으로 우회를 차단한다. 값은 문서에 기록하지 않으며 저장 / 교체 정책은 TASK-025에서 승인한다.
+- 기본 hostname은 Production `moodfit.8949db.kr`, Staging `staging.moodfit.8949db.kr`, ALB origin은 각각 `origin.moodfit.8949db.kr` / `origin.staging.moodfit.8949db.kr`이다. Apex는 사용하지 않는다. TASK-026 IaC 작성 전에 hostname을 최종 확정한다. Route 53 Public Hosted Zone은 MoodFit 계정에 둔다.
+- DNS 현황은 Task 문서의 Claude 세션 공개 DNS / RDAP 조회(2026-10-03)를 인용한다. 등록 만료일은 2027-02-26이며 위임된 Route 53 네임서버 4개가 REFUSED를 반환하는 lame delegation 상태다. 위임된 Hosted Zone이 존재하지 않는 상태로 판단한 기록이며 Executor가 직접 조회한 결과는 아니다. TASK-026 전 사용할 계정에 Hosted Zone을 준비하고 Human이 등록 기관 네임서버를 새 Zone 값으로 변경한 뒤 DNS 응답과 ACM DNS 검증을 확인해야 한다. 도메인 만료 전 갱신은 Human 책임이다. 이 문서는 Zone 생성이나 네임서버 변경 실행을 승인하지 않는다.
 - ALB → ECS는 VPC 내부 TCP 8080 기준이며 이 구간의 평문 전송은 승인된 설계의 잔여 위험으로 기록한다. ECS SG는 ALB SG만, RDS SG는 ECS SG만 3306 허용한다. RDS에 Public IP / 인터넷 / PC 직접 접속을 열지 않는다. DB TLS 인증서 검증 방식은 후속 배포 Task에서 검증한다.
 - ALB와 ECS의 응답 경로 및 health check를 SG에 반영한다. 새 Health API / Dependency는 TASK-024의 별도 Gate 대상이며 현재 구현된 것으로 간주하지 않는다.
 - 대안인 별도 API hostname은 CORS와 환경별 Vite build 설정이 필요하다. 동일 origin `/api` 방식을 권장하며 API Contract 자체는 변경하지 않는다.
@@ -104,7 +106,9 @@ Claude 세션이 2026-10-02 조회한 AWS Price List API 서울 가격을 인용
 | [RDS](https://aws.amazon.com/rds/mysql/pricing/) | micro 0.025/h, small Single-AZ 0.051/h, small Multi-AZ 0.102/h; gp3 Single-AZ 0.131/GB-월, Multi-AZ 0.262/GB-월 | 20.9 | 79.7 |
 | [NAT](https://aws.amazon.com/vpc/pricing/) | 0.059/h + 0.059/처리 GB | 0 | 86.1 (2개) + 처리 GB |
 | [Public IPv4](https://aws.amazon.com/vpc/pricing/) | 0.005/address-h | 11.0 (3개 가정) | 14.6 (4개 가정) |
-| 기타 | 아래 서비스 단가 미조회, 추정치 | 약 3 ~ 5 | 약 5 |
+| [Route 53](https://aws.amazon.com/route53/pricing/) | Public Hosted Zone 월 비용 + DNS 질의 수 × 단가; 단가 확인 필요, TASK-026 전 견적에 포함 | 기타 추정액에 포함 | 기타 추정액에 포함; 계정 공용 Zone 중복 계산 방지 |
+| [ACM](https://aws.amazon.com/certificate-manager/pricing/) | CloudFront / ALB 연동용 비내보내기 공개 인증서 별도 비용 없음으로 알려짐. 공식 확인 필요, TASK-026 전 Claude 세션 확인; DNS 질의 비용 별도 | 미확정 | 미확정 |
+| 기타 | 아래 서비스 단가 미조회, Route 53 포함 추정치 | 약 3 ~ 5 | 약 5 |
 | 합계 (8.4) | 확정 견적 아님 | 약 78 | 약 250 + 별도 비용 |
 | 8.0 대안 추가액 | 1·2년차 Extended Support | +175.2 | +350.4 |
 
@@ -123,7 +127,7 @@ B안 월 상한은 **USD 300 / 환경**, Staging + Production 동시 운영 시 
 
 ## 8. Human Decision Matrix / 후속 조건
 
-승인 근거는 Task 문서의 **Human 결정 (2026-10-03, Gate)**다.
+승인 근거는 Task 문서의 **Human 결정 (2026-10-03, Gate)**와 **Human 결정 2 — Domain (2026-10-03)**다.
 
 | 항목 | 확정값 / 유보 조건 |
 |---|---|
@@ -133,13 +137,13 @@ B안 월 상한은 **USD 300 / 환경**, Staging + Production 동시 운영 시 
 | Network | 2 AZ Public(ALB / NAT), Private App(ECS), Private Data(RDS). AZ별 NAT 2개, S3 Gateway Endpoint, Interface Endpoint 초기 제외 |
 | RDS | 8.4 / db.t4g.small / gp3 20 GiB / Multi-AZ DB instance / Public 접근 차단 / 암호화 / 삭제 보호 |
 | ECS | Linux x86 / 0.5 vCPU / 1 GiB / Desired Count 2, AZ 분산. JVM memory / startup TASK-024 실측 |
-| Domain | Human 답변 대기, 기본 CloudFront Domain / HTTP origin 잔여 위험은 3절. TASK-026 전 소유 Domain / HTTPS origin 여부 확정 |
+| Domain | 8949db.kr 승인. CloudFront ACM us-east-1 / ALB origin ACM ap-northeast-2, HTTPS origin. TASK-026 전 hostname 확정 / Hosted Zone 준비 / Human 네임서버 변경 / DNS 응답 확인; 갱신은 Human 책임 |
 | Logging / Backup | 앱 30일 / ALB S3 30일 / Backup 14일 / final snapshot / 수동 Snapshot 30일 후 별도 삭제 승인 |
 | 데이터 | 합성 데이터만. 실제 개인 데이터와 공개 Production은 인증 / 접근 제한 Task 승인 전 금지 |
 | 비용 / 정리 | 환경당 월 USD 300, 두 환경 600. Budget 50 / 80 / 100% + forecast, 기본 7일 후 Human 정리 / 연장 검토 |
 
 현재 PC의 SSO Profile이 모두 AdministratorAccess라는 Claude 세션 2026-10-03 기록에 따라 이번 Task는 AWS 조회를 하지 않았다. **TASK-025의 선행 조건**은 최소 권한 Staging Profile 준비와 Agent 허용 Profile 지정이다. 실제 계정 / Profile 식별정보는 기록하지 않는다. TASK-026 전에 해당 Profile로 Engine / Class / Region 가용성을 확인한다.
 
-[CloudFront HTTPS](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cnames-and-https-requirements.html), [Regional Services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/), [S3 OAC](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html) 세부 설정은 TASK-025 / TASK-026 생성 전에 확인한다. Domain 선택, 미조회 서비스 단가, 실제 orderable 가용성은 이번 승인으로 확인된 것으로 간주하지 않는다.
+[CloudFront HTTPS](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cnames-and-https-requirements.html), [Regional Services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/), [S3 OAC](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html) 세부 설정은 TASK-025 / TASK-026 생성 전에 확인한다. Domain 선택은 승인 완료이며 DNS 복구, ACM 공개 인증서 비용의 공식 확인, 미조회 서비스 단가와 실제 orderable 가용성은 TASK-026 전 후속 조건이다.
 
 TASK-023 DONE / TASK-024 READY는 이번 PR의 완료 반영이며 Human Squash Merge로 확정한다. TASK-024 실행은 별도 명시 지시가 필요하다. 설계 승인은 실제 Resource 생성 / IAM 설정 / Local DB 버전 변경 / Production 배포 승인을 대신하지 않는다.

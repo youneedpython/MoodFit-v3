@@ -1300,7 +1300,7 @@ Gate C(권장안 A / PR 상태 Comment / strict Required Checks) 구현이 Orche
 DONE
 ```
 
-2026-10-03 Human이 B안과 비용 / 보안 기준을 승인했다(DEC-027 Human Approved). DONE / TASK-024 READY는 이번 PR에 반영하며 Human Squash Merge로 확정한다. Domain과 DEC-023 변경은 TASK-026 전 별도 결정이며 이번 Task 실행을 막지 않는다.
+2026-10-03 Human이 B안과 비용 / 보안 기준 및 Domain 8949db.kr / HTTPS origin을 승인했다(DEC-027 Human Approved). DONE / TASK-024 READY는 이번 PR에 반영하며 Human Squash Merge로 확정한다. DNS 위임 복구와 hostname 최종 확정은 TASK-026 전 후속 조건이다. DEC-023 변경은 TASK-026 전 별도 Decision / Gate / Task이며 이번 Task 실행을 막지 않는다.
 
 ### 목적
 
@@ -1585,7 +1585,7 @@ TASK-030 완료 후 진행한다.
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-DEC-026 / DEC-027은 Human Approved다. TASK-023 DONE / TASK-024 READY는 이번 PR의 완료 반영이며 Human Squash Merge로 확정한다. TASK-025 이후는 BLOCKED다. Domain은 TASK-026 전 Human 확정, DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. 미조회 단가와 Region 가용성은 TASK-026 전에 확인한다. 미해결 후속 Gate의 해당 실행은 승인 전에 수행하지 않는다.
+DEC-026 / DEC-027은 Human Approved다. TASK-023 DONE / TASK-024 READY는 이번 PR의 완료 반영이며 Human Squash Merge로 확정한다. TASK-025 이후는 BLOCKED다. Domain 8949db.kr / HTTPS origin은 승인 완료이며 DNS 위임 복구와 hostname 최종 확정은 TASK-026 전 후속 조건이다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. 최소 권한 Profile은 TASK-025 선행 조건이며 미조회 단가 / ACM 비용 / Region 가용성은 TASK-026 전에 확인한다. 미해결 후속 Gate의 해당 실행은 승인 전에 수행하지 않는다.
 
 DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.

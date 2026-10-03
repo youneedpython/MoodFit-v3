@@ -1293,7 +1293,8 @@ Human Approved
 - RDS MySQL 8.4, db.t4g.small, gp3 20 GiB, Multi-AZ DB instance, Public 접근 차단 / 암호화 / 삭제 보호. 8.0은 유료 Extended Support 비용 때문에 기각했다.
 - Fargate Linux x86, 0.5 vCPU / 1 GiB, Desired Count 2 / AZ 분산. JVM memory / startup은 TASK-024에서 실측한다.
 - IAM Identity Center ReadOnly / Staging 범위 운영자 / Production Human 전용. TASK-025 선행 조건은 최소 권한 Staging Profile 준비와 Agent 허용 Profile 지정이다. 관리자 Profile을 Agent가 사용하지 않는다. 상세 Permission Set / GitHub OIDC / 실행 Role / 비밀 저장 정책은 TASK-025 승인 대상이다.
-- Private S3 / CloudFront OAC, 동일 origin /api 및 /api/* routing, API cache 비활성화. Domain은 TASK-026 전 Human 확정이며 기본값은 CloudFront 기본 Domain이다. 기본값에서는 CloudFront → ALB HTTP origin의 도청 / 변조 위험이 남고 검증 header / prefix list는 암호화를 대체하지 않는다. 소유 Domain을 선택하면 ALB ACM 인증서로 HTTPS origin을 쓴다.
+- Private S3 / CloudFront OAC, 동일 origin /api 및 /api/* routing, API cache 비활성화. Human 결정 2(2026-10-03)로 Domain은 `8949db.kr` 확정. CloudFront 사용자 정의 hostname의 ACM 인증서는 us-east-1, ALB 전용 origin hostname의 ACM 인증서는 ap-northeast-2에 두고 HTTPS origin을 사용한다. CloudFront origin-facing prefix list / 검증 header 보호를 유지한다. 기본 CloudFront Domain / HTTP origin은 사용하지 않는다.
+- 기본 hostname은 Production `moodfit.8949db.kr`, Staging `staging.moodfit.8949db.kr`, origin은 `origin.<환경 hostname>`이다. Apex는 사용하지 않으며 TASK-026 IaC 작성 전 최종 확정한다. MoodFit 계정 Route 53 Public Hosted Zone과 ACM DNS 검증을 사용한다. Hosted Zone / 질의 비용은 견적에 포함하고 ACM 공개 인증서 비용은 TASK-026 전에 공식 확인한다.
 - 앱 Log 30일 / ALB access log S3 30일 / RDS Backup 14일 / 삭제 전 final snapshot / 수동 Snapshot 30일 후 별도 삭제 승인.
 - 합성 데이터만 사용한다. 실제 개인 데이터 입력과 공개 Production 운영은 인증 / 접근 제한 Task 승인 전까지 금지한다.
 - 월 USD 300 / 환경, 동시 두 환경 USD 600. Budget 50 / 80 / 100% + forecast. 기본 7일 후 Human이 정리 또는 연장을 검토하며 자동 파괴적 삭제는 하지 않는다. 서울 730시간 B안 약 USD 250은 추정이며 NAT 처리 / 기타 비용을 포함한 공식 견적이 상한을 넘으면 생성 전 재승인한다.
@@ -1301,5 +1302,7 @@ Human Approved
 ### 유지 / 후속 조건
 
 DEC-023(Local / Testcontainers MySQL 8.0.46)은 변경하지 않는다. 8.4로의 Local / Image / CI 변경은 별도 Decision / Gate / Task로 TASK-026 전에 승인하고 검증한다. Engine / Class / Region orderable 가용성과 미조회 서비스 단가는 승인된 Profile로 TASK-026 전에 확인한다.
+
+Claude 세션 2026-10-03 공개 DNS / RDAP 조회 기록상 위임된 Route 53 네임서버 4개가 REFUSED를 반환하는 lame delegation이며 Hosted Zone 부재로 판단했다. TASK-026 전 사용할 계정에 Hosted Zone을 준비하고 Human이 등록 기관 네임서버를 새 값으로 변경한 뒤 DNS 응답을 확인한다. 도메인 만료일 2027-02-26 전 갱신은 Human 책임이다. DNS 복구와 후속 Task 조건은 이번 Run의 새 Human Gate가 아니며 실제 Resource 생성 승인을 대신하지 않는다.
 
 TASK-023 DONE / TASK-024 READY를 이번 PR에 포함하며 Human Squash Merge로 완료 승인한다. 후속 Task 실행은 별도 명시 지시가 필요하다. 실제 AWS Resource / IAM 생성, IaC, Workflow 변경과 Production 배포는 이번 설계 승인의 범위가 아니다. DEC-026을 유지한다.
