@@ -66,7 +66,7 @@ Preflight → Workspace → Execute → Guard → Verify → Review → Decide �
 | 실제 Human 결정 요청과 Reviewer CHANGES_REQUIRED | Gate를 보존하며 같은 Task Rework, 최대 3회 후 HUMAN_REQUIRED |
 | Human 결정 요청 없이 Reviewer CHANGES_REQUIRED | 같은 Task Finding만 Rework, 최대 3회 |
 | Reviewer HUMAN_REQUIRED | HUMAN_REQUIRED |
-| Reviewer PASS + handoff_actions 존재 | HANDOFF_PENDING, 승인된 TASK-022~031은 Git 단계 성공 후 후속 작업 대기 |
+| Reviewer PASS + handoff_actions 존재 | HANDOFF_PENDING, TASK-022 이후 승인된 모든 Task는 Git 단계 성공 후 후속 작업 대기 |
 | Reviewer PASS, 후속 작업 없음 | PASS |
 | 세 번째 Review도 CHANGES_REQUIRED / Review 한도 도달 | HUMAN_REQUIRED, 네 번째 Execute / Review 없음 |
 | Script 내부 오류 | ERROR |
@@ -92,7 +92,7 @@ Executor의 human_decisions_needed와 handoff_actions를 구분하며 내부 / C
 
 ## TASK-021 Git 계층
 
-TASK-022 ~ TASK-031의 Decide 결과가 PASS / HANDOFF_PENDING이며 Executor DONE, Claude PASS, 모든 Contract Verify Exit 0, 미해결 Human Gate 없음일 때만 Git Phase를 호출한다. HANDOFF_PENDING의 다른 후속 작업은 유지한다. TASK-021 자체는 자동 Git을 호출하지 않는다.
+TASK-022 이후 Human이 Contract를 승인한 모든 Task의 Decide 결과가 PASS / HANDOFF_PENDING이며 Executor DONE, Claude PASS, 모든 Contract Verify Exit 0, 미해결 Human Gate 없음일 때만 Git Phase를 호출한다. HANDOFF_PENDING의 다른 후속 작업은 유지한다. TASK-021 자체는 자동 Git을 호출하지 않는다.
 
 Human이 준비한 task/<Task ID>-<slug> Branch와 최초 HEAD를 고정한다. detached worktree의 검토된 누적 Diff를 다시 Guard한 뒤 Workspace의 ignored Secret, Source Branch / HEAD / clean Working Tree 충돌, gh 인증과 origin/main 읽기 접근을 확인한다. Source의 Git 비추적 ignored Secret은 존재만으로 차단하지 않는다. changed_files / Stage 대상과 실제 staged 목록에 기존 secretFile 규칙의 Secret 경로가 있으면 BLOCKED한다. 인증 실패는 HUMAN_REQUIRED이며 설치 / 로그인은 시도하지 않는다. 인증 출력은 저장하지 않고 Exit / Failure만 기록한다. Process 실패 / Timeout은 BLOCKED이며 자동 재시도하지 않는다.
 
@@ -130,15 +130,17 @@ PR 생성 완료 후 상태는 HANDOFF_PENDING이다. 명시적 정리는 `node 
 
 PR과 Commit 제목은 Contract id와 title을 공백으로 연결한다. 한글 본문에는 개요 / 기능·문서 단위 주요 변경 / Verify 결과 / Reviewer 판정·회차·비차단 Finding / 후속 작업·잔여 위험 / Human Squash Merge 안내와 Auto Merge 없음 / Co-author Trailer를 넣는다. 파일 목록과 Diff 통계는 끝의 details 영역에 둔다. PR 설명은 Git 변경 전에 완전한 본문과 제목의 Secret 검사를 통과해야 한다. 본문은 24,000 UTF-16 code unit을 넘으면 항목별 길이 상한과 생략 표시를 적용하여 필수 Section / Trailer / details 닫힘을 보존한다. 표시되지 않는 부분도 검사한다. 이 Task의 PR은 실행 시작 시점 Version으로 생성되므로 Claude 세션이 Merge 전에 제목 / 본문을 한글로 갱신한다.
 
-Secret 검사는 결정적 정규식으로 Private Key / Bearer(HTTP 인증) / 알려진 Key Prefix / AWS Access Key ID / URL 자격 증명 / 자격 증명 이름을 포함한 env 할당과 따옴표 JSON·YAML 값을 차단한다. 빈 값, 꺾쇠·환경변수·이중 중괄호 Placeholder와 REDACTED 표기는 허용한다. ARN resource 구분자는 값 판정에서 허용하며 Secrets Manager IAM Action도 허용한다. 따옴표 없는 콜론 설명은 후행 YAML 주석 제거와 첫 Token 검사 뒤 공백 / 한글 / 표 구분자가 있을 때 자연어로 판단한다. 등호 할당과 따옴표 값은 이 예외를 적용하지 않는다. 알려진 Key 형태는 자연어 안에서도 우선 차단한다. 임의 비표준 Secret과 자연어처럼 작성한 따옴표 없는 값까지 검출한다는 보장은 없다. Secret 값을 입력 / Source / Log에 넣지 않는 정책은 유지한다. 기존 Task의 오탐 회피 문구는 보존하며 다음 Task 문서부터 불필요하다.
+Secret 검사는 결정적 정규식으로 Private Key / Bearer(HTTP 인증) / 알려진 Key Prefix / AWS Access Key ID / URL 자격 증명 / 자격 증명 이름을 포함한 env 할당과 따옴표 JSON·YAML 값을 차단한다. 빈 값, 꺾쇠·환경변수·이중 중괄호 Placeholder와 REDACTED 표기는 허용한다. ARN resource 구분자는 값 판정에서 허용하며 Secrets Manager IAM Action도 허용한다. 따옴표 없는 콜론 설명은 후행 YAML 주석 제거와 첫 단어 검사 뒤 공백이 있는 설명이나 한글이 있을 때 자연어로 판단한다. 등호 할당과 따옴표 값은 이 예외를 적용하지 않는다. 알려진 Key 형태는 자연어 안에서도 우선 차단한다. 임의 비표준 Secret과 자연어처럼 작성한 따옴표 없는 값까지 검출한다는 보장은 없다. Secret 값을 입력 / Source / Log에 넣지 않는 정책은 유지한다. 기존 Task의 오탐 회피 문구는 보존하며 다음 Task 문서부터 불필요하다.
 
 Gate가 있는 Rework는 checkpoint.pending_gate에 결정 요청을 보존한다. 다음 Executor가 요청을 생략해도 Gate는 유지된다. Resume의 명시 승인 범위는 기존 cycle 규칙을 유지하고 회차를 초기화하지 않는다. Reviewer BLOCKED는 즉시 정지하며 Gate 대기 중 Git은 실행하지 않는다.
 
 AWS Preflight는 endpoint override 환경변수 전체와 CA bundle 환경변수를 차단한다. AWS 설정 파일의 endpoint 재지정은 검사하지 않는 한계가 있다. aws 설정이 없으면 missing-config로 구분한다. run의 env 주입을 Process와 AWS Preflight에 전달하여 Fake CLI Test를 host의 AWS 환경과 격리할 수 있다. 실제 AWS 호출 / 로그인 / 설정 변경은 이번 Task에서 수행하지 않는다.
 
-Rework Secret 검사 보강: Diff의 추가 줄 접두사, 점으로 연결된 속성, URL Query / 연결 문자열 구분자, 대괄호 / 소괄호 뒤 할당도 검사한다. JSON 직렬화 문자열은 원문 문자열을 재귀적으로 검사하여 escaped newline과 quote가 할당을 숨기지 않도록 한다. 콜론의 따옴표 없는 값은 후행 공백 + # 주석을 제거한 뒤 판단한다. 첫 Token이 공백 없는 ASCII 영숫자·기호 8자 이상이면 자연어 예외보다 먼저 차단한다. 이중 중괄호 Placeholder 내부에는 중괄호를 허용하지 않는다. 이 규칙은 설명의 긴 영어 첫 단어를 차단할 수 있으며 짧거나 자연어 형태인 비표준 Secret 검출은 보장하지 않는다.
+Rework Secret 검사 보강: Diff의 추가 줄 접두사, 점으로 연결된 속성, URL Query / 연결 문자열 구분자, 대괄호 / 소괄호 뒤 할당도 검사한다. 같은 줄의 모든 후보를 독립적으로 검사하며 허용 후보가 뒤의 할당을 숨기지 않는다. JSON 객체는 내부 문자열을 복원하여 재귀적으로 검사하고 자격 증명 이름을 포함하는 객체 Key의 문자열 값은 구조적으로 검사한다. Placeholder 외의 해당 문자열 값은 가린다. 직렬화된 escape 문자를 다시 평문으로 검사하지 않아 줄 끝의 허용 값도 유지한다. 허용 판정은 첫 단어에 적용하며 IAM Action의 여는 따옴표와 후행 따옴표 / backtick / 닫는 괄호 / 마침표 / 세미콜론은 제거한다. 콜론 값의 ARN 예외는 aws 계열 partition, service, region, account, resource 구획이 있는 첫 단어에만 적용한다. ARN의 실제 존재나 권한은 확인하지 않는다. Placeholder는 구두점 없이 온전한 형태여야 한다. 차단된 따옴표 없는 값은 첫 단어부터 쉼표 또는 줄 끝까지 가려 공백이나 Placeholder 뒤의 값도 남기지 않는다. 콜론 자연어의 후행 공백 + # 주석은 설명 근거에서 제외하며 공백 뒤 설명은 영문 또는 한글로 시작해야 한다. 첫 단어가 ASCII 8자 이상이거나 숫자 / 기호를 포함하면 자연어 예외보다 먼저 차단한다. 세로선은 자연어 근거로 사용하지 않는다. 등호 할당은 Placeholder 외에 자연어 예외를 적용하지 않는다. 이중 중괄호 Placeholder 내부에는 중괄호를 허용하지 않는다. 긴 영어 첫 단어와 기호가 있는 설명은 오탐으로 차단될 수 있으며 차단을 우선한다. 짧거나 한글 자연어 형태인 비표준 Secret 검출은 보장하지 않는다.
 
-PR 길이 제한은 surrogate pair를 나누지 않고 빈 Finding / 후속 작업 배열을 유지한다. 계정 ID / ARN 같은 민감 식별값은 Secret 검사 대상이 아니므로 Executor Prompt의 입력 금지 지시에 의존한다. Git 자동화는 TASK-022~031로 한정되어 TASK-033의 새 PR 형식 자동 실행에는 Human의 별도 권한 범위 결정이 필요하다. 범위를 승인 없이 확대하지 않는다. Rework에서 Executor가 결정 요청을 생략해도 pending_gate를 보존하며 기존 Diff / 정지 사유에 연결된 Resume 승인이 이를 해제한다.
+R4 Rework 검사 기준: Key / 구분 기호 주변의 공백과 첫 단어 뒤 설명 / YAML 주석의 공백은 줄바꿈(CR / LF)을 제외한 모든 정규식 공백으로 처리한다. NBSP, 전각 공백, form feed, vertical tab도 포함하며 다음 줄의 값은 합치지 않는다. 후보 앞 경계는 소비하지 않는 lookbehind로 확인하여 ARN resource 콜론 바로 뒤의 등호 할당도 독립 검사한다. JSON의 민감한 Key 아래에서는 배열 / 객체로 문맥을 전파해 문자열, 숫자, boolean, null을 가린다. 온전한 Placeholder 문자열과 빈 문자열만 예외이며 비민감한 Key 아래의 일반 숫자 / boolean은 유지한다. 빈 배열 / 객체에는 primitive가 없어 값 치환이 발생하지 않는다. JSON 구조 검사 결과를 직렬화하며 escape 문자에 평문 검사를 중복 적용하지 않는다.
+
+PR 길이 제한은 surrogate pair를 나누지 않고 빈 Finding / 후속 작업 배열을 유지한다. 계정 ID / ARN 같은 민감 식별값은 Secret 검사 대상이 아니므로 Executor Prompt의 입력 금지 지시에 의존한다. 2026-10-03 Human 승인으로 Git 자동화는 TASK-022 이후 Human이 Contract를 승인한 모든 Task에 적용하며 Task 번호 상한을 없앴다. 기존 Verify / DONE / PASS / Gate / Branch 제한은 유지한다. Rework에서 Executor가 결정 요청을 생략해도 pending_gate를 보존하며 기존 Diff / 정지 사유에 연결된 Resume 승인이 이를 해제한다.
 
 자기 구현을 변경하는 TASK-020은 실행 시작 시점의 안정 Module / Template / Schema로 실행하며 변경 중인 Module을 동적으로 import하지 않는다. Resume도 검증된 안정 Entrypoint로 실행한다.
 

@@ -62,7 +62,7 @@ test('Executor edits CRLF AGENTS completion values; Orchestrator validates end-t
   await writeFile(path.join(root, '.gitattributes'), 'AGENTS.md text eol=crlf\ndocs/07-TASKS.md text eol=crlf\n');
   await writeFile(path.join(root, 'AGENTS.md'), agents);
   await writeFile(path.join(root, 'docs/07-TASKS.md'), tasks);
-  const contractPath = path.join(root, 'harness/tasks/TASK-999.json');
+  const contractPath = path.join(root, 'harness/tasks/TASK-019.json');
   const contract = JSON.parse(await readFile(contractPath, 'utf8'));
   contract.allowed_paths.push('AGENTS.md');
   await writeFile(contractPath, JSON.stringify(contract));
@@ -70,7 +70,7 @@ test('Executor edits CRLF AGENTS completion values; Orchestrator validates end-t
     const result = await processRun(['git', ...args], { cwd: root, timeout: 10000 });
     assert.equal(result.code, 0, result.stderr);
   }
-  const result = await run('TASK-999', { root });
+  const result = await run('TASK-019', { root });
   assert.equal(result.status, 'PASS', result.state.reason);
   const workspaceAgents = await readFile(path.join(result.state.workspace, 'AGENTS.md'), 'utf8');
   guardAgents(agents, workspaceAgents, tasks);
@@ -89,7 +89,7 @@ async function fixture(t, scenario = 'executor-human') {
   await mkdir(path.join(root, 'harness/tasks'), { recursive: true });
   await writeFile(path.join(root, '.gitignore'), '.harness/\nharness/config.local.json\n');
   await writeFile(path.join(root, 'task.md'), 'Fake task');
-  await writeFile(path.join(root, 'harness/tasks/TASK-999.json'), JSON.stringify({ id: 'TASK-999', title: 'Fake task', task_file: 'task.md', allowed_paths: ['output.txt'], forbidden_paths: [], verify: [{ command: [process.execPath, fake, scenario, 'verify'], cwd: '.' }], max_review_cycles: 3 }));
+  await writeFile(path.join(root, 'harness/tasks/TASK-019.json'), JSON.stringify({ id: 'TASK-019', title: 'Fake task', task_file: 'task.md', allowed_paths: ['output.txt'], forbidden_paths: [], verify: [{ command: [process.execPath, fake, scenario, 'verify'], cwd: '.' }], max_review_cycles: 3 }));
   await git('add', '.');
   await git('-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture');
   await writeFile(path.join(root, 'harness/config.local.json'), JSON.stringify({ codex: { command: [process.execPath, fake, scenario, 'executor'] }, claude: { command: [process.execPath, fake, scenario, 'reviewer'] }, sandbox: 'unelevated', timeouts: { preflight_ms: 10000, executor_ms: 10000, reviewer_ms: 10000, verify_ms: 10000 } }));
@@ -103,7 +103,7 @@ test('Lock release failures return BLOCKED and persist the lock error', async t 
     const key = createHash('sha256').update(process.platform === 'win32' ? identity.toLowerCase() : identity).digest('hex');
     const lockFile = path.join(os.tmpdir(), 'moodfit-orchestrator-locks', key + '.json');
     t.after(() => rm(lockFile, { force: true }));
-    const contractPath = path.join(root, 'harness/tasks/TASK-999.json');
+    const contractPath = path.join(root, 'harness/tasks/TASK-019.json');
     const contract = JSON.parse(await readFile(contractPath, 'utf8'));
     const script = mode === 'missing'
       ? `require('node:fs').unlinkSync(${JSON.stringify(lockFile)})`
@@ -112,7 +112,7 @@ test('Lock release failures return BLOCKED and persist the lock error', async t 
     await writeFile(contractPath, JSON.stringify(contract));
     const commit = await processRun(['git', '-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-am', 'lock failure fixture'], { cwd: root, timeout: 10000 });
     assert.equal(commit.code, 0, commit.stderr);
-    const result = await run('TASK-999', { root });
+    const result = await run('TASK-019', { root });
     assert.equal(result.status, 'BLOCKED');
     assert.equal(result.code, 3);
     assert.equal(result.state.error_category, 'lock');
@@ -140,7 +140,7 @@ test('worktree cleanup, source isolation, and common repository lock', async t =
 
 test('Gate rework retains pending decisions until approved Resume', async t => {
   const root = await fixture(t, 'gate-rework');
-  const stopped = await run('TASK-999', { root });
+  const stopped = await run('TASK-019', { root });
   assert.equal(stopped.status, 'HUMAN_REQUIRED', stopped.state.reason);
   const denied = await run(undefined, { root, resumeId: stopped.state.run_id });
   assert.equal(denied.status, 'HUMAN_REQUIRED');
@@ -153,7 +153,7 @@ test('Gate rework retains pending decisions until approved Resume', async t => {
 
 test('Resume requires approval tied to diff; approved resume skips duplicate Executor', async t => {
   const root = await fixture(t);
-  const stopped = await run('TASK-999', { root });
+  const stopped = await run('TASK-019', { root });
   assert.equal(stopped.status, 'HUMAN_REQUIRED', stopped.state.reason);
   // A frozen absolute path from the old long-name layout remains authoritative.
   const legacy = path.join(root, '.harness/workspaces', stopped.state.run_id);
@@ -186,7 +186,7 @@ test('Resume requires approval tied to diff; approved resume skips duplicate Exe
 
 test('successful handoff cleanup handles long paths and retains stopped or changed runs', async t => {
   const root = await fixture(t);
-  const stopped = await run('TASK-999', { root });
+  const stopped = await run('TASK-019', { root });
   const runId = stopped.state.run_id;
   await assert.rejects(cleanupSuccessfulRun(root, runId));
   assert.equal(await readFile(path.join(stopped.state.workspace, 'output.txt'), 'utf8'), 'cycle=1\nnew content\n');

@@ -310,7 +310,7 @@ MoodFit v3는 단순 입력 Form 형태의 데모 UI를 목표로 하지 않는�
 - `main` 직접 Push는 금지하며 Branch Ruleset으로 보호한다. Force Push / History Rewrite도 금지한다. PR + Remote CI(`frontend` / `backend`) / Claude PASS / 필요한 Gate / Branch Ruleset 충족 후 Human이 Squash Merge한다. main에는 Task당 Commit 1개를 남긴다.
 - Task 완료 승인 = Human의 PR Squash Merge이다. Agent / Orchestrator Merge와 Auto Merge를 금지한다. 같은 `gh` 계정을 사용해 자기 PR Approve가 불가능하므로 Required approvals 0 / Required status checks로 CI를 강제한다. 기존 Human 로그인 계정을 유지한다.
 - TASK-018 ~ TASK-020의 Branch / Commit / Push / PR 생성은 Human 승인 후 Claude 세션(임시 Orchestrator) 또는 Human이 수행한다. TASK-021 자체 Git 작업은 Claude 세션이 수행한다. Codex의 독자 Git 작업은 금지한다.
-- TASK-022 ~ TASK-031은 승인된 Task Branch에서 Deterministic Verification 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 Orchestrator가 자동으로 Stage / Commit / Push / Draft PR을 수행한다. HUMAN_REQUIRED / BLOCKED / CHANGES_REQUIRED에서는 Git 작업을 수행하지 않는다.
+- TASK-022 이후 Human이 Contract를 승인한 모든 Task는 승인된 Task Branch에서 Deterministic Verification 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 Orchestrator가 자동으로 Stage / Commit / Push / Draft PR을 수행한다. HUMAN_REQUIRED / BLOCKED / CHANGES_REQUIRED에서는 Git 작업을 수행하지 않는다.
 - Stage는 Contract allowed_paths 안의 파일을 개별 추가한다. `git add .`와 forbidden_paths / Secret 파일 Stage를 금지한다. 인증은 Human이 로그인한 기존 `git` / `gh`를 사용하며 Token / PAT를 저장하지 않는다. 로그인 만료 / 미확인 시 HUMAN_REQUIRED로 정지한다. 권한 확대 / Credential 방식 변경은 별도 Human Gate다.
 - Draft PR은 `gh pr create`로 생성한다. 생성 전 Base / Head, Commit SHA, Diff Summary, Test 결과를 기록하고 본문에 Task ID, Verification, Review Verdict, Human Gate 여부, Codex / Claude Co-author Trailer를 포함한다.
 - Task의 DONE 상태 변경은 PR 안에서 처리하고 Merge 후 Sync Milestones가 Milestone을 닫는다. Claude PASS만으로 Task 완료 승인을 대신하지 않는다.

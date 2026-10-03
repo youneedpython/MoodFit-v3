@@ -1,12 +1,102 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assertNoSecrets, guard, readJson, validate } from './lib.mjs';
+import { assertNoSecrets, guard, readJson, validate, redact } from './lib.mjs';
 import { decide } from './state-machine.mjs';
 import { workspaceName } from './workspace.mjs';
 import { prBody, prTitle, PR_BODY_LIMIT } from './pr-description.mjs';
 import { awsPreflight } from './aws-preflight.mjs';
 
 const assignment = (name, value, separator = '=') => name + separator + value;
+test('non-line-breaking whitespace after assignment separators remains blocked', () => {
+  for (const space of ['\u00a0', '\u3000', '\f', '\v', '\t']) {
+    for (const separator of ['=', ':']) {
+      const input = assignment('pass' + 'word', space + 'synthetic-value', separator);
+      assert.throws(() => assertNoSecrets(input), /Secret-like/);
+      assert.ok(!redact(input).includes('synthetic-value'));
+      assert.throws(() => assertNoSecrets(JSON.stringify({ text: input })), /Secret-like/);
+      assert.throws(() => guard({ entries: [{ file: 'output.txt' }], diff: '+' + input }, ['output.txt'], { allowed_paths: ['output.txt'], forbidden_paths: [] }), /Secret-like/);
+    }
+  }
+});
+test('ARN resource colon does not consume the next assignment boundary', () => {
+  const arn = 'arn:aws:secretsmanager:region:example:' + 'sec' + 'ret:';
+  assert.doesNotThrow(() => assertNoSecrets(arn + 'example'));
+  const input = arn + assignment('pass' + 'word', 'synthetic-value');
+  assert.throws(() => assertNoSecrets(input), /Secret-like/);
+  assert.ok(!redact(input).includes('synthetic-value'));
+});
+test('credential JSON context masks all nested primitives except placeholders', () => {
+  const key = 'pass' + 'word';
+  for (const value of [123456, true, false, null, ['synthetic-value', 123456, true], { nested: ['synthetic-value', { count: 123456 }] }]) {
+    const input = JSON.stringify({ [key]: value, count: 7 });
+    assert.throws(() => assertNoSecrets(input), /Secret-like/);
+    const clean = JSON.parse(redact(input));
+    assert.equal(clean.count, 7);
+    const check = item => {
+      if (item && typeof item === 'object') Object.values(item).forEach(check);
+      else assert.equal(item, '[REDACTED]');
+    };
+    check(clean[key]);
+  }
+  assert.doesNotThrow(() => assertNoSecrets(JSON.stringify({ [key]: ['<placeholder>', { nested: '{{PLACEHOLDER}}' }, ''] })));
+});
+test('blocked unquoted values redact the whole remainder', () => {
+  for (const raw of ['first second remainder', '<placeholder>attached-value', '${PLACEHOLDER}attached-value']) {
+    const input = assignment('pass' + 'word', raw);
+    assert.throws(() => assertNoSecrets(input), /Secret-like/);
+    const output = redact(input);
+    assert.ok(!output.includes('second'));
+    assert.ok(!output.includes('remainder'));
+    assert.ok(!output.includes('attached-value'));
+  }
+});
+test('serialized documents preserve allowed line endings and block assignments', () => {
+  const key = 'pass' + 'word';
+  const document = [assignment(key, '<placeholder>'), assignment(key, '${PLACEHOLDER}'), assignment(key, '{{PLACEHOLDER}}'), 'secretsmanager:GetSecretValue', assignment(key, '설명', ': ')].join('\n');
+  for (const text of [document, document + '\n']) {
+    assert.doesNotThrow(() => assertNoSecrets(JSON.stringify({ text })));
+    assert.throws(() => assertNoSecrets(JSON.stringify({ text: text + '\n' + assignment(key, 'actual-fixture') })), /Secret-like/);
+  }
+  assert.doesNotThrow(() => assertNoSecrets(JSON.stringify({ [key]: '<placeholder>' })));
+});
+test('quoted IAM actions pass while later assignments remain blocked', () => {
+  for (const quote of ['"', "'"]) {
+    const input = '  ' + quote + 'secretsmanager:GetSecretValue' + quote + ',';
+    assert.doesNotThrow(() => assertNoSecrets(input));
+    assert.throws(() => assertNoSecrets(input + ' ' + assignment('pass' + 'word', 'actual-fixture')), /Secret-like/);
+  }
+});
+test('ARN exemption requires partition and service sections', () => {
+  for (const raw of ['arn:pretend', 'arn:aws:pretend', 'short }']) {
+    assert.throws(() => assertNoSecrets(assignment('pass' + 'word', raw, ': ')), /Secret-like/);
+  }
+  assert.doesNotThrow(() => assertNoSecrets(assignment('pass' + 'word', 'arn:aws:fixture:region:example:resource', ': ')));
+});
+test('each candidate after prose, ARN or placeholder is independently blocked', () => {
+  const key = 'pass' + 'word';
+  const later = assignment('DB_' + 'PASSWORD', 'synthetic-value');
+  for (const allowed of ['자연어 설명', 'AWS Managed Secret 방식', 'arn:aws:fixture:region:example:resource', '<placeholder>', '{{PLACEHOLDER}}']) {
+    const input = assignment(key, allowed + ' ' + later, ': ');
+    assert.throws(() => assertNoSecrets(input), /Secret-like/);
+    assert.ok(!redact(input).includes('synthetic-value'));
+  }
+  for (const raw of ['ab|cd', 'a1 설명', 'ab! 설명', 'abcdefgh 설명', 'fixture # comment']) {
+    assert.throws(() => assertNoSecrets(assignment(key, raw, ': ')), /Secret-like/);
+  }
+  for (const delimiter of [';', '?', '&', '/', '(']) {
+    assert.throws(() => assertNoSecrets(assignment(key, 'arn:aws:fixture:region:example:resource' + delimiter + later, ': ')), /Secret-like/);
+  }
+  for (const raw of ['`secretsmanager:GetSecretValue` 설명', 'secretsmanager:GetSecretValue 설명', '(secretsmanager:GetSecretValue). 설명']) {
+    assert.doesNotThrow(() => assertNoSecrets(raw));
+    assert.throws(() => assertNoSecrets(raw + ' ' + later), /Secret-like/);
+  }
+});
+test('serialized redaction covers both nested strings and credential object keys', () => {
+  const input = JSON.stringify({ text: assignment('api_' + 'key', 'nested-fixture'), ['pass' + 'word']: 'object-fixture' });
+  const output = redact(input);
+  assert.ok(!output.includes('nested-fixture'));
+  assert.ok(!output.includes('object-fixture'));
+});
 test('assignment boundaries and serialized original strings remain blocked', () => {
   const key = 'pass' + 'word';
   for (const prefix of ['+', 'spring.datasource.', 'obj.', '&', ';', '?', '[', '(']) {

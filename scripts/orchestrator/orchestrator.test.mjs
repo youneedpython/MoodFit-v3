@@ -11,11 +11,11 @@ const fakeAws = fileURLToPath(new URL('./fixtures/fake-aws.mjs', import.meta.url
 
 for (const awsMode of ['ok', 'recheck']) test(`AWS identity ${awsMode}: rechecked before Verify and never persisted or sent to agents`, async t => {
   const root = await fixture(t);
-  const taskFile = path.join(root, 'harness/tasks/TASK-999.json');
+  const taskFile = path.join(root, 'harness/tasks/TASK-019.json');
   const task = JSON.parse(await readFile(taskFile, 'utf8'));
   task.aws_profiles = ['moodfit-readonly'];
   await writeFile(taskFile, JSON.stringify(task));
-  for (const args of [['add', 'harness/tasks/TASK-999.json'], ['-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'AWS fixture']]) {
+  for (const args of [['add', 'harness/tasks/TASK-019.json'], ['-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'AWS fixture']]) {
     const result = await processRun(['git', ...args], { cwd: root, timeout: 10000 });
     assert.equal(result.code, 0, result.stderr);
   }
@@ -25,7 +25,7 @@ for (const awsMode of ['ok', 'recheck']) test(`AWS identity ${awsMode}: rechecke
   cfg.aws = { command: [process.execPath, fakeAws, awsMode, path.join(root, '.harness/runs/aws-count')], allowed_profiles: ['moodfit-readonly'], profiles: { 'moodfit-readonly': { account: '111111111111', role: 'AWSReservedSSO_MoodFitReadOnly_fake' } } };
   await writeFile(configFile, JSON.stringify(cfg));
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^AWS_/i.test(key)));
-  const result = await run('TASK-999', { root, env });
+  const result = await run('TASK-019', { root, env });
   assert.equal(result.status, awsMode === 'ok' ? 'PASS' : 'HUMAN_REQUIRED', result.state.reason);
   assert.equal(result.state.phase, awsMode === 'ok' ? 'Decide' : 'Verify');
   assert.equal(result.state.review_cycles, awsMode === 'ok' ? 1 : 0);
@@ -46,13 +46,31 @@ async function fixture(t, scenario = 'pass') {
   await mkdir(path.join(root, 'harness/tasks'), { recursive: true });
   await writeFile(path.join(root, '.gitignore'), '.harness/runs/\n.harness/workspaces/\nharness/config.local.json\n');
   await writeFile(path.join(root, 'task.md'), 'Fake Task: implement output.txt');
-  await writeFile(path.join(root, 'harness/tasks/TASK-999.json'), JSON.stringify({ id: 'TASK-999', title: 'Fake task', task_file: 'task.md', allowed_paths: ['output.txt'], forbidden_paths: ['forbidden.txt'], verify: [{ command: [process.execPath, fake, scenario, 'verify'], cwd: '.' }], max_review_cycles: 3 }));
+  await writeFile(path.join(root, 'harness/tasks/TASK-019.json'), JSON.stringify({ id: 'TASK-019', title: 'Fake task', task_file: 'task.md', allowed_paths: ['output.txt'], forbidden_paths: ['forbidden.txt'], verify: [{ command: [process.execPath, fake, scenario, 'verify'], cwd: '.' }], max_review_cycles: 3 }));
   await git('add', '.');
   await git('-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture');
   await writeFile(path.join(root, 'harness/config.local.json'), JSON.stringify({ codex: { command: [process.execPath, fake, scenario, 'executor'] }, claude: { command: [process.execPath, fake, scenario, 'reviewer'] }, sandbox: 'unelevated', timeouts: { preflight_ms: 10000, executor_ms: scenario === 'timeout' ? 200 : 10000, reviewer_ms: 10000, verify_ms: 10000 } }));
   if (scenario === 'dirty') await writeFile(path.join(root, 'dirty.txt'), 'dirty');
   return root;
 }
+
+for (const id of ['TASK-021', 'TASK-032', 'TASK-033']) test(`automatic Git phase eligibility: ${id}`, async t => {
+  const root = await fixture(t);
+  const task = JSON.parse(await readFile(path.join(root, 'harness/tasks/TASK-019.json'), 'utf8'));
+  task.id = id;
+  await writeFile(path.join(root, `harness/tasks/${id}.json`), JSON.stringify(task));
+  for (const args of [['add', `harness/tasks/${id}.json`], ['-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'Eligibility fixture']]) {
+    const result = await processRun(['git', ...args], { cwd: root, timeout: 10000 });
+    assert.equal(result.code, 0, result.stderr);
+  }
+  const result = await run(id, { root });
+  const eligible = id !== 'TASK-021';
+  assert.equal(result.state.history.some(x => x.phase === 'Git'), eligible);
+  // Deliberately unapproved fixture branch proves the phase is reached while
+  // preserving the branch guard and preventing external Git handoff.
+  assert.equal(result.status, eligible ? 'BLOCKED' : 'PASS', result.state.reason);
+  if (eligible) assert.match(result.state.reason, /approved Task branch/);
+});
 
 const cases = [
   ['gate-rework', 'HUMAN_REQUIRED', 2], ['gate-limit', 'HUMAN_REQUIRED', 3], ['gate-blocked', 'BLOCKED', 1],
@@ -70,7 +88,7 @@ for (const sandbox of ['elevated', 'unelevated', 'invalid', '', null]) test(`san
   const config = JSON.parse(await readFile(configFile, 'utf8'));
   config.sandbox = sandbox;
   await writeFile(configFile, JSON.stringify(config));
-  const result = await run('TASK-999', { root });
+  const result = await run('TASK-019', { root });
   const allowed = ['elevated', 'unelevated'].includes(sandbox);
   assert.equal(result.status, allowed ? 'PASS' : 'BLOCKED', result.state.reason);
   if (allowed) {
@@ -83,7 +101,7 @@ for (const sandbox of ['elevated', 'unelevated', 'invalid', '', null]) test(`san
 });
 for (const [scenario, status, cycles] of cases) test(`integration: ${scenario}`, async t => {
   const root = await fixture(t, scenario);
-  const result = await run('TASK-999', { root });
+  const result = await run('TASK-019', { root });
   assert.equal(result.status, status, result.state.reason);
   assert.equal(result.code, { PASS: 0, HUMAN_REQUIRED: 2, BLOCKED: 3, HANDOFF_PENDING: 0 }[status]);
   assert.equal(result.state.review_cycles, cycles);
@@ -123,7 +141,7 @@ test('redaction / strict schema / reviewer extraction / shim rejection', () => {
 
 test('entrypoint exit code and state on main', async t => {
   const root = await fixture(t, 'main');
-  const result = await processRun([process.execPath, fileURLToPath(new URL('./run.mjs', import.meta.url)), 'TASK-999'], { cwd: root, timeout: 10000 });
+  const result = await processRun([process.execPath, fileURLToPath(new URL('./run.mjs', import.meta.url)), 'TASK-019'], { cwd: root, timeout: 10000 });
   assert.equal(result.code, 3);
   assert.equal(JSON.parse(result.stdout).status, 'BLOCKED');
 });

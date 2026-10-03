@@ -198,7 +198,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
         : { ...executor, human_decisions_needed: [...new Set([...pending, ...executor.human_decisions_needed])] };
       const decision = decide(effective, verdict, state.review_cycles, contract.max_review_cycles);
       state.status = decision.status; state.reason = decision.reason;
-      if (['PASS', 'HANDOFF_PENDING'].includes(decision.status) && Number(taskId.slice(5)) >= 22 && Number(taskId.slice(5)) <= 31) {
+      if (['PASS', 'HANDOFF_PENDING'].includes(decision.status) && Number(taskId.slice(5)) >= 22) {
         await phase('Git');
         state.git = await automateGit({ sourceRoot, workspace: root, revision: frozen.revision, branch: frozen.branch, contract, status: state.status, executor: effective, reviewer: verdict, verification, reviewCycle: state.review_cycles, reviewed: before, record, runDir, signal: controller.signal });
         state.status = 'HANDOFF_PENDING';
