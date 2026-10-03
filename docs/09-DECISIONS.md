@@ -1276,25 +1276,30 @@ Human Approved
 
 ---
 
-## DEC-027 TASK-023 AWS Architecture / Cost Gate 초안
+## DEC-027 TASK-023 AWS Architecture / Cost Gate
 
 ### 상태
 
 ```text
-Pending Human Approval
+Human Approved
 ```
 
-작성일은 2026-10-02이며 Human 승인 기록은 아직 없다. 상세 비교 / Network Diagram / Security Boundary / Cost Matrix / 개별 승인 항목은 [13-AWS-ARCHITECTURE.md](13-AWS-ARCHITECTURE.md)를 따른다. 이 초안은 DEC-023 / DEC-026을 변경하지 않는다.
+2026-10-03 Human Gate 승인. 근거는 TASK-023 Task 문서의 Human 결정 Section이며 상세 비교 / Diagram / 가격 출처와 조회일 / 후속 조건은 [13-AWS-ARCHITECTURE.md](13-AWS-ARCHITECTURE.md)를 따른다.
 
-### 승인 요청
+### 확정 결정
 
-- A 교육 Staging(Public ECS / Private RDS / NAT 없음)과 B Production-like(Private App / Data / AZ별 NAT / Multi-AZ)의 선택. 권장안은 합성 데이터만 사용하는 A부터 시작이다. 인증 없는 MVP의 공개 접근 위험을 승인 항목으로 포함한다.
-- Region 서울 제안, 같은 계정의 전용 환경 Resource로 Staging부터 시작하고 Production은 별도 계정 권장. IAM Identity Center / 최소 권한 Permission Set / Agent Staging 전용 / Human-only Production / GitHub OIDC 환경별 Role 경계를 선택한다. 상세 권한은 TASK-025에서 별도 승인한다.
-- RDS 8.4 LTS 방향을 권장하되 Local / Testcontainers 8.0.46 / CI 변경은 별도 Decision과 승인 Task를 요구한다. 8.0 유지 시 유료 Extended Support 단가 / 기간을 예산에 포함한다. 지원 일정의 공식 근거와 서울 단가 확인 대기는 Architecture 5절을 따른다.
-- A RDS db.t4g.micro / gp3 20 GiB / Single-AZ 및 ECS 0.5 vCPU / 1 GiB / Desired Count 1, B db.t4g.small / Multi-AZ 및 ECS 동일 크기 2개를 제안한다. 가용성과 실측 성능은 확인 필요다.
-- 동일 origin `/api` routing, Private S3 / OAC, 환경별 Domain / HTTPS / origin 보호, Logging / Backup / 삭제 보호 / rollback 경계를 승인한다.
-- 월 USD 상한 A 100 / B 환경당 300(2환경 600), 생성 후 7일 실습, Budget 알림과 Human 정리 승인을 제안한다. 이 값은 AWS 견적이 아니다. Region별 공식 단가를 반영한 합계가 상한을 넘으면 생성 전 재승인한다.
+- B Production-like, ap-northeast-2. 같은 계정 Staging부터 시작하고 환경별 VPC / Resource / Role을 분리한다. Production 생성은 TASK-030 전 별도 승인하며 계정 분리를 다시 검토한다.
+- 2 AZ Public(ALB / NAT) + Private App(ECS) + Private Data(RDS), AZ별 NAT 2개, S3 Gateway Endpoint. Interface Endpoint는 초기 제외한다.
+- RDS MySQL 8.4, db.t4g.small, gp3 20 GiB, Multi-AZ DB instance, Public 접근 차단 / 암호화 / 삭제 보호. 8.0은 유료 Extended Support 비용 때문에 기각했다.
+- Fargate Linux x86, 0.5 vCPU / 1 GiB, Desired Count 2 / AZ 분산. JVM memory / startup은 TASK-024에서 실측한다.
+- IAM Identity Center ReadOnly / Staging 범위 운영자 / Production Human 전용. TASK-025 선행 조건은 최소 권한 Staging Profile 준비와 Agent 허용 Profile 지정이다. 관리자 Profile을 Agent가 사용하지 않는다. 상세 Permission Set / GitHub OIDC / 실행 Role / 비밀 저장 정책은 TASK-025 승인 대상이다.
+- Private S3 / CloudFront OAC, 동일 origin /api 및 /api/* routing, API cache 비활성화. Domain은 TASK-026 전 Human 확정이며 기본값은 CloudFront 기본 Domain이다. 기본값에서는 CloudFront → ALB HTTP origin의 도청 / 변조 위험이 남고 검증 header / prefix list는 암호화를 대체하지 않는다. 소유 Domain을 선택하면 ALB ACM 인증서로 HTTPS origin을 쓴다.
+- 앱 Log 30일 / ALB access log S3 30일 / RDS Backup 14일 / 삭제 전 final snapshot / 수동 Snapshot 30일 후 별도 삭제 승인.
+- 합성 데이터만 사용한다. 실제 개인 데이터 입력과 공개 Production 운영은 인증 / 접근 제한 Task 승인 전까지 금지한다.
+- 월 USD 300 / 환경, 동시 두 환경 USD 600. Budget 50 / 80 / 100% + forecast. 기본 7일 후 Human이 정리 또는 연장을 검토하며 자동 파괴적 삭제는 하지 않는다. 서울 730시간 B안 약 USD 250은 추정이며 NAT 처리 / 기타 비용을 포함한 공식 견적이 상한을 넘으면 생성 전 재승인한다.
 
-### 승인 전 유지 / 다음 단계
+### 유지 / 후속 조건
 
-Human Gate에서 Claude 세션이 공식 지원 일정 / 단가 / Region별 가용성 / 인증서 요건을 확인하고 확인일과 근거를 기록한다. Human이 이 Diff와 개별 선택값을 승인한 뒤에만 Human Approved로 변경한다. TASK-023은 IN_PROGRESS, TASK-024 이후는 BLOCKED다. 실제 Resource 생성, IAM 설정, DB 버전 변경, Production 배포는 이 초안이나 설계 승인만으로 수행하지 않는다.
+DEC-023(Local / Testcontainers MySQL 8.0.46)은 변경하지 않는다. 8.4로의 Local / Image / CI 변경은 별도 Decision / Gate / Task로 TASK-026 전에 승인하고 검증한다. Engine / Class / Region orderable 가용성과 미조회 서비스 단가는 승인된 Profile로 TASK-026 전에 확인한다.
+
+TASK-023 DONE / TASK-024 READY를 이번 PR에 포함하며 Human Squash Merge로 완료 승인한다. 후속 Task 실행은 별도 명시 지시가 필요하다. 실제 AWS Resource / IAM 생성, IaC, Workflow 변경과 Production 배포는 이번 설계 승인의 범위가 아니다. DEC-026을 유지한다.

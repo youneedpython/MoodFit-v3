@@ -2797,7 +2797,20 @@ Executor 자체 검증은 참고 증거이며 Orchestrator Verify가 기준이�
 
 Human Gate에서 Claude 세션이 공식 문서로 미확인 단가 / 핵심 수치 / 가용성을 확인하고 선택값 및 이 Diff를 Human에게 제시한다. 실제 Resource / 후속 Task 실행은 별도 승인 범위다.
 
-- `node --test "scripts/orchestrator/*.test.mjs"`: tests 74 / pass 74 / fail 0 / skipped 0, Exit 0, 약 98초. 프로젝트 코드 변경 없이 기존 회귀 검증을 실행했다.
+- Executor 참고 실행 `node --test "scripts/orchestrator/*.test.mjs"`: tests 74 / pass 74 / fail 0 / skipped 0, Exit 0, 약 98초(Executor 자체 측정). 별도 Orchestrator Verify는 2차 Run `2026-10-02T08-30-58-975Z-f32eb40a`에서 Test 74개와 `git diff --check` 성공으로 기록되었다(Task 문서 근거). Orchestrator 실행 시간은 제공되지 않았다.
 - `git diff --check`: Exit 0, 공백 오류 없음. autocrlf 안내 경고만 표시됐다.
 - 변경 문서 6개를 UTF-8 strict 디코딩하고 연속 물음표 치환 흔적 및 U+FFFD가 없음을 직접 확인했다. 누적 경로 / Secret / Encoding / AGENTS 승인 3절 Guard 통과.
 - 처음 UTF-8 검사에 사용한 Node inline 명령은 PowerShell 인자 인용 때문에 SyntaxError로 실행되지 않았다. UTF-8 strict 검사와 문자 검사를 PowerShell .NET API로 수행해 통과했다. 이 도구 호출 오류를 Test 성공으로 기록하지 않았다.
+
+## TASK-023 — Human Gate B안 반영 (2026-10-03)
+
+- 초기 Working Tree clean. Task 문서 Human 결정에 따라 B Production-like / 서울 / 같은 계정 Staging 우선 / 환경별 VPC / 2 AZ NAT 2개 / S3 Gateway Endpoint를 반영했다.
+- RDS 8.4 / small / gp3 20 GiB / Multi-AZ DB instance와 ECS 0.5 vCPU / 1 GiB × 2를 확정했다. 지원 일정과 서울 단가는 Claude 세션 2026-10-02 확인 기록을 출처 / 조회일과 함께 인용했다. 730시간 약 USD 250은 추정이며 월 상한 USD 300 / 환경과 별개다.
+- Domain은 TASK-026 전 Human 확정, 기본 CloudFront Domain의 HTTP origin 도청 / 변조 위험을 기록했다. 기타 단가 / orderable 가용성은 TASK-026 전 확인한다. TASK-025 선행 최소 권한 Profile 준비를 명시했다. DEC-023 변경은 별도 Decision / Gate / Task이며 기존 결정은 수정하지 않았다.
+- 앱 / ALB Log 30일, Backup 14일, final snapshot, 수동 Snapshot 30일 후 삭제 승인, 합성 데이터 제한과 기본 7일 후 Human 정리 / 연장 검토를 반영했다.
+- DEC-027 Human Approved(2026-10-03), TASK-023 DONE / TASK-024 READY와 AGENTS 3절을 동기화했다. 완료는 이번 PR의 Human Squash Merge로 확정하며 Merge 완료를 주장하지 않는다. TASK-025 이후 BLOCKED 유지, 후속 구현 없음.
+- F-001: TASK-023 제목 앞 빈 줄 / 구분선은 baseline에 이미 있어 보존했다. 2차 Run Orchestrator Verify 성공 근거와 Executor 자체 Test 시간의 차이를 위 기록에 명시했다.
+- Prompt: prompts/46-TASK-023-HUMAN-GATE-B.md. AWS CLI / Resource / IaC / Workflow / Repository Git handoff는 수행하지 않았다. 회귀 Test의 임시 Git fixture는 프로젝트 handoff가 아니다.
+- 이번 Executor 자체 검증은 참고 증거다. Orchestrator Verify가 기준이며 자동 Review 결과는 아직 주장하지 않는다.
+- Executor 참고 Test: `node --test "scripts/orchestrator/*.test.mjs"` Exit 0, tests 74 / pass 74 / fail 0 / skipped 0, duration_ms 95369.1506. Sandbox 실행 제약 없음. Orchestrator의 이번 Run Verify 결과는 후속 실행 기록에서 확인한다.
+- `git diff --check` Exit 0(autocrlf 안내만 표시). 변경 문서 6개 UTF-8 strict 검사 성공, 연속 물음표 치환 흔적 / U+FFFD 없음. 변경 경로는 allowed_paths 안이며 AGENTS 변경은 승인 3절 본문에 한정한다.

@@ -46,24 +46,24 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-022는 DONE 상태이다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
+TASK-001 ~ TASK-023는 DONE으로 기록한다. TASK-023 완료는 이번 PR의 Human Squash Merge로 확정한다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-023 — AWS Deployment Architecture / Cost Gate
+TASK-024 — Deployment Artifact / Container / Health Strategy
 ```
 
 Status:
 
 ```text
-IN_PROGRESS
+READY
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
-Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. TASK-022는 Human Squash Merge로 DONE이며 TASK-024 이후는 선행 Task와 필요한 Gate 승인 전까지 BLOCKED이다.
-Current Task는 TASK-023 / IN_PROGRESS이다. Human 승인된 `harness/tasks/TASK-023.json` Contract와 명시적 실행 지시에 따라 설계 문서와 DEC-027 초안을 작성한다. Architecture / Cost Gate는 Pending Human Approval이며 AWS Resource를 생성하지 않는다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다.
+Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. DEC-027은 2026-10-03 Human Approved이며 B안 Production-like / 서울 / 환경당 월 USD 300을 확정했다. TASK-023 DONE / TASK-024 READY를 이번 PR에 포함하며 Human Squash Merge로 확정한다. Current Task는 TASK-024 / READY이며 명시 실행 지시 전 시작하지 않는다. TASK-025 이후는 BLOCKED를 유지한다.
+Domain은 TASK-026 전 Human 확정이며 기본 CloudFront Domain / HTTP origin 잔여 위험을 기록했다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. TASK-025 전에 최소 권한 Staging Profile과 Agent 허용 Profile을 준비한다. 설계 승인은 AWS Resource 생성 / IAM / Production 실행 승인이 아니다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 현재 실행의 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
