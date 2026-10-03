@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "MoodFit shared immutable image repository; deploy once for both environments"
+Parameters:
+  Environment:
+    Type: "String"
+    AllowedValues:
+      - "staging"
+      - "production"
+    Default: "staging"
+  Owner:
+    Type: "String"
+Resources:
+  Repository:
+    Type: "AWS::ECR::Repository"
+    Properties:
+      ImageTagMutability: "IMMUTABLE"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      EncryptionConfiguration:
+        EncryptionType: "AES256"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
+Outputs:
+  RepositoryArn:
+    Value:
+      Fn::GetAtt:
+        - "Repository"
+        - "Arn"
+  RepositoryUri:
+    Value:
+      Fn::GetAtt:
+        - "Repository"
+        - "RepositoryUri"

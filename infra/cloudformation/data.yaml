@@ -1,0 +1,167 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "MoodFit encrypted private MySQL 8.4.11 Multi-AZ data foundation"
+Parameters:
+  Environment:
+    Type: "String"
+    AllowedValues:
+      - "staging"
+      - "production"
+    Default: "staging"
+  Owner:
+    Type: "String"
+  DatabaseIdentifier:
+    Type: "String"
+    AllowedPattern: "[a-z][a-z0-9-]{0,62}"
+  DataSubnetA:
+    Type: "AWS::EC2::Subnet::Id"
+  DataSubnetB:
+    Type: "AWS::EC2::Subnet::Id"
+  DataSecurityGroupId:
+    Type: "AWS::EC2::SecurityGroup::Id"
+  AppDbCredentialArn:
+    Type: "String"
+    Description: "Human-managed app DML credential reference; never the master credential"
+Resources:
+  DbSubnetGroup:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties:
+      DBSubnetGroupDescription: "Private data subnets without internet default routes"
+      SubnetIds:
+        -
+          Ref: "DataSubnetA"
+        -
+          Ref: "DataSubnetB"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  DbParameterGroup:
+    Type: "AWS::RDS::DBParameterGroup"
+    Properties:
+      Description: "MySQL 8.4 TLS required"
+      Family: "mysql8.4"
+      Parameters:
+        require_secure_transport: "ON"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  Database:
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      Engine: "mysql"
+      EngineVersion: "8.4.11"
+      DBInstanceClass: "db.t4g.small"
+      AllocatedStorage: "20"
+      StorageType: "gp3"
+      StorageEncrypted: true
+      MultiAZ: true
+      PubliclyAccessible: false
+      DeletionProtection: true
+      BackupRetentionPeriod: 14
+      PreferredBackupWindow: "18:00-18:30"
+      PreferredMaintenanceWindow: "sun:19:00-sun:19:30"
+      AutoMinorVersionUpgrade: false
+      CopyTagsToSnapshot: true
+      DBName: "moodfit"
+      MasterUsername: "moodfitadmin"
+      ManageMasterUserPassword: true
+      DBSubnetGroupName:
+        Ref: "DbSubnetGroup"
+      DBParameterGroupName:
+        Ref: "DbParameterGroup"
+      VPCSecurityGroups:
+        -
+          Ref: "DataSecurityGroupId"
+      EnableCloudwatchLogsExports:
+        - "error"
+        - "slowquery"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+      DBInstanceIdentifier:
+        Ref: "DatabaseIdentifier"
+    DeletionPolicy: "Snapshot"
+    UpdateReplacePolicy: "Snapshot"
+    DependsOn:
+      - "ErrorLog"
+      - "SlowqueryLog"
+  ErrorLog:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName:
+        Fn::Sub: "/aws/rds/instance/${DatabaseIdentifier}/error"
+      RetentionInDays: 30
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
+  SlowqueryLog:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName:
+        Fn::Sub: "/aws/rds/instance/${DatabaseIdentifier}/slowquery"
+      RetentionInDays: 30
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
+Outputs:
+  DatabaseEndpoint:
+    Value:
+      Fn::GetAtt:
+        - "Database"
+        - "Endpoint.Address"
+  MasterCredentialArn:
+    Value:
+      Fn::GetAtt:
+        - "Database"
+        - "MasterUserSecret.SecretArn"
+  AppDbCredentialArn:
+    Value:
+      Ref: "AppDbCredentialArn"

@@ -1,0 +1,683 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "MoodFit environment network: two AZs, isolated data and AZ-local NAT"
+Parameters:
+  Environment:
+    Type: "String"
+    AllowedValues:
+      - "staging"
+      - "production"
+    Default: "staging"
+  Owner:
+    Type: "String"
+  AvailabilityZoneA:
+    Type: "AWS::EC2::AvailabilityZone::Name"
+  AvailabilityZoneB:
+    Type: "AWS::EC2::AvailabilityZone::Name"
+  CloudFrontOriginPrefixListId:
+    Type: "String"
+  VpcCidr:
+    Type: "String"
+    Default: "10.40.0.0/16"
+Resources:
+  Vpc:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock:
+        Ref: "VpcCidr"
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  GatewayAttachment:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      InternetGatewayId:
+        Ref: "InternetGateway"
+  PublicSubnetA:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      AvailabilityZone:
+        Ref: "AvailabilityZoneA"
+      CidrBlock:
+        Fn::Select:
+          - 0
+          -
+            Fn::Cidr:
+              -
+                Ref: "VpcCidr"
+              - 6
+              - 8
+      MapPublicIpOnLaunch: false
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  PublicRouteTableA:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  PublicAssociationA:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PublicSubnetA"
+      RouteTableId:
+        Ref: "PublicRouteTableA"
+  AppSubnetA:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      AvailabilityZone:
+        Ref: "AvailabilityZoneA"
+      CidrBlock:
+        Fn::Select:
+          - 2
+          -
+            Fn::Cidr:
+              -
+                Ref: "VpcCidr"
+              - 6
+              - 8
+      MapPublicIpOnLaunch: false
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  AppRouteTableA:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  AppAssociationA:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "AppSubnetA"
+      RouteTableId:
+        Ref: "AppRouteTableA"
+  DataSubnetA:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      AvailabilityZone:
+        Ref: "AvailabilityZoneA"
+      CidrBlock:
+        Fn::Select:
+          - 4
+          -
+            Fn::Cidr:
+              -
+                Ref: "VpcCidr"
+              - 6
+              - 8
+      MapPublicIpOnLaunch: false
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  DataRouteTableA:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  DataAssociationA:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "DataSubnetA"
+      RouteTableId:
+        Ref: "DataRouteTableA"
+  PublicRouteA:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId:
+        Ref: "PublicRouteTableA"
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId:
+        Ref: "InternetGateway"
+    DependsOn: "GatewayAttachment"
+  NatAddressA:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: "vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    DependsOn: "GatewayAttachment"
+  NatGatewayA:
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - "NatAddressA"
+          - "AllocationId"
+      SubnetId:
+        Ref: "PublicSubnetA"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    DependsOn: "PublicRouteA"
+  AppRouteA:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId:
+        Ref: "AppRouteTableA"
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId:
+        Ref: "NatGatewayA"
+  PublicSubnetB:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      AvailabilityZone:
+        Ref: "AvailabilityZoneB"
+      CidrBlock:
+        Fn::Select:
+          - 1
+          -
+            Fn::Cidr:
+              -
+                Ref: "VpcCidr"
+              - 6
+              - 8
+      MapPublicIpOnLaunch: false
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  PublicRouteTableB:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  PublicAssociationB:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PublicSubnetB"
+      RouteTableId:
+        Ref: "PublicRouteTableB"
+  AppSubnetB:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      AvailabilityZone:
+        Ref: "AvailabilityZoneB"
+      CidrBlock:
+        Fn::Select:
+          - 3
+          -
+            Fn::Cidr:
+              -
+                Ref: "VpcCidr"
+              - 6
+              - 8
+      MapPublicIpOnLaunch: false
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  AppRouteTableB:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  AppAssociationB:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "AppSubnetB"
+      RouteTableId:
+        Ref: "AppRouteTableB"
+  DataSubnetB:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      AvailabilityZone:
+        Ref: "AvailabilityZoneB"
+      CidrBlock:
+        Fn::Select:
+          - 5
+          -
+            Fn::Cidr:
+              -
+                Ref: "VpcCidr"
+              - 6
+              - 8
+      MapPublicIpOnLaunch: false
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  DataRouteTableB:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+  DataAssociationB:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "DataSubnetB"
+      RouteTableId:
+        Ref: "DataRouteTableB"
+  PublicRouteB:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId:
+        Ref: "PublicRouteTableB"
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId:
+        Ref: "InternetGateway"
+    DependsOn: "GatewayAttachment"
+  NatAddressB:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: "vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    DependsOn: "GatewayAttachment"
+  NatGatewayB:
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - "NatAddressB"
+          - "AllocationId"
+      SubnetId:
+        Ref: "PublicSubnetB"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+    DependsOn: "PublicRouteB"
+  AppRouteB:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId:
+        Ref: "AppRouteTableB"
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId:
+        Ref: "NatGatewayB"
+  S3Endpoint:
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      VpcId:
+        Ref: "Vpc"
+      VpcEndpointType: "Gateway"
+      ServiceName:
+        Fn::Sub: "com.amazonaws.${AWS::Region}.s3"
+      RouteTableIds:
+        -
+          Ref: "AppRouteTableA"
+        -
+          Ref: "AppRouteTableB"
+  AlbSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "CloudFront HTTPS only"
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+      SecurityGroupEgress:
+        -
+          IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "127.0.0.1/32"
+          Description: "Disable default unrestricted egress"
+  AppSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "ALB application only"
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+      SecurityGroupEgress:
+        -
+          IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "127.0.0.1/32"
+          Description: "Disable default unrestricted egress"
+  DataSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Application MySQL only"
+      VpcId:
+        Ref: "Vpc"
+      Tags:
+        -
+          Key: "Project"
+          Value: "MoodFit"
+        -
+          Key: "Environment"
+          Value:
+            Ref: "Environment"
+        -
+          Key: "Owner"
+          Value:
+            Ref: "Owner"
+      SecurityGroupEgress:
+        -
+          IpProtocol: "tcp"
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "127.0.0.1/32"
+          Description: "Disable default unrestricted egress"
+  CloudFrontIngress:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId:
+        Ref: "AlbSecurityGroup"
+      IpProtocol: "tcp"
+      FromPort: 443
+      ToPort: 443
+      SourcePrefixListId:
+        Ref: "CloudFrontOriginPrefixListId"
+  AlbToAppEgress:
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      GroupId:
+        Ref: "AlbSecurityGroup"
+      IpProtocol: "tcp"
+      FromPort: 8080
+      ToPort: 8080
+      DestinationSecurityGroupId:
+        Ref: "AppSecurityGroup"
+  AlbToAppIngress:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId:
+        Ref: "AppSecurityGroup"
+      IpProtocol: "tcp"
+      FromPort: 8080
+      ToPort: 8080
+      SourceSecurityGroupId:
+        Ref: "AlbSecurityGroup"
+  AppToDataEgress:
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      GroupId:
+        Ref: "AppSecurityGroup"
+      IpProtocol: "tcp"
+      FromPort: 3306
+      ToPort: 3306
+      DestinationSecurityGroupId:
+        Ref: "DataSecurityGroup"
+  AppToDataIngress:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId:
+        Ref: "DataSecurityGroup"
+      IpProtocol: "tcp"
+      FromPort: 3306
+      ToPort: 3306
+      SourceSecurityGroupId:
+        Ref: "AppSecurityGroup"
+  AppHttpsEgress:
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      GroupId:
+        Ref: "AppSecurityGroup"
+      IpProtocol: "tcp"
+      FromPort: 443
+      ToPort: 443
+      CidrIp: "0.0.0.0/0"
+Outputs:
+  PublicSubnetA:
+    Value:
+      Ref: "PublicSubnetA"
+  AppSubnetA:
+    Value:
+      Ref: "AppSubnetA"
+  DataSubnetA:
+    Value:
+      Ref: "DataSubnetA"
+  PublicSubnetB:
+    Value:
+      Ref: "PublicSubnetB"
+  AppSubnetB:
+    Value:
+      Ref: "AppSubnetB"
+  DataSubnetB:
+    Value:
+      Ref: "DataSubnetB"
+  Vpc:
+    Value:
+      Ref: "Vpc"
+  AlbSecurityGroup:
+    Value:
+      Ref: "AlbSecurityGroup"
+  AppSecurityGroup:
+    Value:
+      Ref: "AppSecurityGroup"
+  DataSecurityGroup:
+    Value:
+      Ref: "DataSecurityGroup"
+Rules:
+  DistinctAvailabilityZones:
+    Assertions:
+      -
+        Assert:
+          Fn::Not:
+            -
+              Fn::Equals:
+                -
+                  Ref: "AvailabilityZoneA"
+                -
+                  Ref: "AvailabilityZoneB"
+        AssertDescription: "Select two different available Seoul AZs"

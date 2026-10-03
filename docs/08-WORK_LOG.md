@@ -3051,3 +3051,12 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - Run 1의 정지 사유 분류 오류(개선 후보): Codex CLI의 "Selected model is at capacity"(일시적 서버 용량 오류)가 `Executor: quota`로 분류되었다. Codex 출력에 포함된 Code Diff 본문이 사용량 한도 판정 정규식에 걸렸다. 판정 대상을 Codex의 오류 줄로 한정하고 용량 오류를 별도 종류로 구분하는 것을 후속 개선 후보로 둔다.
 - Review R2-001 / R2-002(비차단)는 후속 개선 후보로 둔다: 구분 기호 뒤에 영숫자 값이 없는 허용 항목 거부, 세미콜론 / 괄호 접미 사례 Test, `run()` Resume → Git 단계 end-to-end Test. R2-003은 docs/12에, R2-004는 docs/07에 Claude 세션이 반영했다.
 - 운영 방법: Guard가 Secret 판정으로 정지하면 Run 기록의 위치(파일 / 줄 / 규칙)를 보고 Human이 문구를 승인한다. Claude 세션이 Contract `secret_scan_allow`에 추가해 Task Branch에 Commit / Push한 뒤 `resume-approval.json`과 함께 `--resume`한다.
+
+
+## 2026-10-03 — TASK-026 AWS IaC Foundation 구현
+
+- 승인 범위: TASK-026 CloudFormation YAML / 정적 검증만. DEC-027 ~ DEC-030을 유지했다.
+- 구현: 6개 Foundation Stack과 Placeholder Parameter 예시, Network 격리 / SG 최소화, immutable 공용 ECR, RDS MySQL 8.4.11 Multi-AZ 암호화 / 관리형 관리자 credential / Snapshot 정책, Private S3 OAC / CloudFront, DNS 검증 인증서와 최소 권한 IAM 표현.
+- 문서: Foundation 의존 순서 / Change Set / Replacement / 잔존 비용 / TASK-028 승인 Checkpoint, Architecture / Access Policy 현재 입력, Prompt 기록을 갱신했다.
+- 참고 Verification: Bash 구문과 git diff --check 통과. 6개 YAML 파싱 / Reference / Parameter 예시 일치 / 51,200 bytes 제한, IAM inline 정책과 승인 초안 내용 일치, 변경 파일 UTF-8 / 연속 물음표 / U+FFFD 검사 통과. Sandbox Python에서 cfn-lint 모듈을 확인하지 못했으며 AWS / 네트워크 조회는 실행하지 않았다. 실제 Lint / ValidateTemplate / 가용성 판정은 Sandbox 밖 Orchestrator Verify 기준이다.
+- 상태: TASK-026 DONE / TASK-027 READY는 이번 PR 구현 완료 반영이다. Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. AWS Resource / 설정 변경과 Git 후속 작업은 수행하지 않았다.

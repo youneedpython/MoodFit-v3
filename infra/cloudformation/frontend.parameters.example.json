@@ -1,0 +1,22 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "staging"
+  },
+  {
+    "ParameterKey": "Owner",
+    "ParameterValue": "<Owner>"
+  },
+  {
+    "ParameterKey": "HostedZoneId",
+    "ParameterValue": "<HostedZoneId>"
+  },
+  {
+    "ParameterKey": "ViewerHostname",
+    "ParameterValue": "staging.moodfit.8949db.kr"
+  },
+  {
+    "ParameterKey": "ViewerCertificateArn",
+    "ParameterValue": "<ViewerCertificateArn>"
+  }
+]
