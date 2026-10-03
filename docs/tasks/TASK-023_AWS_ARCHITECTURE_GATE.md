@@ -182,6 +182,23 @@ Human이 Gate 검토 자료를 보고 **B안(Production-like)**을 선택했다.
 4. 2차 Run Review의 F-001(07-TASKS의 `## TASK-023` 제목 앞 구분선 누락, WORK_LOG Test 시간 표기)을 고친다.
 5. AWS Resource 생성, AWS CLI 사용, IaC 작성, Workflow 변경은 하지 않는다.
 
+## Human 결정 2 — Domain (2026-10-03)
+
+Human이 8번 Domain을 `8949db.kr`로 확정했다. 기본값(CloudFront 기본 Domain + HTTP origin)은 사용하지 않는다.
+
+- 구성: 사용자 진입은 CloudFront(사용자 정의 hostname, ACM 인증서 us-east-1), CloudFront → ALB는 **HTTPS origin**(ALB 전용 origin hostname, ACM 인증서 ap-northeast-2)으로 한다. ALB 보호(CloudFront origin-facing prefix list + 검증 header)는 유지한다.
+- 기본 hostname (TASK-026 IaC 작성 전 변경 가능): Production `moodfit.8949db.kr`, Staging `staging.moodfit.8949db.kr`, ALB origin `origin.<환경 hostname>` 형식. Apex(`8949db.kr`)는 사용하지 않는다.
+- DNS: Route 53 Public Hosted Zone을 MoodFit 계정에 두고 ACM은 DNS 검증을 사용한다.
+- DNS 현황 (Claude 세션, 2026-10-03 공개 DNS / RDAP 조회): 도메인은 등록 상태(만료 2027-02-26)이며 위임 네임서버는 Route 53(`awsdns`) 4개다. 그러나 해당 네임서버가 질의를 거부(REFUSED, lame delegation)한다. 위임된 Hosted Zone이 존재하지 않는 상태로 판단한다. **TASK-026 전 선행 조건**: 사용할 계정에 Hosted Zone을 만들고 등록 기관에서 네임서버를 새 Zone 값으로 바꾼 뒤 DNS 응답을 확인한다. 네임서버 변경은 Human이 수행한다. 도메인 만료(2027-02-26) 전 갱신도 Human 책임이다.
+- 비용: Route 53 Hosted Zone / 질의 비용을 Cost Matrix에 포함한다. 공개 ACM 인증서는 별도 비용이 없는 것으로 알려져 있으나 공식 문서로 확인해 표기한다.
+
+### Run 4 Codex 작업 범위
+
+1. `docs/13-AWS-ARCHITECTURE.md`와 DEC-027에 위 Domain 결정을 반영한다. CloudFront 기본 Domain / HTTP origin 잔여 위험 서술은 HTTPS origin 기준으로 바꾼다. Lame delegation 현황과 선행 조건을 기록한다.
+2. Run 3 Review N-001(WORK_LOG `## TASK-023` 제목 앞 빈 줄)을 고친다.
+3. TASK-023 DONE / TASK-024 READY / AGENTS.md 3절 반영은 유지한다.
+4. **이후 Task에서 결정 / 수행하기로 이미 기록된 항목**(DNS 위임 복구, hostname 최종 확정, MySQL 8.4 Local / Testcontainers / CI 전환 Decision, 최소 권한 Profile 준비, Region 가용성 확인)은 문서에 담당 Task와 시점을 기록한다. 이번 Run의 `human_decisions_needed`로 보고하지 않는다. 이번 Task 범위 안에서 새로 결정이 필요한 사항이 생길 때만 보고한다.
+
 ## 제외 범위
 
 - CloudFormation / Terraform 작성
