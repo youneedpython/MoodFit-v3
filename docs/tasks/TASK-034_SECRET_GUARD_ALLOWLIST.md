@@ -61,6 +61,34 @@ Codex 작업 범위 (이 Run):
 5. 이 Run 자체는 현재 Version의 Guard로 검사된다(허용 목록 없음). 추가하는 모든 줄에서 자격 증명 단어로 끝나는 식별자 / Key 바로 뒤에 콜론이나 등호와 값이 오지 않게 한다(변수 이름을 그 단어로 끝내지 않는다). 작업을 마치기 전에 `git diff`의 추가 줄을 스스로 검색해 확인한다.
 6. 새로 Human 결정이 필요한 사항만 `human_decisions_needed`로 보고한다. 기본 차단 규칙을 좁혀야만 구현할 수 있는 요구가 있으면 구현하지 않고 보고한다.
 
+## Run 1 결과와 Run 2 작업 범위 (2026-10-03, Claude 세션 기록)
+
+Run 1(`2026-10-03T08-10-10-490Z-b506848a`):
+
+- 1회차: Codex 구현 → Verify 성공 → Claude Review **CHANGES_REQUIRED**(R1-001 ~ R1-004).
+- 2회차: 자동 Rework 도중 Codex CLI가 "Selected model is at capacity" 오류로 종료했다(일시적 서버 용량 문제). Orchestrator는 이를 `Executor: quota`로 분류해 BLOCKED 했다. 분류가 틀린 원인은 Codex 출력에 포함된 Code Diff 본문의 단어가 사용량 한도 판정 정규식에 걸린 것이다(개선 후보로 WORK_LOG에 기록).
+- 2회차 Rework는 일부만 진행된 상태에서 멈췄다. Claude 세션이 작업 폴더 상태를 **검토 미완료 WIP**로 Commit했다. Codex CLI는 이후 정상 응답을 확인했다. WIP 상태에서 Orchestrator Test는 111개 중 2개가 실패한다(Rework가 중간에 끊긴 영향). Run 2에서 전체 통과로 만든다.
+
+Run 2는 Branch의 WIP Orchestrator가 아니라 main의 안정 Version으로 실행한다.
+
+Run 2 Codex 작업 범위:
+
+1. WIP Commit 상태에서 이어서 작업한다. 아래 Run 1 Review Finding 전부가 해결되었는지 하나씩 확인하고 미해결이면 고친다. 일부만 고쳐진 Code가 있을 수 있으므로 Finding별로 구현과 Test를 다시 점검한다.
+2. R1-002(허용 문구의 경계 조건)는 이 Task의 핵심 안전 조건이다. 다음을 만족해야 한다.
+   - 허용 문구와 일치한 부분의 바로 앞 / 뒤 문자가 같은 Key 또는 값의 연속이면(공백 / 줄 경계 / 구두점으로 분리되지 않으면) 그 일치는 허용으로 처리하지 않는다.
+   - 허용 문구가 자격 증명 단어만이거나 "단어 + 구분 기호"로 끝나 값이 없는 형태일 때, 그 뒤에 오는 값을 허용하지 않는다. 구체적으로: 치환 후 사본에서 그 위치 뒤에 값이 이어지면 차단되어야 한다. 구현 방식은 자유지만, "승인 문구가 사실상 wildcard가 되는 경우"가 없음을 Test로 증명한다. 필요한 경우 이런 형태의 문구는 Contract 검증에서 거부하되, TASK-023 형태(목록 항목 이름 + 자연어 설명)는 **설명까지 포함한 전체 문구**를 승인하는 방식으로 해결할 수 있음을 Test와 문서로 보인다.
+3. R1-001(Resume 후 Git 단계): Human이 Contract의 허용 목록을 고친 뒤 Resume하는 흐름이 Git 단계까지 도달해야 한다. 권장 방향은 **Human이 Contract 변경을 Task Branch에 Commit한 뒤 Resume**하는 것이다(Working Tree가 깨끗한 상태). 이 경우 Source HEAD가 Run 시작 revision에서 Contract Commit만큼 앞서게 되므로, Resume의 HEAD / Diff 일치 검사와 Git 단계의 parent 검사가 "frozen revision 이후 Commit이 해당 Task Contract 파일의 `secret_scan_allow` 변경뿐인 경우"를 허용하도록 정의하고 Test한다. 그 밖의 변경이 섞여 있으면 `BLOCKED`. 다른 방식이 더 단순하고 안전하면 그 방식을 택하고 근거를 문서에 적는다.
+4. R1-003, R1-004를 반영한다.
+5. 현재 Version Guard 회피 규칙(실행 기준 5번)을 그대로 지킨다.
+6. 완료 반영과 WORK_LOG 기록을 유지 / 갱신한다. 새로 Human 결정이 필요한 사항만 `human_decisions_needed`로 보고한다.
+
+### Run 1 Review Finding 원문
+
+- **R1-001** Human 결정 4의 Resume 흐름이 TASK-022 이후 실제 Task에서는 Git 단계에 도달하지 못한다. Resume은 sourceRoot의 `harness/tasks/<TASK>.json`을 Human이 수정한 상태(미Commit)를 전제로 하며 run.mjs는 Preflight dirty 검사와 Workspace 생성 전 Snapshot에서만 이 파일을 제외한다. 그러나 git-automation.mjs의 `checkSource`는 `changes(sourceRoot).length`가 0이 아니면 'Dirty Working Tree conflict before Git'으로 BLOCKED한다. 이후의 `guard(transferred, files, contract)`(changed_files mismatch), `transferred.diff !== reviewed.diff`, Commit 전 `git diff` 검사, Commit 후 `changes` 검사도 같은 이유로 실패한다. Human이 Contract 변경을 Commit하면 'Resume HEAD mismatch' 또는 'Git branch / HEAD conflict'가 되고, 되돌리면 허용 목록이 사라져 Preflight / Guard가 다시 차단되므로 빠져나갈 경로가 없다. 신규 Fake CLI Test는 Git 단계를 건너뛰는 TASK-019이고 Workspace 생성 전 정지만 다루어 이 경로를 검증하지 않는다. 수정: Git 단계에서 활성 Contract의 허용 목록만 바뀐 경우를 어떻게 처리할지(Stage 제외와 비교 제외, 또는 다른 승인된 방식) 구현하고 docs/12에 적는다. 기본 차단 규칙이나 Git 정책을 넓혀야만 가능하다면 구현하지 말고 `human_decisions_needed`로 보고한다. Test 추가: (a) Guard 단계(Workspace 생성 후) Secret 정지 → 허용 목록 추가 → 승인 Resume, (b) TASK-022 이상 ID로 Resume 후 Git handoff까지 도달.
+- **R1-002** 허용 문구 치환에 경계 조건이 없어 승인 문구가 주변 값의 검사를 무력화한다(Review 기준 1 / 2, Human 결정 3의 '앞뒤의 다른 내용은 계속 검사된다' 위반). `scanCopy`는 일치 부분을 공백으로 감싼 중립 표기로 바꾸므로 두 경우가 통과한다. (1) 승인 문구가 할당 형태(자격 증명 단어 + 구분 기호 + 값)일 때 그 바로 뒤에 공백 없이 이어 붙인 임의 문자열은 원래 같은 할당 값의 일부로 차단되지만, 치환 후에는 Key가 사라져 검사되지 않는다. (2) 승인 문구가 자격 증명 단어만이거나 단어 + 구분 기호로 끝나면(값 없음, 3자 이상이면 `validateSecretAllow` 통과) 그 Key에 대한 모든 할당이 통과해 사실상 wildcard가 된다. 현재 Test는 문구 뒤에 또 다른 완전한 할당이 오는 경우와 문구를 줄인 경우만 확인한다. 수정 예: 일치 직전 / 직후 문자가 할당 Key 또는 값의 연속이면(공백 / 줄 경계 / 승인된 구분 문자가 아니면) 치환하지 않는다. 그리고 자격 증명 단어 단독 또는 구분 기호로 끝나 값이 없는 항목은 Contract 검증에서 거부한다. 두 경우의 차단 Test를 조각 연결 방식으로 추가한다. 항목 거부 기준을 바꾸는 것이 Human 결정 2의 범위를 넘는다고 판단하면 구현하지 말고 `human_decisions_needed`로 보고한다.
+- **R1-003** `scanCopy`가 모든 입력에 원문 형태와 JSON escape 형태를 함께 적용한다. JSON 직렬화를 거치지 않는 입력(Task 문서 원문, Guard 추가 줄, PR 본문, Commit 메시지)에서도 escape 형태(따옴표 / 역슬래시 앞에 역슬래시가 붙은 표기)가 승인 문구로 취급되어, Human이 승인하지 않은 문자열이 제외된다. '정확히 일치하는 literal만' 기준에 맞게 호출부가 입력이 직렬화된 것인지 알려 주고(Preflight Contract, Resume 승인만 해당) 그 경우에만 escape 형태를 적용한다. 원문 입력에서 escape 형태가 차단되는 Test를 추가한다.
+- **R1-004** docs/12의 `### TASK-034 승인 문구 검사` 절이 `## Resume` 제목과 기존 Resume 본문('Human이 정지 사유와 Diff를 검토하고…' 및 승인 JSON 예시) 사이에 들어갔다. 기존 Resume 설명이 TASK-034 하위 절에 속한 것처럼 읽힌다. 새 절을 기존 Resume 본문 뒤나 별도 상위 절로 옮긴다. R1-001에서 정한 Resume 후 Git 단계의 Contract 처리와 R1-002의 경계 규칙 / 한계도 함께 기록해 설계 문서가 구현과 일치하게 한다.
+
 ## Human Gate
 
 - 허용 문자열의 형식 제한, 최대 개수 / 길이, 자격 증명 형태 거부 기준은 Gate에서 확정한다.
