@@ -1,5 +1,15 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-032 — Run 4 Human 결정 A 반영 (2026-10-03)
+
+- Secret 검사 변경을 TASK-032에서 제외하고 오탐 감소를 TASK-034의 Human 승인 허용 문구 목록으로 분리했다. 아래 이전 Run의 완화 구현 기록은 당시 이력이며 현재 구현 기준이 아니다.
+- lib.mjs의 redact / sanitize / assertNoSecrets / guard를 main의 안정 Version과 동일하게 복원했다. Secret 판정용 보조 함수 / 정규식 / 분기는 제거했다. 관련 구간의 원문 동일성을 직접 확인했다.
+- 완화 허용 및 완화 회귀 Test를 제거하고 실행 시 조합한 main 대표 차단 사례 Test를 유지했다. 기존 main Test와 PR 본문 assertNoSecrets 적용은 유지한다.
+- 정책 / 설계에서 완화 판단 기준을 제거하고 기존 오탐 회피 작성 규칙의 지속 적용을 기록했다. PR / 자동 Rework / 짧은 작업 폴더 및 명시 정리 / AWS Preflight / 승인 Git 범위 확대는 유지했다.
+- TASK-032 DONE / TASK-033 READY 완료 반영을 유지한다. Orchestrator Verify / Claude Review / Human Squash Merge 전 완료 승인을 주장하지 않는다. Git handoff 및 실제 AWS 호출은 수행하지 않았다.
+- Prompt: `prompts/55-TASK-032-RUN-4-SECRET-RESTORE.md`.
+- Executor 참고 검증: 최초 전체 실행에서 새 Private Key Fixture의 tracked Diff 구성 오류가 발견되어 untracked 전체 내용 검사로 수정했다. 수정 후 관련 Test 8 / 8 및 최종 전체 Test 103 / 103 통과(Exit 0, 실패 / skipped 0). git diff --check, main Secret 구현 동일성, 누적 경로 / Secret Guard, 추가 줄의 구 Version 금지 식별자 검사와 변경 문서 UTF-8 / 연속 물음표 / U+FFFD 검사도 통과했다. package.json / package-lock.json 변경 없음. Orchestrator Verify가 최종 검증 기준이다.
+
 ## TASK-032 — R4 Review Rework (2026-10-03)
 
 - R4-001: 줄바꿈을 제외한 모든 공백을 구분 기호 / 설명 / 주석 경계에 적용했다. NBSP / 전각 공백 / form feed / vertical tab의 등호·콜론 할당을 Guard / JSON 입력 / Redaction 회귀 Test로 확인한다.

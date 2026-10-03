@@ -81,7 +81,7 @@ TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR 
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
-| TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 완화 / 새 Dependency 시 Gate |
+| TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 정밀화는 TASK-034로 분리 / 새 Dependency 시 Gate |
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | READY | TASK-032 구현 완료 반영. 별도 명시 실행 지시 후 시작 | Gate C (DEC-023 변경) |
 | TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | BLOCKED | TASK-033 완료. TASK-026 전에 실행 | 허용 문자열 기준은 Gate |
 
@@ -1559,7 +1559,7 @@ DONE
 
 ### 목적
 
-자동 PR 제목 / 본문을 한글 작업 설명으로 만들고, Secret 검사 오탐을 줄이고, Gate 보고와 Review 수정 요구가 겹칠 때 자동 Rework하도록 Orchestrator를 보강한다.
+자동 PR 제목 / 본문을 한글 작업 설명으로 만들고, Gate 보고와 Review 수정 요구가 겹칠 때 자동 Rework하도록 Orchestrator를 보강한다. Human 결정 A에 따라 Secret 검사 정밀화는 TASK-034(승인 허용 문구 목록)로 분리하며 기본 검사는 main과 동일하게 유지한다.
 
 ### Human Approval 또는 Gate
 

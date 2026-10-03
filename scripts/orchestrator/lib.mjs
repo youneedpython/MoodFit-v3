@@ -19,69 +19,11 @@ export function classify(message) {
 export const blocked = message => { throw new Stop('BLOCKED', message); };
 export const readJson = async file => JSON.parse((await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
 export function redact(value) {
-  let input = String(value);
-  const ranges = [];
-  // Inspect serialized strings as their original text, before escaped newlines
-  // or quotes can hide assignment boundaries.
-  try {
-    const parsed = JSON.parse(String(value));
-    if (parsed && typeof parsed === 'object') {
-      const clean = redactStrings(parsed);
-      return JSON.stringify(clean) === JSON.stringify(parsed) ? input : JSON.stringify(clean);
-    }
-  } catch { /* Plain text uses the same deterministic scanner below. */ }
-  const scanned = input
+  return String(value)
     .replace(/-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?-----END [^-]*PRIVATE KEY-----/g, '[REDACTED PRIVATE KEY]')
-    .replace(/\bBearer\s+[^\s"']+/gi, match => placeholder(match.slice(7)) ? match : 'Bearer [REDACTED]')
-    .replace(/\b(?:sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|github_pat_[A-Za-z0-9_]{8,}|(?:AKIA|ASIA)[A-Z0-9]{16})\b/g, '[REDACTED]')
-    .replace(/\b[a-z][a-z0-9+.-]*:\/\/[^\s/@:]+:[^\s/@]+@/gi, '[REDACTED URL]@')
-    .replace(/(?<![\w-])(["']?[\w-]*(?:password|passwd|api[ _-]?key|access[_-]?token|secret|token)[\w-]*["']?[^\S\r\n]*([:=])[^\S\r\n]*)(?=("[^"\r\n]*"|'[^'\r\n]*'|<[^<>\r\n]*>|\$\{[^}\r\n]*\}|\{\{[^{}\r\n]*\}\}|[^\s,]+))/gim,
-      (match, key, separator, raw, offset, source) => {
-        const quoted = /^["']/.test(raw);
-        const candidate = (quoted ? raw : raw.replace(/[^\S\r\n]+#.*$/, '')).trim().replace(/^["']|["']$/g, '');
-        const next = source[offset + match.length + raw.length];
-        if (placeholder(candidate) && (!next || /[\s,}\]]/.test(next))) return match;
-        const firstPart = candidate.replace(/[`).;]+$/u, '');
-        const actionPart = firstPart.replace(/["',]+$/u, '');
-        if (!quoted && separator === ':' && key.trim().replace(/^["']/, '') === 'secretsmanager:' && /^(?:[A-Z][A-Za-z]*\*?|\*)$/.test(actionPart)) return match;
-        const before = source.slice(0, offset).split(/[\s"'`]/u).at(-1);
-        const arnPart = before + key.trim() + raw;
-        const arnShape = /^arn:aws(?:-[a-z]+)*:[a-z0-9-]+:[^:\s]*:[^:\s]*:[^\s]+$/u;
-        if (!quoted && separator === ':' && (arnShape.test(firstPart) || (before.startsWith('arn:') && arnShape.test(arnPart)))) return match;
-        // Only this candidate's first word can be allowed. Later assignments
-        // remain independent matches, including ones following prose or ARN.
-        const tail = source.slice(offset + match.length + raw.length).split(/[\r\n,]/u)[0].replace(/[^\S\r\n]+#.*$/, '');
-        const sentence = /[\uAC00-\uD7A3]/u.test(firstPart) || /^[^\S\r\n]+[A-Za-z\uAC00-\uD7A3]/u.test(tail);
-        const credentialShape = /^[!-~]{8,}$/u.test(firstPart) || /[0-9|]/u.test(firstPart) || /[^A-Za-z\uAC00-\uD7A3]/u.test(firstPart);
-        if (!quoted && separator === ':' && sentence && !credentialShape) return match;
-        const start = offset + match.length;
-        const span = quoted ? raw.length : source.slice(start).split(/[,\r\n]/u)[0].length;
-        ranges.push({ start, end: start + span });
-        return match;
-      });
-  // Lookahead keeps every candidate visible in the original text. Merge
-  // overlapping value spans (for example nested assignments in quoted text).
-  const merged = [];
-  for (const range of ranges) {
-    const last = merged.at(-1);
-    if (last && range.start <= last.end) last.end = Math.max(last.end, range.end);
-    else merged.push({ ...range });
-  }
-  let output = scanned;
-  for (const range of merged.toReversed()) output = output.slice(0, range.start) + '"[REDACTED]"' + output.slice(range.end);
-  return output;
-}
-function redactStrings(value, sensitiveContext = false) {
-  if (typeof value === 'string') return sensitiveContext && !placeholder(value) ? '[REDACTED]' : redact(value);
-  if (Array.isArray(value)) return value.map(item => redactStrings(item, sensitiveContext));
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => {
-    const sensitive = /(?:password|passwd|api[ _-]?key|access[_-]?token|secret|token)/i.test(key);
-    return [key, redactStrings(item, sensitiveContext || sensitive)];
-  }));
-  return sensitiveContext ? '[REDACTED]' : value;
-}
-function placeholder(value) {
-  return !value || /^(?:<[^<>]*>|\$\{[^}]*\}|\{\{[^{}]*\}\}|\[?REDACTED\]?)$/i.test(value);
+    .replace(/\bBearer\s+[^\s"']+/gi, 'Bearer [REDACTED]')
+    .replace(/\b(?:sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|github_pat_[A-Za-z0-9_]{8,}|AKIA[A-Z0-9]{16})\b/g, '[REDACTED]')
+    .replace(/((?:["']?)(?:password|passwd|api[_-]?key|access[_-]?token|secret(?:[_-]?key)?|token)(?:["']?)\s*[:=]\s*)("[^"\r\n]*"|'[^'\r\n]*'|[^\s,}\r\n]+)/gi, '$1"[REDACTED]"');
 }
 export function sanitize(value) {
   if (typeof value === 'string') return redact(value);

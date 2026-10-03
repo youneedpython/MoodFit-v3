@@ -165,7 +165,7 @@ Human은 2026-10-02 Decision Matrix의 모든 항목을 권장안대로 승인�
 ## 12. 승인 후 절차
 
 - TASK-032 승인 범위에서 PR / Commit 제목은 Task ID와 Task 제목으로 구성한다. PR 본문은 한글 작업 개요, 주요 변경, 검증, Review 회차와 판정, 후속 작업 / 위험, Human Squash Merge 안내 및 Co-author를 포함한다. 파일 목록 / 통계는 끝의 접힌 영역으로 보낸다. 완전한 본문을 Secret 검사한 뒤 길이 상한을 적용한다.
-- Secret 검사는 env 할당 / 따옴표 JSON·YAML / URL 자격 증명과 알려진 Key 형태의 차단을 유지한다. 모든 후보를 독립 검사하며 첫 단어의 Placeholder / ARN resource 구분자 / IAM Action / 자연어 Markdown 설명만 허용한다. 허용 후보 뒤의 할당도 계속 검사하고 세로선은 자연어 근거로 쓰지 않는다. JSON 객체는 복원한 내부 문자열과 민감한 Key 아래의 모든 primitive를 구조적으로 검사하며 직렬화된 escape 문자는 평문으로 재검사하지 않는다. 결정적 구분과 오탐 한계는 docs/12를 따른다. Gate와 CHANGES_REQUIRED가 겹치면 Gate를 보존하며 최대 3회 Rework하고, 최종 판정 / 회차와 함께 HUMAN_REQUIRED로 정지한다. 승인 없는 Git 단계는 금지한다.
+- 기본 Secret 검사는 변경하지 않았다. Human 결정 A에 따라 main의 안정 Version으로 복원하고 오탐 감소는 TASK-034(Contract의 Human 승인 허용 문구 목록)로 분리한다. 기존 오탐 회피 작성 규칙과 PR 본문 assertNoSecrets 적용은 유지한다. Gate와 CHANGES_REQUIRED가 겹치면 Gate를 보존하며 최대 3회 Rework하고, 최종 판정 / 회차와 함께 HUMAN_REQUIRED로 정지한다. 승인 없는 Git 단계는 금지한다.
 
 - AGENTS.md 절 본문 예외는 Human 승인과 Task Contract의 `agents_sections` 명시가 모두 있을 때만 허용한다. 문자열 절 번호 배열로 승인 범위를 제한하며 절 제목 변경 / 삭제와 그 밖의 절 변경은 BLOCKED다. 필드가 없으면 3절 Current Task / Status 코드 블록 동기화만 허용한다. Executor의 자기 Contract 변경은 금지한다. TASK-021 Human 결정 2에서 `["12"]`를 승인했다.
 
