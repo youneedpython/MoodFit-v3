@@ -55,6 +55,25 @@ export function resumeContract(frozenValue, currentValue, identity = contractIde
   validateSecretAllow(currentValue.secret_scan_allow);
   return { ...currentValue, secret_scan_allow: currentValue.secret_scan_allow ?? [] };
 }
+export async function resumeSourceRevision(root, revision, contract, identity = contractIdentity(contract)) {
+  const head = (await git(root, ['rev-parse', 'HEAD'])).trim();
+  if (head === revision) return head;
+  const active = `harness/tasks/${contract.id}.json`;
+  await git(root, ['merge-base', '--is-ancestor', revision, head]);
+  const commits = (await git(root, ['rev-list', '--reverse', `${revision}..${head}`])).trim().split('\n');
+  for (const commit of commits) {
+    const parents = (await git(root, ['rev-list', '--parents', '-n', '1', commit])).trim().split(' ');
+    if (parents.length !== 2) blocked('Resume contract history must be linear');
+    const files = (await git(root, ['diff-tree', '--no-commit-id', '--name-only', '-r', '-z', commit])).split('\0').filter(Boolean);
+    if (files.length !== 1 || files[0] !== active) blocked('Resume history contains non-contract changes');
+    let value;
+    try { value = JSON.parse(await git(root, ['show', `${commit}:${active}`])); }
+    catch { blocked('Resume contract history malformed'); }
+    resumeContract(contract, value, identity);
+  }
+  if ((await changes(root)).length) blocked('Resume committed contract requires clean source');
+  return head;
+}
 export function redact(value) {
   return String(value)
     .replace(/-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?-----END [^-]*PRIVATE KEY-----/g, '[REDACTED PRIVATE KEY]')
@@ -228,7 +247,7 @@ export function guard(snapshotValue, reported, contract) {
   // Check introduced lines, not old/context lines containing deliberate test fixtures.
   // Untracked content has no '+' prefix and must be checked in full.
   const [tracked, ...untracked] = (snapshotValue.diff ?? '').split('\n--- untracked: ');
-  const added = tracked.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++')).join('\n');
+  const added = tracked.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++')).map(line => line.slice(1)).join('\n');
   const introduced = [added, ...untracked].join('\n');
   if (/\?{3,}|\uFFFD/u.test(introduced)) blocked('Guard: encoding corruption detected');
   try { assertNoSecrets(introduced, contract.secret_scan_allow, 'guard-added-lines'); }

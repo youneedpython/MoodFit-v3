@@ -1,5 +1,14 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-034 — Run 2 WIP Review 수정 (2026-10-03)
+
+- R1-001: Human이 활성 Contract 허용 목록 변경만 Commit한 Source revision을 Resume에서 검증한다. 각 중간 Commit의 단일 부모 / 변경 파일 / 비목록 fingerprint / 목록 형식을 확인하고 Git 단계의 HEAD 및 parent 기준으로 전달한다. 기존 Workspace HEAD와 누적 Snapshot 검사는 유지한다.
+- R1-002: WIP 경계 검사와 불완전 할당 거부를 확인하고 접미 값 / 단어 단독 / 값 없는 구분 기호 회귀 Test를 추가했다. Guard 추가 표시를 제거하여 실제 줄의 literal 경계를 검사한다.
+- R1-003: JSON escape 형태는 직렬화 입력에만 적용한다. 원문에서 escape 형태가 승인되지 않는 회귀 Test와 직렬화 호출 명시를 보완했다.
+- R1-004: 승인 문구 설명을 별도 상위 절로 옮기고 Resume 본문과 승인 예시를 같은 절로 복구했다. 경계 및 Human Contract Commit 흐름을 설계에 기록했다.
+- TASK-034 DONE / TASK-026 READY의 기존 구현 완료 반영을 유지한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge는 완료 승인에 별도로 필요하다. 새 Human 결정과 실제 AWS 작업은 없다.
+- Executor 참고 검증: 초기 WIP는 111개 중 JSON 직렬화 / Guard 경계 Test 2개가 실패했다. 수정 후 전체 Orchestrator Test 114개가 통과했다. Workspace 생성 후 Guard 정지 → Human Contract Commit → 승인 Resume와 TASK-022 Git handoff를 Fake CLI / 임시 Repository로 검증했다. `git diff --check` 통과, 변경 문서의 연속 물음표 / U+FFFD와 추가 줄의 기존 할당 차단 규칙 일치가 없음을 직접 확인했다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+
 ## TASK-032 — Run 4 Human 결정 A 반영 (2026-10-03)
 
 - Secret 검사 변경을 TASK-032에서 제외하고 오탐 감소를 TASK-034의 Human 승인 허용 문구 목록으로 분리했다. 아래 이전 Run의 완화 구현 기록은 당시 이력이며 현재 구현 기준이 아니다.

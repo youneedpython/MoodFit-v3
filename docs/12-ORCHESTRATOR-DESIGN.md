@@ -142,19 +142,21 @@ PR 길이 제한은 surrogate pair를 나누지 않고 빈 Finding / 후속 작�
 
 자기 구현을 변경하는 TASK-020은 실행 시작 시점의 안정 Module / Template / Schema로 실행하며 변경 중인 Module을 동적으로 import하지 않는다. Resume도 검증된 안정 Entrypoint로 실행한다.
 
-## Resume
-
-### TASK-034 승인 문구 검사
+## TASK-034 승인 문구 검사
 
 Contract 선택 필드 `secret_scan_allow`는 Human이 승인한 literal 문자열 배열이다. 생략 / 빈 배열은 기존 동작을 유지한다. 대소문자를 구분하며 중복 없이 최대 50개, 항목당 3 ~ 200 UTF-16 code unit이다. 한 줄이며 제어 문자 / 앞뒤 공백은 거부한다. 정규식 / wildcard 실행 기능은 없고 해당 문자는 그대로 비교한다. Private Key Block / Bearer(HTTP 인증 헤더) 값 / OpenAI 및 GitHub Key 형식 / 장기 및 임시 AWS Access Key ID / URL 사용자 정보의 자격 증명 형태는 Contract 검증에서 BLOCKED다. 자격 증명 단어와 구분 기호를 포함한 문서 표기는 정확한 문구를 Human이 승인한 경우에만 제외한다.
 
-차단 판정은 원문과 JSON 직렬화 escape 형태를 함께 비교한다. 긴 형태부터 한 번의 literal 치환으로 중립 표기를 넣은 사본을 만들고 기존 판정을 적용한다. 허용 문구 주변 / 같은 줄의 다른 할당은 계속 검사한다. 적용 대상은 Preflight의 Task 문서 / Contract, Resume 승인, Guard 추가 줄 / untracked, PR 전체 제목 / 본문과 Commit 메시지다. Contract 허용 목록은 메타데이터로 분리하여 형식 / 자격 증명 형태를 검증하고 나머지 Contract를 검사한다. 설정 입력에는 허용 목록을 적용하지 않는다.
+차단 판정은 원문 입력에서는 승인 literal만 비교하고, JSON 직렬화된 Contract / Resume 승인 입력에서만 escape 형태를 비교한다. 긴 형태부터 한 번의 치환으로 중립 표기를 넣은 사본에 기존 판정을 적용한다. 일치 앞뒤는 공백 / 줄 경계 또는 쉼표·세미콜론·괄호로 분리되어야 한다(JSON에서는 문자열 경계 따옴표도 허용). Key / 값의 연속인 접미는 제외하지 않는다. 자격 증명 단어 단독과 값 없이 구분 기호로 끝나는 항목은 Contract 검증에서 거부한다. TASK-023 목록 표기는 자연어 설명까지 포함한 전체 문구를 승인한다. Guard는 Diff 추가 표시를 제거한 실제 추가 줄을 검사한다. 적용 대상은 Preflight의 Task 문서 / Contract, Resume 승인, Guard 추가 줄 / untracked, PR 전체 제목 / 본문과 Commit 메시지다. Contract 허용 목록은 메타데이터로 분리하여 형식 / 자격 증명 형태를 검증하고 나머지 Contract를 검사한다. 설정 입력에는 허용 목록을 적용하지 않는다.
 
 Run 기록과 Executor / Reviewer 입력은 허용 목록과 무관하게 마스킹한다. 구조화 입력은 sanitize 후 JSON 직렬화하여 객체 / 배열 구조를 유지한다. 확장된 자격 증명 이름의 scalar 값도 마스킹하며 Schema 같은 객체 구조는 재귀 검사한다. Console 오류에는 내용을 넣지 않고 state의 `secret_locations`에 입력 종류 또는 파일 경로, 줄 번호, 규칙 종류만 기록한다. Guard는 추적 파일의 추가 줄에 대해 새 파일 좌표, untracked는 파일 내 좌표를 남긴다. JSON 입력은 직렬화 사본의 줄 번호다. 값 / 줄 원문은 위치 기록에 포함하지 않는다.
 
 Resume은 실행을 시작한 Repository의 현재 Contract 파일에서 허용 목록만 갱신한다. 다른 필드와 중첩 값은 frozen fingerprint와 비교하여 변경되면 BLOCKED다. 허용 목록을 다시 검증하며 마스킹된 frozen 기록과 비교하는 대신 비목록 필드의 원본 fingerprint를 사용한다. Task 문서는 frozen baseline Commit의 blob과 줄바꿈을 정규화한 fingerprint로 복원 / 확인한다. 마스킹된 Run 문서를 검사 원문으로 쓰지 않는다. Workspace 생성 전 Secret 정지에도 frozen / checkpoint / Snapshot을 남긴다. 이 단계의 Snapshot은 활성 Contract 변경만 제외하고 나머지 Diff를 비교한다. Workspace 생성 후에는 기존 전체 Snapshot 검사를 유지한다. 기존 `resume-approval.json`의 정지 사유 / Snapshot 연결 승인이 필수이며 목록 변경만으로 재개하지 않는다. Executor의 자기 Contract 수정 금지 Guard는 유지한다.
 
 기본 강화는 URL 사용자 정보, 임시 AWS Access Key ID 및 자격 증명 단어 뒤의 영숫자 / 밑줄 / 하이픈 접미가 있는 할당을 차단과 마스킹에 추가한다. 기존 네 규칙은 유지한다. 임의 Secret의 완전 탐지는 보장하지 않으며 입력 금지 정책은 계속 적용한다. Human이 넓은 문구를 승인하면 해당 정확한 문구 전체가 제외되므로 승인 범위를 검토해야 한다. 기존 Task 문서의 오탐 회피 작성 규칙은 Human이 해당 문구를 Contract에 승인한 범위에서 허용 목록으로 대체할 수 있다. 이 Run은 시작 Version의 Guard로 검사하므로 그 작성 규칙을 지킨다.
+
+## Resume
+
+Human이 허용 목록을 변경하여 Git 단계까지 재개하려면 해당 Task Branch에 활성 Contract의 목록 변경만 Commit한 뒤 승인 파일을 제공한다. Executor는 이 Commit을 수행하지 않는다. Source HEAD가 전진한 경우 이전 Source revision 이후 각 Commit이 단일 부모이며 활성 Contract 한 파일만 변경하고 비목록 필드 fingerprint가 동일한지 검사한다. 중간 Commit도 목록 자격 증명 검증을 통과해야 하며 Source Working Tree는 깨끗해야 한다. 다른 파일 / 필드 / Merge Commit은 BLOCKED다. 기존 Workspace HEAD와 누적 Diff 검사는 유지하고 Git 단계의 Source HEAD / Commit parent 기준만 검증된 새 Source revision으로 사용한다. Workspace 생성 전에는 새 Source revision에서 생성한다. 승인 파일 없는 목록 변경은 재개하지 않는다. 미Commit 목록 변경은 초기 Preflight 재개에 사용할 수 있으나 Git 단계의 clean 검사에서 차단되므로 Git 대상 Task에서는 먼저 Human이 Commit해야 한다.
 
 Human이 정지 사유와 Diff를 검토하고 원인을 해결한 뒤 Run directory에 resume-approval.json을 제공한다.
 

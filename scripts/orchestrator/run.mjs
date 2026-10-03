@@ -10,7 +10,7 @@ import { decide } from './state-machine.mjs';
 import { guardAgents, validateAgentsSections } from './status-sync.mjs';
 import { automateGit } from './git-automation.mjs';
 import { awsPreflight } from './aws-preflight.mjs';
-import { validateSecretAllow, resumeContract, contractIdentity } from './lib.mjs';
+import { validateSecretAllow, resumeContract, contractIdentity, resumeSourceRevision } from './lib.mjs';
 
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const assets = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../harness');
@@ -60,7 +60,8 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       taskId = state.task_id;
       if (frozen.source_root !== sourceRoot || frozen.repository !== await repositoryIdentity(sourceRoot)) blocked('Resume repository mismatch');
       root = frozen.workspace;
-      if ((await git(root, ['rev-parse', 'HEAD'])).trim() !== frozen.revision) blocked('Resume HEAD mismatch');
+      const sourceRevision = await resumeSourceRevision(sourceRoot, frozen.source_revision ?? frozen.revision, frozen.contract, frozen.contract_identity);
+      if (frozen.workspace_created && (await git(root, ['rev-parse', 'HEAD'])).trim() !== frozen.revision) blocked('Resume HEAD mismatch');
       if (digest(await resumeSnapshot()) !== state.snapshot_hash) blocked('Resume diff mismatch; Human must inspect');
       let approval;
       try { approval = await readJson(path.join(runDir, 'resume-approval.json')); }
@@ -68,6 +69,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       if (approval.run_id !== runId || approval.snapshot_hash !== state.snapshot_hash || approval.stop_reason !== state.reason || approval.approved !== true || typeof approval.reference !== 'string' || !approval.reference.trim()) throw new Stop('HUMAN_REQUIRED', 'Resume requires Human approval tied to stopped reason and diff');
       const currentContract = await readJson(path.join(sourceRoot, 'harness/tasks', `${taskId}.json`)).catch(() => blocked('Resume contract malformed or missing'));
       frozen.contract = resumeContract(frozen.contract, currentContract, frozen.contract_identity);
+      frozen.source_revision = sourceRevision;
       assertNoSecrets(JSON.stringify(approval), frozen.contract.secret_scan_allow, 'resume-approval', true);
       await record(`resume-${state.history.length}.json`, approval);
       await rm(path.join(runDir, 'resume-approval.json'));
@@ -227,7 +229,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       state.status = decision.status; state.reason = decision.reason;
       if (['PASS', 'HANDOFF_PENDING'].includes(decision.status) && Number(taskId.slice(5)) >= 22) {
         await phase('Git');
-        state.git = await automateGit({ sourceRoot, workspace: root, revision: frozen.revision, branch: frozen.branch, contract, status: state.status, executor: effective, reviewer: verdict, verification, reviewCycle: state.review_cycles, reviewed: before, record, runDir, signal: controller.signal });
+        state.git = await automateGit({ sourceRoot, workspace: root, revision: frozen.source_revision ?? frozen.revision, branch: frozen.branch, contract, status: state.status, executor: effective, reviewer: verdict, verification, reviewCycle: state.review_cycles, reviewed: before, record, runDir, signal: controller.signal });
         state.status = 'HANDOFF_PENDING';
       }
       if (decision.status !== 'REWORK') break;

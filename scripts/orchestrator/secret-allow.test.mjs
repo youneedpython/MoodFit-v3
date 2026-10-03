@@ -29,7 +29,8 @@ test('literal approvals cover historical false positives and preserve strict mas
 });
 test('overlap, literal metacharacters and JSON escaping have deterministic results', () => {
   const item = assign('api_' + 'key', '"quoted\\path.*[x]"');
-  assert.doesNotThrow(() => assertNoSecrets(JSON.stringify({ text: item }), [item]));
+  assert.doesNotThrow(() => assertNoSecrets(JSON.stringify({ text: item }), [item], 'serialized', true));
+  assert.throws(() => assertNoSecrets(JSON.stringify({ text: item }), [item]), /Secret-like/);
   assert.doesNotThrow(() => assertNoSecrets(item, [item]));
   assert.equal(scanCopy(item, [item.slice(0, -3), item]), scanCopy(item, [item, item.slice(0, -3)]));
   assert.throws(() => assertNoSecrets(item.replace('quoted', 'changed'), [item]), /Secret-like/);
@@ -49,6 +50,16 @@ test('format restrictions and credential forms reject unsafe approvals', async (
   for (const items of [['ab'], ['x'.repeat(201)], ['abc', 'abc'], Array.from({ length: 51 }, (_, i) => 'item' + i)]) assert.throws(() => validate(items, schema.properties.secret_scan_allow), /Schema/);
   assert.doesNotThrow(() => validateSecretAllow([]));
   assert.doesNotThrow(() => validateSecretAllow(approved));
+});
+test('approved literals cannot become wildcard keys or partial assignment values', () => {
+  for (const item of approved) {
+    for (const extra of ['suffix', '_suffix', '-suffix', '/suffix', '.suffix']) {
+      assert.throws(() => assertNoSecrets(item + extra, [item]), /Secret-like/);
+    }
+  }
+  for (const name of ['pass' + 'word', 'api_' + 'key', 'secret' + '_extra']) {
+    for (const item of [name, name + ':', name + '=', name + ': ']) assert.throws(() => validateSecretAllow([item]), /Contract/);
+  }
 });
 test('strengthened formats block and mask, including suffixed object fields', () => {
   const inputs = [
@@ -130,4 +141,33 @@ test('Fake CLI preflight stop, Human allowlist update, approval and frozen Resum
   const input = await readFile(path.join(stopped.run_dir, 'resume-1-execute-1.input.json'), 'utf8');
   assert.ok(!input.includes('Human documentation'));
   assert.ok(input.includes('[REDACTED]'));
+});
+test('Fake CLI Guard stop resumes the existing workspace with committed Human literals', async t => {
+  const { root, contract, contractPath } = await fixture(t);
+  await writeFile(path.join(root, 'task.md'), 'Safe task');
+  const invoke = async (...args) => {
+    const result = await processRun(['git', ...args], { cwd: root, timeout: 10000 });
+    assert.equal(result.code, 0, result.stderr);
+  };
+  await invoke('add', '--', 'task.md');
+  await invoke('-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'safe document');
+  const producer = path.join(root, 'producer.mjs');
+  const fake = fileURLToPath(new URL('./fixtures/fake-cli.mjs', import.meta.url));
+  await writeFile(producer, `import {writeFile} from 'node:fs/promises'; const args=process.argv.slice(2); if(args.includes('--version')||args[0]==='login'){process.exit(0)}; for await(const chunk of process.stdin){}; await writeFile('output.txt', ${JSON.stringify(approved[0])}+'\\nnew content\\n'); await writeFile(args[args.indexOf('-o')+1],JSON.stringify({status:'DONE',changed_files:['output.txt'],summary:'fixture',verification:[],human_decisions_needed:[],handoff_actions:[],pr_overview:'fixture',pr_changes:[],pr_follow_up:[]}));`);
+  await invoke('add', '--', 'producer.mjs');
+  await invoke('-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture producer');
+  const configPath = path.join(root, 'harness/config.local.json');
+  const config = await readJson(configPath);
+  config.codex.command = [process.execPath, producer];
+  config.claude.command = [process.execPath, fake, 'pass', 'reviewer'];
+  await writeFile(configPath, JSON.stringify(config));
+  const stopped = await run('TASK-019', { root });
+  assert.equal(stopped.status, 'BLOCKED', stopped.state.reason);
+  assert.equal(stopped.state.phase, 'Guard');
+  await writeFile(contractPath, JSON.stringify({ ...contract, secret_scan_allow: [approved[0]] }));
+  await invoke('add', '--', 'harness/tasks/TASK-019.json');
+  await invoke('-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'Human literal approval');
+  await writeFile(path.join(stopped.run_dir, 'resume-approval.json'), JSON.stringify({ approved: true, run_id: stopped.state.run_id, snapshot_hash: stopped.state.snapshot_hash, stop_reason: stopped.state.reason, reference: 'Human fixture approval' }));
+  const resumed = await run(undefined, { root, resumeId: stopped.state.run_id });
+  assert.equal(resumed.status, 'PASS', resumed.state.reason);
 });
