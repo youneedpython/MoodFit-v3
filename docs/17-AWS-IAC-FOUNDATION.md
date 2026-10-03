@@ -13,6 +13,7 @@
 | frontend | ap-northeast-2 | 인증서 ARN / app origin hostname 전달, Private S3 REST origin / OAC / CloudFront / API behavior / 사용자 A·AAAA alias |
 | iam | ap-northeast-2 | 공용 ECR 및 환경별 앱 / 정적 Resource ARN, OIDC Provider 참조 또는 최초 생성, execution / task / 환경별 deploy Role, Staging 앱 Change Set Role, 앱 Log Group |
 | app | ap-northeast-2 | Network / Data / IAM 출력, ECS Cluster / Task Definition / Service, ALB / Target Group / HTTPS Listener / origin 인증서·DNS / access log Bucket |
+| budget | ap-northeast-2 | global 비용 알림의 CloudFormation Stack 관리·검증 Region. Environment 입력으로 Budget 이름 구성, 월 USD 300 알림 |
 
 TASK-028 승인 순서는 Network → Data → certificate(us-east-1) → Frontend → IAM → App이다. 독립 Budget을 비용 Resource 전에, 공용 ECR을 이미지 Push 전에 확인·생성한다. Frontend는 App Resource 대신 origin hostname 문자열을 참조하므로 최초부터 API behavior를 생성하고 App 생성 후 연결 UPDATE는 하지 않는다. API가 동작하기 전 배포 수락을 주장하지 않는다. IAM의 앱 참조는 고정 Cluster moodfit-<환경>, Service / family moodfit-<환경>-backend의 예정 ARN을 전달한다. 자동 이름 Role은 실제 IAM 출력을 App에 전달하고 deploy 정책의 자기 Role 참조도 실제 출력으로 UPDATE한다. 상세 Human 실행과 Agent 조회는 [TASK-028 절차](18-STAGING-DEPLOYMENT-RUNBOOK.md)를 따른다. cross-region Export / ImportValue는 사용하지 않고 실제 ARN / ID는 비추적 Human 입력으로 전달한다.
 

@@ -3094,6 +3094,12 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - 허용 문구 4개를 실행 전에 Guard로 미리 시험해 정했다. Codex는 Workspace의 Contract 파일에서 문구를 직접 읽어 그대로 사용했고 Guard 정지 없이 통과했다. 여러 줄 block 형태는 Guard가 줄을 이어서 판정해 차단하므로 한 줄 flow 형태를 썼다(개선 후보: 구분 기호 뒤 값 탐색이 줄바꿈을 넘지 않게 하는 방안을 검토).
 - Review N-001 ~ N-003은 TASK-028 문서에 입력으로 기록했다. TASK-028은 BLOCKED를 유지한다(Human의 비용 승인과 Stack 생성 권한 결정 후 READY).
 
+## 2026-10-03 — TASK-028 Run 2 Budget 경고 보완
+
+- Run 1 W2001 원인인 미사용 Environment를 BudgetName의 Sub 참조에 사용했다. staging만 허용하며 기존 Budget 이름을 유지한다. Parameter 예시와 Human Script의 staging 검증도 그대로 유효하다. 경고를 무시하는 검증 완화는 하지 않았다.
+- Budget Stack 생성·조회·검증 Region을 ap-northeast-2로 문서화했다. 기존 세 Script의 Region 선택과 일치하며 certificate만 us-east-1을 사용한다. TASK-028 IN_PROGRESS와 나머지 A단계 WIP 상태를 유지한다.
+- Executor Python에 cfn-lint 모듈이 없어 lint 성공을 주장하지 않는다. 실제 AWS 호출과 Git 후속 작업은 수행하지 않았다. Orchestrator의 Sandbox 밖 검증이 기준이다.
+
 ## 2026-10-03 — TASK-028 A단계 Staging 배포 준비
 
 - 승인 Contract와 명시 실행 지시에 따라 Human Change Set 생성·확인·명시 확인 입력 후 실행, clean SHA 기반 임시 checkout 이미지 Build / immutable Push, 임시 Frontend Build / 정적 업로드 / invalidation Script를 작성했다. Profile은 필수이며 moodfit-readonly / Production alias는 거부한다. AWS 쓰기 명령을 Executor가 실행하지 않았다.
