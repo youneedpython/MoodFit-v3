@@ -111,3 +111,11 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 39 | TASK-019 Remote 검증 후 B 단계 복귀 | B 단계 / 완료 기록 | 구현 완료, Human Squash Merge 대기 |
 | 40 | TASK-020 Orchestrator Hardening | 구현 / Finding 수정 / 검증 / 완료 정리 | 완료, PR Squash Merge 승인으로 DONE 확정 |
 | 41 | TASK-021 Git Automation / Branch / PR Harness | 승인된 Git 계층 / Guard / Test / 정책 기록 | 완료, Rework 1 / 2회차 Claude PASS / Human 승인 (PR Squash Merge로 확정) |
+| 42 | TASK-022 CI / PR Gate | 실행 지시 / Gate | 후속 실행 완료 |
+| 43 | TASK-022 Git Content Check | Git 단계 오류 수정 | 완료 |
+| 44 | TASK-022 Merge Evidence | 완료 기록 | 완료 |
+| 45 | TASK-023 AWS Architecture Gate | Architecture / Cost 제안 | 후속 Human 승인 완료 |
+| 46 | TASK-023 Human Gate B | 승인 B안 반영 | 완료 |
+| 47 | TASK-023 Domain Decision | Domain / HTTPS 반영 | 완료 |
+| 48 | TASK-024 Deployment Artifact / Container / Health | Gate C 제안 | Human 승인 후 Run 2 구현 |
+| 49 | TASK-024 Approved Container / Health | Gate C 승인 구현 | Executor 구현 완료, Orchestrator 검증 / Review 대기 |

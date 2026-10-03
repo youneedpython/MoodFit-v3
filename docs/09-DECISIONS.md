@@ -1306,3 +1306,29 @@ DEC-023(Local / Testcontainers MySQL 8.0.46)은 변경하지 않는다. 8.4로�
 Claude 세션 2026-10-03 공개 DNS / RDAP 조회 기록상 위임된 Route 53 네임서버 4개가 REFUSED를 반환하는 lame delegation이며 Hosted Zone 부재로 판단했다. TASK-026 전 사용할 계정에 Hosted Zone을 준비하고 Human이 등록 기관 네임서버를 새 값으로 변경한 뒤 DNS 응답을 확인한다. 도메인 만료일 2027-02-26 전 갱신은 Human 책임이다. DNS 복구와 후속 Task 조건은 이번 Run의 새 Human Gate가 아니며 실제 Resource 생성 승인을 대신하지 않는다.
 
 TASK-023 DONE / TASK-024 READY를 이번 PR에 포함하며 Human Squash Merge로 완료 승인한다. 후속 Task 실행은 별도 명시 지시가 필요하다. 실제 AWS Resource / IAM 생성, IaC, Workflow 변경과 Production 배포는 이번 설계 승인의 범위가 아니다. DEC-026을 유지한다.
+
+---
+
+## DEC-028 TASK-024 Deployment Artifact / Container / Health Gate C
+
+### 상태
+
+```text
+Human Approved (2026-10-03)
+```
+
+근거: TASK-024 Task 문서 Human 결정(Run 1 HUMAN_REQUIRED 후 권장안 모두 승인). 상세 구현 / 검증 경계는 [14-DEPLOYMENT-ARTIFACT.md](14-DEPLOYMENT-ARTIFACT.md)를 따른다.
+
+### 확정 결정
+
+- Spring Boot BOM 관리 spring-boot-starter-actuator 추가(Version 미지정), Health만 노출하고 details / components를 숨긴다.
+- ALB readiness는 /actuator/health/readiness의 readinessState + db를 사용한다. DB 장애 시 503이다. ECS liveness는 /actuator/health/liveness이며 DB를 제외한다.
+- Health는 DEC-024 업무 API 계약과 별도의 운영 Endpoint다. contracts / docs/05-API_SPEC.md를 변경하지 않고 Backend 회귀 Test로 live 200 / ready 200 / DB 장애 ready 503·live 200 / 상세 비노출을 고정한다.
+- base는 Eclipse Temurin Java 21 JRE Jammy linux/amd64 manifest sha256:8c2dddf1bb2a8455160f4e23080059de5003eddc5cb839130b177c6be0c2cfe0으로 고정한다. Dockerfile 기본 RUNTIME_IMAGE는 repository@sha256 형식이며 mutable tag를 사용하지 않는다. 포함된 curl을 probe에 사용하고 package를 추가 설치하지 않는다. numeric UID 10001로 실행한다.
+- digest 교체는 별도 PR / Human 승인으로 수행하며 자동 갱신하지 않는다.
+- bootJar 파일 이름은 Version과 무관하게 app.jar로 고정한다. Dockerfile / .dockerignore는 해당 JAR만 사용한다.
+- scripts/container-smoke.sh를 Orchestrator Verify에 포함한다. linux/amd64 / 전용 network / mysql:8.0.46 / 0.5 CPU / 1 GiB / read-only root / tmpfs에서 정상 probe와 DB 정지 후 readiness 503·liveness 200, non-root / .env 제외 / OCI revision을 검증한다. 무작위 일회용 DB 값은 임시 env-file로 전달하고 종료 시 정리한다.
+
+### 승인 경계
+
+이 결정은 TASK-024 명시 Contract의 허용 경로 확대에 대응한다. DEC-023 MySQL / DEC-024 업무 계약 / CI·CD / IAM / AWS Resource 생성 권한은 확대하지 않는다. 완료는 검증과 Review 이후 이번 PR Human Squash Merge로 확정한다.
