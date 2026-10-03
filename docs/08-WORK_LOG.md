@@ -2849,3 +2849,19 @@ Human Gate에서 Claude 세션이 공식 문서로 미확인 단가 / 핵심 수
 - Executor 참고 검증: bash -n scripts/container-smoke.sh Exit 0. Backend gradlew.bat test --tests com.moodfit.health.OperationalHealthTests는 C:\.gradle wrapper lock parent 생성 불가로 Test 시작 전에 Exit 1이었다. Sandbox 파일 접근 제약이며 코드 Test 결과가 아니다. 자동 설치 / 권한 변경 / 우회를 시도하지 않았다.
 - Docker 접근 불가가 Task 문서와 Run 1에서 확인된 Sandbox이므로 실제 Container Smoke는 미실행이다. startup / memory 실측 성공을 주장하지 않는다. 전체 verify.sh / Container Smoke는 Sandbox 밖 Orchestrator Verify가 기준이며 Claude 세션이 실제 Log 기준으로 WORK_LOG를 보완할 수 있다.
 - Spring Boot 4.1.1 Health 설정은 2026-10-03 [공식 Actuator 문서](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html)로 확인했다. 최종 diff / UTF-8 strict / 연속 물음표 치환 / U+FFFD와 누적 변경 경로 검사는 Executor JSON에 기록한다.
+
+### Orchestrator Verify 실측 보완 (Claude 세션, 2026-10-03)
+
+Run 2(`2026-10-03T03-02-29-144Z-c18f7254`)의 Sandbox 밖 Verify 결과다. 세 명령 모두 Exit 0, Claude Review 1회차 PASS, Orchestrator가 Commit `15aa478` / Push / Draft PR #8을 자동 생성했다.
+
+- `bash scripts/verify.sh`: Frontend Test / Build, Backend Test / Build 성공. `OperationalHealthTests` 3개(skipped 0 / failures 0), DEC-023 `MySqlIntegrationTests` 실행. SKIPPED는 CI 전용 `DockerAvailabilityTests` 1건뿐이다.
+- `bash scripts/container-smoke.sh` (첫 실행에서 통과):
+  - linux/amd64 Image Build, 격리 network의 MySQL 8.0.46, 앱 0.5 CPU / 1 GiB / read-only root / tmpfs
+  - readiness HTTP 200 도달 23초(polling 포함), 관측 Memory 340.3 MiB / 1 GiB(단일 시점 관측값이며 peak 보장 아님)
+  - 실행 UID 10001(non-root), Image 내 자격 증명 계열 파일 없음, OCI revision label 일치
+  - MySQL 정지 시 readiness 503 / liveness 200 확인
+- Review 참고(비차단, 후속 Task 입력):
+  - I-004: Smoke의 revision label은 실행 시점 HEAD(`4466285`) 기준이다. 배포 Image는 실제 Commit의 깨끗한 checkout에서 Build해야 하며 CI / CD Task(TASK-028 ~)에서 강제한다.
+  - I-005: Dockerfile HEALTHCHECK는 ECS에서 무시되므로 ECS Task Definition에 같은 liveness 명령을 선언한다(TASK-027). CI Build는 `VCS_REF`를 필수로 전달한다.
+  - I-006: `OperationalHealthTests`는 Gradle Test 작업 디렉터리가 `backend/`라는 전제에 의존한다.
+- 이 PC에서 Run 작업 폴더 삭제 시 Windows 경로 길이 제한(`Filename too long`, `node_modules`)이 발생했다. Orchestrator 개선 후보(작업 폴더 정리 / long path 처리)로 추가한다.
