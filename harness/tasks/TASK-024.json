@@ -5,7 +5,9 @@
   "allowed_paths": [
     "backend/Dockerfile",
     "backend/.dockerignore",
+    "backend/build.gradle",
     "backend/src/",
+    "scripts/container-smoke.sh",
     "frontend/src/",
     "frontend/vite.config.ts",
     "docs/07-TASKS.md",
@@ -18,22 +20,46 @@
   ],
   "forbidden_paths": [
     "harness/",
-    "scripts/",
-    "backend/build.gradle",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
     "backend/settings.gradle",
     "backend/gradle/",
     "frontend/package.json",
     "frontend/package-lock.json",
     "contracts/",
+    "docs/05-API_SPEC.md",
     ".github/",
     "infra/",
     "docs/tasks/",
     ".env.local"
   ],
-  "agents_sections": ["3"],
+  "agents_sections": [
+    "3"
+  ],
   "verify": [
-    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
-    { "command": ["git", "diff", "--check"], "cwd": "." }
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/container-smoke.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
   ],
   "max_review_cycles": 3
 }
