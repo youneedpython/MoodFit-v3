@@ -75,6 +75,16 @@ IAM Identity Center, Permission Set, IAM, GitHub Permission, Production Environm
 - 확인된 오탐 사례(Claude 세션, 2026-10-03): Secrets Manager ARN을 `arn:aws:secretsmanager:<region>:<account>:` 뒤에 Resource 종류 단어와 `:`와 이름을 그대로 이어 쓰면 Guard가 BLOCKED 된다. 정책 JSON / 문서에서 이 ARN은 전체를 Parameter Placeholder(예: `${AppDbCredentialArn}`)로 쓰고 literal 형태로 쓰지 않는다. 작성 후 추가한 모든 줄에서 위 단어 바로 뒤에 `:` / `=`가 오는 곳이 없는지 스스로 검색해 확인한다.
 - 이후 Task에서 결정 / 수행하기로 기록된 항목은 `human_decisions_needed`로 보고하지 않는다. A단계 Gate에서 Human이 결정할 항목(Permission Set 범위, OIDC Trust 조건, Role 분리, Environment 정책, Session 지속 시간, 감사 방식)만 보고한다.
 
+## Run 1 Review 반영 (2026-10-03, Claude 세션 기록)
+
+Run 1(`2026-10-03T03-48-52-279Z-cdad7c20`)은 Executor HUMAN_REQUIRED(Gate)와 Claude Review CHANGES_REQUIRED로 정지했다. Human Gate에 올리기 전에 기술 지적을 먼저 고친다. Run 2의 Codex 작업 범위는 아래 수정뿐이다. Gate 항목 자체는 그대로 Human 결정 대기이며 DEC-029는 Pending을 유지한다.
+
+- **F-001 Production 승격 모델**: Production deploy Role에서 ECR Push Action을 제거한다. Production은 Staging에서 검증된 동일 digest만 배포한다(DEC-028). 승격 모델(어느 Role이 어느 Repository에서 읽고 어디에 쓰는지, 환경별 Repository인지 단일 Repository인지)을 `docs/15` 5절에 명시하고 그에 맞는 최소 권한으로 정책 JSON을 고친다. 권장 방향은 단일 Repository + immutable Tag / digest 참조로 Production Role은 조회 Action만 갖는 것이다. 다른 모델을 택하면 근거를 적고 Gate 결정 항목으로 올린다.
+- **F-002 미사용 PassRole**: `MoodFitStagingDeploy` Permission Set의 PassRuntimeRoles Statement를 삭제한다. `docs/15` 4절 서술을 실제 JSON과 맞춘다.
+- **F-003 CloudFormation service role Trust**: `aws:SourceAccount`(가능하면 `aws:SourceArn`) 조건을 Parameter로 추가한다. 생략한다면 이유와 잔여 위험을 적는다.
+- **F-004 OIDC Session 시간**: 900초가 Build / Push / 배포 안정화 대기에 부족할 수 있다. 자격 증명 취득 시점(Build 이후), 만료 시 처리(자동 재시도 금지, 부분 배포 확인 절차), 요청 시간과 근거를 `docs/15` 5절과 Human 검토 Matrix에 반영한다.
+- WORK_LOG에 Run 1 결과와 이번 수정을 기록한다.
+
 ## Verification
 
 - SSO: Agent 허용 Profile로 Production Resource 변경이 불가능한지 정책으로 확인
