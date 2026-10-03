@@ -2900,3 +2900,26 @@ Run 3(`2026-10-03T04-15-30-920Z-301f6f77`): Verify 성공(Orchestrator Test 87 /
 - N-001 / N-002(기록 문구)는 이 Commit에서 정리했다.
 - N-003: TASK-026 READY는 이 PR에 포함하되, Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인을 TASK-026 실행 선행 조건으로 둔다. 실제 Preflight는 Fake CLI로만 검증된 상태이며 Human 구성 후 Claude 세션이 실제 Profile로 확인해 기록한다.
 - 후속 개선 후보(Orchestrator): N-004 `AWS_ENDPOINT_URL` / `AWS_ENDPOINT_URL_STS` / `AWS_CA_BUNDLE` 차단 추가, N-005 aws 설정 전체 누락 시 정지 사유 종류 구분, N-006 Test의 host 환경변수 의존 제거. 기존 후보(Secret 검사 정밀화, 자동 PR 제목, Windows long path 정리)와 함께 TASK-026 전 개선 Task로 묶는 것을 제안한다.
+
+### TASK-025 실제 Profile Preflight 확인 (Claude 세션, 2026-10-03)
+
+Human이 조직 관리 계정의 IAM Identity Center에서 Permission Set `MoodFitReadOnly` / `MoodFitStagingDeploy`(초기 inline 정책은 `sts:GetCallerIdentity`만, Session 1시간)를 만들고 MoodFit 계정에 할당했다. Claude 세션이 Human 지시로 로컬 AWS config에 Profile `moodfit-readonly` / `moodfit-staging`을 추가했고(기존 파일 백업), Human이 `aws sso login`을 수행했다. Account ID / ARN / Role suffix / SSO URL은 기록하지 않는다.
+
+- 참고: `student11` 멤버 계정의 관리자 권한으로는 Identity Center를 관리할 수 없어(`sso:ListPermissionSets` AccessDenied) 관리 계정 콘솔에서 Human이 수행했다. 할당 전에는 `GetRoleCredentials`가 No access였고, 할당 후 SSO 재로그인이 필요했다.
+- 최소 권한 확인: 두 Profile 모두 `sts get-caller-identity` 성공. `ec2 describe-vpcs`(readonly), `s3api list-buckets` / `iam list-roles`(staging)는 거부되었다.
+- 로컬 기대값: `harness/config.local.json`(Git 비추적)에 AWS CLI 경로, 허용 / 금지 Profile, Profile별 기대 Account / 정확한 Role 이름을 넣었다. 금지 목록에 `moodfit-production-human`, `default`, `student1` ~ `student11`을 포함했다.
+- 실제 `awsPreflight` 실행 결과 (PR #9 head의 구현, 실제 AWS CLI):
+
+| # | 사례 | 결과 |
+|---|---|---|
+| 1 | 허용 Profile 2개 | 통과 (matched, matched) |
+| 2 | 관리자 Profile `student11` | HUMAN_REQUIRED `forbidden-profile` (CLI 호출 전 정지) |
+| 3 | `default` Profile | HUMAN_REQUIRED `forbidden-profile` |
+| 4 | Role 이름 부분 일치(suffix 없음) | HUMAN_REQUIRED `role-mismatch` |
+| 5 | 기대 Account 불일치 | HUMAN_REQUIRED `account-mismatch` |
+| 6 | 환경변수 `AWS_PROFILE` 설정 | HUMAN_REQUIRED `credential-source` |
+| 7 | Contract에 `aws_profiles` 없음 | Preflight 미실행 (기존 동작) |
+
+  모든 사례에서 Run 기록에 Account / ARN / UserId가 남지 않음을 확인했다.
+- 주의: 이 PC의 `default` Profile은 MoodFit 계정에 관리자 권한(`aws login` 세션)으로 로그인되어 있다. `--profile` 없이 `aws`를 실행하면 이 세션이 쓰인다. TASK-026부터 Verify / Script의 모든 AWS 명령은 `--profile`을 명시해야 하며 Contract와 Review 기준에 넣는다.
+- 이로써 TASK-026 실행 선행 조건 중 "Permission Set / Profile 구성과 실제 Profile Preflight 확인"을 충족했다. 실제 조회 / 배포 권한은 TASK-026 / TASK-027에서 Resource 이름 확정 후 Permission Set에 추가한다.
