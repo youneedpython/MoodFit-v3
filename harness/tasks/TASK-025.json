@@ -1,0 +1,58 @@
+{
+  "id": "TASK-025",
+  "title": "AWS SSO / GitHub OIDC / IAM / Environment Gate",
+  "task_file": "docs/tasks/TASK-025_AWS_SSO_OIDC_IAM_GATE.md",
+  "allowed_paths": [
+    "scripts/orchestrator/",
+    "harness/schemas/",
+    "harness/config.example.json",
+    "harness/prompts/",
+    "docs/12-ORCHESTRATOR-DESIGN.md",
+    "docs/15-AWS-ACCESS-POLICY.md",
+    "infra/iam/",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "docs/09-DECISIONS.md",
+    "docs/11-MULTI-AGENT-ORCHESTRATION-POLICY.md",
+    "docs/13-AWS-ARCHITECTURE.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "harness/tasks/",
+    "harness/config.local.json",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/container-smoke.sh",
+    "frontend/",
+    "backend/",
+    "contracts/",
+    ".github/",
+    "docs/tasks/",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "agents_sections": [
+    "3"
+  ],
+  "verify": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "scripts/orchestrator/*.test.mjs"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

@@ -1332,3 +1332,25 @@ Human Approved (2026-10-03)
 ### 승인 경계
 
 이 결정은 TASK-024 명시 Contract의 허용 경로 확대에 대응한다. DEC-023 MySQL / DEC-024 업무 계약 / CI·CD / IAM / AWS Resource 생성 권한은 확대하지 않는다. 완료는 검증과 Review 이후 이번 PR Human Squash Merge로 확정한다.
+
+---
+
+## DEC-029 TASK-025 AWS Access Policy Gate
+
+### 상태
+
+Human Approved (2026-10-03)
+
+Run 2 Claude PASS 설계안 docs/15-AWS-ACCESS-POLICY.md / infra/iam/ (Commit 1d56112)을 Human이 권장안대로 모두 승인했다.
+
+- Permission Set은 MoodFitReadOnly / MoodFitStagingDeploy(Agent 허용) / MoodFitProductionAdmin(Human 전용)으로 분리한다. AWS 관리 ReadOnlyAccess를 쓰지 않는다. 기존 관리자 Profile은 Human 전용이다.
+- Profile은 moodfit-readonly / moodfit-staging만 Agent 허용, moodfit-production-human은 금지한다.
+- OIDC Repository / Environment subject와 audience sts.amazonaws.com을 정확히 고정하고 환경별 Role을 분리한다. wildcard는 없다.
+- 단일 immutable ECR Repository에서 Staging만 Push, Production은 조회만 한다. IAM만으로 검증된 digest 선택을 강제할 수 없는 잔여 위험(N-002)을 수용하며 TASK-029 / TASK-030의 digest 검증을 필수로 한다.
+- staging / production main-only, 관리자 Bypass 비활성, production Human Required Reviewer 필수. 단일 승인자로 self-review 방지는 비활성이며 잔여 위험을 수용한다.
+- Permission Set 1시간, CI Role 3600초(Build 이후 취득 / 자동 재시도 금지), SSO 로그인 8시간. 감사는 CloudTrail과 로컬 Run 기록 대조, Run 기록 30일 보존이다.
+- 환경별 Secrets Manager에서 ECS execution role만 DB 값을 읽는다. AWS 관리형 암호화를 사용하고 고객 관리 KMS는 초기 제외한다.
+- 일반 Stack CloudFormation service role의 SourceAccount / SourceArn 동작은 TASK-026 적용 시 검증한다. 미지원이면 조건을 제거하지 않고 중단한다.
+- N-003 / N-004 Parameter 이름은 RepositoryArn / AccountId로 통일한다. 전체 inline 정책의 Resource 이름 렌더링과 적용은 TASK-026 / TASK-027 Gate에서 한다.
+
+B단계 Human은 Permission Set 2종 / 로컬 Profile을 먼저 구성하되 초기 inline 정책은 sts:GetCallerIdentity만 둔다. 전체 IAM 정책 / OIDC Provider / Role / Environment 생성과 Network / RDS / IAM 최초 구성 권한은 후속 Task Gate에서 정한다. Executor는 실제 AWS CLI / 설정을 사용하지 않고 Preflight / Fake CLI Test를 구현한다. TASK-026 실행 전 Human 구성과 실제 Profile Preflight 확인이 필요하다. 설계 승인은 Resource 생성 / Production 실행 승인이 아니다.

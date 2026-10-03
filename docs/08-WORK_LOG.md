@@ -1,5 +1,13 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-025 B단계 — 승인 정책 / AWS Profile Preflight (2026-10-03)
+
+Run 2 Claude PASS 설계안(Commit 1d56112)을 Human이 모두 승인했다(DEC-029). 명시 지시된 Run 3 B단계에서 선택 aws_profiles Schema, 로컬 AWS 설정 Placeholder, 기록하지 않는 STS 호출, 정확한 Account / Role 비교, 관리자 / 금지 Profile 및 대체 자격 증명 공급원 차단을 구현했다. 최초 Preflight와 각 Verify 직전에 검사하고 실패 시 HUMAN_REQUIRED로 정지한다. 자동 로그인 / 재시도 / fallback은 없다.
+
+민감한 로컬 AWS 기대값은 frozen.json에서 제외하고 Resume 시 다시 읽는다. Fake CLI로 성공, 계정 / Role / 부분 일치 거부, 관리자 / 금지 Profile, 만료 / 조회 실패 / Timeout, 대체 자격 증명, Verify 전 재확인 및 전체 Run 기록의 identity 비저장을 검증한다. Executor 참고 검증 node --test scripts/orchestrator/*.test.mjs는 기존 74개를 포함해 87개 통과 / 실패 0 / skipped 0, Exit 0이다. git diff --check와 누적 변경 경로 / Secret / AGENTS Guard, JSON 파싱, UTF-8 strict / 연속 물음표 / U+FFFD 검사도 통과했다. Orchestrator Verify가 최종 검증 기준이다. 정책 Parameter는 RepositoryArn / AccountId로 통일했다.
+
+TASK-025 DONE / TASK-026 READY는 PR 완료 반영이며 Orchestrator Verify / Claude PASS 이후 Human Squash Merge가 완료 승인이다. 실제 AWS CLI / IAM / GitHub 설정 변경은 수행하지 않았다. Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인은 TASK-026 실행 선행 조건이며 후속 실행 지시는 별도로 필요하다.
+
 ## TASK-022 — 승인 구현 (2026-10-02)
 
 - N1–N3 후속 구현: MERGED dependency_evidence에 merged_by login을 추가하고 전체 병합 근거를 회귀 Test로 확인한다. 병합 후에도 이전 CHANGES_REQUESTED가 남으면 REWORK_REQUIRED로 정지하며 Dismiss 후 MERGED가 되는 기존 판정 순서를 Test로 고정했다. 단일 parent의 Squash / Rebase 구분 한계와 Squash-only Ruleset 의존, 같은 실패 head 재관찰 시 Comment 반복(중복 제거 없음)을 설계 문서에 명시했다.
@@ -2865,3 +2873,53 @@ Run 2(`2026-10-03T03-02-29-144Z-c18f7254`)의 Sandbox 밖 Verify 결과다. 세 
   - I-005: Dockerfile HEALTHCHECK는 ECS에서 무시되므로 ECS Task Definition에 같은 liveness 명령을 선언한다(TASK-027). CI Build는 `VCS_REF`를 필수로 전달한다.
   - I-006: `OperationalHealthTests`는 Gradle Test 작업 디렉터리가 `backend/`라는 전제에 의존한다.
 - 이 PC에서 Run 작업 폴더 삭제 시 Windows 경로 길이 제한(`Filename too long`, `node_modules`)이 발생했다. Orchestrator 개선 후보(작업 폴더 정리 / long path 처리)로 추가한다.
+
+## TASK-025 — A단계 AWS Access Policy Gate (2026-10-03)
+
+- 최초 Working Tree clean과 필수 Context / Task / DEC-026 ~ DEC-028을 확인하고 명시 Contract의 A단계만 수행했다.
+- docs/15-AWS-ACCESS-POLICY.md에 최소 권한 Permission Set / Profile / B단계 Preflight, 환경별 OIDC Trust, main Branch / Required Reviewer, 단일 Human self-review 잔여 위험, Session / 감사와 앱 비밀 정책 및 검토 Matrix를 작성했다.
+- infra/iam/에 환경별 Trust / deploy, ReadOnly / Staging Permission Set, 기존 앱 Change Set service role, ECS runtime Trust / execution JSON을 작성했다. 환경 식별값은 외부 치환 Parameter다. API 전체 Resource 예외 / 정확한 PassRole 범위 / CloudFormation 기존 Role 위험 / cleanup 미허용과 비용·digest 입력 통제 한계를 설명했다.
+- DEC-029 Pending Human Approval, TASK-025 IN_PROGRESS와 AGENTS 3절, Prompt 50 / Index를 기록했다. 정책 Gate에서 Executor HUMAN_REQUIRED로 정지하며 TASK-025 DONE / TASK-026 READY를 반영하지 않는다.
+- AWS CLI / AWS·GitHub 설정 / Orchestrator Code / Workflow / Branch / Commit / Push / PR 작업은 수행하지 않았다. 승인 후 B단계 Contract 확대 / Preflight 구현 / Human Profile 구성은 후속 작업이며 정책 적용 승인과 구분한다.
+- 2026-10-03 공식 OIDC / GitHub Environment / CloudFormation / PassRole / ECS 기능 문서를 조회하고 docs/15에 출처를 연결했다. 실효 권한 / 실제 만료 / GitHub 보호의 실환경 검증은 미실행이다.
+- Executor 참고 검증: git diff --check Exit 0. node --test scripts/orchestrator/*.test.mjs Exit 0, 74 tests / 74 pass / 0 fail / 0 skipped. 신규 IAM JSON 10개 파싱 / Version·Statement 구조, 누적 17개 변경 파일 UTF-8 strict / 연속 물음표 치환 / U+FFFD / 추가 줄 민감 할당 표기 검사 통과. 기존 lib snapshot / guard로 실제 누적 경로와 allowlist / Secret 검사를 대조해 통과했다. Orchestrator Verify가 기준이며 정책 승인이나 Task 완료 승인을 대신하지 않는다.
+
+## TASK-025 — Run 1 Review Rework / Run 2 (2026-10-03)
+
+- Task source 기록에 따르면 Run 1 `2026-10-03T03-48-52-279Z-cdad7c20`은 Executor HUMAN_REQUIRED와 Claude CHANGES_REQUIRED로 정지했다. 이번 실행 시작 Working Tree는 clean이며 Task에 명시된 F-001~F-004만 수정한다.
+- F-001: 단일 immutable ECR Repository 승격 모델을 docs/15에 명시했다. Production deploy Role에서 ECR 인증 / Push를 제거하고 동일 Repository 이미지 조회만 유지했다. 환경별 execution role은 같은 Repository를 Pull하며 Production은 Staging에서 검증된 digest만 배포한다.
+- F-002: Staging SSO의 미사용 PassRuntimeRoles를 삭제하고 CloudFormation 앱 Change Set Role PassRole만 유지하도록 문서를 맞췄다.
+- F-003: CloudFormation Trust에 AccountId / 정확한 StagingAppStackArn 조건을 추가했다. 공식 예제의 일반 Stack 지원 한계를 명시하고 적용 전 context 검증 / fail closed / 우회 금지를 기록했다.
+- F-004: Build 이후 OIDC 취득, 요청 / 최대 3600초와 미실측 근거, 만료 시 자동 재취득·재시도 금지 및 Human의 부분 배포 확인 / 재실행·rollback 범위 승인을 Matrix / 흐름 / DEC-029에 반영했다.
+- DEC-029 Pending Human Approval / TASK-025 IN_PROGRESS / TASK-026 이후 BLOCKED를 유지한다. AWS CLI / AWS·GitHub 설정 / Workflow / Orchestrator Code / Git handoff 작업 없음. 최종 참고 검증은 Executor JSON에 기록하며 Orchestrator Verify가 기준이다.
+
+### TASK-025 B단계 Review 참고 / 후속 (Claude 세션, 2026-10-03)
+
+Run 3(`2026-10-03T04-15-30-920Z-301f6f77`): Verify 성공(Orchestrator Test 87 / 87), Claude Review 1회차 PASS, Orchestrator가 Commit `da375ac` / Push / Draft PR #9를 자동 생성했다.
+
+- N-001 / N-002(기록 문구)는 이 Commit에서 정리했다.
+- N-003: TASK-026 READY는 이 PR에 포함하되, Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인을 TASK-026 실행 선행 조건으로 둔다. 실제 Preflight는 Fake CLI로만 검증된 상태이며 Human 구성 후 Claude 세션이 실제 Profile로 확인해 기록한다.
+- 후속 개선 후보(Orchestrator): N-004 `AWS_ENDPOINT_URL` / `AWS_ENDPOINT_URL_STS` / `AWS_CA_BUNDLE` 차단 추가, N-005 aws 설정 전체 누락 시 정지 사유 종류 구분, N-006 Test의 host 환경변수 의존 제거. 기존 후보(Secret 검사 정밀화, 자동 PR 제목, Windows long path 정리)와 함께 TASK-026 전 개선 Task로 묶는 것을 제안한다.
+
+### TASK-025 실제 Profile Preflight 확인 (Claude 세션, 2026-10-03)
+
+Human이 조직 관리 계정의 IAM Identity Center에서 Permission Set `MoodFitReadOnly` / `MoodFitStagingDeploy`(초기 inline 정책은 `sts:GetCallerIdentity`만, Session 1시간)를 만들고 MoodFit 계정에 할당했다. Claude 세션이 Human 지시로 로컬 AWS config에 Profile `moodfit-readonly` / `moodfit-staging`을 추가했고(기존 파일 백업), Human이 `aws sso login`을 수행했다. Account ID / ARN / Role suffix / SSO URL은 기록하지 않는다.
+
+- 참고: `student11` 멤버 계정의 관리자 권한으로는 Identity Center를 관리할 수 없어(`sso:ListPermissionSets` AccessDenied) 관리 계정 콘솔에서 Human이 수행했다. 할당 전에는 `GetRoleCredentials`가 No access였고, 할당 후 SSO 재로그인이 필요했다.
+- 최소 권한 확인: 두 Profile 모두 `sts get-caller-identity` 성공. `ec2 describe-vpcs`(readonly), `s3api list-buckets` / `iam list-roles`(staging)는 거부되었다.
+- 로컬 기대값: `harness/config.local.json`(Git 비추적)에 AWS CLI 경로, 허용 / 금지 Profile, Profile별 기대 Account / 정확한 Role 이름을 넣었다. 금지 목록에 `moodfit-production-human`, `default`, `student1` ~ `student11`을 포함했다.
+- 실제 `awsPreflight` 실행 결과 (PR #9 head의 구현, 실제 AWS CLI):
+
+| # | 사례 | 결과 |
+|---|---|---|
+| 1 | 허용 Profile 2개 | 통과 (matched, matched) |
+| 2 | 관리자 Profile `student11` | HUMAN_REQUIRED `forbidden-profile` (CLI 호출 전 정지) |
+| 3 | `default` Profile | HUMAN_REQUIRED `forbidden-profile` |
+| 4 | Role 이름 부분 일치(suffix 없음) | HUMAN_REQUIRED `role-mismatch` |
+| 5 | 기대 Account 불일치 | HUMAN_REQUIRED `account-mismatch` |
+| 6 | 환경변수 `AWS_PROFILE` 설정 | HUMAN_REQUIRED `credential-source` |
+| 7 | Contract에 `aws_profiles` 없음 | Preflight 미실행 (기존 동작) |
+
+  모든 사례에서 Run 기록에 Account / ARN / UserId가 남지 않음을 확인했다.
+- 주의: 이 PC의 `default` Profile은 MoodFit 계정에 관리자 권한(`aws login` 세션)으로 로그인되어 있다. `--profile` 없이 `aws`를 실행하면 이 세션이 쓰인다. TASK-026부터 Verify / Script의 모든 AWS 명령은 `--profile`을 명시해야 하며 Contract와 Review 기준에 넣는다.
+- 이로써 TASK-026 실행 선행 조건 중 "Permission Set / Profile 구성과 실제 Profile Preflight 확인"을 충족했다. 실제 조회 / 배포 권한은 TASK-026 / TASK-027에서 Resource 이름 확정 후 Permission Set에 추가한다.

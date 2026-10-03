@@ -7,6 +7,35 @@ import { fileURLToPath } from 'node:url';
 import { run } from './run.mjs';
 import { processRun, redact, validate, extractReviewer, commandCheck, Stop } from './lib.mjs';
 const fake = fileURLToPath(new URL('./fixtures/fake-cli.mjs', import.meta.url));
+const fakeAws = fileURLToPath(new URL('./fixtures/fake-aws.mjs', import.meta.url));
+
+for (const awsMode of ['ok', 'recheck']) test(`AWS identity ${awsMode}: rechecked before Verify and never persisted or sent to agents`, async t => {
+  const root = await fixture(t);
+  const taskFile = path.join(root, 'harness/tasks/TASK-999.json');
+  const task = JSON.parse(await readFile(taskFile, 'utf8'));
+  task.aws_profiles = ['moodfit-readonly'];
+  await writeFile(taskFile, JSON.stringify(task));
+  for (const args of [['add', 'harness/tasks/TASK-999.json'], ['-c', 'user.name=Harness Test', '-c', 'user.email=harness@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'AWS fixture']]) {
+    const result = await processRun(['git', ...args], { cwd: root, timeout: 10000 });
+    assert.equal(result.code, 0, result.stderr);
+  }
+  const configFile = path.join(root, 'harness/config.local.json');
+  const cfg = JSON.parse(await readFile(configFile, 'utf8'));
+  await mkdir(path.join(root, '.harness/runs'), { recursive: true });
+  cfg.aws = { command: [process.execPath, fakeAws, awsMode, path.join(root, '.harness/runs/aws-count')], allowed_profiles: ['moodfit-readonly'], profiles: { 'moodfit-readonly': { account: '111111111111', role: 'AWSReservedSSO_MoodFitReadOnly_fake' } } };
+  await writeFile(configFile, JSON.stringify(cfg));
+  const result = await run('TASK-999', { root });
+  assert.equal(result.status, awsMode === 'ok' ? 'PASS' : 'HUMAN_REQUIRED', result.state.reason);
+  assert.equal(result.state.phase, awsMode === 'ok' ? 'Decide' : 'Verify');
+  assert.equal(result.state.review_cycles, awsMode === 'ok' ? 1 : 0);
+  const files = await readdir(result.run_dir);
+  assert.equal(files.includes('verify-1-1.input.json'), awsMode === 'ok');
+  assert.ok(files.includes('execute-1.input.json'));
+  for (const file of files) {
+    const text = await readFile(path.join(result.run_dir, file), 'utf8');
+    for (const sensitive of ['111111111111', 'private-user-id', 'private-session', 'AWSReservedSSO_MoodFitReadOnly_fake']) assert.ok(!text.includes(sensitive), file);
+  }
+});
 
 async function fixture(t, scenario = 'pass') {
   const root = await mkdtemp(path.join(os.tmpdir(), 'moodfit-test-'));

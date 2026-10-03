@@ -1,0 +1,43 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "IdentifySession",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "InspectStagingChangeSet",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStackResources",
+        "cloudformation:ListStackResources",
+        "cloudformation:ListChangeSets",
+        "cloudformation:DescribeChangeSet"
+      ],
+      "Resource": "${StagingAppStackArn}"
+    },
+    {
+      "Sid": "InspectStagingService",
+      "Effect": "Allow",
+      "Action": [
+        "ecs:DescribeServices"
+      ],
+      "Resource": "${StagingServiceArn}"
+    },
+    {
+      "Sid": "InspectImage",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:DescribeRepositories",
+        "ecr:DescribeImages"
+      ],
+      "Resource": "${RepositoryArn}"
+    }
+  ]
+}

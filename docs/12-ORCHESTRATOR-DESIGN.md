@@ -1,5 +1,17 @@
 # 12. Local Orchestrator 설계
 
+## TASK-025 AWS Profile Preflight
+
+Contract의 선택 필드 `aws_profiles`는 중복 없는 Profile alias 배열이다. 없거나 빈 배열이면 AWS CLI / 로컬 기대값 검사를 생략하여 기존 Contract 동작을 유지한다. 허용 alias는 moodfit-readonly / moodfit-staging이며 Executor / Reviewer에는 이 alias만 전달한다.
+
+비추적 config.local.json의 aws 설정에는 command 배열, allowed_profiles / forbidden_profiles 배열, profiles의 alias별 account / role 기대값을 둔다. Account는 정확한 12자리, role은 suffix를 포함한 정확한 SSO Role 이름이다. config.example.json은 Placeholder만 제공한다. aws 설정은 frozen.json에서 제외하고 Resume 시 로컬에서 다시 읽는다. 실제 기대값 / identity 응답은 Agent 입력이나 Run 기록에 넣지 않는다.
+
+Preflight와 각 Verify 직전에 aws-preflight.mjs가 STS get-caller-identity를 명시적 profile / JSON 출력 / preflight_ms Timeout으로 호출한다. 기록되는 call wrapper를 사용하지 않는다. Account와 assumed-role ARN 내부 계정 및 Role 이름을 정확히 비교하며 부분 일치는 거부한다. CLI stdout / stderr는 메모리에서만 처리한다.
+
+기대값 없음, 금지 / allowlist 밖 Profile, AdministratorAccess 포함 Role, 만료 / 조회 실패 / Timeout / 잘못된 응답, Account / Role 불일치, 환경변수의 다른 자격 증명 공급원은 HUMAN_REQUIRED다. Access Key 계열, AWS_PROFILE / AWS_DEFAULT_PROFILE, Web Identity / Role / Container credentials, 자격 증명 또는 config 경로 override를 차단한다. 재로그인 / 자동 재시도 / fallback은 없다. Verify 재확인 실패 시 Verify 명령과 Review를 호출하지 않는다.
+
+Run 기록은 alias / 일치 여부 / UTC / 정지 사유 종류만 남기며 파일명과 Run 디렉터리로 호출과 Run을 구분한다. Fake CLI Test로 성공 / 거부 / 재확인과 전체 Run 기록의 민감 응답 비저장을 확인한다. 실제 Profile 검증은 Human 구성 후 TASK-026 실행 전에 한다.
+
 ## TASK-022 PR 관찰
 
 Git 변경 전과 Commit / Push 전에 전체 페이지의 open PR / 원격 Task ref를 확인한다. 같은 Branch 또는 Task ID의 PR과 원격 SHA 충돌은 BLOCKED다. Draft PR 생성 뒤 repository / PR 번호 / main / Task Branch / head SHA를 git-result.json에 고정한다.

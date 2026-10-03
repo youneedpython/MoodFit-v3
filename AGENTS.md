@@ -46,13 +46,13 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-024는 DONE으로 기록한다. TASK-024 완료 반영은 이번 PR에 포함하며 Orchestrator Verify / Claude PASS 이후 Human Squash Merge로 확정한다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
+TASK-001 ~ TASK-025는 DONE으로 기록한다. TASK-025 완료 반영은 이번 PR에 포함하며 Orchestrator Verify / Claude PASS 이후 Human Squash Merge로 확정한다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-025 — AWS SSO / GitHub OIDC / IAM / Environment Gate
+TASK-026 — AWS Infrastructure as Code Foundation
 ```
 
 Status:
@@ -62,11 +62,13 @@ READY
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
-Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. DEC-027은 2026-10-03 Human Approved이며 B안 Production-like / 서울 / 환경당 월 USD 300을 확정했다. TASK-024 Gate C는 2026-10-03 Human이 승인했고 DEC-028로 기록했다. 승인된 Actuator Health / digest 고정 Container / Smoke 구현은 docs/14-DEPLOYMENT-ARTIFACT.md를 따른다. TASK-024 DONE / Current Task TASK-025 READY는 이번 PR의 완료 반영이며 검증 / Review / Human Squash Merge 전에 완료 승인을 주장하지 않는다. TASK-025는 별도 명시 실행 지시가 필요하고 TASK-026 이후는 BLOCKED를 유지한다.
-Domain은 2026-10-03 Human이 8949db.kr로 확정했으며 사용자 CloudFront와 ALB origin 모두 HTTPS를 사용한다. TASK-026 전에 DNS 위임 복구 / hostname 확정이 필요하다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. TASK-025 전에 최소 권한 Staging Profile과 Agent 허용 Profile을 준비한다. 설계 승인은 AWS Resource 생성 / IAM / Production 실행 승인이 아니다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 현재 실행의 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다.
+Multi-Agent 자동화 정책은 DEC-026(Human Approved)을 따른다. DEC-027은 2026-10-03 Human Approved이며 B안 Production-like / 서울 / 환경당 월 USD 300을 확정했다. TASK-024 Gate C는 2026-10-03 Human이 승인했고 DEC-028로 기록했다. 승인된 Actuator Health / digest 고정 Container / Smoke 구현은 docs/14-DEPLOYMENT-ARTIFACT.md를 따른다. TASK-025 DONE / Current Task TASK-026 READY는 이번 PR의 완료 반영이며 검증 / Review / Human Squash Merge 전에 완료 승인을 주장하지 않는다. TASK-025 B단계 실행은 명시 지시되었으며 TASK-026 실행 선행 조건은 아래를 따른다.
+Domain은 2026-10-03 Human이 8949db.kr로 확정했으며 사용자 CloudFront와 ALB origin 모두 HTTPS를 사용한다. TASK-026 전에 DNS 위임 복구 / hostname 확정이 필요하다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. TASK-026 실행 전에 Human이 최소 권한 Permission Set / Agent 허용 Profile을 구성하고 실제 Profile Preflight를 확인한다. 설계 승인은 AWS Resource 생성 / IAM / Production 실행 승인이 아니다. Orchestrator는 검증 성공 + Executor DONE + Claude PASS + 현재 실행의 미해결 Human Gate 없음 이후 자동 Commit / Push / Draft PR을 수행한다.
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
+
+2026-10-03 DEC-029 Human Approved(검토 Commit 1d56112) 이후 B단계 Preflight / Fake CLI Test 구현을 완료했다. TASK-025 DONE / TASK-026 READY는 이번 PR 완료 반영이며 Verify / Claude PASS 이후 Human Squash Merge로 확정한다. TASK-026은 Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인 후 별도 명시 실행한다. TASK-027 이후 BLOCKED다. 실제 AWS CLI / 설정 / Resource 생성은 수행하지 않았다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

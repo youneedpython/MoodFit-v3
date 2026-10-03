@@ -2,5 +2,14 @@
   "codex": {"command": ["node", "<absolute path to @openai/codex/bin/codex.js>"]},
   "claude": {"command": ["<absolute path to VS Code extension claude.exe>"]},
   "sandbox": "elevated",
+  "aws": {
+    "command": ["<absolute path to aws.exe>"],
+    "allowed_profiles": ["moodfit-readonly", "moodfit-staging"],
+    "forbidden_profiles": ["moodfit-production-human"],
+    "profiles": {
+      "moodfit-readonly": {"account": "<expected Account ID>", "role": "<exact SSO ReadOnly role name>"},
+      "moodfit-staging": {"account": "<expected Account ID>", "role": "<exact SSO Staging role name>"}
+    }
+  },
   "timeouts": {"preflight_ms": 30000, "executor_ms": 900000, "reviewer_ms": 300000, "verify_ms": 900000}
 }

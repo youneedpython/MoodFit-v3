@@ -9,6 +9,7 @@ import { acquireLock, createWorkspace, repositoryIdentity } from './workspace.mj
 import { decide } from './state-machine.mjs';
 import { guardAgents, validateAgentsSections } from './status-sync.mjs';
 import { automateGit } from './git-automation.mjs';
+import { awsPreflight } from './aws-preflight.mjs';
 
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const assets = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../harness');
@@ -76,6 +77,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
     let config, contract, executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText;
     try {
       config = frozen?.config ?? await readJson(configPath);
+      if (frozen) config = { ...config, aws: (await readJson(configPath)).aws };
       contract = frozen?.contract ?? await readJson(path.join(root, 'harness/tasks', `${taskId}.json`));
       const contractSchema = frozen?.contractSchema ?? await readJson(path.join(assetRoot, 'schemas/task-contract.schema.json'));
       validate(contract, contractSchema);
@@ -96,12 +98,21 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       for (const check of contract.verify) { commandCheck(check.command); if (check.cwd !== '.') await inside(root, check.cwd); }
     } catch (error) { if (error instanceof Stop) throw error; blocked(`Configuration / contract: ${error.code ?? error.name}`); }
     assertNoSecrets(JSON.stringify({ config, contract, taskText }));
+    const publicConfig = { ...config };
+    delete publicConfig.aws;
+    let awsCheckNumber = 0;
+    const checkAws = async () => {
+      await awsPreflight(contract, config, { cwd: root, timeout: config.timeouts.preflight_ms, signal: controller.signal,
+        record: (name, value) => record(`aws-${++awsCheckNumber}-${name}`, value) });
+    };
     await record('preflight.contract.json', contract);
     if (!frozen) {
       frozen = { source_root: sourceRoot, branch, repository: await repositoryIdentity(sourceRoot), workspace: root, workspace_created: false, revision: (await git(root, ['rev-parse', 'HEAD'])).trim(), config, contract, contractSchema: await readJson(path.join(assetRoot, 'schemas/task-contract.schema.json')), executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText };
       state.workspace = root;
+      frozen.config = publicConfig;
       await record('frozen.json', frozen); await record('checkpoint.json', checkpoint);
     }
+    await checkAws();
     requireSuccess(await call('preflight-codex-version', [...config.codex.command, '--version'], config.timeouts.preflight_ms), 'Codex executable');
     const login = await call('preflight-login', [...config.codex.command, 'login', 'status'], config.timeouts.preflight_ms);
     if (login.failure) requireSuccess(login, 'Codex login process');
@@ -113,6 +124,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       root = await createWorkspace(sourceRoot, runId, revision);
       try { baselineAgents = await readFile(path.join(root, 'AGENTS.md'), 'utf8'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
       frozen = { source_root: sourceRoot, branch: frozen.branch, repository: await repositoryIdentity(sourceRoot), workspace: root, workspace_created: true, revision, config, contract, contractSchema: frozen.contractSchema, executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText, baselineAgents: baselineAgents ?? null };
+      frozen.config = publicConfig;
       await record('frozen.json', frozen);
       await record('checkpoint.json', checkpoint);
     } else baselineAgents = frozen.baselineAgents;
@@ -154,6 +166,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       await phase('Verify');
       const verification = [];
       for (let i = 0; i < contract.verify.length; i++) {
+        await checkAws();
         const check = contract.verify[i];
         const cwd = check.cwd === '.' ? root : await inside(root, check.cwd);
         const result = await call(`verify-${cycle}-${i + 1}`, check.command, config.timeouts.verify_ms, '', cwd);
