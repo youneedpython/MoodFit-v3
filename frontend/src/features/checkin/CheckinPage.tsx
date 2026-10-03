@@ -87,10 +87,14 @@ export function CheckinPage() {
 
   useEffect(() => {
     let active = true;
+    const version = preferenceVersion.current;
     if (readAutoWeather() && navigator.permissions?.query) {
-      void navigator.permissions.query({ name: "geolocation" }).then((permission) => {
-        if (active && permission.state === "granted" && autoWeatherRef.current && !weatherEdited.current) void getWeather();
-      }).catch(() => { /* Unsupported permission queries keep button-only behavior. */ });
+      void (async () => {
+        try {
+          const permission = await navigator.permissions.query({ name: "geolocation" });
+          if (active && version === preferenceVersion.current && permission.state === "granted" && autoWeatherRef.current && !weatherEdited.current) void getWeather();
+        } catch { /* Unsupported permission queries keep button-only behavior. */ }
+      })();
     }
     return () => { active = false; weatherRequest.current?.abort(); weatherRequest.current = null; };
   }, []);

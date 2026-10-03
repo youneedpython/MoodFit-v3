@@ -6,12 +6,14 @@ import { CheckinPage } from "./CheckinPage";
 
 beforeEach(() => localStorage.clear());
 afterEach(() => { localStorage.clear(); vi.useRealTimers(); });
-function setup(state: PermissionState | "unsupported" = "prompt", locationError?: number) {
+function setup(state: PermissionState | "unsupported" = "prompt", locationError?: number, queryThrows = false, permission?: Promise<{ state: PermissionState }>) {
   const location = vi.fn((success: PositionCallback, failure: PositionErrorCallback) => {
     if (locationError) failure({ code: locationError } as GeolocationPositionError);
     else success({ coords: { latitude: 37.5665, longitude: 126.978 } } as GeolocationPosition);
   });
   const query = vi.fn().mockResolvedValue({ state });
+  if (permission) query.mockReturnValue(permission);
+  if (queryThrows) query.mockImplementation(() => { throw new TypeError("Unsupported permission"); });
   vi.stubGlobal("navigator", { geolocation: { getCurrentPosition: location }, ...(state === "unsupported" ? {} : { permissions: { query } }) });
   const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ current: { temperature_2m: 23.26, weather_code: 71 } })));
   vi.stubGlobal("fetch", fetchMock);
@@ -50,6 +52,25 @@ describe("Check-in weather autofill", () => {
   it("does not automatically load without saved preference", async () => {
     const { location } = setup("granted"); await act(async () => {});
     expect(location).not.toHaveBeenCalled();
+  });
+  it("keeps button-only behavior when permission query throws synchronously", async () => {
+    localStorage.setItem(AUTO_WEATHER_KEY, "true");
+    const { location } = setup("granted", undefined, true);
+    await act(async () => {});
+    expect(location).not.toHaveBeenCalled();
+    fireEvent.click(button());
+    await waitFor(() => expect(temperature().value).toBe("23.3"));
+    expect(location).toHaveBeenCalledTimes(1);
+  });
+  it("does not repeat a successful manual lookup when the permission reply arrives late", async () => {
+    localStorage.setItem(AUTO_WEATHER_KEY, "true");
+    let resolve!: (value: { state: PermissionState }) => void;
+    const permission = new Promise<{ state: PermissionState }>((done) => { resolve = done; });
+    const { location } = setup("granted", undefined, false, permission);
+    fireEvent.click(button());
+    await screen.findByText(/현재 위치의 날씨를 가져왔습니다/);
+    await act(async () => { resolve({ state: "granted" }); });
+    expect(location).toHaveBeenCalledTimes(1);
   });
   it.each([1, 2, 3])("keeps manual input available on location failure %s", async (code) => {
     setup("prompt", code); fireEvent.click(button());

@@ -2,6 +2,9 @@
 
 ## TASK-035 — 위치 / 날씨 자동 입력 (2026-10-04)
 
+- WIP 이어서 확인: 기존 좌표 반올림 / WMO 코드 검증 / 기온 범위 / 입력 보호 / 설정 끄기 / 실패 시 직접 입력 흐름을 유지했다. Permissions API의 동기 예외를 처리하고, 설정 변경 또는 직접 조회 성공 뒤 늦은 권한 응답이 중복 조회를 시작하지 않도록 보완했다. 두 경우의 mock 회귀 Test를 추가했다.
+- 이번 Executor 참고 검증: `bash scripts/verify.sh`는 Frontend 설치 단계에서 Sandbox의 npm 캐시 접근 EPERM으로 중단되어 Test / Build를 실행하지 못했다. 재시도나 권한 확대는 수행하지 않았다. `git diff --check` 통과, 변경 문서의 UTF-8 / 연속 물음표 / U+FFFD 검사 통과. 최종 검증 판정은 Sandbox 밖 Orchestrator Verify 기준이다.
+
 - 승인 Contract와 명시 실행 지시에 따라 Frontend 날씨 조회 Service와 Check-in 버튼 / 자동 조회 설정 / 접근성 안내를 구현했다. 기온·날씨 입력과 Backend 요청 계약은 유지한다.
 - 좌표는 소수 첫째 자리로 반올림한 값만 Open-Meteo로 전달하며 저장·Log에 남기지 않는다. localStorage에는 자동 조회 boolean만 기록한다. 위치·API 요청은 각각 10초로 제한하고 외부 응답의 타입 / 기온 범위 / 문서화된 WMO 코드를 검증한다.
 - Permissions API가 이미 허용을 반환하고 저장된 설정이 켜진 경우에만 진입 시 조회한다. 직접 입력·수정·삭제한 날씨 값은 유지하며 자동 조회 끄기 / 저장 시작 / 화면 이탈 시 진행 중 요청을 취소한다.
