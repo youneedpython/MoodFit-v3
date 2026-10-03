@@ -82,6 +82,32 @@ Human이 아래를 승인했다. 이 Task는 Template 작성과 정적 검증만
 
 `MoodFitReadOnly` Permission Set의 inline 정책에 다음 조회 Action을 추가해 다시 프로비저닝한다(관리 계정 콘솔): `cloudformation:ValidateTemplate`, `rds:DescribeDBEngineVersions`, `rds:DescribeOrderableDBInstanceOptions`, `ec2:DescribeAvailabilityZones`, `ec2:DescribeManagedPrefixLists`, `route53:ListHostedZonesByName`. 기존 `sts:GetCallerIdentity`는 유지한다. Claude 세션이 권한 적용을 확인한 뒤 Orchestrator를 실행한다.
 
+## Run 2 결과, Human 결정(허용 문구 추가), Run 3 작업 범위 (2026-10-03, Claude 세션 기록)
+
+Run 2(`2026-10-03T09-13-41-598Z-46564928`): Codex가 Template 6개(`certificate`, `data`, `ecr`, `frontend`, `iam`, `network`), Parameter 예시, `scripts/iac-validate.sh`, `docs/17`을 작성했다. Guard가 Secret 판정으로 **BLOCKED** 했다. 기록된 위치는 `infra/cloudformation/iam.yaml` 116행, 규칙 `assignment` 한 곳이다.
+
+- 원인: ECS execution Role의 정책을 JSON 문자열(`Fn::Sub`에 escape된 JSON)로 넣었고, 그 안의 Secrets Manager 조회 Action 이름이 TASK-034에서 강화한 할당 규칙(자격 증명 단어 뒤에 글자가 이어지고 구분 기호와 값이 오는 형태)에 걸렸다. 실제 자격 증명 값은 없다. 이 Action은 DEC-029에서 승인된 권한이다.
+- Claude 세션이 작업 폴더에서 `scripts/iac-validate.sh`를 실행해 보았다: cfn-lint 6개, `validate-template` 6개, 서울 가용성 5개 항목 모두 통과(Stack 변경 없음, 식별값 출력 없음).
+- 작업 폴더 상태를 **검토 미완료 WIP**로 Commit했다.
+
+### Human 결정 (2026-10-03): 허용 문구 추가
+
+Human이 Contract `secret_scan_allow`에 다음 문구를 추가하는 것을 승인했다(Claude 세션이 Contract에 반영).
+
+- 여는 대괄호, 큰따옴표로 감싼 Secrets Manager 조회 Action 이름(서비스 접두 + 콜론 + GetSecretValue), 닫는 대괄호. 사이에 공백이 없다.
+
+Action 이름만으로는 Contract 검증이 거부한다(자격 증명 단어로 끝나는 문구는 승인할 수 없다). 그래서 대괄호와 따옴표를 포함한 형태를 승인했다. 이 문구는 다른 Action과 한 배열에 함께 쓰거나 뒤에 문자를 붙이면 허용되지 않는다.
+
+### Run 3 Codex 작업 범위
+
+1. WIP Commit 상태에서 이어서 작업한다.
+2. **IAM 정책을 문자열이 아닌 YAML 구조로 쓴다.** `infra/cloudformation/iam.yaml`(그리고 같은 방식이 쓰인 다른 Template)에서 escape된 JSON 문자열 정책(`Fn::Sub`에 JSON 전체를 넣는 방식)을 CloudFormation YAML의 `PolicyDocument` / `AssumeRolePolicyDocument` 구조(Version, Statement 목록)로 바꾼다. Parameter 참조는 `!Sub` / `!Ref`를 값 단위로 쓴다.
+3. Secrets Manager 조회 권한 Statement는 **그 Action 하나만 가진 별도 Statement**로 두고, Action 줄을 YAML flow sequence 한 줄로 정확히 다음 형태로 쓴다: `Action:` 뒤에 공백 한 칸, 여는 대괄호, 큰따옴표로 감싼 Action 이름, 닫는 대괄호. 줄 끝에 주석이나 다른 문자를 붙이지 않는다. 다른 Action을 같은 배열에 넣지 않는다. 이 형태만 Guard를 통과한다.
+4. 문서(`docs/17` 등)와 Prompt 기록에 이 Action 이름을 쓸 때도 Guard에 걸린다. 문서에서는 "Secrets Manager 조회 Action"처럼 이름을 풀어 쓰고 Action 이름 원문은 적지 않는다. 다른 Secrets Manager Action(쓰기 / 삭제 계열)은 Template에 넣지 않는다.
+5. `scripts/iac-validate.sh`가 계속 전체 통과해야 한다(구조 변경 후 cfn-lint 오류가 없도록 한다).
+6. 작업을 마치기 전에 `git diff`의 추가 줄 전체에서 자격 증명 단어 뒤에 콜론 / 등호와 값이 오는 다른 표기가 없는지 스스로 검색한다. 승인된 두 문구 외에는 그런 표기를 쓰지 않는다.
+7. 완료 반영과 WORK_LOG 기록을 유지 / 갱신한다. 새로 Human 결정이 필요한 사항만 `human_decisions_needed`로 보고한다.
+
 ## Verification
 
 - CloudFormation Validate / Lint 가능한 범위
