@@ -4,6 +4,7 @@ import { Card } from "../../components/Card/Card";
 import { PageHeader } from "../../components/PageHeader/PageHeader";
 import { ErrorState } from "../../components/StateView/StateView";
 import { ApiError, checkinApi } from "../../services/api";
+import { fetchLocalWeather, readAutoWeather, saveAutoWeather, WeatherError } from "../../services/weather";
 import type { CheckinResponse, CreateCheckinRequest } from "../../types/api";
 import { CheckinResultSummary } from "./CheckinResultSummary";
 import {
@@ -41,6 +42,58 @@ export function CheckinPage() {
   const [focusRequest, setFocusRequest] = useState(0);
   const submittingRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const [autoWeather, setAutoWeather] = useState(readAutoWeather);
+  const autoWeatherRef = useRef(autoWeather);
+  const [weatherState, setWeatherState] = useState({ loading: false, message: "", error: false });
+  const weatherEdited = useRef(false);
+  const weatherRequest = useRef<AbortController | null>(null);
+  const preferenceVersion = useRef(0);
+
+  function setWeatherPreference(enabled: boolean) {
+    preferenceVersion.current += 1;
+    autoWeatherRef.current = enabled;
+    setAutoWeather(enabled);
+    const saved = saveAutoWeather(enabled);
+    if (!enabled) {
+      weatherRequest.current?.abort();
+      weatherRequest.current = null;
+      setWeatherState({ loading: false, message: "자동 조회를 껐습니다. 직접 입력하거나 버튼으로 가져올 수 있습니다.", error: false });
+    }
+    return saved;
+  }
+
+  async function getWeather() {
+    if (weatherRequest.current || submittingRef.current) return;
+    const controller = new AbortController();
+    weatherRequest.current = controller;
+    const version = preferenceVersion.current;
+    setWeatherState({ loading: true, message: "현재 위치의 날씨를 조회하고 있습니다.", error: false });
+    try {
+      const result = await fetchLocalWeather(controller.signal);
+      if (controller.signal.aborted) return;
+      let saved = true;
+      if (version === preferenceVersion.current) saved = setWeatherPreference(true);
+      if (!weatherEdited.current && !submittingRef.current) {
+        setValues((current) => current.temperature || current.weather ? current : { ...current, temperature: String(result.temperature), weather: result.weather });
+        setErrors((current) => ({ ...current, temperature: undefined, weather: undefined }));
+      }
+      setWeatherState({ loading: false, message: (weatherEdited.current ? "입력한 날씨를 유지했습니다." : "현재 위치의 날씨를 가져왔습니다. 값을 수정할 수 있습니다.") + (saved ? "" : " 자동 조회 설정을 저장하지 못했습니다."), error: false });
+    } catch (error) {
+      if (!controller.signal.aborted) setWeatherState({ loading: false, message: error instanceof WeatherError ? error.message : "날씨 조회에 실패했습니다. 직접 입력해 주세요.", error: true });
+    } finally {
+      if (weatherRequest.current === controller) weatherRequest.current = null;
+    }
+  }
+
+  useEffect(() => {
+    let active = true;
+    if (readAutoWeather() && navigator.permissions?.query) {
+      void navigator.permissions.query({ name: "geolocation" }).then((permission) => {
+        if (active && permission.state === "granted" && autoWeatherRef.current && !weatherEdited.current) void getWeather();
+      }).catch(() => { /* Unsupported permission queries keep button-only behavior. */ });
+    }
+    return () => { active = false; weatherRequest.current?.abort(); weatherRequest.current = null; };
+  }, []);
 
   // Validation 실패 후 첫 번째 잘못된 입력으로 Focus를 이동한다.
   useEffect(() => {
@@ -52,6 +105,7 @@ export function CheckinPage() {
   function updateValue(name: keyof CheckinFormValues) {
     return (event: ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
+      if (name === "temperature" || name === "weather") weatherEdited.current = true;
       setValues((current) => ({ ...current, [name]: value }));
       setErrors((current) => ({ ...current, [name]: undefined }));
     };
@@ -63,6 +117,9 @@ export function CheckinPage() {
       return;
     }
     submittingRef.current = true;
+    weatherRequest.current?.abort();
+    weatherRequest.current = null;
+    setWeatherState({ loading: false, message: "", error: false });
     setSubmitState({ status: "submitting" });
 
     try {
@@ -104,6 +161,7 @@ export function CheckinPage() {
   }
 
   function startOver() {
+    weatherEdited.current = false;
     setValues(EMPTY_FORM);
     setErrors({});
     setSubmitState({ status: "editing" });
@@ -183,6 +241,18 @@ export function CheckinPage() {
           <fieldset className="checkin-group">
             <legend className="checkin-group__legend">날씨</legend>
             <p className="checkin-group__description">현재 위치의 기온과 날씨를 입력해 주세요.</p>
+            <div className="checkin-weather-tools">
+              <Button type="button" disabled={isSubmitting || weatherState.loading} onClick={() => void getWeather()}>
+                {weatherState.loading ? "날씨 조회 중..." : "현재 위치 날씨 가져오기"}
+              </Button>
+              <label className="checkin-weather__option">
+                <input type="checkbox" checked={autoWeather} disabled={isSubmitting} onChange={(event) => setWeatherPreference(event.target.checked)} />
+                위치 허용 후 진입 시 자동 조회
+              </label>
+              <p className="checkin-field__hint">위치는 약 10km 단위로 반올림해 날씨 조회에만 사용합니다. 직접 입력한 값은 유지합니다.</p>
+              <p className="checkin-field__hint">날씨 데이터: <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a></p>
+              {weatherState.message && <p role={weatherState.error ? "alert" : "status"}>{weatherState.message}</p>}
+            </div>
             <div className="checkin-group__fields">
               {renderNumberField("temperature")}
               <fieldset
