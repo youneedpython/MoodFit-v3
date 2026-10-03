@@ -37,6 +37,8 @@ ALB access log S3 30일 정책은 ALB 구성과 함께 TASK-027에서 정의한�
 
 ## 정적 검증
 
+Run 3에서는 IAM의 신뢰 정책과 inline 정책을 YAML 구조로 전환했다. Parameter 참조는 값 단위 Ref / Sub로 표현하며 승인된 권한과 조건은 유지한다. Secrets Manager 조회 Action은 단독 Statement의 한 줄 배열로 표현하여 Human이 승인한 정확한 허용 문구를 적용한다. 정책 전체를 escape된 JSON 문자열로 넣지 않는다.
+
 `bash scripts/iac-validate.sh`는 Working Tree를 변경하지 않는다. 모든 Template cfn-lint → CloudFormation ValidateTemplate → 서울 가용성 순서이며 인증서 검증은 us-east-1을 사용한다. AWS 호출은 모두 고정 moodfit-readonly Profile과 명시 Region을 사용한다. Python module fallback을 지원하고 도구가 없으면 실패한다. Template 51,200 bytes 초과는 실패하며 S3 업로드로 우회하지 않는다.
 
 가용성은 MySQL 8.4.11, db.t4g.small Multi-AZ / gp3 / 암호화 / 20 GiB 주문 가능성, 사용 가능한 일반 AZ 2개 이상, CloudFront origin-facing prefix list, 기존 8949db.kr Public Hosted Zone을 조회한다. 조회 결과는 개수로 판정하고 실제 계정 / ARN / Zone ID / 사용자 응답 및 AWS stderr는 출력하지 않는다. 이는 특정 입력 AZ / Zone ID나 DNS 위임의 실환경 검증을 대신하지 않는다. 실제 입력과 DNS 상태는 최초 적용 검토에서 재확인한다.
