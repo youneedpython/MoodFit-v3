@@ -48,22 +48,6 @@
       }
     },
     {
-      "Sid": "PassRuntimeRoles",
-      "Effect": "Allow",
-      "Action": [
-        "iam:PassRole"
-      ],
-      "Resource": [
-        "${StagingExecutionRoleArn}",
-        "${StagingTaskRoleArn}"
-      ],
-      "Condition": {
-        "StringEquals": {
-          "iam:PassedToService": "ecs-tasks.amazonaws.com"
-        }
-      }
-    },
-    {
       "Sid": "PublishStaticObjects",
       "Effect": "Allow",
       "Action": [

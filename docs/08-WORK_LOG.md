@@ -2875,3 +2875,12 @@ Run 2(`2026-10-03T03-02-29-144Z-c18f7254`)의 Sandbox 밖 Verify 결과다. 세 
 - AWS CLI / AWS·GitHub 설정 / Orchestrator Code / Workflow / Branch / Commit / Push / PR 작업은 수행하지 않았다. 승인 후 B단계 Contract 확대 / Preflight 구현 / Human Profile 구성은 후속 작업이며 정책 적용 승인과 구분한다.
 - 2026-10-03 공식 OIDC / GitHub Environment / CloudFormation / PassRole / ECS 기능 문서를 조회하고 docs/15에 출처를 연결했다. 실효 권한 / 실제 만료 / GitHub 보호의 실환경 검증은 미실행이다.
 - Executor 참고 검증: git diff --check Exit 0. node --test scripts/orchestrator/*.test.mjs Exit 0, 74 tests / 74 pass / 0 fail / 0 skipped. 신규 IAM JSON 10개 파싱 / Version·Statement 구조, 누적 17개 변경 파일 UTF-8 strict / 연속 물음표 치환 / U+FFFD / 추가 줄 민감 할당 표기 검사 통과. 기존 lib snapshot / guard로 실제 누적 경로와 allowlist / Secret 검사를 대조해 통과했다. Orchestrator Verify가 기준이며 정책 승인이나 Task 완료 승인을 대신하지 않는다.
+
+## TASK-025 — Run 1 Review Rework / Run 2 (2026-10-03)
+
+- Task source 기록에 따르면 Run 1 `2026-10-03T03-48-52-279Z-cdad7c20`은 Executor HUMAN_REQUIRED와 Claude CHANGES_REQUIRED로 정지했다. 이번 실행 시작 Working Tree는 clean이며 Task에 명시된 F-001~F-004만 수정한다.
+- F-001: 단일 immutable ECR Repository 승격 모델을 docs/15에 명시했다. Production deploy Role에서 ECR 인증 / Push를 제거하고 동일 Repository 이미지 조회만 유지했다. 환경별 execution role은 같은 Repository를 Pull하며 Production은 Staging에서 검증된 digest만 배포한다.
+- F-002: Staging SSO의 미사용 PassRuntimeRoles를 삭제하고 CloudFormation 앱 Change Set Role PassRole만 유지하도록 문서를 맞췄다.
+- F-003: CloudFormation Trust에 AccountId / 정확한 StagingAppStackArn 조건을 추가했다. 공식 예제의 일반 Stack 지원 한계를 명시하고 적용 전 context 검증 / fail closed / 우회 금지를 기록했다.
+- F-004: Build 이후 OIDC 취득, 요청 / 최대 3600초와 미실측 근거, 만료 시 자동 재취득·재시도 금지 및 Human의 부분 배포 확인 / 재실행·rollback 범위 승인을 Matrix / 흐름 / DEC-029에 반영했다.
+- DEC-029 Pending Human Approval / TASK-025 IN_PROGRESS / TASK-026 이후 BLOCKED를 유지한다. AWS CLI / AWS·GitHub 설정 / Workflow / Orchestrator Code / Git handoff 작업 없음. 최종 참고 검증은 Executor JSON에 기록하며 Orchestrator Verify가 기준이다.

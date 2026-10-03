@@ -16,7 +16,7 @@ A단계는 문서 / JSON / 기록만 작성한다. AWS CLI, GitHub 설정, 인�
 | OIDC Trust | 정확한 Repository + environment subject, audience sts.amazonaws.com, 환경별 별도 Role | branch subject만 사용하면 Environment 승인과의 연결을 잃음. environment subject는 Branch를 포함하지 않아 GitHub Deployment Branch 정책 필요 |
 | Role 분리 | Staging / Production deploy, IaC service role, ECS execution / task role 분리. 로컬 Agent에 Production / Role 전환 권한 없음 | 단일 계정 관리자 정책 / 공용 Role은 제외 |
 | Environment | staging / production 모두 Deployment Branch main만, Tag 제외. production Human Required Reviewer, 관리자 Bypass 비활성, self-review 방지는 단일 승인자 때문에 비활성 | 동일 Human의 실행과 승인 가능성을 수용. Agent 승인 / 설정 변경 금지, 고정 SHA / digest 및 승인 기록 대조 |
-| Session | Permission Set 1시간, CI STS 요청 15분 / Role 최대 1시간, Identity Center 로그인 Session 8시간 제안 | 로그인 Session과 AWS Role Session은 별개. 유효한 로그인으로 Role 자격이 갱신될 수 있어 Run 최대 1시간을 별도로 제한 |
+| Session | Permission Set 1시간, CI STS 요청 3600초 / Role 최대 3600초, Build 이후 취득, Identity Center 로그인 Session 8시간 제안 | Push / ECS 안정화 / smoke 시간을 확보하는 미실측 상한 제안. 만료 시 자동 재취득 / 재시도 금지, 부분 배포를 Human이 확인. 로그인 Session과 Role Session은 별개이며 로컬 Run 최대 1시간 제한 |
 | 감사 | CloudTrail과 비민감 로컬 Run / GitHub Run 기록 대조, 30일 Run 기록 보존 제안 | SSO Human Identity만으로 Agent를 구분할 수 없음. Run ID / UTC / 명령 종류 / 승인 참조와 CloudTrail event 시각을 대조 |
 | 앱 비밀 / 암호화 | 환경별 Secrets Manager, ECS execution role만 DB 값 주입. AWS 관리 암호화 / S3 SSE-S3 기본, 고객 관리 KMS는 초기 제외 | 사용자 정의 KMS 추가는 비용 / Key Policy 재승인. origin 검증 header는 Human이 환경별 관리하고 Agent / CI 조회 금지 |
 
@@ -51,23 +51,26 @@ B단계 실행 순서:
 | readonly-permission-set.json | STS 자기 식별, 기존 Staging 앱 Stack / ECS Service / ECR 메타데이터 |
 | staging-permission-set.json | Staging ECR Push / S3 정적 객체 업로드 / CloudFront invalidation / ECS Service 갱신, 제한된 앱 Change Set |
 | staging-oidc-trust.json / production-oidc-trust.json | 각 CI deploy Role의 Trust, 정확한 environment와 audience |
-| staging-deploy-policy.json / production-deploy-policy.json | 환경별 ECR / S3 / CloudFront / ECS / 정확한 runtime Role PassRole |
+| staging-deploy-policy.json / production-deploy-policy.json | Staging만 공용 ECR에 Push, Production은 동일 Repository 이미지 조회만. S3 / CloudFront / ECS / runtime Role PassRole은 환경별 |
 | staging-app-changeset-role-policy.json | 기존 앱 Stack 전용 CloudFormation service role. Staging Service 갱신 / 해당 family revision 등록 |
-| staging-app-changeset-role-trust.json | CloudFormation 서비스만 AssumeRole, Agent 직접 AssumeRole 없음 |
+| staging-app-changeset-role-trust.json | CloudFormation 서비스만 AssumeRole, SourceAccount / 정확한 Staging 앱 Stack SourceArn 조건, Agent 직접 AssumeRole 없음 |
 | ecs-runtime-role-trust.json | 환경별 execution / task Role Trust, SourceAccount 정확히 지정 / SourceArn 해당 계정의 서울 ECS 범위 |
 | ecs-execution-role-policy.json | 환경별 별도 인스턴스, ECR Pull / 사전 생성 Log Group stream 쓰기 / 해당 DB credential 읽기 |
 
 Parameter 검토 규칙:
 
 - RepositoryOwner / RepositoryName / GitHubOidcProviderArn은 승인 Repository와 해당 계정 Provider 하나다. owner / repo / subject wildcard는 금지한다.
-- Staging / Production RepositoryArn, ServiceArn, ClusterArn, StaticBucketArn, DistributionArn, ExecutionRoleArn, TaskRoleArn은 각각 실제 전용 Resource의 정확한 ARN이다. Production 값을 Staging Parameter에 넣지 않는다.
+- StagingRepositoryArn은 Staging에서 검증하고 Production이 참조하는 단일 immutable ECR Repository의 정확한 ARN이다. ProductionRepositoryArn은 사용하지 않는다. ServiceArn, ClusterArn, StaticBucketArn, DistributionArn, ExecutionRoleArn, TaskRoleArn은 환경별 전용 Resource의 정확한 ARN이다. Production 값을 Staging Parameter에 넣지 않는다.
+- ecs-execution-role-policy.json의 EnvironmentRepositoryArn은 두 환경 모두 같은 StagingRepositoryArn으로 치환한다. execution role은 공용 이미지 Pull만, Log / DB credential은 환경별 범위를 유지한다.
 - StaticObjectArn은 해당 정적 Bucket의 객체 범위만 나타낸다. Revision family Pattern은 해당 환경의 승인된 family에 revision suffix wildcard만 허용한다. StackArn은 기존 앱 전용 Stack의 정확한 ARN이며 공용 Infrastructure Stack을 지정하지 않는다.
 - EnvironmentLogStreamArnPattern은 해당 Log Group의 stream suffix만 허용한다. AppDbCredentialArn은 전체 ARN을 단일 Parameter로 받는다. 값 / literal credential ARN 표기는 문서에 넣지 않는다.
 - AWS Region / 계정 wildcard와 환경 공용 Resource wildcard는 금지한다. CloudFront는 global ARN이다. 런타임 정책은 환경별 렌더링하며 task role은 앱 AWS 호출이 없으므로 빈 권한을 유지한다.
 
 Resource 전체 wildcard 예외는 STS 자기 식별, ECR 인증, ECS DescribeTaskDefinition이다. 앞의 두 API와 task definition 조회는 Resource별 권한을 지원하지 않는다. 조회에는 계정 내 다른 task definition 메타데이터도 노출될 수 있으므로 정의에 민감한 값을 직접 넣지 않는다. ECR 인증만으로 다른 Repository Push / Pull을 허용하지 않는다. Action wildcard는 쓰지 않는다. RegisterTaskDefinition은 현재 공식 권한 표에 따라 환경 family ARN으로 제한한다.
 
-Agent Profile과 CI Role에는 RDS / VPC / ALB / DNS / ACM / KMS 관리, IAM 쓰기, Role chaining, DB 값 읽기, CloudFront 구성 수정, S3 / ECR 삭제, ECS Exec / RunTask, Stack 삭제 권한을 주지 않는다. CI의 iam:PassRole은 해당 환경의 두 ECS runtime Role과 ecs-tasks 서비스에만 허용한다. Staging SSO의 추가 PassRole은 정확한 앱 Change Set Role과 cloudformation 서비스에 한정한다. Production Resource 변경은 Staging 허용 ARN에 포함되지 않아 implicit deny다. 실제 추가 정책 / Resource Policy / Boundary를 포함한 유효 권한의 검증이 필요하며 초안만으로 적용된 차단을 주장하지 않는다.
+Agent Profile과 CI Role에는 RDS / VPC / ALB / DNS / ACM / KMS 관리, IAM 쓰기, Role chaining, DB 값 읽기, CloudFront 구성 수정, S3 / ECR 삭제, ECS Exec / RunTask, Stack 삭제 권한을 주지 않는다. CI의 iam:PassRole은 해당 환경의 두 ECS runtime Role과 ecs-tasks 서비스에만 허용한다. Staging SSO는 Task revision을 등록하지 않으므로 runtime PassRole이 없고, 정확한 앱 Change Set Role과 cloudformation 서비스에 대한 PassRole만 갖는다. Production ECS / S3 / runtime Role 변경은 Staging 허용 ARN에 포함되지 않아 implicit deny다. 공용 ECR의 기존 immutable 이미지 변경·삭제는 금지되지만 Staging은 새 이미지를 게시할 수 있어 Production digest 선택 검증이 필수다. 실제 추가 정책 / Resource Policy / Boundary를 포함한 유효 권한 검증이 필요하며 초안만으로 적용된 차단을 주장하지 않는다.
+
+CloudFormation Trust는 AccountId와 StagingAppStackArn을 필수 조건으로 추가한다. 일반 Stack service role AssumeRole에서 이 context가 전달되는지는 적용 전 Human이 확인해야 한다. 공식 confused-deputy 예제는 Registry / StackSets 중심이므로 일반 Stack 지원을 확인한 것으로 주장하지 않는다. 조건이 전달되지 않으면 fail closed로 중단하고 조건 삭제 / IfExists 우회 없이 별도 정책 재검토를 받는다.
 
 CloudFormation은 기존 앱 Stack의 UPDATE Change Set만 제안한다. CreateChangeSet에는 정확한 RoleArn과 ResourceTypes 목록을 필수로 전달하고 ECS Service / TaskDefinition 두 종류만 허용한다. ExecuteChangeSet은 API에 Role 전달을 요구하지 않고 정확한 Stack을 제한한다. Human이 Stack에 전용 최소 권한 service role이 연결되어 있고 다른 관리자 service role / 기존 과권한 Change Set이 없음을 확인한 뒤 활성화한다. Agent가 Stack 접근으로 연결된 Role을 사용할 수 있으므로 PassRole 제한만으로 기존 과권한 Role 사용을 막는다고 주장하지 않는다.
 
@@ -87,7 +90,7 @@ Production 배포 Workflow는 main에서 실행하되 Human이 승인한 DEC-025
 | Required Reviewer | 초기 Human 지정 제안, 자동화 전환은 TASK-029 Gate | Human 1명 필수, 모든 배포 / rollback |
 | prevent self-review | 단일 Human이므로 비활성 | 단일 Human이므로 비활성 |
 | 관리자 Bypass | 비활성 | 비활성 |
-| Role Session | 요청 900초, 최대 3600초 | 요청 900초, 최대 3600초 |
+| Role Session | Build 이후 요청 3600초, 최대 3600초 | 기존 Artifact 확인 / Human 승인 이후 요청 3600초, 최대 3600초 |
 | 장기 AWS Key | 저장 금지 | 저장 금지 |
 
 단일 Human이 Workflow를 실행하고 승인할 수 있으며 Repository owner는 설정을 변경할 수 있다. 이는 2인 분리 통제가 아닌 잔여 위험이다. Agent는 Environment 승인 / Bypass / Reviewer 제거 / Trust 변경을 하지 않는다. Human이 실제 배포 diff / SHA / digest를 확인하고 직접 승인하며 GitHub Environment 승인 기록을 보존한다. 보호 설정이 없거나 지원되지 않으면 Production Role을 사용하지 않고 HUMAN_REQUIRED다.
@@ -95,6 +98,10 @@ Production 배포 Workflow는 main에서 실행하되 Human이 승인한 DEC-025
 향후 Workflow 권한은 deploy job에만 id-token write, contents read를 제안한다. Environment 보호를 통과한 job만 AWS Role을 사용한다. PR / fork / pull_request_target에서 배포 Role을 사용하지 않는다. Action은 검토된 commit으로 고정하고 Role session name에 비민감 GitHub Run ID / attempt를 사용한다.
 
 Image build는 깨끗한 checkout의 실제 full Commit SHA를 VCS_REF 필수 값으로 전달하고 sha-commit Tag / OCI revision / digest를 검증한다. ECR immutable은 Human / IaC가 구성하고 deploy Role에는 변경 권한을 주지 않는다. 배포는 digest 고정 Task revision을 등록하고 해당 Service만 갱신한다. CI는 DB credential을 읽지 않는다. 정적 artifact는 hash 대조 후 전용 S3에 업로드하고 invalidation한다. S3 삭제가 없으므로 기존 hashed asset은 남고 정리는 별도 승인 정책으로 처리한다.
+
+승격 모델은 단일 ECR Repository다. Staging CI deploy Role(또는 승인된 Staging SSO 게시 Task)만 StagingRepositoryArn에 새 immutable sha-commit 이미지를 Push한다. Production deploy Role은 같은 Repository의 BatchGetImage / DescribeImages로 검증된 기존 digest를 조회하며 ECR 인증 / Push / 복사 / 재빌드 권한이 없다. 두 환경 ECS execution role이 같은 Repository에서 Pull한다. Production은 Staging 검증 기록의 동일 digest만 Task Definition에 사용한다. 정적 Artifact는 Staging 검증 hash와 동일한 기존 산출물을 Production S3에 업로드한다. 환경별 ECS / DB / S3 / Role 분리는 유지하며 ECR만 Artifact 공유 대상으로 제안한다.
+
+CI는 AWS 권한 없는 Build / 로컬 검증을 먼저 마친 후 Environment 승인과 배포 입력 확인을 통과하고 OIDC 자격을 취득한다. 요청 3600초는 Push / Task revision 등록 / rolling 안정화 / smoke와 확인 시간을 확보하기 위한 제안이며 실제 소요 시간은 미측정이다. 전체 배포 deadline은 Session 만료보다 짧게 설정하고 실제 여유는 Workflow Task에서 검증한다. 만료 / 시간 부족 / 인증 실패 시 자동 재취득·재시도 없이 중단한다. Human은 기존 GitHub Run과 CloudTrail / 승인된 조회 경로로 Push digest, 현재 Service revision, rollout 상태, S3 hash / invalidation 등 부분 반영을 확인하고 재실행 또는 rollback의 구체적 범위를 승인한다. Production rollback에도 새 Environment 승인이 필요하다.
 
 ## 6. 앱 비밀 / KMS / 감사
 
@@ -120,6 +127,7 @@ DEC-029 승인 → B단계 Contract 확대 / 명시 실행 → Preflight 구현 
 - [GitHub Environment 보호 규칙](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments): Branch 정책 / Required Reviewer / self-review / 관리자 Bypass.
 - [GitHub 배포 승인](https://docs.github.com/en/actions/how-tos/managing-workflow-runs-and-deployments/managing-deployments/reviewing-deployments): Human 승인과 Bypass 비활성.
 - [CloudFormation service role](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-iam-servicerole.html): Stack에 연결된 Role의 사용 위험.
+- [CloudFormation confused deputy 조건](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cross-service-confused-deputy-prevention.html): SourceAccount / SourceArn 예제는 Registry 중심이며 일반 Stack 적용은 별도 검증 필요.
 - [AWS PassRole](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html): 정확한 Role과 서비스 제한.
 - [ECS 권한 표](https://docs.aws.amazon.com/service-authorization/latest/reference/list_ecs.html): RegisterTaskDefinition family 범위 및 DescribeTaskDefinition 전체 Resource 예외.
 

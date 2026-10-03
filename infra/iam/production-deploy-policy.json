@@ -22,26 +22,13 @@
       "Resource": "*"
     },
     {
-      "Sid": "RegistryAuthentication",
+      "Sid": "InspectVerifiedImage",
       "Effect": "Allow",
       "Action": [
-        "ecr:GetAuthorizationToken"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Sid": "PublishImmutableImage",
-      "Effect": "Allow",
-      "Action": [
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:InitiateLayerUpload",
-        "ecr:UploadLayerPart",
-        "ecr:CompleteLayerUpload",
-        "ecr:PutImage",
         "ecr:BatchGetImage",
         "ecr:DescribeImages"
       ],
-      "Resource": "${ProductionRepositoryArn}"
+      "Resource": "${StagingRepositoryArn}"
     },
     {
       "Sid": "ReadService",

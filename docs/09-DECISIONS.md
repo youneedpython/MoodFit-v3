@@ -1351,7 +1351,8 @@ Human의 A단계 작성 지시는 정책 적용 승인이 아니다. 구체적 �
 - 환경별 OIDC deploy Role을 분리하고 정확한 Repository / environment subject와 audience sts.amazonaws.com을 StringEquals로 고정한다. main Branch 제한은 GitHub Environment에서 적용한다.
 - deploy / IaC service / ECS execution / task Role을 분리한다. Agent / CI에 IAM 변경, Network / RDS 관리, 앱 credential 조회, Production Profile 및 Role chaining을 허용하지 않는다. 최초 IaC 권한은 후속 승인 Diff로 제한한다.
 - staging / production main-only / Tag 제외, Human Required Reviewer / 관리자 Bypass 비활성. 단일 Human이므로 self-review 방지는 비활성으로 두고 동일인 실행·승인 위험을 수용하며 Human의 SHA / digest 대조와 직접 승인을 요구한다.
-- Permission Set 1시간 / Identity Center 로그인 8시간 / Run 1시간 제한, OIDC 요청 15분 / Role 최대 1시간을 제안한다. 만료 / Account·Role 불일치 시 HUMAN_REQUIRED이며 재로그인 / fallback을 하지 않는다.
+- Permission Set 1시간 / Identity Center 로그인 8시간 / Run 1시간 제한, Build 이후 OIDC 요청 3600초 / Role 최대 3600초를 제안한다. 만료 / Account·Role 불일치 시 HUMAN_REQUIRED이며 재로그인 / fallback / 자동 재취득·재시도를 하지 않는다. 부분 배포 확인 후 재실행 / rollback 범위는 Human이 승인한다.
+- Run 1 F-001~F-004 반영 제안: 단일 immutable ECR Repository에서 Staging 게시 / Production 조회와 동일 digest 승격, Staging SSO runtime PassRole 삭제, CloudFormation Trust의 Account / 앱 Stack 조건을 적용한다. 일반 Stack의 context 전달은 적용 전 검증하며 미지원이면 우회 없이 재검토한다. DEC-029는 Pending을 유지한다.
 - CloudTrail과 비민감 Run ID / UTC / 명령 / 승인 참조 및 GitHub Run을 대조한다. 실제 identity / ARN / 인증 정보는 Log에 기록하지 않는다. Run 기록 30일 보존을 제안한다.
 - 환경별 Secrets Manager와 ECS execution role의 시작 시 DB 값 주입, 기본 AWS 관리 암호화 / S3 SSE-S3, origin 검증 header Human 전용 관리안을 제안한다. 고객 관리 KMS / 자동 rotation은 초기 제외하고 변경 시 별도 Gate다.
 
