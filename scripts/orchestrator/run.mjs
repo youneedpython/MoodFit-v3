@@ -10,6 +10,7 @@ import { decide } from './state-machine.mjs';
 import { guardAgents, validateAgentsSections } from './status-sync.mjs';
 import { automateGit } from './git-automation.mjs';
 import { awsPreflight } from './aws-preflight.mjs';
+import { validateSecretAllow, resumeContract, contractIdentity, resumeSourceRevision } from './lib.mjs';
 
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const assets = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../harness');
@@ -39,6 +40,16 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
     await record(`${name}.output.json`, result);
     return result;
   };
+  const resumeSnapshot = async () => {
+    const value = await snapshot(root);
+    if (frozen && !frozen.workspace_created) {
+      const activePath = `harness/tasks/${taskId}.json`;
+      value.entries = value.entries.filter(entry => entry.file !== activePath);
+      value.diff = await git(root, ['diff', 'HEAD', '--no-ext-diff', '--no-textconv', '--binary', '--', '.', `:(exclude)${activePath}`]);
+      for (const entry of value.entries.filter(entry => entry.status === '??')) value.diff += `\n--- untracked: ${entry.file}\n${await readFile(await inside(root, entry.file), 'utf8')}\n`;
+    }
+    return value;
+  };
   try {
     release = await acquireLock(sourceRoot, runId);
     if (resumeId) {
@@ -49,13 +60,17 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       taskId = state.task_id;
       if (frozen.source_root !== sourceRoot || frozen.repository !== await repositoryIdentity(sourceRoot)) blocked('Resume repository mismatch');
       root = frozen.workspace;
-      if ((await git(root, ['rev-parse', 'HEAD'])).trim() !== frozen.revision) blocked('Resume HEAD mismatch');
-      if (digest(await snapshot(root)) !== state.snapshot_hash) blocked('Resume diff mismatch; Human must inspect');
+      const sourceRevision = await resumeSourceRevision(sourceRoot, frozen.source_revision ?? frozen.revision, frozen.contract, frozen.contract_identity);
+      if (frozen.workspace_created && (await git(root, ['rev-parse', 'HEAD'])).trim() !== frozen.revision) blocked('Resume HEAD mismatch');
+      if (digest(await resumeSnapshot()) !== state.snapshot_hash) blocked('Resume diff mismatch; Human must inspect');
       let approval;
       try { approval = await readJson(path.join(runDir, 'resume-approval.json')); }
       catch { throw new Stop('HUMAN_REQUIRED', 'Resume requires Human approval tied to stopped reason and diff'); }
       if (approval.run_id !== runId || approval.snapshot_hash !== state.snapshot_hash || approval.stop_reason !== state.reason || approval.approved !== true || typeof approval.reference !== 'string' || !approval.reference.trim()) throw new Stop('HUMAN_REQUIRED', 'Resume requires Human approval tied to stopped reason and diff');
-      assertNoSecrets(JSON.stringify(approval));
+      const currentContract = await readJson(path.join(sourceRoot, 'harness/tasks', `${taskId}.json`)).catch(() => blocked('Resume contract malformed or missing'));
+      frozen.contract = resumeContract(frozen.contract, currentContract, frozen.contract_identity);
+      frozen.source_revision = sourceRevision;
+      assertNoSecrets(JSON.stringify(approval), frozen.contract.secret_scan_allow, 'resume-approval', true);
       await record(`resume-${state.history.length}.json`, approval);
       await rm(path.join(runDir, 'resume-approval.json'));
       resumeAccepted = true;
@@ -63,6 +78,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       if (checkpoint.pending_gate?.length || checkpoint.executor && (checkpoint.executor.status === 'HUMAN_REQUIRED' || checkpoint.executor.human_decisions_needed.length)) checkpoint.approved_cycle = checkpoint.cycle;
       else delete checkpoint.approved_cycle;
       state.status = 'RUNNING'; state.reason = '';
+      delete state.secret_locations;
     }
     await mkdir(runDir, { recursive: true });
     await phase('Preflight');
@@ -71,7 +87,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
     if (path.resolve((await git(root, ['rev-parse', '--show-toplevel'], controller.signal)).trim()) !== path.resolve(root)) blocked('Run from repository root');
     const branch = (await git(root, ['branch', '--show-current'], controller.signal)).trim();
     if (!resumeId && (!branch || branch === 'main')) blocked('main or detached HEAD');
-    if ((!resumeId || !frozen?.workspace_created) && (await changes(root, controller.signal)).length) blocked('Working Tree is dirty');
+    if ((!resumeId || !frozen?.workspace_created) && (await changes(root, controller.signal)).some(entry => !resumeId || entry.file !== `harness/tasks/${taskId}.json`)) blocked('Working Tree is dirty');
     // Run records must be ignored before any agent is started.
     requireSuccess(await call('preflight-ignore', ['git', 'check-ignore', runDir + '/state.json'], 30000, '', sourceRoot), 'Run directory must be gitignored');
     let config, contract, executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText;
@@ -81,11 +97,16 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       contract = frozen?.contract ?? await readJson(path.join(root, 'harness/tasks', `${taskId}.json`));
       const contractSchema = frozen?.contractSchema ?? await readJson(path.join(assetRoot, 'schemas/task-contract.schema.json'));
       validate(contract, contractSchema);
+      validateSecretAllow(contract.secret_scan_allow);
       if (contract.id !== taskId) blocked('Task id mismatch');
       validateAgentsSections(contract);
       for (const rule of [...contract.allowed_paths, ...contract.forbidden_paths]) safePath(rule, true);
       const taskPath = await inside(root, contract.task_file);
       taskText = frozen?.taskText ?? await readFile(taskPath, 'utf8');
+      if (frozen?.task_identity) {
+        taskText = await git(root, ['show', `${frozen.revision}:${contract.task_file}`]);
+        if (digest(taskText.replace(/\r\n/g, '\n')) !== frozen.task_identity) blocked('Frozen Task document identity mismatch');
+      }
       executorSchema = frozen?.executorSchema ?? await readJson(path.join(assetRoot, 'schemas/executor-result.schema.json'));
       codexSchema = frozen?.codexSchema ?? await readJson(path.join(assetRoot, 'schemas/executor-result.codex.schema.json'));
       reviewerSchema = frozen?.reviewerSchema ?? await readJson(path.join(assetRoot, 'schemas/reviewer-result.schema.json'));
@@ -97,7 +118,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       for (const key of ['preflight_ms', 'executor_ms', 'reviewer_ms', 'verify_ms']) if (!Number.isSafeInteger(config.timeouts?.[key]) || config.timeouts[key] <= 0) blocked(`Invalid timeout: ${key}`);
       for (const check of contract.verify) { commandCheck(check.command); if (check.cwd !== '.') await inside(root, check.cwd); }
     } catch (error) { if (error instanceof Stop) throw error; blocked(`Configuration / contract: ${error.code ?? error.name}`); }
-    assertNoSecrets(JSON.stringify({ config, contract, taskText }));
+    assertNoSecrets(JSON.stringify(config), [], 'configuration');
     const publicConfig = { ...config };
     delete publicConfig.aws;
     let awsCheckNumber = 0;
@@ -108,10 +129,16 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
     await record('preflight.contract.json', contract);
     if (!frozen) {
       frozen = { source_root: sourceRoot, branch, repository: await repositoryIdentity(sourceRoot), workspace: root, workspace_created: false, revision: (await git(root, ['rev-parse', 'HEAD'])).trim(), config, contract, contractSchema: await readJson(path.join(assetRoot, 'schemas/task-contract.schema.json')), executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText };
+      frozen.contract_identity = contractIdentity(contract);
+      frozen.task_identity = digest(taskText.replace(/\r\n/g, '\n'));
       state.workspace = root;
       frozen.config = publicConfig;
       await record('frozen.json', frozen); await record('checkpoint.json', checkpoint);
     }
+    const contractScan = { ...contract };
+    delete contractScan.secret_scan_allow;
+    assertNoSecrets(JSON.stringify(contractScan), contract.secret_scan_allow, 'task-contract', true);
+    assertNoSecrets(taskText, contract.secret_scan_allow, contract.task_file);
     await checkAws();
     requireSuccess(await call('preflight-codex-version', [...config.codex.command, '--version'], config.timeouts.preflight_ms), 'Codex executable');
     const login = await call('preflight-login', [...config.codex.command, 'login', 'status'], config.timeouts.preflight_ms);
@@ -124,6 +151,8 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       root = await createWorkspace(sourceRoot, runId, revision);
       try { baselineAgents = await readFile(path.join(root, 'AGENTS.md'), 'utf8'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
       frozen = { source_root: sourceRoot, branch: frozen.branch, repository: await repositoryIdentity(sourceRoot), workspace: root, workspace_created: true, revision, config, contract, contractSchema: frozen.contractSchema, executorSchema, codexSchema, reviewerSchema, executorTemplate, reviewerTemplate, taskText, baselineAgents: baselineAgents ?? null };
+      frozen.contract_identity = contractIdentity(contract);
+      frozen.task_identity = digest(taskText.replace(/\r\n/g, '\n'));
       frozen.config = publicConfig;
       await record('frozen.json', frozen);
       await record('checkpoint.json', checkpoint);
@@ -142,7 +171,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       if (!executor) {
         await phase('Execute');
         const resultFile = path.join(temporary, `executor-${cycle}.json`);
-        const input = executorTemplate.replace('{{INPUT}}', () => redact(JSON.stringify({ contract, task_document: taskText, findings, result_schema: executorSchema }, null, 2)));
+        const input = executorTemplate.replace('{{INPUT}}', () => JSON.stringify(sanitize({ contract, task_document: taskText, findings, result_schema: executorSchema }), null, 2));
         const execution = await call(`execute-${cycle}`, [...config.codex.command, 'exec', '-s', 'workspace-write', '-c', `windows.sandbox="${config.sandbox}"`, '--output-schema', schemaFile, '-o', resultFile, '-'], config.timeouts.executor_ms, input);
         requireSuccess(execution, 'Executor');
         await phase('Guard');
@@ -180,7 +209,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       if (JSON.stringify(before) !== JSON.stringify(await snapshot(root, controller.signal))) blocked('Verify changed Working Tree');
       if (state.review_cycles >= contract.max_review_cycles) throw new Stop('HUMAN_REQUIRED', 'Review limit reached (3)');
       await phase('Review'); state.review_cycles++; await record('state.json', state);
-      const reviewerInput = reviewerTemplate.replace('{{INPUT}}', () => redact(JSON.stringify({ contract, task_document: taskText, diff: before.diff, verify_logs: verification, result_schema: reviewerSchema }, null, 2)));
+      const reviewerInput = reviewerTemplate.replace('{{INPUT}}', () => JSON.stringify(sanitize({ contract, task_document: taskText, diff: before.diff, verify_logs: verification, result_schema: reviewerSchema }), null, 2));
       const review = await call(`review-${cycle}`, [...config.claude.command, '-p', '--output-format', 'json', '--allowedTools', 'Read,Grep,Glob', '--tools', 'Read,Grep,Glob', '--strict-mcp-config'], config.timeouts.reviewer_ms, reviewerInput);
       requireSuccess(review, 'Reviewer');
       let verdict;
@@ -200,7 +229,7 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
       state.status = decision.status; state.reason = decision.reason;
       if (['PASS', 'HANDOFF_PENDING'].includes(decision.status) && Number(taskId.slice(5)) >= 22) {
         await phase('Git');
-        state.git = await automateGit({ sourceRoot, workspace: root, revision: frozen.revision, branch: frozen.branch, contract, status: state.status, executor: effective, reviewer: verdict, verification, reviewCycle: state.review_cycles, reviewed: before, record, runDir, signal: controller.signal });
+        state.git = await automateGit({ sourceRoot, workspace: root, revision: frozen.source_revision ?? frozen.revision, branch: frozen.branch, contract, status: state.status, executor: effective, reviewer: verdict, verification, reviewCycle: state.review_cycles, reviewed: before, record, runDir, signal: controller.signal });
         state.status = 'HANDOFF_PENDING';
       }
       if (decision.status !== 'REWORK') break;
@@ -211,11 +240,12 @@ export async function run(taskId, { root = process.cwd(), configPath = path.join
   } catch (error) {
     state.status = error instanceof Stop ? error.status : 'ERROR';
     state.reason = error.message; state.error_category = error.category ?? classify(error.message);
+    if (error.locations) state.secret_locations = error.locations;
   } finally {
     process.removeListener('SIGINT', interrupt); process.removeListener('SIGTERM', interrupt);
     if (temporary) await rm(temporary, { recursive: true, force: true });
     if (release && (!resumeId || resumeAccepted) && state.workspace) {
-      try { state.snapshot_hash = digest(await snapshot(root)); } catch { state.snapshot_hash = null; }
+      try { state.snapshot_hash = digest(await resumeSnapshot()); } catch { state.snapshot_hash = null; }
     }
     state.finished_at = new Date().toISOString();
     if (release) {

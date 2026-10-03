@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { automateGit, gitPolicy } from './git-automation.mjs';
-import { processRun, git, snapshot, guard, validate } from './lib.mjs';
+import { processRun, git, snapshot, guard, validate, resumeSourceRevision, contractIdentity } from './lib.mjs';
 import { guardAgents, syncAgents } from './status-sync.mjs';
 
 const contract = { id: 'TASK-022', title: 'Git fixture', allowed_paths: ['src/'], forbidden_paths: ['src/forbidden.txt'], verify: [{ command: ['node', '--version'], cwd: '.' }] };
@@ -98,6 +98,25 @@ async function fixture(t) {
   };
   return { ...evidence, sourceRoot, workspace, revision, reviewed, runDir, invoke, record: async (name, value) => records.set(name, value), calls, records };
 }
+
+test('committed Human allowlist resume reaches TASK-022 Git handoff and rejects mixed history', async t => {
+  const options = await fixture(t);
+  const active = 'harness/tasks/TASK-022.json';
+  await mkdir(path.join(options.sourceRoot, 'harness/tasks'), { recursive: true });
+  await writeFile(path.join(options.sourceRoot, active), JSON.stringify(contract));
+  await git(options.sourceRoot, ['add', '--', active]);
+  await git(options.sourceRoot, ['commit', '-m', 'Human contract baseline']);
+  const original = (await git(options.sourceRoot, ['rev-parse', 'HEAD'])).trim();
+  const current = { ...contract, secret_scan_allow: [('secret' + ':documentation')] };
+  await writeFile(path.join(options.sourceRoot, active), JSON.stringify(current));
+  await git(options.sourceRoot, ['add', '--', active]);
+  await git(options.sourceRoot, ['commit', '-m', 'Human literal approval']);
+  const revision = await resumeSourceRevision(options.sourceRoot, original, contract, contractIdentity(contract));
+  const result = await automateGit({ ...options, revision, contract: current });
+  assert.equal((await git(options.sourceRoot, ['rev-parse', 'HEAD^'])).trim(), revision);
+  assert.ok(result.commit_sha);
+  await assert.rejects(() => resumeSourceRevision(options.sourceRoot, original, contract), /non-contract/);
+});
 
 test('temporary local Git flow transfers reviewed changes, individual Stage, Commit, Push and Draft PR audit', async t => {
   const options = await fixture(t);

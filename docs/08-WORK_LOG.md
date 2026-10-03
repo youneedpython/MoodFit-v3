@@ -1,5 +1,14 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-034 — Run 2 WIP Review 수정 (2026-10-03)
+
+- R1-001: Human이 활성 Contract 허용 목록 변경만 Commit한 Source revision을 Resume에서 검증한다. 각 중간 Commit의 단일 부모 / 변경 파일 / 비목록 fingerprint / 목록 형식을 확인하고 Git 단계의 HEAD 및 parent 기준으로 전달한다. 기존 Workspace HEAD와 누적 Snapshot 검사는 유지한다.
+- R1-002: WIP 경계 검사와 불완전 할당 거부를 확인하고 접미 값 / 단어 단독 / 값 없는 구분 기호 회귀 Test를 추가했다. Guard 추가 표시를 제거하여 실제 줄의 literal 경계를 검사한다.
+- R1-003: JSON escape 형태는 직렬화 입력에만 적용한다. 원문에서 escape 형태가 승인되지 않는 회귀 Test와 직렬화 호출 명시를 보완했다.
+- R1-004: 승인 문구 설명을 별도 상위 절로 옮기고 Resume 본문과 승인 예시를 같은 절로 복구했다. 경계 및 Human Contract Commit 흐름을 설계에 기록했다.
+- TASK-034 DONE / TASK-026 READY의 기존 구현 완료 반영을 유지한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge는 완료 승인에 별도로 필요하다. 새 Human 결정과 실제 AWS 작업은 없다.
+- Executor 참고 검증: 초기 WIP는 111개 중 JSON 직렬화 / Guard 경계 Test 2개가 실패했다. 수정 후 전체 Orchestrator Test 114개가 통과했다. Workspace 생성 후 Guard 정지 → Human Contract Commit → 승인 Resume와 TASK-022 Git handoff를 Fake CLI / 임시 Repository로 검증했다. `git diff --check` 통과, 변경 문서의 연속 물음표 / U+FFFD와 추가 줄의 기존 할당 차단 규칙 일치가 없음을 직접 확인했다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+
 ## TASK-032 — Run 4 Human 결정 A 반영 (2026-10-03)
 
 - Secret 검사 변경을 TASK-032에서 제외하고 오탐 감소를 TASK-034의 Human 승인 허용 문구 목록으로 분리했다. 아래 이전 Run의 완화 구현 기록은 당시 이력이며 현재 구현 기준이 아니다.
@@ -3020,3 +3029,25 @@ Run(`2026-10-03T07-44-20-715Z-29577f23`, TASK-032로 개선된 Orchestrator의 �
 - Review N-001: `docs/tasks/COMMON.md`의 승인된 기술 표기를 MySQL 8.4.11 기준으로 고쳤다(Executor 금지 경로라 Claude 세션이 수정).
 - Review N-004: `prompts/README.md` 색인에 52 ~ 55(TASK-032) 행을 추가했다.
 - 새 PR 형식 관찰(TASK-034 이후 개선 후보): Executor의 후속 작업 서술은 Verify / Review 전에 쓰이므로 "검증이 남아 있다" 같은 문구가 본문에 남는다. Review Finding 전문이 그대로 들어가 길다. Claude 세션이 PR #11 본문을 정리했다.
+
+## TASK-034 — Secret Guard Allowlist (2026-10-03, Executor)
+
+- Human의 사전 승인 1 ~ 5와 명시 실행 지시에 따라 Contract 선택 literal 배열, 길이 / 개수 / 형식 / 자격 증명 형태 거부를 구현했다. 긴 문구부터 원문 및 JSON escape 형태를 한 번에 치환하고 기존 판정에 전달한다. Preflight / Guard / PR / Commit의 차단에만 적용하며 Run 기록과 Agent 입력은 계속 엄격히 마스킹한다.
+- URL 사용자 정보 / 임시 AWS Access Key ID / 접미 변수 할당을 차단과 마스킹에 추가했다. 기존 네 규칙을 좁히지 않았다. 값이 없는 위치 기록에 Guard의 실제 파일 / 새 줄 좌표 또는 입력 종류 / 규칙 종류를 남긴다.
+- Resume은 현재 Contract에서 허용 목록만 갱신하며 나머지 중첩 필드는 frozen fingerprint와 비교한다. 마스킹된 문구를 원본 비교에 쓰지 않도록 Contract fingerprint와 baseline Task blob의 fingerprint를 보존했다. Workspace 생성 전 정지도 frozen / checkpoint를 남기며 Snapshot에서 활성 Contract의 Human 목록 변경만 제외한다. 기존 Resume 승인 파일 없이 진행하지 않는다.
+- Fake CLI / 단위 Test 8개를 추가했다. 역사적 오탐 형태, 주변 / 부분 / 대소문자 불일치, JSON escape / 겹침, 형식과 자격 증명 거부, 엄격한 마스킹, 값 없는 위치 기록, Resume 승인 및 다른 필드 변경 차단, 강화 규칙과 PR 검사를 검증했다. Schema validator가 최대 길이를 지원하게 되어 기존 미지원 keyword Test는 다른 미지원 keyword로 바꾸고 최대 길이 거부도 검증했다.
+- Executor 참고 검증: 전체 Orchestrator Test 111 / 111 통과(기존 103개 포함). frozen Task 원문 복원 보강 후 관련 Resume / Guard Test 18 / 18 재검증 통과. 초기 Test에서 발견한 Schema 마스킹과 Resume의 Contract 변경 Snapshot 문제를 수정한 뒤 통과했다. Sandbox 밖 Orchestrator Verify가 최종 검증 기준이다.
+- 정책 / 설계 / Prompt / 상태 문서를 갱신했다. TASK-034 DONE / TASK-026 READY는 이번 PR 구현 완료 반영이며 Verify / Claude Review / Remote CI와 Human Squash Merge 전 최종 완료 승인을 주장하지 않는다. Git handoff / AWS / 금지 경로 변경은 수행하지 않았다.
+- `git diff --check` 통과. 실행 시작 Version의 Guard를 누적 추가 줄과 untracked 전체에 적용하여 통과했다. 변경 Markdown 문서를 UTF-8로 직접 읽고 연속 물음표와 U+FFFD가 없음을 확인했다.
+
+### TASK-034 독립 확인 / 마무리 (Claude 세션, 2026-10-03)
+
+Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator로 실행): Verify 성공(Orchestrator Test 114 / 114, `git diff --check`), Claude Review 1회차 **PASS**, Orchestrator가 Commit `8b7b8c0` / Push / Draft PR #12를 자동 생성했다.
+
+- Claude 세션 독립 확인(main의 `lib.mjs`와 이 Branch의 `lib.mjs`를 직접 불러 비교, 값은 실행 시 조합):
+  - 접두 10종 × 자격 증명 단어 9종 × 구분 기호 7종 × 값 10종 × 접미 6종 = 37,800개 조합에서 "main은 차단하고 새 Version은 통과"하는 경우 0건. 허용 목록이 없으면 기존 차단 범위가 그대로다.
+  - 강화 규칙 3종(URL 안의 자격 증명, 임시 AWS Access Key ID 형식, 자격 증명 단어 뒤에 다른 단어가 이어지는 변수 이름 할당)은 main에서는 통과했고 새 Version에서는 차단된다.
+  - 허용 목록: 정확히 일치하는 문구(TASK-023 형태의 목록 줄, Secrets Manager ARN)는 통과. 허용 문구 뒤에 값을 붙여 쓴 경우, 같은 줄의 다른 할당, 대소문자가 다른 경우는 차단. "단어 + 구분 기호"로 끝나는 항목, Token 형식 항목, 3자 미만 항목은 Contract 검증에서 거부.
+- Run 1의 정지 사유 분류 오류(개선 후보): Codex CLI의 "Selected model is at capacity"(일시적 서버 용량 오류)가 `Executor: quota`로 분류되었다. Codex 출력에 포함된 Code Diff 본문이 사용량 한도 판정 정규식에 걸렸다. 판정 대상을 Codex의 오류 줄로 한정하고 용량 오류를 별도 종류로 구분하는 것을 후속 개선 후보로 둔다.
+- Review R2-001 / R2-002(비차단)는 후속 개선 후보로 둔다: 구분 기호 뒤에 영숫자 값이 없는 허용 항목 거부, 세미콜론 / 괄호 접미 사례 Test, `run()` Resume → Git 단계 end-to-end Test. R2-003은 docs/12에, R2-004는 docs/07에 Claude 세션이 반영했다.
+- 운영 방법: Guard가 Secret 판정으로 정지하면 Run 기록의 위치(파일 / 줄 / 규칙)를 보고 Human이 문구를 승인한다. Claude 세션이 Contract `secret_scan_allow`에 추가해 Task Branch에 Commit / Push한 뒤 `resume-approval.json`과 함께 `--resume`한다.

@@ -124,6 +124,10 @@ TASK-021 Human 승인(2026-10-02)이 아래 과거 단계 기록에 우선한다
 
 ## 9. Deterministic Verification / AI Review / Secret / Log (확정)
 
+- TASK-034의 2026-10-03 사전 승인에 따라 Contract의 `secret_scan_allow`에 Human이 승인한 정확한 문구만 차단 판정에서 제외한다. Executor의 자기 Contract 수정은 계속 금지한다. 형식 / 개수 / 길이 및 자격 증명 형태 거부 기준과 Resume 절차는 docs/12를 따른다. 새 오탐은 Human이 현재 Contract에 문구를 추가 승인하고 기존 Resume 승인 파일로 재개한다. 다른 Contract 필드 변경은 BLOCKED다.
+- 승인 문구 치환은 차단 판정에만 적용한다. Run 기록과 Executor / Reviewer 입력의 redact / sanitize는 목록과 무관하게 유지한다. 위치 기록에는 파일 또는 입력 종류 / 줄 번호 / 규칙 종류만 남기며 값이나 줄 원문은 남기지 않는다. URL 사용자 정보 / 임시 AWS Access Key ID / 접미가 있는 자격 증명 할당의 차단과 마스킹을 추가하며 기존 차단 규칙은 좁히지 않는다.
+- 과거 Task의 오탐 회피 작성 규칙은 Human이 승인한 정확한 문구에 한해 허용 목록으로 대체할 수 있다. 허용 목록이 없는 Task와 실행 시작 Version의 Guard에는 기존 규칙을 적용한다. 임의 Secret 탐지의 한계와 입력 / 저장 금지 정책은 유지한다.
+
 - Deterministic Verification은 Exit Code / Test / Build / Schema / 변경 경로 / 반복 횟수 / Gate 상태를 검사한다. 실패를 AI PASS로 덮어쓰지 않는다.
 - AI Review는 요구사항 / 승인 Decision 준수와 Diff의 품질 / 누락 / 위험을 검토한다. 미실행 Test를 통과로 판단하지 않는다.
 - Reviewer 입력은 Task Contract + 실제 `git diff` + Verification Log로 한정한다. 승인 Decision은 Contract의 근거로 제공하고 Codex 자기 설명은 넘기지 않는다. 신규 파일 내용도 실제 변경으로 제공한다.

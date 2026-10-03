@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { readFile, lstat, realpath } from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 export class Stop extends Error {
   constructor(status, message, category) { super(message); this.status = status; this.category = category ?? classify(message); }
@@ -18,22 +19,78 @@ export function classify(message) {
 }
 export const blocked = message => { throw new Stop('BLOCKED', message); };
 export const readJson = async file => JSON.parse((await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
+const credentialPatterns = () => [
+  ['private-key', /-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?-----END [^-]*PRIVATE KEY-----/g],
+  ['bearer', /\bBearer\s+[^\s"']+/gi],
+  ['key-format', /\b(?:sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|github_pat_[A-Za-z0-9_]{8,}|(?:AKIA|ASIA)[A-Z0-9]{16})\b/g],
+  ['url-userinfo', /[A-Za-z][A-Za-z0-9+.-]*:\/\/[^\s/@:]*:[^\s/@]+@/g],
+];
+const assignmentPattern = () => /((?:["']?)(?:password|passwd|api[_-]?key|access[_-]?token|secret(?:[_-]?key)?|token)[A-Za-z0-9]*(?:[_-][A-Za-z0-9]+)*(?:["']?)\s*[:=]\s*)("[^"\r\n]*"|'[^'\r\n]*'|[^\s,}\r\n]+)/gi;
+export function validateSecretAllow(items = []) {
+  if (!Array.isArray(items) || items.length > 50 || new Set(items).size !== items.length) blocked('Contract allowlist invalid');
+  for (const item of items) {
+    if (typeof item !== 'string' || item.length < 3 || item.length > 200 || item.trim() !== item || /[\u0000-\u001f\u007f-\u009f\u2028\u2029]/u.test(item)) blocked('Contract allowlist format invalid');
+    if (credentialPatterns().some(([, pattern]) => pattern.test(item))) blocked('Contract allowlist credential form rejected');
+    if (/(?:password|passwd|api[_-]?key|access[_-]?token|secret(?:[_-]?key)?|token)[A-Za-z0-9]*(?:[_-][A-Za-z0-9]+)*(?:["']?)\s*(?:[:=]\s*)?$/i.test(item)) blocked('Contract allowlist incomplete assignment rejected');
+  }
+  return items;
+}
+export function scanCopy(text, items = [], serialized = false) {
+  validateSecretAllow(items);
+  const forms = [...new Set(items.map(item => serialized ? JSON.stringify(item).slice(1, -1) : item))].sort((a, b) => b.length - a.length || a.localeCompare(b));
+  if (!forms.length) return String(text);
+  const escaped = forms.map(item => item.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  // One pass prevents replacement text becoming a subsequent literal match.
+  return String(text).replace(new RegExp(escaped.join('|'), 'g'), (match, offset, input) => {
+    const before = input[offset - 1], after = input[offset + match.length];
+    const boundary = char => char === undefined || /[\s,;{}()[\]]/.test(char) || serialized && char === '"';
+    return boundary(before) && boundary(after) ? ' [APPROVED LITERAL] ' : match;
+  });
+}
+export function contractIdentity(value) {
+  return createHash('sha256').update(JSON.stringify(Object.entries(value).filter(([key]) => key !== 'secret_scan_allow').sort(([a], [b]) => a.localeCompare(b)))).digest('hex');
+}
+export function resumeContract(frozenValue, currentValue, identity = contractIdentity(frozenValue)) {
+  if (contractIdentity(currentValue) !== identity) blocked('Resume contract fields changed');
+  validateSecretAllow(currentValue.secret_scan_allow);
+  return { ...currentValue, secret_scan_allow: currentValue.secret_scan_allow ?? [] };
+}
+export async function resumeSourceRevision(root, revision, contract, identity = contractIdentity(contract)) {
+  const head = (await git(root, ['rev-parse', 'HEAD'])).trim();
+  if (head === revision) return head;
+  const active = `harness/tasks/${contract.id}.json`;
+  await git(root, ['merge-base', '--is-ancestor', revision, head]);
+  const commits = (await git(root, ['rev-list', '--reverse', `${revision}..${head}`])).trim().split('\n');
+  for (const commit of commits) {
+    const parents = (await git(root, ['rev-list', '--parents', '-n', '1', commit])).trim().split(' ');
+    if (parents.length !== 2) blocked('Resume contract history must be linear');
+    const files = (await git(root, ['diff-tree', '--no-commit-id', '--name-only', '-r', '-z', commit])).split('\0').filter(Boolean);
+    if (files.length !== 1 || files[0] !== active) blocked('Resume history contains non-contract changes');
+    let value;
+    try { value = JSON.parse(await git(root, ['show', `${commit}:${active}`])); }
+    catch { blocked('Resume contract history malformed'); }
+    resumeContract(contract, value, identity);
+  }
+  if ((await changes(root)).length) blocked('Resume committed contract requires clean source');
+  return head;
+}
 export function redact(value) {
   return String(value)
     .replace(/-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?-----END [^-]*PRIVATE KEY-----/g, '[REDACTED PRIVATE KEY]')
     .replace(/\bBearer\s+[^\s"']+/gi, 'Bearer [REDACTED]')
-    .replace(/\b(?:sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|github_pat_[A-Za-z0-9_]{8,}|AKIA[A-Z0-9]{16})\b/g, '[REDACTED]')
-    .replace(/((?:["']?)(?:password|passwd|api[_-]?key|access[_-]?token|secret(?:[_-]?key)?|token)(?:["']?)\s*[:=]\s*)("[^"\r\n]*"|'[^'\r\n]*'|[^\s,}\r\n]+)/gi, '$1"[REDACTED]"');
+    .replace(/\b(?:sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|github_pat_[A-Za-z0-9_]{8,}|(?:AKIA|ASIA)[A-Z0-9]{16})\b/g, '[REDACTED]')
+    .replace(credentialPatterns()[3][1], '[REDACTED URL]')
+    .replace(assignmentPattern(), '$1"[REDACTED]"');
 }
 export function sanitize(value) {
   if (typeof value === 'string') return redact(value);
   if (Array.isArray(value)) return value.map(sanitize);
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) =>
-    [key, /^(?:password|passwd|api[_-]?key|access[_-]?token|secret(?:[_-]?key)?|token)$/i.test(key) ? '[REDACTED]' : sanitize(item)]));
+    [key, /^(?:password|passwd|api[_-]?key|access[_-]?token|secret(?:[_-]?key)?|token)$/i.test(key) || (item === null || typeof item !== 'object') && /(?:password|passwd|api[_-]?key|access[_-]?token|secret(?:[_-]?key)?|token)[A-Za-z0-9]*(?:[_-][A-Za-z0-9]+)*$/i.test(key) ? '[REDACTED]' : sanitize(item)]));
   return value;
 }
 export function validate(value, schema, at = '$') {
-  const supported = new Set(['$schema', 'title', 'description', 'type', 'enum', 'const', 'required', 'properties', 'additionalProperties', 'items', 'uniqueItems', 'minItems', 'minLength', 'pattern']);
+  const supported = new Set(['$schema', 'title', 'description', 'type', 'enum', 'const', 'required', 'properties', 'additionalProperties', 'items', 'uniqueItems', 'minItems', 'maxItems', 'minLength', 'maxLength', 'pattern']);
   for (const key of Object.keys(schema)) if (!supported.has(key)) blocked(`Unsupported schema keyword: ${key}`);
   const type = Array.isArray(value) ? 'array' : value === null ? 'null' : typeof value;
   if (schema.type && schema.type !== type) blocked(`Schema ${at}: expected ${schema.type}`);
@@ -47,11 +104,13 @@ export function validate(value, schema, at = '$') {
     }
   }
   if (type === 'array') {
+    if (value.length > (schema.maxItems ?? Infinity)) blocked(`Schema ${at}: too many items`);
     if (value.length < (schema.minItems ?? 0)) blocked(`Schema ${at}: too few items`);
     if (schema.uniqueItems && new Set(value.map(x => JSON.stringify(x))).size !== value.length) blocked(`Schema ${at}: duplicate items`);
     if (schema.items) value.forEach((item, i) => validate(item, schema.items, `${at}[${i}]`));
   }
   if (type === 'string' && value.length < (schema.minLength ?? 0)) blocked(`Schema ${at}: empty string`);
+  if (type === 'string' && value.length > (schema.maxLength ?? Infinity)) blocked(`Schema ${at}: string too long`);
   if (type === 'string' && schema.pattern && !new RegExp(schema.pattern).test(value)) blocked(`Schema ${at}: invalid pattern`);
 }
 export function commandCheck(command) {
@@ -188,18 +247,44 @@ export function guard(snapshotValue, reported, contract) {
   // Check introduced lines, not old/context lines containing deliberate test fixtures.
   // Untracked content has no '+' prefix and must be checked in full.
   const [tracked, ...untracked] = (snapshotValue.diff ?? '').split('\n--- untracked: ');
-  const added = tracked.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++')).join('\n');
+  const added = tracked.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++')).map(line => line.slice(1)).join('\n');
   const introduced = [added, ...untracked].join('\n');
   if (/\?{3,}|\uFFFD/u.test(introduced)) blocked('Guard: encoding corruption detected');
-  assertNoSecrets(introduced);
+  try { assertNoSecrets(introduced, contract.secret_scan_allow, 'guard-added-lines'); }
+  catch (error) {
+    if (!error.locations) throw error;
+    // Map scanner lines back to new-file coordinates without recording content.
+    const coordinates = [];
+    let file = 'diff', line = 0;
+    for (const row of tracked.split('\n')) {
+      if (row.startsWith('+++ b/')) file = row.slice(6);
+      const hunk = /^@@ .* \+(\d+)/.exec(row);
+      if (hunk) line = Number(hunk[1]);
+      else if (row.startsWith('+') && !row.startsWith('+++')) coordinates.push({ source: file, line: line++ });
+      else if (row.startsWith(' ')) line++;
+    }
+    if (!coordinates.length) coordinates.push({ source: 'diff', line: 0 });
+    for (const chunk of untracked) {
+      const [name, ...rows] = chunk.split('\n');
+      coordinates.push({ source: name, line: 0 });
+      rows.forEach((row, index) => coordinates.push({ source: name, line: index + 1 }));
+    }
+    error.locations = error.locations.map(location => ({ ...location, ...(coordinates[location.line - 1] ?? {}) }));
+    throw error;
+  }
 }
 
 export function secretFile(file) {
   return /(?:^|\/)(?:\.env(?:\..*)?|credentials(?:\.json)?|id_(?:rsa|ed25519)|[^/]+\.(?:pem|p12|pfx))$/i.test(file) && !/\.env\.example$/i.test(file);
 }
 
-export function assertNoSecrets(text) {
-  if (redact(text) !== text) blocked('Secret-like input detected (content withheld)');
+export function assertNoSecrets(text, items = [], source = 'input', serialized = false) {
+  const copy = scanCopy(text, items, serialized);
+  if (redact(copy) !== copy) {
+    const error = new Stop('BLOCKED', 'Secret-like input detected (content withheld)', 'secret');
+    error.locations = [...credentialPatterns(), ['assignment', assignmentPattern()]].flatMap(([rule, pattern]) => [...copy.matchAll(pattern)].map(match => ({ source, line: copy.slice(0, match.index).split('\n').length, rule })));
+    throw error;
+  }
 }
 
 export async function ignoredSecrets(root) {

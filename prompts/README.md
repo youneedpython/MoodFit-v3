@@ -126,3 +126,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 54 | TASK-032 R4 Rework | R3 / R4 Finding 반영 | Review 한도 도달, Human 결정 A |
 | 55 | TASK-032 Run 4 Secret Restore | Secret 검사 main 상태 복원, 나머지 개선 유지 | Review PASS, PR #10 Merge |
 | 56 | TASK-033 Approved MySQL 8.4 | DEC-030 사전 승인 Image / 문서 / 완료 반영 | Executor 구현 완료, Orchestrator 검증 / Review 대기 |
+| 57 | TASK-034 Approved Allowlist | 승인 literal 목록 / Resume / 위치 기록 / 차단 강화 | Executor 구현 완료, 최종 완료 승인은 Human Squash Merge |

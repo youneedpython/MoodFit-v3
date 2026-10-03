@@ -33,7 +33,7 @@ DONE
 
 ## 3. Current Task
 
-TASK-034 — Secret Guard Allowlist (Human 승인 허용 문구)
+TASK-026 — AWS Infrastructure as Code Foundation
 
 Status:
 
@@ -42,7 +42,7 @@ READY
 ```
 
 TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR #7, TASK-024 PR #8, TASK-025 PR #9 Human Squash Merge다.
-2026-10-03 DEC-030 사전 승인과 명시 실행 지시에 따라 TASK-033 구현 완료를 이번 PR에 DONE으로 반영하고 TASK-034를 READY로 전환한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-034는 별도 명시 실행 지시와 해당 Gate를 확인한 뒤 시작한다. TASK-026 이후는 BLOCKED다. TASK-026의 선행 조건 중 Permission Set / Profile 구성과 실제 Profile Preflight 확인, `8949db.kr` DNS 위임 복구는 완료되었다.
+2026-10-03 사전 승인과 명시 실행 지시에 따라 TASK-034 구현 완료를 이번 PR에 DONE으로 반영하고 TASK-026을 READY로 전환한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-026은 별도 명시 실행 지시와 해당 Gate 확인 후 시작하며 TASK-027 이후는 BLOCKED다. TASK-026의 TASK-032 / TASK-033 / TASK-034 구현 선행 조건과 Permission Set / Profile 구성 및 실제 Profile Preflight 확인, `8949db.kr` DNS 위임 복구는 충족했다.
 
 ---
 
@@ -75,7 +75,7 @@ TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR 
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | DONE | TASK-022 완료 (충족), Human 실행 지시 | DEC-027 Human Approved (2026-10-03), 완료는 PR Squash Merge로 확정 |
 | TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | DONE | TASK-023 Architecture 승인(DEC-027), Human 명시 실행 지시, DEC-028 승인 | Gate C 승인 완료, 이번 PR Human Squash Merge로 완료 확정 |
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | DONE | TASK-023 / TASK-024, DEC-029 Human Approved | B단계 구현 완료 반영, Human Squash Merge로 확정 |
-| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-032 / TASK-033 완료 반영 (충족), TASK-034 완료 필요 (TASK-023 / TASK-025 완료, Permission Set / Profile / 실제 Preflight 확인 충족) | 필요 (비용 Resource Checkpoint) |
+| TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | READY | TASK-032 / TASK-033 / TASK-034 구현 완료 반영 (충족), TASK-023 / TASK-025 및 Permission Set / Profile / 실제 Preflight 확인 충족 | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | BLOCKED | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
 | TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | 필요 (비용 Resource 생성) |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
@@ -83,7 +83,7 @@ TASK-001 ~ TASK-025는 DONE이다. 완료 근거는 TASK-022 PR #5, TASK-023 PR 
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
 | TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 정밀화는 TASK-034로 분리 / 새 Dependency 시 Gate |
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | DONE | TASK-032 완료, DEC-030 사전 승인. 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | Gate C 승인 완료 (DEC-030) |
-| TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | READY | TASK-033 구현 완료 반영. TASK-026 전에 별도 명시 실행 | 허용 문자열 기준은 Gate |
+| TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | DONE | 사전 승인과 명시 실행에 따른 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | 2026-10-03 형식 / 거부 기준 / 적용 범위 / Resume / 강화 규칙 사전 승인 |
 
 ---
 
@@ -1384,10 +1384,10 @@ DONE
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
-TASK-032 / TASK-033 선행 조건은 이번 PR 완료 반영으로 충족 표시하며 TASK-034 완료 후 진행한다. (2026-10-03 Human 승인 순서) Orchestrator Verify / Claude Review / Human Squash Merge 전 완료 승인을 뜻하지 않는다. Permission Set / Profile 구성과 실제 Profile Preflight 확인, DNS 위임 복구는 완료되었다.
+TASK-032 / TASK-033 / TASK-034 구현 선행 조건은 이번 PR 완료 반영으로 충족 표시한다. (2026-10-03 Human 승인 순서) Orchestrator Verify / Claude Review / Human Squash Merge 전 완료 승인을 뜻하지 않는다. Permission Set / Profile 구성과 실제 Profile Preflight 확인, DNS 위임 복구는 완료되었다. TASK-026은 별도 명시 실행 및 비용 Resource Checkpoint를 확인한 뒤 진행한다.
 
 ### 목적
 
@@ -1608,10 +1608,10 @@ Local / Testcontainers / CI의 MySQL 기준을 DEC-027의 RDS MySQL 8.4에 맞�
 ### 상태
 
 ```text
-READY
+DONE
 ```
 
-TASK-033 구현 완료 반영에 따라 READY로 전환한다. 별도 명시 실행 지시와 해당 Gate 확인 후 시작한다. TASK-026의 선행 조건이다. (2026-10-03 Human 결정: TASK-032에서 분리)
+2026-10-03 Human 사전 승인과 명시 실행 지시에 따라 literal 허용 목록 / Resume / 위치 기록 / 차단 강화를 구현했다. Run 2 기준 Orchestrator Test는 114개가 통과했다(기존 103개 포함). DONE은 이번 PR 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge로 최종 확정한다. TASK-026 선행 조건을 충족 표시했다.
 
 ### 목적
 
@@ -1675,7 +1675,7 @@ Secret 검사의 차단 기준은 그대로 두고, Task Contract에 Human이 �
 
 현재 Core MVP 구현을 막는 Pending Decision은 없다.
 
-2026-10-03 TASK-033 현재 기준: DEC-023 Image 변경의 별도 Gate는 DEC-030 Human Approved로 충족했다. TASK-033에 미해결 Human 결정은 없다. Current Task는 TASK-034 READY이며 TASK-026은 TASK-034 완료 전 BLOCKED다. 아래 TASK-025 당시 서술은 이력이며 현재 상태는 3절과 Task 목록을 따른다.
+2026-10-03 TASK-034 현재 기준: 사전 승인된 Secret 정책을 구현했으며 새 Human 결정은 없다. Current Task는 TASK-026 READY다. DONE은 PR 구현 완료 반영이며 최종 완료 승인은 Human Squash Merge다. 아래 TASK-025 당시 서술은 이력이며 현재 상태는 3절과 Task 목록을 따른다.
 
 DEC-026 / DEC-027 / DEC-028 / DEC-029는 Human Approved다. TASK-025에 미해결 Human Gate는 없다. TASK-025 DONE / TASK-026 READY는 이번 PR 완료 반영이며 Human Squash Merge로 확정한다. TASK-026은 Human의 Permission Set / Profile 구성과 실제 Profile Preflight 확인 후 명시 실행하며 TASK-027 이후 BLOCKED다. Domain 8949db.kr / HTTPS origin은 승인 완료이며 DNS 위임 복구와 hostname 최종 확정은 TASK-026 전 후속 조건이다. DEC-023 변경은 별도 Decision / Gate / Task가 필요하다. 미조회 단가 / ACM 비용 / Region 가용성은 TASK-026 전에 확인한다. 후속 Gate의 해당 실행은 승인 전에 수행하지 않는다.
 

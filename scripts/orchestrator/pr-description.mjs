@@ -40,7 +40,7 @@ ${metadata.diff_summary}
 export function prBody(input) {
   const full = render(input);
   // Check even content omitted from the display, before any Git mutation.
-  assertNoSecrets(full);
+  assertNoSecrets(full, input.contract.secret_scan_allow, 'pr-body');
   if (full.length <= PR_BODY_LIMIT) return full;
   const clip = (value, limit) => {
     const text = String(value);
