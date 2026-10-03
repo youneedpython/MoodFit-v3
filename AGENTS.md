@@ -46,14 +46,14 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-025와 TASK-032는 DONE이다. 2026-10-03 DEC-030 사전 승인과 명시 실행 지시에 따라 TASK-033(MySQL 8.4 전환) 구현 완료를 이번 PR에 DONE으로 반영하고 TASK-034를 READY로 전환한다. Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-034는 별도 명시 실행 지시와 해당 Gate를 확인한 뒤 시작하며 TASK-026 이후는 BLOCKED다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
-2026-10-03 Human 결정 A에 따라 Secret 검사 변경은 TASK-032에서 제외하고 main의 기본 검사를 유지한다. 오탐 감소는 TASK-034의 Human 승인 허용 문구 목록으로 분리하며 실행 순서는 TASK-032 → TASK-033 → TASK-034 → TASK-026이다. 기존 Task 문서의 오탐 회피 작성 규칙은 계속 적용한다.
+TASK-001 ~ TASK-025와 TASK-032 / TASK-033은 DONE이다. 2026-10-03 Human 사전 승인과 명시 실행 지시에 따라 TASK-034 구현 완료를 이번 PR에 DONE으로 반영하고 TASK-026을 READY로 전환한다. Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-026은 별도 명시 실행 지시와 해당 Gate를 확인한 뒤 시작하며 TASK-027 이후는 BLOCKED다. 상세 이력은 `docs/07-TASKS.md` / `docs/08-WORK_LOG.md`를 참조한다.
+2026-10-03 Human 결정 A에 따라 Secret 검사 변경은 TASK-032에서 분리했다. TASK-034에서는 승인된 literal 허용 목록과 URL / 임시 AWS Key / 접미 변수 할당의 차단 강화를 구현했다. 기존 차단 규칙과 엄격한 마스킹은 유지한다. 실행 순서는 TASK-032 → TASK-033 → TASK-034 → TASK-026이다. 기존 오탐 회피 작성 규칙은 Human이 Contract에 승인한 정확한 문구에 한해 허용 목록으로 대체할 수 있다.
 Wellness Analysis / Recommendation Rule은 DEC-014, Persistence Dependency와 DB Schema는 DEC-019, GitHub Actions Bot은 DEC-021을 Source of Truth로 사용한다.
 
 Current Task:
 
 ```text
-TASK-034 — Secret Guard Allowlist (Human 승인 허용 문구)
+TASK-026 — AWS Infrastructure as Code Foundation
 ```
 
 Status:

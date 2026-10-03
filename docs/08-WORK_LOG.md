@@ -3020,3 +3020,13 @@ Run(`2026-10-03T07-44-20-715Z-29577f23`, TASK-032로 개선된 Orchestrator의 �
 - Review N-001: `docs/tasks/COMMON.md`의 승인된 기술 표기를 MySQL 8.4.11 기준으로 고쳤다(Executor 금지 경로라 Claude 세션이 수정).
 - Review N-004: `prompts/README.md` 색인에 52 ~ 55(TASK-032) 행을 추가했다.
 - 새 PR 형식 관찰(TASK-034 이후 개선 후보): Executor의 후속 작업 서술은 Verify / Review 전에 쓰이므로 "검증이 남아 있다" 같은 문구가 본문에 남는다. Review Finding 전문이 그대로 들어가 길다. Claude 세션이 PR #11 본문을 정리했다.
+
+## TASK-034 — Secret Guard Allowlist (2026-10-03, Executor)
+
+- Human의 사전 승인 1 ~ 5와 명시 실행 지시에 따라 Contract 선택 literal 배열, 길이 / 개수 / 형식 / 자격 증명 형태 거부를 구현했다. 긴 문구부터 원문 및 JSON escape 형태를 한 번에 치환하고 기존 판정에 전달한다. Preflight / Guard / PR / Commit의 차단에만 적용하며 Run 기록과 Agent 입력은 계속 엄격히 마스킹한다.
+- URL 사용자 정보 / 임시 AWS Access Key ID / 접미 변수 할당을 차단과 마스킹에 추가했다. 기존 네 규칙을 좁히지 않았다. 값이 없는 위치 기록에 Guard의 실제 파일 / 새 줄 좌표 또는 입력 종류 / 규칙 종류를 남긴다.
+- Resume은 현재 Contract에서 허용 목록만 갱신하며 나머지 중첩 필드는 frozen fingerprint와 비교한다. 마스킹된 문구를 원본 비교에 쓰지 않도록 Contract fingerprint와 baseline Task blob의 fingerprint를 보존했다. Workspace 생성 전 정지도 frozen / checkpoint를 남기며 Snapshot에서 활성 Contract의 Human 목록 변경만 제외한다. 기존 Resume 승인 파일 없이 진행하지 않는다.
+- Fake CLI / 단위 Test 8개를 추가했다. 역사적 오탐 형태, 주변 / 부분 / 대소문자 불일치, JSON escape / 겹침, 형식과 자격 증명 거부, 엄격한 마스킹, 값 없는 위치 기록, Resume 승인 및 다른 필드 변경 차단, 강화 규칙과 PR 검사를 검증했다. Schema validator가 최대 길이를 지원하게 되어 기존 미지원 keyword Test는 다른 미지원 keyword로 바꾸고 최대 길이 거부도 검증했다.
+- Executor 참고 검증: 전체 Orchestrator Test 111 / 111 통과(기존 103개 포함). frozen Task 원문 복원 보강 후 관련 Resume / Guard Test 18 / 18 재검증 통과. 초기 Test에서 발견한 Schema 마스킹과 Resume의 Contract 변경 Snapshot 문제를 수정한 뒤 통과했다. Sandbox 밖 Orchestrator Verify가 최종 검증 기준이다.
+- 정책 / 설계 / Prompt / 상태 문서를 갱신했다. TASK-034 DONE / TASK-026 READY는 이번 PR 구현 완료 반영이며 Verify / Claude Review / Remote CI와 Human Squash Merge 전 최종 완료 승인을 주장하지 않는다. Git handoff / AWS / 금지 경로 변경은 수행하지 않았다.
+- `git diff --check` 통과. 실행 시작 Version의 Guard를 누적 추가 줄과 untracked 전체에 적용하여 통과했다. 변경 Markdown 문서를 UTF-8로 직접 읽고 연속 물음표와 U+FFFD가 없음을 확인했다.

@@ -48,7 +48,7 @@ export async function automateGit({ sourceRoot, workspace, revision, branch, con
   if (!files.length) blocked('No reviewed changes to commit');
   const metadata = { task_id: contract.id, repository, base: 'main', head: branch, revision, changed_files: files, diff_summary: await git(workspace, ['diff', '--stat', 'HEAD']), verification, review_verdict: reviewer.verdict, human_gate: 'none pending', draft: true };
   const body = prBody({ contract, executor, reviewer, verification, reviewCycle, files, metadata });
-  assertNoSecrets(prTitle(contract));
+  assertNoSecrets(prTitle(contract), contract.secret_scan_allow, 'pr-title');
   await record('git-pre-pr.json', metadata);
   const patch = await git(workspace, ['diff', 'HEAD', '--binary', '--no-ext-diff', '--no-textconv', '--']);
   if (patch) await command(['git', 'apply', '--check', '--binary', '-'], patch);
@@ -84,7 +84,7 @@ export async function automateGit({ sourceRoot, workspace, revision, branch, con
     if (staged !== expected) blocked('Reviewed content changed before Commit');
   }
   const message = `${prTitle(contract)}\n\n- ${contract.title}\n\n${codex}\n${claude}\n`;
-  assertNoSecrets(message);
+  assertNoSecrets(message, contract.secret_scan_allow, 'commit-message');
   await checkStaged();
   await remoteGuard();
   const expectedTree = (await git(sourceRoot, ['write-tree'])).trim();
@@ -95,7 +95,7 @@ export async function automateGit({ sourceRoot, workspace, revision, branch, con
   if ((await changes(sourceRoot)).length || (await git(sourceRoot, ['branch', '--show-current'])).trim() !== branch) blocked('Git conflict after Commit');
   await remoteGuard();
   await command(['git', 'push', 'origin', `${metadata.commit_sha}:refs/heads/${branch}`]);
-  assertNoSecrets(body);
+  assertNoSecrets(body, contract.secret_scan_allow, 'pr-body');
   const bodyFile = path.join(runDir, 'git-pr-body.md');
   await writeFile(bodyFile, body, 'utf8');
   await record('git-pr-body.md', body);

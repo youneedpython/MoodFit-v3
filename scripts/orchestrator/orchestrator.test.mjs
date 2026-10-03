@@ -132,7 +132,8 @@ test('redaction / strict schema / reviewer extraction / shim rejection', () => {
   assert.ok(!redact('Bearer abcdef api_key="sensitive" ghp_abcdefghijk').includes('sensitive'));
   assert.equal(redact('password=example'), 'password="[REDACTED]"');
   assert.throws(() => validate({ extra: true }, { type: 'object', additionalProperties: false, properties: {} }), Stop);
-  assert.throws(() => validate('a', { maxLength: 1 }), Stop);
+  assert.throws(() => validate('a', { unsupportedLimit: 1 }), Stop);
+  assert.throws(() => validate('ab', { maxLength: 1 }), Stop);
   assert.throws(() => validate('a', { type: 'string', pattern: '^\\d+$' }), Stop);
   assert.throws(() => extractReviewer(JSON.stringify({ result: '{} {}' })), Stop);
   assert.throws(() => extractReviewer(JSON.stringify({ result: '{}', permission_denials: [{}] })), Stop);
