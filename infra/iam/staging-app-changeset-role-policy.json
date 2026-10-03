@@ -1,0 +1,79 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadService",
+      "Effect": "Allow",
+      "Action": [
+        "ecs:DescribeServices"
+      ],
+      "Resource": "${StagingServiceArn}"
+    },
+    {
+      "Sid": "UpdateStagingService",
+      "Effect": "Allow",
+      "Action": [
+        "ecs:UpdateService"
+      ],
+      "Resource": "${StagingServiceArn}",
+      "Condition": {
+        "ArnEquals": {
+          "ecs:cluster": "${StagingClusterArn}"
+        },
+        "ArnLike": {
+          "ecs:task-definition": "${StagingTaskDefinitionArnPattern}"
+        }
+      }
+    },
+    {
+      "Sid": "RegisterTaggedTaskRevision",
+      "Effect": "Allow",
+      "Action": [
+        "ecs:RegisterTaskDefinition"
+      ],
+      "Resource": "${StagingTaskDefinitionArnPattern}",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/MoodFitEnvironment": "staging"
+        }
+      }
+    },
+    {
+      "Sid": "InspectTaskRevision",
+      "Effect": "Allow",
+      "Action": [
+        "ecs:DescribeTaskDefinition"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "TagNewTaskRevision",
+      "Effect": "Allow",
+      "Action": [
+        "ecs:TagResource"
+      ],
+      "Resource": "${StagingTaskDefinitionArnPattern}",
+      "Condition": {
+        "StringEquals": {
+          "ecs:CreateAction": "RegisterTaskDefinition"
+        }
+      }
+    },
+    {
+      "Sid": "PassStagingRuntimeRoles",
+      "Effect": "Allow",
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": [
+        "${StagingExecutionRoleArn}",
+        "${StagingTaskRoleArn}"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "ecs-tasks.amazonaws.com"
+        }
+      }
+    }
+  ]
+}

@@ -58,7 +58,7 @@ TASK-025 — AWS SSO / GitHub OIDC / IAM / Environment Gate
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 Agent 자동화 / AWS 배포 Roadmap(TASK-018 ~ TASK-031)이 등록되었다. 상세 Task Contract와 공통 규칙은 `docs/tasks/`를 따른다.
@@ -67,6 +67,8 @@ Domain은 2026-10-03 Human이 8949db.kr로 확정했으며 사용자 CloudFront�
 
 Post-MVP 보완 결정은 DEC-015(Gradle Wrapper `9.8.0`), DEC-022(표시 Timezone), DEC-023(Testcontainers MySQL), DEC-024(API 계약 `contracts/`)를 Source of Truth로 사용한다.
 새로운 작업은 Human 지시에 따라 Task를 정의하고 필요한 Gate(A / B / C)와 Human Approval을 거친 뒤 시작한다.
+
+2026-10-03 Human의 명시 실행 지시에 따라 TASK-025 A단계 설계 / 정책 초안을 작성한다. DEC-029는 Pending Human Approval이며 docs/15-AWS-ACCESS-POLICY.md와 infra/iam/의 검토 Diff에 대한 Gate 승인을 기다린다. A단계에서는 AWS CLI / AWS·GitHub 설정 / Orchestrator Code 변경 없이 IN_PROGRESS를 유지한다. 최소 권한 Profile 구성과 Preflight 구현은 승인 후 B단계 Contract 확대에서 진행하며 TASK-026 이후는 BLOCKED다.
 
 단, Codex는 사용자의 명시적인 TASK 실행 지시 없이 READY Task를 임의로 실행하지 않는다.
 

@@ -2865,3 +2865,13 @@ Run 2(`2026-10-03T03-02-29-144Z-c18f7254`)의 Sandbox 밖 Verify 결과다. 세 
   - I-005: Dockerfile HEALTHCHECK는 ECS에서 무시되므로 ECS Task Definition에 같은 liveness 명령을 선언한다(TASK-027). CI Build는 `VCS_REF`를 필수로 전달한다.
   - I-006: `OperationalHealthTests`는 Gradle Test 작업 디렉터리가 `backend/`라는 전제에 의존한다.
 - 이 PC에서 Run 작업 폴더 삭제 시 Windows 경로 길이 제한(`Filename too long`, `node_modules`)이 발생했다. Orchestrator 개선 후보(작업 폴더 정리 / long path 처리)로 추가한다.
+
+## TASK-025 — A단계 AWS Access Policy Gate (2026-10-03)
+
+- 최초 Working Tree clean과 필수 Context / Task / DEC-026 ~ DEC-028을 확인하고 명시 Contract의 A단계만 수행했다.
+- docs/15-AWS-ACCESS-POLICY.md에 최소 권한 Permission Set / Profile / B단계 Preflight, 환경별 OIDC Trust, main Branch / Required Reviewer, 단일 Human self-review 잔여 위험, Session / 감사와 앱 비밀 정책 및 검토 Matrix를 작성했다.
+- infra/iam/에 환경별 Trust / deploy, ReadOnly / Staging Permission Set, 기존 앱 Change Set service role, ECS runtime Trust / execution JSON을 작성했다. 환경 식별값은 외부 치환 Parameter다. API 전체 Resource 예외 / 정확한 PassRole 범위 / CloudFormation 기존 Role 위험 / cleanup 미허용과 비용·digest 입력 통제 한계를 설명했다.
+- DEC-029 Pending Human Approval, TASK-025 IN_PROGRESS와 AGENTS 3절, Prompt 50 / Index를 기록했다. 정책 Gate에서 Executor HUMAN_REQUIRED로 정지하며 TASK-025 DONE / TASK-026 READY를 반영하지 않는다.
+- AWS CLI / AWS·GitHub 설정 / Orchestrator Code / Workflow / Branch / Commit / Push / PR 작업은 수행하지 않았다. 승인 후 B단계 Contract 확대 / Preflight 구현 / Human Profile 구성은 후속 작업이며 정책 적용 승인과 구분한다.
+- 2026-10-03 공식 OIDC / GitHub Environment / CloudFormation / PassRole / ECS 기능 문서를 조회하고 docs/15에 출처를 연결했다. 실효 권한 / 실제 만료 / GitHub 보호의 실환경 검증은 미실행이다.
+- Executor 참고 검증: git diff --check Exit 0. node --test scripts/orchestrator/*.test.mjs Exit 0, 74 tests / 74 pass / 0 fail / 0 skipped. 신규 IAM JSON 10개 파싱 / Version·Statement 구조, 누적 17개 변경 파일 UTF-8 strict / 연속 물음표 치환 / U+FFFD / 추가 줄 민감 할당 표기 검사 통과. 기존 lib snapshot / guard로 실제 누적 경로와 allowlist / Secret 검사를 대조해 통과했다. Orchestrator Verify가 기준이며 정책 승인이나 Task 완료 승인을 대신하지 않는다.

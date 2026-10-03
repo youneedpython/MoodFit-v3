@@ -38,11 +38,11 @@ TASK-025 — AWS SSO / GitHub OIDC / IAM / Environment Gate
 Status:
 
 ```text
-READY
+IN_PROGRESS
 ```
 
 TASK-001 ~ TASK-024는 DONE이다. TASK-022 완료 근거는 PR #5, TASK-023은 PR #7 Human Squash Merge이며 TASK-024 완료는 이 PR의 Human Squash Merge로 확정한다.
-2026-10-03 Human이 TASK-024 Gate C 권장안을 모두 승인했다(DEC-028). 승인된 Health / Container / Smoke 구현을 docs/14-DEPLOYMENT-ARTIFACT.md에 기록했다. TASK-024 DONE / TASK-025 READY는 이번 Run의 PR 완료 반영이며 Orchestrator Verify / Claude PASS 후 Human Squash Merge로 확정한다. TASK-025 실행은 별도 명시 지시가 필요하고 TASK-026 이후 BLOCKED를 유지한다. AWS Resource는 생성하지 않았다.
+2026-10-03 Human이 TASK-024 Gate C 권장안을 모두 승인했다(DEC-028). 승인된 Health / Container / Smoke는 docs/14-DEPLOYMENT-ARTIFACT.md를 따른다. 명시 실행한 TASK-025 A단계 설계 / 정책은 DEC-029 Pending Human Approval이다. 승인 / B단계 구현 / Human 최소 권한 Profile 구성 전 DONE / TASK-026 READY로 전환하지 않는다. AWS Resource는 생성하지 않았다.
 
 ---
 
@@ -74,7 +74,7 @@ TASK-001 ~ TASK-024는 DONE이다. TASK-022 완료 근거는 PR #5, TASK-023은 
 | TASK-022 | Milestone 22 | GitHub CI Integration / PR Gate | DONE | TASK-021 완료 (충족), Review PASS, E2E(PR #5 → CI → Human Squash Merge) 검증 | Gate C 승인 완료, PR #5 Human Squash Merge로 DONE 승인 완료 |
 | TASK-023 | Milestone 23 | AWS Deployment Architecture / Cost Gate | DONE | TASK-022 완료 (충족), Human 실행 지시 | DEC-027 Human Approved (2026-10-03), 완료는 PR Squash Merge로 확정 |
 | TASK-024 | Milestone 24 | Deployment Artifact / Container / Health Strategy | DONE | TASK-023 Architecture 승인(DEC-027), Human 명시 실행 지시, DEC-028 승인 | Gate C 승인 완료, 이번 PR Human Squash Merge로 완료 확정 |
-| TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | READY | TASK-023 완료, TASK-024 이번 PR 완료 반영 | 별도 실행 지시 / 해당 Task Gate 필요 |
+| TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | IN_PROGRESS | 명시 실행 지시, TASK-023 / TASK-024 승인 Artifact 근거 | A단계 DEC-029 Pending Human Approval / B단계 미실행 |
 | TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | BLOCKED | TASK-023, TASK-025 완료 | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | BLOCKED | TASK-024, TASK-026 완료 | 필요 (IaC 검증 + 비용) |
 | TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | BLOCKED | TASK-025 승인, TASK-026 / TASK-027 완료 | 필요 (비용 Resource 생성) |
@@ -1353,10 +1353,10 @@ Frontend / Backend 배포 Artifact를 재현 가능하게 만들고 Health Check
 ### 상태
 
 ```text
-READY
+IN_PROGRESS
 ```
 
-TASK-024 이번 PR 완료 반영 이후 별도 Human 실행 지시로 진행한다. 최소 권한 Staging Profile 준비 / Agent 허용 Profile 지정과 해당 Task Gate는 유지한다.
+2026-10-03 명시 실행 지시로 A단계 설계 / 정책 초안을 작성했다. docs/15-AWS-ACCESS-POLICY.md / infra/iam/과 DEC-029 Pending Human Approval을 검토한다. Executor는 Gate에서 HUMAN_REQUIRED로 정지하며 TASK-025 DONE / TASK-026 READY를 반영하지 않는다. AWS CLI / 실제 설정 / Orchestrator Code 변경은 수행하지 않았다. 최소 권한 Profile 구성 / Agent 허용 Profile 확인과 Preflight 구현은 정책 승인 후 B단계 Contract 확대에서 수행한다.
 
 ### 목적
 

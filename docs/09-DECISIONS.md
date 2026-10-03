@@ -1332,3 +1332,31 @@ Human Approved (2026-10-03)
 ### 승인 경계
 
 이 결정은 TASK-024 명시 Contract의 허용 경로 확대에 대응한다. DEC-023 MySQL / DEC-024 업무 계약 / CI·CD / IAM / AWS Resource 생성 권한은 확대하지 않는다. 완료는 검증과 Review 이후 이번 PR Human Squash Merge로 확정한다.
+
+---
+
+## DEC-029 TASK-025 AWS Access Policy Gate — 초안
+
+### 상태
+
+```text
+Pending Human Approval (2026-10-03)
+```
+
+Human의 A단계 작성 지시는 정책 적용 승인이 아니다. 구체적 검토 대상은 [15-AWS-ACCESS-POLICY.md](15-AWS-ACCESS-POLICY.md)와 infra/iam/의 이번 Diff다. DEC-026 / DEC-027 / DEC-028을 유지한다.
+
+### 제안 / Human 결정 필요
+
+- MoodFitReadOnly / MoodFitStagingDeploy를 환경 한정 최소 권한으로 구성하고 moodfit-readonly / moodfit-staging만 Task에 명시해 허용한다. 기존 관리자 Profile과 MoodFitProductionAdmin은 Human 전용이다. 동일 범위 Boundary를 Human이 구성하는 안을 제안한다.
+- 환경별 OIDC deploy Role을 분리하고 정확한 Repository / environment subject와 audience sts.amazonaws.com을 StringEquals로 고정한다. main Branch 제한은 GitHub Environment에서 적용한다.
+- deploy / IaC service / ECS execution / task Role을 분리한다. Agent / CI에 IAM 변경, Network / RDS 관리, 앱 credential 조회, Production Profile 및 Role chaining을 허용하지 않는다. 최초 IaC 권한은 후속 승인 Diff로 제한한다.
+- staging / production main-only / Tag 제외, Human Required Reviewer / 관리자 Bypass 비활성. 단일 Human이므로 self-review 방지는 비활성으로 두고 동일인 실행·승인 위험을 수용하며 Human의 SHA / digest 대조와 직접 승인을 요구한다.
+- Permission Set 1시간 / Identity Center 로그인 8시간 / Run 1시간 제한, OIDC 요청 15분 / Role 최대 1시간을 제안한다. 만료 / Account·Role 불일치 시 HUMAN_REQUIRED이며 재로그인 / fallback을 하지 않는다.
+- CloudTrail과 비민감 Run ID / UTC / 명령 / 승인 참조 및 GitHub Run을 대조한다. 실제 identity / ARN / 인증 정보는 Log에 기록하지 않는다. Run 기록 30일 보존을 제안한다.
+- 환경별 Secrets Manager와 ECS execution role의 시작 시 DB 값 주입, 기본 AWS 관리 암호화 / S3 SSE-S3, origin 검증 header Human 전용 관리안을 제안한다. 고객 관리 KMS / 자동 rotation은 초기 제외하고 변경 시 별도 Gate다.
+
+### 승인 경계 / 대안
+
+넓은 AWS 관리 ReadOnlyAccess / 관리자 Agent Profile / 공용 deploy Role / branch-only Production Trust 대신 위 권장안을 제안한다. 설정 owner의 변경 가능성 및 단일 승인자 잔여 위험은 문서에 명시했다. Human은 정책 Matrix와 검토 Diff를 승인하거나 수정안을 결정해야 한다.
+
+승인 전 실제 IAM / Environment / AWS CLI / Resource / Workflow를 변경하지 않는다. 승인 후 B단계 Contract 확대와 명시 실행에서 Preflight / Fake CLI Test 및 Human 설정을 진행한다. TASK-025 IN_PROGRESS / TASK-026 이후 BLOCKED를 유지하고 DONE / READY 완료 반영은 B단계 PR에서 처리한다. DNS / hostname / DB 호환 / 상세 비용 조건은 이미 정해진 후속 작업이며 이번 Gate의 새 결정이 아니다.
