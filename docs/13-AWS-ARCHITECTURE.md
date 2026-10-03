@@ -91,7 +91,7 @@ flowchart TD
 
 **RDS MySQL 8.4를 승인**했으며 db.t4g.small, gp3 20 GiB, Multi-AZ DB instance(primary + standby), Public 접근 차단, 암호화, 삭제 보호를 적용한다. Multi-AZ DB cluster와 구분한다. 정확한 생성 minor와 서울 Engine / Class / gp3 / Multi-AZ orderable 가용성은 승인된 최소 권한 Profile로 TASK-026 전에 확인한다.
 
-DEC-027은 DEC-023을 대체하지 않는다. Local MySQL / Testcontainers Image / CI의 8.0.46 변경은 별도 Decision / Gate / Task를 TASK-026 전에 승인하고 호환 검증해야 한다. Driver / SQL / Flyway 검증 없이 생성하지 않는다.
+DEC-027은 DEC-023을 대체하지 않는다. 별도 Gate C 사전 승인인 DEC-030(2026-10-03)에 따라 TASK-033에서 Testcontainers / CI / Container Smoke를 `mysql:8.4.11`로 맞춘다. 개발 PC의 Local MySQL 8.0 서비스는 유지하며 선택적 전환 절차는 [MySQL 8.4 안내](16-MYSQL-84-ALIGNMENT.md)를 따른다. Driver / SQL / Flyway의 실제 호환성은 Orchestrator Verify로 판정하며 검증 없이 AWS Resource를 생성하지 않는다.
 
 ## 6. Cost Decision Matrix
 

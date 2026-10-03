@@ -143,5 +143,5 @@ jobs:
             echo ""
             echo "- Commit: \`${GITHUB_SHA}\`"
             echo "- Workflow Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-            echo "- MySQL: Testcontainers (\`mysql:8.0.46\`, DEC-023)"
+            echo "- MySQL: Testcontainers (\`mysql:8.4.11\`, DEC-023 / DEC-030)"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -3002,3 +3002,11 @@ Human이 조직 관리 계정의 IAM Identity Center에서 Permission Set `MoodF
 - DEC-026 변경 이력에 자동 Git 범위 확대와 PR 형식 변경을 기록했다(docs/09는 Contract 허용 경로 밖이라 Claude 세션이 기록).
 - TASK-034 설계 입력(Review R6-003): 현재 검사는 URL에 포함된 자격 증명, 임시 Access Key ID 형식, 자격 증명 단어 뒤에 다른 단어가 이어지는 변수 이름을 차단하지 않는다. main의 기존 한계이며 TASK-034 Gate에서 다룬다.
 - 새 PR 제목 / 본문 형식과 자동 Git 단계는 TASK-033 Run에서 처음 실제로 확인한다.
+
+## TASK-033 — MySQL 8.4 Alignment (2026-10-03, Executor)
+
+- DEC-030 Gate C 사전 승인과 명시 실행 지시에 따라 Testcontainers / Container Smoke를 `mysql:8.4.11`로 고정하고 서버 Version 확인을 `8.4.` 기준으로 맞췄다. CI는 Backend Summary 한 줄만 변경했다.
+- DEC-023 변경 이력과 DEC-030을 기록했다. 현재 Architecture / Artifact / README 기준을 갱신하고 인증 기본값, 제거 설정, JDBC / Flyway / Hibernate와 DEC-019 / V1 Schema의 영향을 docs/16에 정리했다. 과거 승인 기록은 보존했다.
+- Local 설치 MySQL 8.0 서비스는 변경하지 않았다. Human이 선택할 수 있는 백업 / Upgrade Checker / 별도 8.4 인스턴스 / 복원 / 앱 확인 / 복귀 주의점을 안내했다. Dependency / 운영 Code / Migration과 금지 경로는 변경하지 않았다.
+- TASK-033 DONE / TASK-034 READY를 이번 PR 구현 완료 반영으로 기록하고 TASK-026의 TASK-033 선행 조건을 충족 표시했다. 최종 완료 승인은 Orchestrator Verify / Claude Review / Remote CI 이후 Human Squash Merge로 확정한다.
+- Executor 참고 검증: `git diff --check`와 `bash -n scripts/container-smoke.sh` 통과. 변경 문서를 UTF-8로 직접 읽고 연속 물음표와 U+FFFD가 없음을 확인했다. Sandbox의 Docker 접근 제한으로 전체 Test / Container Smoke는 실행하지 않았으며 실제 호환성은 Sandbox 밖의 Orchestrator Verify가 판정한다. 검증 성공을 주장하지 않는다.

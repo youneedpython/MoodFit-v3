@@ -59,7 +59,7 @@ ALB 제안: readiness 200 matcher / interval 30초 / timeout 5초 / healthy·unh
 
 ## 6. Smoke / Verification
 
-scripts/container-smoke.sh는 bash / Git Bash에서 MSYS 인자 변환을 차단한다. app.jar 존재와 credential 파일 목록 검사 → linux/amd64 build → 전용 network / mysql:8.0.46 → 0.5 CPU / 1 GiB / read-only root / tmpfs 앱 → readiness·liveness 200 → UID 10001 / amd64 / OCI revision / filesystem .env 제외 → DB 정지 후 readiness 503 / liveness 200을 확인한다. probe는 docker exec로 수행하며 호스트 port를 열지 않는다.
+scripts/container-smoke.sh는 bash / Git Bash에서 MSYS 인자 변환을 차단한다. app.jar 존재와 credential 파일 목록 검사 → linux/amd64 build → 전용 network / mysql:8.4.11(DEC-030) → 0.5 CPU / 1 GiB / read-only root / tmpfs 앱 → readiness·liveness 200 → UID 10001 / amd64 / OCI revision / filesystem .env 제외 → DB 정지 후 readiness 503 / liveness 200을 확인한다. probe는 docker exec로 수행하며 호스트 port를 열지 않는다.
 
 일회용 DB 값은 OS 무작위 바이트에서 생성하고 제한된 임시 디렉터리 env-file로 전달한다. 고정값을 Source에 넣거나 CLI 인자로 값을 전달하지 않는다. 실패 단계와 앱 / DB log tail을 출력하되 생성값은 치환한다. EXIT / INT / TERM trap은 Container / network / 임시 image / 파일을 정리한다. Working Tree에 산출물을 쓰지 않는다.
 
