@@ -1,5 +1,18 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-035 — 위치 / 날씨 자동 입력 (2026-10-04)
+
+- WIP 이어서 확인: 기존 좌표 반올림 / WMO 코드 검증 / 기온 범위 / 입력 보호 / 설정 끄기 / 실패 시 직접 입력 흐름을 유지했다. Permissions API의 동기 예외를 처리하고, 설정 변경 또는 직접 조회 성공 뒤 늦은 권한 응답이 중복 조회를 시작하지 않도록 보완했다. 두 경우의 mock 회귀 Test를 추가했다.
+- 이번 Executor 참고 검증: `bash scripts/verify.sh`는 Frontend 설치 단계에서 Sandbox의 npm 캐시 접근 EPERM으로 중단되어 Test / Build를 실행하지 못했다. 재시도나 권한 확대는 수행하지 않았다. `git diff --check` 통과, 변경 문서의 UTF-8 / 연속 물음표 / U+FFFD 검사 통과. 최종 검증 판정은 Sandbox 밖 Orchestrator Verify 기준이다.
+
+- 승인 Contract와 명시 실행 지시에 따라 Frontend 날씨 조회 Service와 Check-in 버튼 / 자동 조회 설정 / 접근성 안내를 구현했다. 기온·날씨 입력과 Backend 요청 계약은 유지한다.
+- 좌표는 소수 첫째 자리로 반올림한 값만 Open-Meteo로 전달하며 저장·Log에 남기지 않는다. localStorage에는 자동 조회 boolean만 기록한다. 위치·API 요청은 각각 10초로 제한하고 외부 응답의 타입 / 기온 범위 / 문서화된 WMO 코드를 검증한다.
+- Permissions API가 이미 허용을 반환하고 저장된 설정이 켜진 경우에만 진입 시 조회한다. 직접 입력·수정·삭제한 날씨 값은 유지하며 자동 조회 끄기 / 저장 시작 / 화면 이탈 시 진행 중 요청을 취소한다.
+- mock Test: WMO 코드 전체·미정의 코드, 좌표 반올림, 기온 범위·응답 검증, 성공 시 두 칸 채움, 위치·API 실패 / 시간 초과, 자동 권한 조건, 직접 입력 보호, 자동 조회 끄기를 추가했다.
+- 참고 검증: 초기 npm Test / Build는 vitest / tsc 실행 파일 부재로 실행되지 않았다. `bash scripts/verify.sh`는 Frontend npm ci 단계에서 Sandbox의 npm cache 접근 EPERM으로 중단돼 Test / Build 및 Backend 검증에 도달하지 못했다. 자동 재시도·도구 설치·권한 우회는 하지 않았다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- `git diff --check` 통과. 수정 Markdown의 UTF-8 / 연속 물음표 / U+FFFD를 직접 검사했다. Backend / API 계약 / Dependency / 금지 문서는 수정하지 않았다.
+- 화면 캡처는 Contract가 docs/images 경로를 허용하지 않아 저장하지 않았다. TASK-028 / TASK-029 Merge 뒤 Human Squash Merge, Staging CD 후 실제 권한 동작과 390 / 768 / 1280px 화면·영상 확인, Claude 세션의 Task / Decision 완료 기록 정리가 남아 있다. 새 Human 결정은 필요하지 않으며 Executor DONE은 Task 완료 승인을 대신하지 않는다.
+
 ## TASK-034 — Run 2 WIP Review 수정 (2026-10-03)
 
 - R1-001: Human이 활성 Contract 허용 목록 변경만 Commit한 Source revision을 Resume에서 검증한다. 각 중간 Commit의 단일 부모 / 변경 파일 / 비목록 fingerprint / 목록 형식을 확인하고 Git 단계의 HEAD 및 parent 기준으로 전달한다. 기존 Workspace HEAD와 누적 Snapshot 검사는 유지한다.
@@ -3159,3 +3172,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 
 - **갤럭시 / Samsung Health 신체 정보 자동 연동은 이번 범위에서 제외한다.** Samsung Health Data SDK(v1.1.0)와 Health Connect는 Android 앱 전용이고 웹 API가 없다(Samsung Developer 문서 / 포럼 확인, 2026-10-04). Google Fit REST API는 신규 등록 중단 / 2026년 말 종료 예정이다. 웹 앱에서 자동 연동하려면 Android 연동 앱(Health Connect에서 읽어 MoodFit API로 전송)이 필요하다. 대안으로 Samsung Health 내보내기 파일 가져오기, 생체 정보 제공자 구조 준비가 있다.
 - 병행 개발 중인 기능: TASK-035(위치 인식 + 날씨 자동 조회, Review PASS, PR #16), TASK-036(추천 5개 확대 / 추천 음악 YouTube 재생, 개발 중). 이후 소셜 로그인(Google, Kakao)을 Production 전에 넣는다.
+
+### TASK-035 Merge 순서 변경과 등록 (2026-10-04, Claude 세션 기록)
+
+- Human이 PR #16(TASK-035)을 PR #15(TASK-028)보다 먼저 Squash Merge했다(main `839195d`). 계획한 순서는 TASK-028 → TASK-029 → TASK-035였다. TASK-035는 Frontend만 바꾸므로 Infra / 배포 절차에 영향이 없다.
+- TASK-028 Branch에 main을 Merge했다(충돌 없음). strict Required Check 때문에 PR #15는 최신 main 기준으로 다시 CI를 통과해야 한다.
+- 병행 개발 중이라 미뤄 둔 TASK-035 등록을 이 PR에서 정리했다: `docs/07-TASKS.md`에 TASK-035 DONE 행과 절 추가(Milestone 35 자동 Close 대상), Prompt 색인 보완. Prompt 파일 번호 60이 두 Task에서 겹친다(파일 이름은 다르다).
+- TASK-035 Review 비차단 지적(후속 후보): 수동 조회 실패 뒤 늦게 도착한 권한 응답으로 자동 조회가 한 번 시작되는 경로의 Test, 이미 채워진 값이 있을 때 버튼을 다시 누르면 값은 유지되는데 성공 문구가 나오는 점.
+- Staging에는 아직 TASK-035가 배포되지 않았다(배포된 Frontend는 Commit `9f070f0` 기준).

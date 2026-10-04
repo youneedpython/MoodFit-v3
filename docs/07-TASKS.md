@@ -42,7 +42,7 @@ READY
 ```
 
 TASK-001 ~ TASK-028, TASK-032 ~ TASK-034는 DONE이다. TASK-028은 2026-10-04 Staging 최초 배포와 Smoke 검증을 마쳤으며 완료는 PR #15의 Human Squash Merge로 확정한다.
-TASK-029는 READY이며 Human 승인된 `harness/tasks/TASK-029.json` Contract와 명시적 실행 지시 후 시작한다(CD 동작은 Gate C). TASK-030 이후는 BLOCKED다. 병행 개발 중인 기능 Task(TASK-035 위치 / 날씨, TASK-036 추천 5개 / 음악 재생)는 별도 Branch에 있으며 TASK-029 Merge 뒤에 등록 / Merge한다.
+TASK-029는 READY이며 Human 승인된 `harness/tasks/TASK-029.json` Contract와 명시적 실행 지시 후 시작한다(CD 동작은 Gate C). TASK-030 이후는 BLOCKED다. TASK-035(위치 인식 + 날씨 자동 조회)는 PR #16 Human Squash Merge(2026-10-04)로 DONE이다. 계획한 순서(TASK-029 뒤)보다 먼저 Merge되었고 Frontend만 바뀌어 다른 Task에 영향은 없다. Staging에는 아직 배포되지 않았으며 TASK-029의 CD 또는 수동 Frontend 배포로 반영한다. TASK-036(추천 5개 / 음악 재생)은 별도 Branch에서 개발 중이다.
 
 ---
 
@@ -84,6 +84,7 @@ TASK-029는 READY이며 Human 승인된 `harness/tasks/TASK-029.json` Contract�
 | TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 정밀화는 TASK-034로 분리 / 새 Dependency 시 Gate |
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | DONE | TASK-032 완료, DEC-030 사전 승인. 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | Gate C 승인 완료 (DEC-030) |
 | TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | DONE | 사전 승인과 명시 실행에 따른 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | 2026-10-03 형식 / 거부 기준 / 적용 범위 / Resume / 강화 규칙 사전 승인 |
+| TASK-035 | Milestone 35 | Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회) | DONE | Human 지시(2026-10-04), Frontend만 변경, Review PASS | Gate 사전 승인, PR #16 Human Squash Merge로 확정 |
 
 ---
 
@@ -1628,6 +1629,34 @@ Secret 검사의 차단 기준은 그대로 두고, Task Contract에 Human이 �
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-034_SECRET_GUARD_ALLOWLIST.md`](tasks/TASK-034_SECRET_GUARD_ALLOWLIST.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-035 — Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회)
+
+### 상태
+
+```text
+DONE
+```
+
+2026-10-04 Human 지시로 병행 개발했다. Check-in 화면에서 현재 위치의 기온과 날씨를 자동으로 채운다(Open-Meteo, API Key 없음). Frontend만 변경했고 Backend / API 계약 / Dependency는 그대로다. Claude Review PASS, PR #16 Human Squash Merge로 완료했다.
+
+### 목적
+
+Check-in의 기온과 날씨 입력을 현재 위치 기준으로 자동으로 채운다. 위치 권한은 처음 한 번만 묻고 이후에는 자동으로 조회한다.
+
+### Human Approval 또는 Gate
+
+- 외부 날씨 API 사용, 좌표 처리 방식(소수 1자리로 줄여 날씨 API에만 전송, 저장하지 않음)은 Human 사전 승인
+
+### 완료 조건
+
+- 검증과 Review 통과, Staging 배포 화면에서 동작 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-035_LOCATION_WEATHER_AUTOFILL.md`](tasks/TASK-035_LOCATION_WEATHER_AUTOFILL.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 

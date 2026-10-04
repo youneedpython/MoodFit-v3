@@ -97,6 +97,16 @@ fieldset.checkin-field {
   grid-column: span 2;
 }
 
+.checkin-weather-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.checkin-weather-tools p { flex-basis: 100%; }
+
 .checkin-weather__options {
   display: flex;
   flex-wrap: wrap;
