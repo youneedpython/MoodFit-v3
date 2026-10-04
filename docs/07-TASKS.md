@@ -102,6 +102,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-048 | Milestone 48 | Recommendation Variety (추천 다양화) + History 여백 | DONE | TASK-036, TASK-042, TASK-047 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-049 | Milestone 49 | LLM Runtime Endpoint / Failure Diagnostics | DONE | TASK-045, TASK-046 | Human 승인 Contract 및 명시 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-050 | Milestone 50 | Skip Staging CD for Docs-only Changes | DONE | TASK-029, TASK-039 | Human Gate C 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-052 | Milestone 52 | Music Pool Curation (선곡 조정) | DONE | TASK-048 | Human 선곡 이동 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1942,3 +1943,12 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 자동 실행에 읽기 전용 판정 Job을 추가했다. 문서 전용이면 배포 Job을 생략하며 수동 실행 / 판정 실패 / 파일 0개는 배포한다. CI와 기존 배포 Step은 유지한다.
 - 자체 참고 검증: 판정 Script 8개 분기 및 기존 배포 본문 / Trigger / concurrency 보존 확인, git diff --check 통과. 현재 Python에 PyYAML이 없어 Contract YAML 구조 검사는 실행하지 못했다. 설치하지 않았으며 Sandbox 밖 Orchestrator Verify가 기준이다.
 - DONE은 Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않는다. Merge 후 문서 전용 / 코드 포함 자동 실행 및 수동 실행을 확인한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
+
+## TASK-052 — Music Pool Curation (선곡 조정)
+
+- 상태: DONE (Executor 구현 완료), Milestone 52. Dependency: TASK-048.
+- 승인: 2026-10-04 Human 선곡 이동 승인과 명시 실행 지시. 승인된 표대로 기존 곡만 이동하고 목적지 Pool의 tag / reason을 적용했다.
+- ENERGETIC 26곡과 앞 5곡, RAIN 9곡 / 순서, 음식 Pool / 판정 / 선택 규칙 / 계약 예시를 유지했다. 이동 / 크기 / 계약 위치 회귀 Test를 별도 추가했고 기존 Matrix / 계약 Test는 수정하지 않았다.
+- Container Smoke 성공 문구 한 줄에서 실제 검사하지 않는 400 표기를 제거했다.
+- 자체 검증은 npm 캐시 EPERM, Gradle Wrapper lock 생성 제한, JAR 미생성 / Docker 접근 제한으로 실행되지 않았다. 정적 Pool 대조 / Smoke 구문 / diff 검사는 통과했다. Sandbox 밖 Orchestrator Verify가 기준이다.
+- 다른 Task 상태와 Current Task TASK-030 / BLOCKED를 유지한다. DONE은 Verify / Review / Human Squash Merge 승인이 아니며 Merge 후 자동 배포 Smoke 확인이 남는다.

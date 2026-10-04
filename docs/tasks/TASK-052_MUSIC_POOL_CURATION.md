@@ -45,6 +45,14 @@ TASK-048 Review(N-02)가 지적했다: "Hype Boy"가 TIRED("편안한 휴식")�
 
 - `scripts/container-smoke.sh`의 성공 문구 "PASS: create/latest/history and 400 contract preserved"에서 실제로 검사하지 않는 "400"을 뺀다(TASK-048 Review N-01). 이 한 줄의 문구만 바꾼다. Script의 다른 부분은 건드리지 않는다.
 
+## Run 2 범위 (2026-10-04, Claude 세션 기록)
+
+Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1은 Orchestrator Verify의 Backend Compile에서 멈췄다(Review 전).
+
+- 오류: `WellnessRulePolicy.java`에서 Pool의 마지막 곡을 바꾸면서 닫는 괄호가 하나 더 붙은 줄이 생겼다(`"...")))),` — 곡 생성자 / `List.of` / `Map.entry`를 닫는 3개가 맞다). 이어지는 `Map.entry` 줄에서 "';' expected"가 났다.
+- Claude 세션이 WIP에서 해당 줄 5곳의 괄호를 3개로 고쳤고, Sandbox 밖에서 `backend`의 `gradlew test bootJar`가 통과하는 것을 확인했다(Pool 조정 Test, 계약 Test 포함). **이 수정은 그대로 유지한다.**
+- Run 2에서 할 일: Pool 구성이 조정안 표와 일치하는지 다시 읽어 확인하고(특히 괄호를 고친 Pool의 마지막 곡), `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다. 그 밖의 구현은 바꾸지 않는다.
+
 ## Test
 
 - 기존 `RecommendationMatrixTests`(Pool 크기, 승인된 영상 ID, 중복 없음, 날짜별 순환)와 계약 Test가 **수정 없이 통과**해야 한다. 위 조건을 지키면 계약 예시는 그대로다.

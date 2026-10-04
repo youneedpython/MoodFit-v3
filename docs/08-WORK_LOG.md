@@ -3520,3 +3520,19 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 최신 main(TASK-049 포함)을 Merge했다. `docs/07-TASKS.md` 충돌은 양쪽을 모두 남겼다. Decision 번호는 병행 중인 다른 Task와 겹치지 않게 이 Task를 **DEC-040**으로 했다.
 - 화면 확인(`docs/images/task-048/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. History에서 "주간 리포트" / "최근 7일 Wellness Score" / "기록" Card 사이 간격을 측정했고 390 / 768 / 1280px 모두 16px, 16px로 같았다. Dashboard의 새 음식에도 아이콘이 표시된다.
 - 후속 후보(비차단, Review N-01 / N-02): Container Smoke 성공 문구에 실제로 검사하지 않는 "400"이 들어 있다. 몇 곡이 분위기와 맞지 않는 Pool에 들어 있다(선곡 조정).
+
+## 2026-10-04 TASK-052 — Music Pool Curation (선곡 조정)
+
+- 최초 Working Tree는 clean이었다. 승인 Contract와 명시 실행 지시에 따라 TASK-052를 IN_PROGRESS로 시작하고 구현 완료를 DONE으로 반영했다. 다른 Task / Current Task 상태는 유지했다.
+- 승인 표의 7곡을 지정 Pool에서 제거 / 끝에 추가했다. 기존 제목 / 가수 / 영상 ID와 나머지 순서를 유지하고 목적지 tag / reason을 적용했다. ENERGETIC 끝은 Hype Boy, As It Was 순서다.
+- 기존 Matrix / 계약 Test는 그대로 두고 별도 MusicPoolCurationTests에서 이동한 곡의 전체 Pool 소속, 목적지 문구, 모든 Pool 크기, ENERGETIC 앞 5곡 / 끝 2곡과 RAIN 9곡 순서를 검사한다.
+- Container Smoke는 성공 문구 한 줄에서 400만 제거했다. 기능 문서와 Prompt를 갱신했고 Git 작업 / 외부 배포는 수행하지 않았다.
+
+### Verification / 후속 작업
+
+- `bash scripts/verify.sh`: npm ci에서 사용자 캐시 stat EPERM으로 중단. Frontend / Backend Test와 Build는 실행되지 않았다.
+- Backend 대상 Test: Gradle Wrapper가 Sandbox 밖 lock 파일의 부모 디렉터리를 만들지 못해 시작하지 못했다. Test 성공을 주장하지 않는다.
+- `bash scripts/container-smoke.sh`: app.jar 미생성으로 preflight 중단, 정리 과정에서도 Docker 설정 / daemon 접근이 거부됐다. 통합 검증은 실행되지 않았다.
+- Python 정적 대조 PASS: 승인 크기, RAIN / BALANCED / COLD / CLEAR 전체 불변, 음식 / 판정 / 선택 규칙 불변, 제목 / 가수 / ID 전체 집합 불변, 기존 곡 순서 보존 / 끝 추가, 목적지 문구, ENERGETIC 계약 앞 5곡과 끝 2곡, Smoke 한 줄 변경.
+- `bash -n scripts/container-smoke.sh`와 `git diff --check` PASS. 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
+- 검증 기준은 Sandbox 밖 Orchestrator Verify다. Executor DONE은 구현 완료이며 Verify / Claude PASS / Human 완료 승인을 대신하지 않는다. Human Squash Merge와 Merge 후 자동 배포 Smoke 확인이 남는다.
