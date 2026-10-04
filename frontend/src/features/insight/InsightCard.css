@@ -1,5 +1,7 @@
 .insight-card { min-width: 0; width: 100%; }
 .insight-card__text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: var(--line-height-body); }
-.insight-card__period { overflow-wrap: anywhere; }
-.insight-card small { display: block; margin-top: 1rem; line-height: 1.6; color: var(--color-text-muted); }
+.insight-card__body { display: grid; gap: var(--space-2); }
+.insight-card__actions { margin-top: var(--space-4); }
+.insight-card__period { overflow-wrap: anywhere; color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.insight-card small { display: block; margin-top: var(--space-4); line-height: var(--line-height-body); color: var(--color-text-muted); }
 .insight-card button { max-width: 100%; white-space: normal; }

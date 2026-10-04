@@ -45,11 +45,11 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
         <span className="weather-region">{result.weather.region}</span>
       </p>}
 
+      <InsightCard checkinId={result.id} autoGenerate />
+
       <div className="checkin-result__recommendations">
         <RecommendationCards foods={result.foods} music={result.music} />
       </div>
-
-      <InsightCard checkinId={result.id} autoGenerate />
 
       <div className="checkin-result__actions">
         <ButtonLink to="/">Dashboard로 이동</ButtonLink>

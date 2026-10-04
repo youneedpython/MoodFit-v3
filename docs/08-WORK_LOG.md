@@ -3540,3 +3540,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - 세 폭 모두 가로 넘침이 없다.
 - 실제 모델이 줄을 어떻게 나누는지, 한국어 상태 이름으로 영문 Code가 사라지는지는 Merge 뒤 Staging에서 새로 생성해 확인한다.
 - LLM 호출 설정 경과(Staging, Claude 세션이 Human 승인 범위에서 App Stack 설정값을 변경): 호출 주소를 `bedrock-runtime`으로 바꾼 뒤 기본 모델 ID는 400("inference profile을 쓰라")으로 거부됐고, 모델 ID를 global 추론 Profile ID로 바꾸자 생성에 성공했다. 이후 Human 지시로 호출 Region을 서울로 되돌렸다.
+
+## 2026-10-04 TASK-053 — AI Card Layout
+
+- clean Working Tree에서 승인 Contract와 필수 문맥을 확인하고 TASK-053만 IN_PROGRESS로 시작했다. Executor 구현 완료를 DONE으로 기록했다. 다른 Task 상태와 Current Task는 유지한다.
+- 결과 화면 AI 코멘트를 날씨 / 지역 뒤, 추천 앞에 배치했다. 기존 --space-5 구역 간격과 기능 꺼짐 시 빈 Wrapper 없는 구조를 유지한다. Dashboard 배치는 유지한다.
+- AI Card 본문과 버튼 구역은 --space-4, 기간 줄과 본문은 --space-2로 구분한다. 기간 줄에 기존 보조 색 / 작은 글자 Token을 적용했고 버튼 아래 안내도 --space-4를 쓴다. 문구와 동작은 유지한다.
+- 결과 DOM 순서와 주간 리포트 본문 / 버튼 / 안내 구조, 실패 재시도 구역 Test를 보완했다. CSS ?raw 검사는 사용하지 않았다.
+- 자체 참고 검증: bash scripts/verify.sh는 npm ci의 사용자 캐시 stat EPERM으로 Exit 1, 설치 단계에서 중단됐다. Test / 타입 검사 / Build를 실행하지 못했으며 성공을 주장하지 않는다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다. 한글 문서는 UTF-8 apply_patch로 작성했다.
+- Claude 세션의 390 / 768 / 1280px 캡처와 간격 측정이 남는다. 캡처 저장 경로는 Executor 허용 경로 밖이다. Git 후속 작업은 수행하지 않았으며 DONE은 Verify / Review / Remote CI / Human Squash Merge를 대신하지 않는다.
