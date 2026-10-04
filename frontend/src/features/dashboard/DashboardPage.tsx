@@ -1,4 +1,5 @@
 import { ButtonLink } from "../../components/Button/Button";
+import { InsightCard } from "../insight/InsightCard";
 import { Card } from "../../components/Card/Card";
 import { PageHeader } from "../../components/PageHeader/PageHeader";
 import { EmptyState, ErrorState, LoadingState } from "../../components/StateView/StateView";
@@ -41,6 +42,7 @@ export function DashboardPage() {
       {state.status === "ready" && (
         <div className="dashboard">
           <WellnessHero checkin={state.checkin} />
+          <InsightCard checkinId={state.checkin.id} />
           <BodyMetrics metrics={state.checkin.metrics} />
           <RecommendationCards foods={state.checkin.foods} music={state.checkin.music} />
         </div>

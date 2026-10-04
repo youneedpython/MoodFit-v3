@@ -1,6 +1,6 @@
 # TASK-046 — LLM 환경 값과 계정 간 호출 권한
 
-2026-10-04 Human 승인 A안 / DEC-037에 따른 Infra 구현이다. TASK-045 문서가 이 Branch에 없어 충돌 방지를 위해 이 문서에 기록한다. 실제 호출 기능은 TASK-045에 의존하며 Executor DONE은 Verify / Review / Human Squash Merge나 실제 호출 성공을 대신하지 않는다.
+2026-10-04 Human 승인 A안 / DEC-038에 따른 Infra 구현이다. TASK-045 문서가 이 Branch에 없어 충돌 방지를 위해 이 문서에 기록한다. 실제 호출 기능은 TASK-045에 의존하며 Executor DONE은 Verify / Review / Human Squash Merge나 실제 호출 성공을 대신하지 않는다.
 
 ## 환경 값
 

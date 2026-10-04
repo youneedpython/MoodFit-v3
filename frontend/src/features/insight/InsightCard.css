@@ -1,0 +1,5 @@
+.insight-card { min-width: 0; width: 100%; }
+.insight-card__text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
+.insight-card__period { overflow-wrap: anywhere; }
+.insight-card small { display: block; margin-top: 1rem; line-height: 1.6; color: var(--color-text-muted); }
+.insight-card button { max-width: 100%; white-space: normal; }
