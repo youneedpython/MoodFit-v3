@@ -86,6 +86,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | DONE | 사전 승인과 명시 실행에 따른 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | 2026-10-03 형식 / 거부 기준 / 적용 범위 / Resume / 강화 규칙 사전 승인 |
 | TASK-035 | Milestone 35 | Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회) | DONE | Human 지시(2026-10-04), Frontend만 변경, Review PASS | Gate 사전 승인, PR #16 Human Squash Merge로 확정 |
 | TASK-036 | Milestone 36 | Recommendation Five / Music Playback (추천 5개 + 추천 음악 바로 듣기) | DONE | Human 지시(2026-10-04), TASK-035 완료, Review PASS | Gate 사전 승인, PR #17 Human Squash Merge로 확정 |
+| TASK-037 | Milestone 37 | Logo / Favicon (로고 / 파비콘) | DONE | Human 지시와 시안 A 선택(2026-10-04), Review PASS | PR #19 Human Squash Merge로 확정 |
 | TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04), 최종 완료 승인 대기 |
 | TASK-039 | Milestone 39 | Staging CD Rollout Wait Fix | DONE | TASK-029, TASK-038 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
 
@@ -1689,6 +1690,34 @@ DONE
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-036_RECOMMENDATION_FIVE_AND_MUSIC_PLAYBACK.md`](tasks/TASK-036_RECOMMENDATION_FIVE_AND_MUSIC_PLAYBACK.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-037 — Logo / Favicon (로고 / 파비콘)
+
+### 상태
+
+```text
+DONE
+```
+
+2026-10-04 Human 지시로 병행 개발했다. Claude 세션이 시안 3개를 제시했고 Human이 시안 A(맥박선이 M 모양을 이루는 gradient 사각형)를 선택했다. 브라우저 탭 아이콘, 홈 화면 아이콘, 상단 메뉴, README에 같은 로고를 쓴다. Frontend만 변경했다. Claude Review PASS, PR #19 Human Squash Merge로 완료한다.
+
+### 목적
+
+서비스의 얼굴이 되는 로고와 파비콘을 추가한다.
+
+### Human Approval 또는 Gate
+
+- 로고 시안 선택은 Human 결정. Asset 파일은 Claude 세션이 만들어 제공했고 구현 중 바꾸지 않았다.
+
+### 완료 조건
+
+- 검증과 Review 통과, 390 / 768 / 1280px 상단 메뉴 배치 확인(`docs/images/task-037/`), Staging 배포 뒤 탭 아이콘 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-037_LOGO_FAVICON.md`](tasks/TASK-037_LOGO_FAVICON.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 

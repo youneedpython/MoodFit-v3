@@ -1,5 +1,7 @@
 # MoodFit v3
 
+<img src="frontend/public/favicon.svg" alt="MoodFit 로고" width="64" height="64" />
+
 [![CI](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml/badge.svg)](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml)
 
 **신체 리듬과 날씨로 오늘의 컨디션을 읽고, 어울리는 음식과 음악을 추천하는 웰니스 웹 서비스**

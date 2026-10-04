@@ -33,6 +33,20 @@
   color: transparent;
 }
 
+.app-header__identity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.app-header__mark {
+  width: var(--space-6);
+  height: var(--space-6);
+  flex-shrink: 0;
+}
+
 .app-header__date {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
@@ -47,6 +61,7 @@
 }
 
 .app-nav__link {
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   min-height: var(--tap-target-min);
