@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { request } from "../../services/api";
 
-export function DeleteAccountDialog({ onClose }: { onClose: () => void }) {
+export function DeleteAccountDialog({ onClose, returnFocusRef }: { onClose: () => void; returnFocusRef: RefObject<HTMLButtonElement | null> }) {
   const cancel = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
@@ -26,8 +26,12 @@ export function DeleteAccountDialog({ onClose }: { onClose: () => void }) {
     };
     document.addEventListener("focusin", contain);
     document.addEventListener("keydown", keyboard);
-    return () => { document.removeEventListener("focusin", contain); document.removeEventListener("keydown", keyboard); };
-  }, [onClose]);
+    return () => {
+      document.removeEventListener("focusin", contain);
+      document.removeEventListener("keydown", keyboard);
+      returnFocusRef.current?.focus();
+    };
+  }, [onClose, returnFocusRef]);
   async function remove() {
     if (busy) return;
     setBusy(true); setError(false);

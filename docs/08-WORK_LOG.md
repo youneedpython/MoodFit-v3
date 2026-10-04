@@ -3583,3 +3583,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - `bash -n scripts/staging-smoke.sh`, `git diff --check` PASS. 변경 문서는 UTF-8 apply_patch로 작성하고 연속 물음표 치환 흔적과 U+FFFD가 없음을 직접 검사했다. 누적 변경 경로가 허용 범위에 있고 추가 내용 / 신규 파일에 자격 증명 할당 패턴이 없다는 정적 검사도 PASS다.
 - Sandbox에 Frontend 의존성과 사용 가능한 브라우저 도구가 없어 390 / 768 / 1280px 실행 화면 캡처를 만들지 못했다. 캡처를 만든 것으로 기록하지 않는다. 후속 화면 확인 때 `docs/images/task-054/`에 저장하고 이 항목에 연결한다.
 - Executor DONE은 구현 완료이며 Orchestrator Verify / Claude PASS / Human 완료 승인을 대신하지 않는다. Git / AWS 후속 작업은 수행하지 않았다. Merge 직후 Human Frontend Stack 갱신과 Staging 직접 접근 / 별도 테스트 소셜 계정 삭제 / 재로그인 확인이 남는다.
+
+### TASK-054 Run 2 — Dialog 초점 / 인증 Test 격리 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인된 Run 2 범위의 두 실패와 기록만 수정했다. 다른 기능, Task 상태, API / Infra / Dependency는 변경하지 않았다.
+- Dialog 닫기에서 즉시 아바타에 초점을 주면 아직 등록된 focusin 가두기가 취소 버튼으로 다시 옮기고, Dialog 제거 뒤 body에 초점이 남는다. 닫기는 상태만 변경하고 Dialog Effect 정리에서 이벤트를 해제한 뒤 화면에 남아 있는 아바타에 초점을 복귀하도록 수정했다. 취소 기본 초점과 양방향 Tab 검사를 유지하며 외부 초점 가두기와 Esc 후 아바타 복귀 단언을 추가했다.
+- 새 삭제 Test의 CSRF 보조기를 실제 `/api/auth/me` Cookie / Header 흐름으로 교체했다. Spring Security의 `csrf()` 보조기가 공유 Filter의 Repository를 Test용으로 바꾸는 상태 영향을 피한다. 기존 Test가 먼저 실행된 경우에도 실제 Cookie Repository로 시작하도록 공통 삭제 Test에 클래스 전후 Context 격리를 적용했다(H2 / MySQL 공통). 기존 AuthTests와 Production 보안 설정은 수정하지 않았다. 새 UUID 사용자만 삭제하는 정리 범위를 유지하며 체험 사용자나 다른 Test의 Data를 삭제하지 않는다.
+- `bash scripts/verify.sh`: npm ci에서 사용자 캐시 stat EPERM으로 중단되어 Frontend Test / TypeScript / Build 및 Backend Test / Build는 실행되지 않았다. 별도 `gradlew.bat test --tests com.moodfit.auth.AccountDeletionTests --tests com.moodfit.auth.AuthTests`도 Sandbox 밖 Gradle lock 부모 경로를 만들지 못해 시작하지 못했다. 두 실패의 해소는 Sandbox 밖 Orchestrator 실행으로 확인해야 하며 Test PASS를 주장하지 않는다.
+- `bash scripts/container-smoke.sh`: app.jar 미생성으로 preflight 중단, Docker 설정 / daemon 접근도 거부됐다. `scripts/iac-validate.sh`는 AWS 조회를 포함하므로 이번 Run에서는 실행하지 않았다. AWS 로그인 / 조회 / 변경은 하지 않았다.
+- `bash -n scripts/staging-smoke.sh`와 `git diff --check` PASS. UTF-8 apply_patch로 기록을 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. 포커스 동작만 수정하여 새 화면 캡처는 만들지 않았다.
+- Executor DONE은 Run 2 구현 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Git 후속 작업과 AWS 적용은 수행하지 않았다. 기존 Merge 이후 Frontend Stack 갱신 / Staging 기능 확인 / 화면 캡처 후속 작업은 유지한다.

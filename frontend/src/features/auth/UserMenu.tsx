@@ -10,7 +10,7 @@ export function UserMenu() {
   const auth = useAuth();
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const closeDialog = useCallback(() => { setDeleting(false); button.current?.focus(); }, []);
+  const closeDialog = useCallback(() => { setDeleting(false); }, []);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -42,6 +42,6 @@ export function UserMenu() {
       {user.provider !== "guest" && <button role="menuitem" onClick={() => { setOpen(false); setDeleting(true); }}>내 데이터 삭제</button>}
       {error && <p role="alert">로그아웃하지 못했습니다. 다시 시도해 주세요.</p>}
     </div>}
-    {deleting && <DeleteAccountDialog onClose={closeDialog} />}
+    {deleting && <DeleteAccountDialog onClose={closeDialog} returnFocusRef={button} />}
   </div>;
 }

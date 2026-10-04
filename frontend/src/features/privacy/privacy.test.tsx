@@ -47,6 +47,8 @@ describe("privacy and account deletion", () => {
     expect(dialog.textContent).toContain("되돌릴 수 없습니다");
     const cancel = within(dialog).getByRole("button", { name: "취소" });
     expect(document.activeElement).toBe(cancel);
+    avatar.focus();
+    expect(document.activeElement).toBe(cancel);
     fireEvent.keyDown(cancel, { key: "Tab", shiftKey: true });
     expect(document.activeElement).toBe(within(dialog).getByRole("button", { name: "삭제" }));
     fireEvent.keyDown(document.activeElement!, { key: "Tab" });
@@ -55,6 +57,7 @@ describe("privacy and account deletion", () => {
     expect(screen.queryByRole("dialog")).toBeNull(); expect(document.activeElement).toBe(avatar);
     open(); fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(avatar);
     expect(fetchMock.mock.calls.filter(([url]) => url === "/api/auth/account")).toHaveLength(0);
     open(); dialog = screen.getByRole("dialog");
     fireEvent.click(within(dialog).getByRole("button", { name: "삭제" }));

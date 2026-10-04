@@ -13,12 +13,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.support.TransactionTemplate;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+// Existing suites use csrf() against cached filter chains. Start with the real
+// cookie repository and release this context so neither suite inherits test state.
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_AND_AFTER_CLASS)
 public abstract class AccountDeletionAssertions {
     @Autowired protected MockMvc mvc;
     @Autowired protected JdbcTemplate jdbc;
@@ -41,8 +45,17 @@ public abstract class AccountDeletionAssertions {
         var identity = users.social("google", Map.of("sub", number, "name", "삭제 테스트"));
         created.add(identity); return identity;
     }
+    private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder withCookieCsrf(
+            org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        // Use the SPA cookie/header flow. csrf() replaces the shared filter's repository
+        // with a test repository, which can leak into AuthTests through the cached context.
+        var cookie = mvc.perform(get("/api/auth/me")).andExpect(status().isOk())
+                .andReturn().getResponse().getCookie("XSRF-TOKEN");
+        assertThat(cookie).isNotNull();
+        return request.cookie(cookie).header("X-XSRF-TOKEN", cookie.getValue());
+    }
     private jakarta.servlet.http.Cookie seed(UserIdentity user) throws Exception {
-        mvc.perform(post("/api/check-ins").with(authentication(auth(user))).with(csrf())
+        mvc.perform(withCookieCsrf(post("/api/check-ins").with(authentication(auth(user)))
                 .contentType(MediaType.APPLICATION_JSON).content(INPUT)).andExpect(status().isCreated());
         Long id = jdbc.queryForObject("SELECT id FROM wellness_checkin WHERE user_id = ?", Long.class, user.id());
         jdbc.update("INSERT INTO checkin_insight (checkin_id, body, model_id, generated_at) VALUES (?, 'synthetic', 'test', CURRENT_TIMESTAMP)", id);
@@ -76,7 +89,7 @@ public abstract class AccountDeletionAssertions {
         var contract = new tools.jackson.databind.ObjectMapper().readTree(Files.readString(Path.of("../contracts/account-delete-204.json")));
         assertThat(contract.get("method").asText()).isEqualTo("DELETE");
         assertThat(contract.get("body").isNull()).isTrue();
-        mvc.perform(delete(contract.get("path").asText()).cookie(cookie).with(csrf()))
+        mvc.perform(withCookieCsrf(delete(contract.get("path").asText()).cookie(cookie)))
                 .andExpect(status().is(contract.get("status").asInt())).andExpect(content().string(""));
         assertCounts(own, 0); assertCounts(other, 1);
         for (String table : List.of("checkin_insight", "checkin_food_recommendation", "checkin_music_recommendation")) {
@@ -89,13 +102,13 @@ public abstract class AccountDeletionAssertions {
         mvc.perform(get("/api/auth/me").cookie(cookie)).andExpect(jsonPath("$.authenticated").value(false));
     }
     @Test public void deniesGuestAnonymousAndMissingCsrf() throws Exception {
-        mvc.perform(delete("/api/auth/account").with(csrf())).andExpect(status().isUnauthorized())
+        mvc.perform(withCookieCsrf(delete("/api/auth/account"))).andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
         var own = social(UUID.randomUUID().toString());
         mvc.perform(delete("/api/auth/account").with(authentication(auth(own))))
                 .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("FORBIDDEN"));
         String fixture = Files.readString(Path.of("../contracts/account-delete-guest-403.json"));
-        mvc.perform(delete("/api/auth/account").with(authentication(auth(users.guest()))).with(csrf()))
+        mvc.perform(withCookieCsrf(delete("/api/auth/account").with(authentication(auth(users.guest())))))
                 .andExpect(status().isForbidden()).andExpect(content().json(fixture));
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM app_user WHERE id IN (1, ?)", Integer.class, own.id())).isEqualTo(2);
     }
