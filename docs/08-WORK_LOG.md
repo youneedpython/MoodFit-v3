@@ -1,5 +1,12 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-049 Run 2 — ErrorType Compile 수정 (2026-10-04)
+
+- Run 1의 Optional<ErrorType> 문자열 기본값 Type 불일치를 문자열 변환 후 기본값을 적용하도록 수정했다.
+- 같은 형태를 검색해 서비스 실패 로그 Test의 Optional<String> 반환도 SDK ErrorType 값으로 수정했다. 기존 설계는 유지했다.
+- Executor 참고 검증: `bash scripts/verify.sh`는 npm 캐시 접근 EPERM으로 설치 단계에서 중단됐다. InsightTests 실행은 Gradle Wrapper 잠금 파일의 상위 디렉터리 생성 제한으로 시작하지 못했다. Test / Build 성공을 주장하지 않으며 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- Git 후속 작업과 실제 Bedrock 호출은 수행하지 않았다. DONE은 Executor 수정 완료이며 Review / Human Merge 승인을 대신하지 않는다.
+
 ## TASK-049 — LLM Runtime Endpoint / Failure Diagnostics (2026-10-04)
 
 - 초기 Working Tree는 clean이었다. Human 승인 Contract와 명시 실행 지시에 따라 허용 경로만 수정했다. Git 후속 작업 / AWS 변경 / 실제 Bedrock 호출은 수행하지 않았다.

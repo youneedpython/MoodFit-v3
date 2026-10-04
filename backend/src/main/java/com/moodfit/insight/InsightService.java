@@ -71,7 +71,7 @@ public class InsightService {
             } else if (failure instanceof AnthropicServiceException service) {
                 log.warn("LLM generation failure kind={} status={} errorType={} message={}",
                         failure.getClass().getSimpleName(), service.statusCode(),
-                        cleanFailureMessage(service.errorType().orElse("")), cleanFailureMessage(service.getMessage()));
+                        cleanFailureMessage(service.errorType().map(Object::toString).orElse("")), cleanFailureMessage(service.getMessage()));
             } else {
                 log.warn("LLM generation failure kind={}", failure.getClass().getSimpleName());
             }

@@ -125,7 +125,7 @@ class InsightTests {
         var exception = mock(AnthropicServiceException.class);
         when(exception.statusCode()).thenReturn(429);
         when(exception.getMessage()).thenReturn("Model missing\n" + "123456" + "789012 arn:aws:bedrock:example");
-        when(exception.errorType()).thenReturn(Optional.of("not_found"));
+        when(exception.errorType()).thenReturn(Optional.of(com.anthropic.models.ErrorType.of("not_found")));
         fake.exception = exception;
         generate(id).andExpect(status().isOk()).andExpect(jsonPath("$.text").isEmpty());
         assertThat(output.getOut()).contains("kind=" + exception.getClass().getSimpleName(), "status=429",
