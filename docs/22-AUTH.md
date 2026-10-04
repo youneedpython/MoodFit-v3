@@ -66,6 +66,8 @@ Google / Kakao 실서비스 로그인과 환경별 Secure Cookie / CloudFront �
 
 ## 계정과 기록 삭제 (TASK-054)
 
+TASK-055 / DEC-042: 삭제 대상에 본인의 추천 평가(좋아요 / 별로예요)를 추가한다. V6 Table의 행을 사용자 행보다 먼저 같은 트랜잭션에서 지운다. 평가 저장과 계정 삭제는 동일 사용자 행을 잠가 동시 처리를 직렬화한다. Session / CSRF 설정과 체험 계정 제한은 유지한다.
+
 소셜 사용자 메뉴에서 “내 데이터 삭제”를 선택하면 확인 Dialog를 연다. 기본 초점은 취소이며 취소 / Esc로 닫고 초점을 메뉴 버튼으로 돌려준다. Tab 초점은 Dialog 안에 머문다. 삭제 성공 후 로그인 화면에 완료 문구를 보여 준다. 체험 계정에는 삭제 메뉴가 없다.
 
 `DELETE /api/auth/account`는 로그인과 CSRF가 필요하다. 본인 체크인과 추천, AI 코멘트, 주간 리포트, 생성 시도 기록과 사용자 행을 한 트랜잭션으로 삭제하며 계정의 기존 서버 세션을 종료하고 현재 Security Context와 CSRF Cookie를 정리한다. 실패 시 Transaction은 Rollback하며 세션 종료는 성공 후에만 수행한다. 체험 계정은 `GUEST_ACCOUNT_DELETION_FORBIDDEN` / 403, 미로그인(CSRF 유효)은 401, CSRF 누락은 403이다. 다시 로그인하면 이전 기록이 없는 새 사용자로 만든다.

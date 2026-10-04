@@ -49,7 +49,7 @@ export function DeleteAccountDialog({ onClose, returnFocusRef }: { onClose: () =
   return createPortal(<div className="account-dialog-backdrop">
     <div className="account-dialog" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="account-delete-title" aria-describedby="account-delete-description" aria-busy={busy}>
       <h2 id="account-delete-title">내 데이터 삭제</h2>
-      <p id="account-delete-description">계정, 체크인과 추천, AI 코멘트, 주간 리포트, 생성 시도 기록을 모두 삭제하고 로그아웃합니다. 되돌릴 수 없습니다. 백업에는 삭제 전 데이터가 최대 14일 남을 수 있습니다.</p>
+      <p id="account-delete-description">계정, 체크인과 추천, 추천 평가(좋아요 / 별로예요), AI 코멘트, 주간 리포트, 생성 시도 기록을 모두 삭제하고 로그아웃합니다. 되돌릴 수 없습니다. 백업에는 삭제 전 데이터가 최대 14일 남을 수 있습니다.</p>
       {error && <p role="alert">삭제하지 못했습니다. 다시 시도해 주세요.</p>}
       {busy && <p role="status">삭제하고 있습니다.</p>}
       <div className="account-dialog-actions"><button ref={cancel} onClick={onClose}>취소</button><button disabled={busy} onClick={remove}>{busy ? "삭제 중…" : "삭제"}</button></div>

@@ -8,10 +8,12 @@ import { RecommendationCards } from "./RecommendationCards";
 import { useLatestCheckin } from "./useLatestCheckin";
 import { WellnessHero } from "./WellnessHero";
 import "./DashboardPage.css";
+import { useRecommendationFeedback } from "./useRecommendationFeedback";
 
 /** DASH-001 Dashboard. 최신 Check-in 결과와 추천을 표시한다. */
 export function DashboardPage() {
   const { state, reload } = useLatestCheckin();
+  const feedback = useRecommendationFeedback();
 
   return (
     <>
@@ -44,7 +46,7 @@ export function DashboardPage() {
           <WellnessHero checkin={state.checkin} />
           <InsightCard checkinId={state.checkin.id} autoGenerate />
           <BodyMetrics metrics={state.checkin.metrics} />
-          <RecommendationCards foods={state.checkin.foods} music={state.checkin.music} />
+          <RecommendationCards foods={state.checkin.foods} music={state.checkin.music} feedback={feedback} />
         </div>
       )}
     </>

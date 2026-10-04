@@ -7,6 +7,7 @@ import { Card } from "../../components/Card/Card";
 import { RecommendationCards } from "../dashboard/RecommendationCards";
 import type { CheckinResponse } from "../../types/api";
 import { formatDisplayDateTime } from "../../utils/dateTime";
+import { useRecommendationFeedback } from "../dashboard/useRecommendationFeedback";
 
 type CheckinResultSummaryProps = {
   result: CheckinResponse;
@@ -16,6 +17,7 @@ type CheckinResultSummaryProps = {
 /** 저장 완료 후 Backend 응답을 요약한다. 분석 값은 모두 API 응답을 그대로 사용한다. */
 export function CheckinResultSummary({ result, onStartOver }: CheckinResultSummaryProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const feedback = useRecommendationFeedback();
 
   // 화면이 바뀌었음을 Keyboard / Screen Reader 사용자에게 알리기 위해 결과 제목으로 Focus를 이동한다.
   useEffect(() => {
@@ -48,7 +50,7 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
       <InsightCard checkinId={result.id} autoGenerate />
 
       <div className="checkin-result__recommendations">
-        <RecommendationCards foods={result.foods} music={result.music} />
+        <RecommendationCards foods={result.foods} music={result.music} feedback={feedback} />
       </div>
 
       <div className="checkin-result__actions">

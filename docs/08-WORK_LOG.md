@@ -3631,3 +3631,42 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - 삭제 확인 창: 열리면 "취소"에 focus, Esc로 닫으면 아바타로 focus가 돌아온다. "삭제" 뒤 `/login`으로 이동하고 완료 문구가 보인다.
 - Merge 직후 Frontend Stack Change Set을 적용해야 `/login`, `/privacy` 직접 접근과 Staging Smoke가 통과한다(Human 승인에 따라 Claude 세션이 실행).
 - 후속 후보(비차단): 삭제 확인 창의 버튼이 기본 모양이다. 삭제 요청 진행 중에도 확인 창을 닫을 수 있다(Review R3-INFO-4).
+
+### TASK-055 — 추천 피드백 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. TASK-055 승인 Contract와 필수 Context를 확인하고 해당 Task만 IN_PROGRESS로 등록한 뒤 Executor 구현 완료를 DONE으로 반영했다. Current Task TASK-030 / BLOCKED와 다른 상태, 기존 Check-in 계약 / Infra / Dependency / Smoke는 유지했다.
+- V6에 사용자 / 종류 / 항목별 평가, 갱신 시각, 복합 유일성 / 외래 키 / 값 제약을 추가했다. GET은 본인 목록, PUT은 Pool 검증 후 저장·교체·null 삭제하며 체험 계정은 고정 오류로 차단한다. 계정 삭제와 저장은 같은 사용자 행 잠금으로 직렬화하고 삭제 트랜잭션에 본인 평가를 포함했다.
+- 추천은 기존 날짜 순환에서 DISLIKE를 건너뛰고 부족하면 순환 보충한다. Pool당 가장 가까운 사용 가능한 LIKE 하나만 앞세우고 Pool 간 중복을 막는다. 음식 / 음악을 분리하고 평가 없음의 결과, 개수, 판정과 저장 기록을 유지한다.
+- Dashboard / 결과 진입당 평가 목록을 조회하여 공통 Card에 전달한다. 항목별 접근 가능한 Toggle, 즉시 반영 / 실패 복구, 같은 항목 요청 중 재입력 방지와 안내를 추가했다. 체험과 videoId 없는 곡에는 버튼을 숨긴다. 개인정보 화면 / 삭제 설명 / API·추천·인증 문서 / DEC-042 / Prompt / README를 동기화했다.
+- Backend: 모든 기분 × 상황 × 여러 날짜의 독립적인 원래 순환 비교, 전체 DISLIKE 보충, LIKE 이동 / 교체 / 중복 / 결정성 Test를 추가했다. H2 / MySQL Testcontainers 공통 API 저장·교체·삭제 / 분리 / 검증 / 체험·인증·CSRF / 다음 Check-in / 기존 기록 보존 / 계정 삭제를 검사한다. 기존 계정 삭제 보존 / Rollback Test에도 평가 행을 포함했다.
+- Frontend: 공유 GET 계약을 사용하는 Toggle / aria-pressed / 교체 / 삭제 / 실패 복구 / 체험 안내 / 이전 곡 Test를 추가했다. 기존 Dashboard / Check-in·날씨 Test는 별도로 검증하는 평가 Hook을 격리하여 기존 요청 수의 전제를 유지했다.
+- 자체 `bash scripts/verify.sh`: npm ci에서 사용자 캐시 파일 open EPERM으로 중단됐다. Frontend Test / TypeScript / Build와 Backend Test / Build는 실행되지 않았다. 별도 Backend 대상 Test도 Gradle Wrapper 잠금 부모 경로 생성 제한으로 시작하지 못했다.
+- `bash scripts/container-smoke.sh`: app.jar 미생성으로 preflight 중단, Docker 설정 / daemon 접근도 제한됐다. 실제 Code / Test 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다.
+- `git diff --check`와 변경 문서 / 계약의 UTF-8 및 치환 흔적 검사를 수행했다. 실행 화면 캡처는 설치 / 실행 제한으로 만들지 못했다. 승인된 Claude 세션이 390 / 768 / 1280px 화면 검토와 캡처를 남기고, Merge 뒤 Staging에서 평가 후 새 추천 / 기존 기록 보존 / 삭제 흐름을 확인한다.
+- Git / AWS 후속 작업은 수행하지 않았다. Executor DONE은 구현 완료이며 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.
+
+### TASK-055 Run 2 — 기존 구현 재확인 (2026-10-05)
+
+- Run 2 최초 Working Tree는 clean이었다. 승인된 Task source와 필수 Context, DEC-042 및 Run 1 구현을 읽고 재확인했다. 구현 수정이 필요한 불일치는 발견하지 않아 Source와 다른 Task 상태는 유지했다.
+- 평가 없음의 기존 순환 결과를 모든 기분 / 상황과 여러 날짜에서 독립적으로 비교하는 Test, DISLIKE 건너뛰기와 부족분 보충, Pool별 LIKE 하나 이동 / 교체, 중복 방지와 결정성을 확인했다. Check-in 저장 시 본인 평가를 전달하고 이미 저장된 추천은 수정하지 않는다.
+- 로그인 / 기존 CSRF 적용, 체험 계정 GET 비활성 / 빈 목록과 PUT 고정 403, 현재 Pool 항목만 저장하는 검증, 본인 목록과 사용자별 저장 조건을 확인했다. 계정 삭제와 평가 저장의 동일 사용자 행 잠금 및 평가 삭제도 확인했다.
+- Dashboard / 결과 화면별 목록 조회, 항목별 Toggle / 접근성 / 낙관적 갱신과 실패 복구, 체험 안내 및 videoId 없는 곡의 버튼 제외, 개인정보 화면 / 삭제 설명 / 문서 연동을 확인했다. H2와 MySQL은 같은 API 검증 Helper를 사용한다.
+- Task source에 기록된 Run 1 Frontend Test 220건 / Build와 Claude 세션의 Sandbox 밖 Backend test bootJar 통과는 이전 실행의 참고 증거이며 이번 Executor의 실행 결과가 아니다.
+- Run 2 지시에 따라 Gradle을 실행하지 않았다. Gradle을 포함하는 verify.sh 및 Container Smoke도 이번 Executor에서는 실행하지 않았다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Smoke 통과는 아직 확인되지 않았다.
+- 이번 변경은 Run 2 기록과 Prompt뿐이다. git diff --check 및 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 검사를 수행한다. 화면 캡처와 Merge 뒤 Staging 확인은 승인된 Claude 세션 / Human의 후속 작업으로 유지한다.
+- Git / AWS 작업은 수행하지 않았다. Executor DONE은 Run 2 재확인과 기록 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다.
+
+### TASK-055 Run 3 — Sandbox 밖 검증 경과 기록 (2026-10-05)
+
+- Run 3 최초 Working Tree는 clean이었다. Task source의 Run 3 범위와 필수 Context, 승인 Decision을 확인하고 WORK_LOG와 Prompt에 기록만 추가했다. 구현과 Test, Task 상태는 변경하지 않았다.
+- Task source에 따르면 Run 2는 scripts/verify.sh를 통과했으나 Container Smoke 사전 점검에서 Docker Desktop 미실행으로 중단됐으며 Review는 아직 수행되지 않았다.
+- Claude 세션은 Docker Desktop을 시작한 뒤 Sandbox 밖 backend gradlew test 통과를 확인했다. MySQL Testcontainers Test가 포함됐고 Skip은 DockerAvailabilityTests 1건뿐이다. bash scripts/container-smoke.sh도 exit 0으로 통과했다고 Task source에 기록되어 있다. 이는 전달받은 이전 실행의 참고 증거이며 이번 Executor가 실행한 결과가 아니다.
+- Run 3 지시에 따라 Gradle과 전체 Verify / Container Smoke를 실행하지 않았다. 판정 기준은 이번 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다.
+- 한글 기록은 UTF-8 apply_patch로 작성했다. Git / AWS 작업은 수행하지 않았다. Executor DONE은 Run 3 기록 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Claude 세션의 화면 확인 / 캡처와 Human Squash Merge, Merge 뒤 Staging에서 평가 후 새 Check-in 추천 변화 확인은 후속 작업으로 유지한다.
+
+### TASK-055 Merge 전 확인 (2026-10-05, Claude 세션 기록)
+
+- 진행: Run 1에서 구현이 끝났고 Verify가 환경 문제로 두 번 멈췄다 — Gradle Cache 잠금("Timeout waiting to lock jars", 남아 있던 Daemon 25개), Docker Desktop 미실행. Claude 세션이 Daemon을 정리하고 Docker Desktop을 시작한 뒤 Sandbox 밖에서 `gradlew test`(MySQL Testcontainers 포함)와 `scripts/container-smoke.sh` 통과를 확인했다. Run 3에서 Verify 3개 명령 통과, Claude Review PASS.
+- Docker가 꺼져 있으면 MySQL Testcontainers Test가 실패하지 않고 건너뛰어진다(이번에 18건). Local 검증 결과를 볼 때 Skip 수를 함께 확인해야 한다.
+- 화면 확인(`docs/images/task-055/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 390 / 768 / 1280px를 캡처했다. 저장된 평가(좋아요 1, 별로예요 1)가 `aria-pressed`로 표시되고, 버튼 이름에 항목이 들어간다("새우 볶음밥 좋아요"). 누르면 저장 요청이 1회 나가고, 저장 실패 시 되돌아가며 오류 문구가 보인다. 체험 계정에는 버튼이 없고 안내 문구가 보인다. 세 폭 모두 가로 넘침이 없다.
+- 후속 후보(비차단, Review INFO-3 ~ 5): Prompt 색인에 Run 2 / 3 행 추가, 실제 Pool에서 LIKE 첫 자리 단언 추가, Pool에서 빠진 항목의 평가 정리.

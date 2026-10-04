@@ -4,6 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import { CHECKIN_LATEST, CHECKIN_LATEST_NOT_FOUND } from "../../contracts/contracts";
 import { DashboardPage } from "./DashboardPage";
 
+vi.mock("./useRecommendationFeedback", () => ({
+  useRecommendationFeedback: () => ({ data: null, error: "", pending: [], toggle: vi.fn() })
+}));
+
 /** DEC-024: 공유 계약 파일(contracts/checkin-latest-200.json) */
 const LATEST = CHECKIN_LATEST;
 

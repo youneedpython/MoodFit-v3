@@ -25,29 +25,51 @@ class WellnessRulePolicy {
     }
 
     static <T> List<T> select(List<T> mood, List<T> context, long epochDay, Function<T, String> key) {
+        return select(mood, context, epochDay, key, java.util.Map.of());
+    }
+
+    static <T> List<T> select(List<T> mood, List<T> context, long epochDay, Function<T, String> name,
+            java.util.Map<String, RecommendationFeedbackService.Rating> ratings) {
         List<T> selected = new ArrayList<>(5);
         HashSet<String> used = new HashSet<>();
-        selectFrom(mood, 3, epochDay, key, selected, used);
-        selectFrom(context, 2, epochDay, key, selected, used);
+        selectFrom(mood, 3, epochDay, name, selected, used, ratings);
+        selectFrom(context, 2, epochDay, name, selected, used, ratings);
         return List.copyOf(selected);
     }
 
-    private static <T> void selectFrom(List<T> pool, int count, long epochDay, Function<T, String> key,
-            List<T> selected, HashSet<String> used) {
+    private static <T> void selectFrom(List<T> pool, int count, long epochDay, Function<T, String> name,
+            List<T> selected, HashSet<String> used, java.util.Map<String, RecommendationFeedbackService.Rating> ratings) {
         int start = Math.floorMod(epochDay, pool.size());
-        int added = 0;
-        for (int offset = 0; offset < pool.size() && added < count; offset++) {
-            T item = pool.get((start + offset) % pool.size());
-            if (used.add(key.apply(item))) {
-                selected.add(item);
-                added++;
+        List<T> group = new ArrayList<>();
+        HashSet<String> prior = new HashSet<>(used);
+        for (int pass = 0; pass < 2; pass++) {
+            for (int offset = 0; offset < pool.size() && group.size() < count; offset++) {
+                T item = pool.get((start + offset) % pool.size());
+                boolean disliked = ratings.get(name.apply(item)) == RecommendationFeedbackService.Rating.DISLIKE;
+                if (disliked == (pass == 1) && used.add(name.apply(item))) group.add(item);
             }
         }
-        if (added != count) throw new IllegalStateException("Insufficient distinct recommendation candidates");
+        if (group.size() != count) throw new IllegalStateException("Insufficient distinct recommendation candidates");
+        for (int offset = 0; offset < pool.size(); offset++) {
+            T liked = pool.get((start + offset) % pool.size());
+            if (ratings.get(name.apply(liked)) != RecommendationFeedbackService.Rating.LIKE || prior.contains(name.apply(liked))) continue;
+            int index = -1;
+            for (int i = 0; i < group.size(); i++) if (name.apply(group.get(i)).equals(name.apply(liked))) index = i;
+            if (index >= 0) group.remove(index);
+            else used.remove(name.apply(group.removeLast()));
+            group.addFirst(liked);
+            used.add(name.apply(liked));
+            break;
+        }
+        selected.addAll(group);
     }
 
 
     AnalysisResult analyze(CreateCheckinRequest request) {
+        return analyze(request, new RecommendationFeedbackService.Feedback(true, List.of()));
+    }
+
+    AnalysisResult analyze(CreateCheckinRequest request, RecommendationFeedbackService.Feedback feedback) {
         int wellnessScore = calculateScore(request.sleepScore(), request.stressLevel(), request.energyLevel());
         MoodType mood = determineMood(request.sleepScore(), request.stressLevel(), request.energyLevel(), wellnessScore);
         ContextType context = determineContext(request.temperature(), request.weather());
@@ -58,8 +80,15 @@ class WellnessRulePolicy {
                 mood.code(),
                 mood.label(),
                 mood.summarySentence() + " " + context.summarySentence(),
-                select(MOOD_FOODS.get(mood), CONTEXT_FOODS.get(context), epochDay, FoodRecommendationValue::getName),
-                select(MOOD_MUSIC.get(mood), CONTEXT_MUSIC.get(context), epochDay, MusicRecommendationValue::getVideoId));
+                select(MOOD_FOODS.get(mood), CONTEXT_FOODS.get(context), epochDay, FoodRecommendationValue::getName, feedback.ratings(RecommendationFeedbackService.Kind.FOOD)),
+                select(MOOD_MUSIC.get(mood), CONTEXT_MUSIC.get(context), epochDay, MusicRecommendationValue::getVideoId, feedback.ratings(RecommendationFeedbackService.Kind.MUSIC)));
+    }
+
+    static boolean contains(RecommendationFeedbackService.Kind kind, String item) {
+        if (kind == RecommendationFeedbackService.Kind.FOOD) return java.util.stream.Stream.concat(MOOD_FOODS.values().stream(), CONTEXT_FOODS.values().stream())
+                .flatMap(List::stream).anyMatch(value -> value.getName().equals(item));
+        return java.util.stream.Stream.concat(MOOD_MUSIC.values().stream(), CONTEXT_MUSIC.values().stream())
+                .flatMap(List::stream).anyMatch(value -> value.getVideoId().equals(item));
     }
 
     String moodLabel(String moodCode) {

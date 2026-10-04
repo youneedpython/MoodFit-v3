@@ -391,6 +391,8 @@ Human Approved
 
 ## DEC-014 Wellness Analysis Rule
 
+변경 이력: 2026-10-04 Human Approved TASK-055 / DEC-042에 따라 개인 추천 평가를 후보 선택 순서에만 반영한다. Score / 기분 / 상황 판정과 추천 개수 및 Check-in 응답은 유지한다.
+
 ### 결정
 
 TASK-005 Gate B Human Review를 통해 Wellness Analysis / Recommendation Rule을 다음과 같이 확정한다.
@@ -1571,3 +1573,12 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - 신규 Dependency / 다른 Template / Workflow 변경은 승인하지 않는다. 구현 승인은 Production 배포나 AWS 실행 승인으로 확대하지 않는다. 구현 완료는 Orchestrator Verify / Claude Review / Human Squash Merge 승인을 대신하지 않는다.
 
 상세 처리 안내와 근거는 [25-PRIVACY.md](25-PRIVACY.md), 실제 적용 순서는 [18-STAGING-DEPLOYMENT-RUNBOOK.md](18-STAGING-DEPLOYMENT-RUNBOOK.md)를 따른다.
+
+## DEC-042 TASK-055 추천 피드백
+
+- 상태: Human Approved (2026-10-04), 승인 근거: TASK-055 Contract와 명시 실행 지시.
+- 사용자 / 종류 / 항목별 LIKE / DISLIKE를 V6 새 Table에 저장한다. 본인 평가만 읽고 쓰며 체험 계정의 저장은 금지한다. 항목은 현재 Pool의 음식 이름 / 음악 videoId만 허용한다.
+- DISLIKE를 순환 선택에서 건너뛰고 부족할 때 순환 순서로 보충한다. 각 Pool에서 순환 시작 위치에 가장 가까운 사용 가능한 LIKE 하나만 첫 자리에 두며 선택 밖이면 마지막 자리를 교체한다. 앞 Pool에서 고른 항목은 다음 Pool에서 중복 선택하지 않는다.
+- 평가는 다음 Check-in부터 적용한다. 평가 없음의 기존 결과, 판정 규칙, 음식 5개 / 음악 5개, 응답 형식과 저장 기록을 유지한다. 추천은 계속 규칙이 결정한다.
+- Dashboard / 결과 화면에 낙관적 Toggle과 실패 복구, 접근 가능한 이름 / 눌림 상태를 제공한다. 개인정보 안내와 계정 삭제 대상에 추천 평가를 추가한다. 새 Dependency / Infra / Smoke 변경은 없다.
+- 실행 승인은 Verify / Review / Human Squash Merge를 대신하지 않는다. 규칙 예시는 [20-RECOMMENDATION-MUSIC-PLAYBACK.md](20-RECOMMENDATION-MUSIC-PLAYBACK.md)를 따른다.

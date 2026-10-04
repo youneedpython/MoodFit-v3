@@ -5,6 +5,10 @@ import { AUTO_WEATHER_KEY, WEATHER_TIMEOUT_MS } from "../../services/weather";
 import { CHECKIN_CREATED } from "../../contracts/contracts";
 import { CheckinPage } from "./CheckinPage";
 
+vi.mock("../dashboard/useRecommendationFeedback", () => ({
+  useRecommendationFeedback: () => ({ data: null, error: "", pending: [], toggle: vi.fn() })
+}));
+
 beforeEach(() => localStorage.clear());
 afterEach(() => { localStorage.clear(); vi.useRealTimers(); });
 const weatherBody = { current: { temperature_2m: 23.26, weather_code: 71 } };
