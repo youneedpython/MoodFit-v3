@@ -74,7 +74,7 @@ Claude 세션이 Merge 시점에 다음 변경 이력을 정리한다. 이 문�
 
 ## TASK-048 날짜별 추천 다양화
 
-Human Approved 2026-10-04 / DEC-039. 음식 기분 Pool은 각각 8개, 상황 Pool은 각각 6개다. 음악 기분 Pool은 TIRED 13곡 / ENERGETIC 26곡 / CALM 13곡 / BALANCED 14곡, 상황 Pool은 COLD 7곡 / HOT 8곡 / RAIN 9곡 / SNOW 6곡 / CLEAR 10곡 / CLOUDY 9곡이다. Pool은 Code의 상수이며 DB / 설정 파일로 옮기지 않는다.
+Human Approved 2026-10-04 / DEC-040. 음식 기분 Pool은 각각 8개, 상황 Pool은 각각 6개다. 음악 기분 Pool은 TIRED 13곡 / ENERGETIC 26곡 / CALM 13곡 / BALANCED 14곡, 상황 Pool은 COLD 7곡 / HOT 8곡 / RAIN 9곡 / SNOW 6곡 / CLEAR 10곡 / CLOUDY 9곡이다. Pool은 Code의 상수이며 DB / 설정 파일로 옮기지 않는다.
 
 주입된 Clock의 시각을 Asia/Seoul 날짜로 변환한 epochDay가 기준이다. 음식과 음악은 각자 Pool 크기로 나눈 나머지부터 기분 3개, 상황 2개를 순서대로 고른다. 끝에서는 처음으로 돌아가고 상황에서 이미 고른 항목이면 다음으로 넘어간다. 음식 이름과 음악 videoId로 중복을 제거한다. 같은 서울 날짜 / 기분 / 상황이면 결과가 같고 날짜가 바뀌면 시작 위치가 한 칸 옮겨 간다. UTC 15시가 서울 날짜 경계다.
 

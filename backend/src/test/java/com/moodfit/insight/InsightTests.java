@@ -120,15 +120,29 @@ class InsightTests {
         assertThat(output.getOut()).contains("kind=IllegalStateException", "kind=empty_response")
                 .doesNotContain("Not logged", "비공개지역", "비공개이름");
     }
-    @Test void serviceFailuresLogOnlyClassAndHttpStatus(CapturedOutput output) throws Exception {
+    @Test void serviceFailuresLogSanitizedMessageWithoutBody(CapturedOutput output) throws Exception {
         long id = create();
         var exception = mock(AnthropicServiceException.class);
         when(exception.statusCode()).thenReturn(429);
-        when(exception.getMessage()).thenReturn("PRIVATE_RESPONSE_BODY");
+        when(exception.getMessage()).thenReturn("Model missing\n" + "123456" + "789012 arn:aws:bedrock:example");
+        when(exception.errorType()).thenReturn(Optional.of(com.anthropic.models.ErrorType.of("not_found")));
         fake.exception = exception;
         generate(id).andExpect(status().isOk()).andExpect(jsonPath("$.text").isEmpty());
-        assertThat(output.getOut()).contains("kind=" + exception.getClass().getSimpleName(), "status=429")
-                .doesNotContain("PRIVATE_RESPONSE_BODY", "비공개지역", "비공개이름");
+        assertThat(output.getOut()).contains("kind=" + exception.getClass().getSimpleName(), "status=429",
+                        "errorType=not_found", "message=Model missing <acct> <arn>")
+                .doesNotContain("arn:aws:bedrock:example", "123456" + "789012", "비공개지역", "비공개이름");
+        verify(exception, never()).body();
+        assertThat(store.insight(id)).isEmpty();
+    }
+    @Test void rejectedResponsesLogOncePerAttempt(CapturedOutput output) throws Exception {
+        long id = create();
+        fake.exception = new BedrockInsightGenerator.ResponseRejected("refusal");
+        generate(id).andExpect(status().isOk()).andExpect(jsonPath("$.text").isEmpty());
+        fake.exception = new BedrockInsightGenerator.ResponseRejected("max_tokens");
+        generate(id).andExpect(status().isOk()).andExpect(jsonPath("$.text").isEmpty());
+        assertThat(output.getOut().lines().filter(line -> line.contains("LLM generation failure")).toList())
+                .hasSize(2).anyMatch(line -> line.contains("kind=refusal"))
+                .anyMatch(line -> line.contains("kind=max_tokens"));
         assertThat(store.insight(id)).isEmpty();
     }
     @Test void weeklyMinimumProjectionPersistenceAndLimit() throws Exception {

@@ -559,7 +559,7 @@ Music 열의 이름은 `Playlist`를 생략해 표기했다.
 ### 변경 이력
 
 - 2026-10-04 (TASK-036, Human 승인): 추천 음식 / 음악을 각각 5개로 늘렸다(기분 기준 3개 + 날씨 / 상황 기준 2개). 점수와 기분 판정 규칙은 바꾸지 않았다.
-- 2026-10-04 (TASK-048, Human 승인 / DEC-039): 후보 Pool을 늘리고 주입된 Clock의 Asia/Seoul 날짜 epochDay를 기준으로 순환 선택한다. 음식 / 음악 각각 기분 3개 + 상황 2개이며 상황 후보의 중복을 건너뛴다. Score / 기분 / 상황 / 요약 판정과 저장된 추천은 유지한다.
+- 2026-10-04 (TASK-048, Human 승인 / DEC-040): 후보 Pool을 늘리고 주입된 Clock의 Asia/Seoul 날짜 epochDay를 기준으로 순환 선택한다. 음식 / 음악 각각 기분 3개 + 상황 2개이며 상황 후보의 중복을 건너뛴다. Score / 기분 / 상황 / 요약 판정과 저장된 추천은 유지한다.
 
 ### 상태
 
@@ -1530,7 +1530,7 @@ Human Approved (2026-10-04, LLM Gate / A안 및 명시 실행 지시)
 - Merge 후 Human이 호출 Role 생성 → IAM UPDATE → 현재 실행 digest를 유지한 App UPDATE → 실제 AI 코멘트 확인을 수행한다. Production 실행 승인은 별도다. 상세는 [24-LLM-INFRA.md](24-LLM-INFRA.md)를 따른다.
 
 
-## DEC-039 TASK-048 추천 다양화와 History 간격
+## DEC-040 TASK-048 추천 다양화와 History 간격
 
 ### 결정
 

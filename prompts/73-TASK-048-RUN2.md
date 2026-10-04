@@ -3,7 +3,7 @@
 - 날짜: 2026-10-04
 - 목적: Run 1 Frontend Test 실패 2건의 CSS 문자열 의존 제거
 - 단계: 승인된 TASK-048 Run 2 Executor 구현
-- Context: AGENTS.md, TASK-048 Contract의 Run 2 범위, COMMON.md, 승인 DEC-039, HistoryPage Test / 구조 / CSS, WORK_LOG
+- Context: AGENTS.md, TASK-048 Contract의 Run 2 범위, COMMON.md, 승인 DEC-040, HistoryPage Test / 구조 / CSS, WORK_LOG
 - Human Approval: TASK-048 Human Approved 2026-10-04 및 Run 2 명시 실행 지시
 
 ## 실제 Prompt

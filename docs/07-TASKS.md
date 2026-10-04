@@ -100,6 +100,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-046 | Milestone 46 | LLM Value Injection (Infra) | DONE | TASK-043, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-047 | Milestone 47 | UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기) | DONE | TASK-036, TASK-045 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-048 | Milestone 48 | Recommendation Variety (추천 다양화) + History 여백 | DONE | TASK-036, TASK-042, TASK-047 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-049 | Milestone 49 | LLM Runtime Endpoint / Failure Diagnostics | DONE | TASK-045, TASK-046 | Human 승인 Contract 및 명시 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1918,8 +1919,17 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 ## TASK-048 — Recommendation Variety (추천 다양화) + History 여백
 
 - 상태: DONE (Executor 구현 완료, 최종 완료 승인 대기).
-- Milestone: 48. Dependency: TASK-036 / TASK-042 / TASK-047. Human Approved 2026-10-04 / DEC-039.
+- Milestone: 48. Dependency: TASK-036 / TASK-042 / TASK-047. Human Approved 2026-10-04 / DEC-040.
 - 음식 기분 8개 / 상황 6개, 음악 기분 13~26곡 / 상황 6~10곡의 Code 상수 Pool과 서울 날짜별 순환 선택을 구현했다. 기분 3개 / 상황 2개와 중복 제거, 기존 판정 / 저장 기록 / API 형식을 유지한다.
 - 계약 예시 / API 문서 / Smoke 검사, 전체 메뉴별 Emoji Test와 History 공통 Card 간격을 동기화했다.
 - 자체 Verify는 npm 캐시 EPERM으로 설치 단계가 중단됐다. Backend 단독 Test는 Gradle Wrapper lock 생성 제한, Container Smoke는 JAR 미생성과 Docker 접근 제한으로 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify이며 통과를 주장하지 않는다.
 - 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다. Human Squash Merge 후 Staging에서 날짜 변화와 Smoke를 확인한다.
+
+## TASK-049 — LLM Runtime Endpoint / Failure Diagnostics
+
+- 상태: DONE (Executor 구현 완료), Milestone 49.
+- 승인: 2026-10-04 Human 승인 Contract 및 명시 실행 지시. Dependency는 TASK-045 / TASK-046이다.
+- 기본 runtime / 선택 mantle Backend, 동일 요청 설정, 마스킹된 HTTP 오류 진단과 거절 / 길이 초과 단일 로그를 구현했다. InvokeModel 권한 예시와 운영 문서를 갱신했다.
+- 선택 Logic / 오류 문장 정리 / 실패 로그 Test를 추가했다. 실제 Bedrock 호출은 수행하지 않았다.
+- Sandbox 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge가 최종 기준이며 DONE은 이를 대신하지 않는다.
+- Merge / 자동 배포 후 Human이 다른 계정 호출 Role의 권한을 추가하고 Staging 실제 생성을 확인한다. 400이 추론 Profile을 요구하면 정확한 ID를 확인해 LlmModelId와 App Stack을 갱신한다. 다른 Task 상태와 Current Task는 유지한다.

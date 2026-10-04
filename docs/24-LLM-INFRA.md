@@ -9,6 +9,7 @@
 | LLM_ENABLED | LlmEnabled | false; true일 때만 활성화 |
 | LLM_MODEL_ID | LlmModelId | anthropic.claude-sonnet-5-5 |
 | LLM_REGION | LlmRegion | ap-northeast-2 |
+| LLM_ENDPOINT | 없음 | runtime 기본; mantle만 기존 Messages API 경로 선택, 빈 값 / 그 밖의 값은 runtime |
 | LLM_ROLE_ARN | LlmRoleArn | 빈 값이면 환경 변수 자체를 생략, 값이 있으면 AssumeRole |
 | LLM_DAILY_INSIGHT_LIMIT | 없음 | Backend 기본 10 |
 | LLM_DAILY_REPORT_LIMIT | 없음 | Backend 기본 2 |
@@ -25,13 +26,23 @@ IAM Template에는 환경별로 생성되는 TaskRole Resource 하나가 있다.
 
 1. MoodFit IAM Stack 출력에서 Task Role ARN을 확인한다. 실제 ARN / 계정 ID는 문서, Prompt, Log에 쓰지 않는다.
 2. 다른 계정 콘솔 → IAM → Role 생성 → 사용자 지정 신뢰 정책을 선택한다. [Trust 예시](../infra/iam/llm-invocation-trust.example.json)의 Placeholder를 위 Task Role ARN 하나로 교체한다. 계정 전체 Principal이나 wildcard를 쓰지 않는다.
-3. [Permission 예시](../infra/iam/llm-invocation-permission.example.json)를 연결한다. Action은 bedrock-mantle:CreateInference 하나만 허용한다. Role 이름은 예를 들어 `moodfit-bedrock-invoke`로 정하고 생성 후 ARN을 로컬에서 확인한다.
+3. [Permission 예시](../infra/iam/llm-invocation-permission.example.json)를 연결한다. TASK-049에 따라 Human이 다른 계정의 기존 호출 Role에 bedrock:InvokeModel을 추가하고 bedrock-mantle:CreateInference를 유지한다. Resource는 승인된 * 예시를 유지하며 추측한 모델 / Profile ARN으로 좁히지 않는다. Role 이름은 예를 들어 `moodfit-bedrock-invoke`로 정하고 생성 후 ARN을 로컬에서 확인한다.
 4. MoodFit Staging IAM Stack UPDATE Change Set에 LlmRoleArn을 전달한다. 기존 Parameter를 유지하고 TaskRole에 해당 ARN 하나의 AssumeRole 권한만 추가되는지 검토 후 Human이 실행한다.
 5. CD가 진행 중이지 않은지 확인한다. 현재 실행 중인 backend Image digest와 마지막 성공 CD Summary를 대조하여 BackendImage에 넣는다. App Stack UPDATE Change Set에 LlmEnabled true, 동일한 LlmRoleArn, 승인 모델 / Region을 전달하고 기존 설정을 유지한다. 오래된 Image로 돌아가지 않는지 검토 후 Human이 실행한다. CD는 현재 Task Definition을 복사해 Image만 바꾸므로 이 설정을 이어받는다.
-6. 단일 COMPLETED Deployment, desired / running 2, pending 0과 Health를 확인한다. 소셜 로그인 → Check-in → AI 코멘트 표시를 확인하고 TASK-045 주간 리포트도 확인한다. 실패하면 Application Log의 권한 거부 / 시간 초과 등 실패 종류만 확인한다. 원문이나 민감 값을 Agent에 전달하지 않는다.
+6. 단일 COMPLETED Deployment, desired / running 2, pending 0과 Health를 확인한다. 소셜 로그인 → Check-in → AI 코멘트 표시를 확인하고 TASK-045 주간 리포트도 확인한다. 실패하면 Application Log의 실패 종류, HTTP 상태와 마스킹된 오류 문장을 확인한다. 요청 / 응답 원문이나 민감 값을 Agent에 전달하지 않는다.
 7. 끄려면 현재 digest를 유지한 App UPDATE에서 LlmEnabled를 false로 바꾼다. 비용 차단을 위해 다른 계정 Role을 삭제하거나 Trust를 비운다. 이미 발급된 임시 세션은 만료 전까지 유효할 수 있으므로 즉시 차단이 필요하면 Human이 활성 Role 세션 취소도 검토한다.
 
 ## 확인하지 못한 것과 검증 한계
+
+### TASK-049 호출 경로와 404 경과 (2026-10-04)
+
+TASK-046 환경 값 적용 후 Staging은 NotFoundException / 404로 생성에 실패했다. Region을 서울에서 버지니아 북부로 바꿔도 동일했다. Task에 기록된 조사에서는 AssumeRole / 인증을 통과했고 mantle 경로에서 모델을 찾지 못했으며, Human이 같은 계정의 콘솔 Playground에서 runtime 경로의 Claude Sonnet 5.5 응답을 두 Region 모두 확인했다. 이는 변경된 App의 실제 호출 성공을 뜻하지 않는다.
+
+TASK-049는 SDK BedrockBackend의 bedrock-runtime / InvokeModel을 기본으로 선택한다. LLM_ENDPOINT가 mantle이면 기존 BedrockMantleBackend를 사용한다. Backend 생성만 분기하며 자격 증명, Region, 요청 제한 20초, SDK 재시도 1회, System / User Message, 출력 상한과 환경 값 LLM_MODEL_ID는 공유한다. Infra Template와 App Parameter는 추가하지 않으며 환경 값 없이 runtime을 선택한다.
+
+기본 모델 ID가 HTTP 400으로 거부되고 오류 문장이 추론 Profile ID / ARN 사용을 요구하면 Human이 해당 계정과 Region에서 사용 가능한 정확한 Profile ID를 확인한다. 그 값으로 LlmModelId를 바꾸고 현재 실행 digest와 기존 설정을 유지한 Staging App Stack UPDATE Change Set을 검토 / 실행한다. global. 접두사가 붙는 경우가 있지만 이 모델의 정확한 ID는 확인되지 않았으므로 추측한 값을 제시하지 않는다. HTTP 오류는 getMessage()만 정리하여 기록하며 계정 번호 / ARN 마스킹, 줄바꿈 / 제어 문자 공백화와 300자 제한을 적용한다. 요청 / 생성 응답 본문은 기록하지 않는다.
+
+Merge와 자동 배포 후 다른 계정 Role 권한 추가와 Staging 실제 생성 확인은 Human이 수행한다. Production 실행 승인은 포함하지 않는다.
 
 승인 Contract는 `https://bedrock-mantle.<region>.api.aws/anthropic/v1/messages`의 서울 / 버지니아 북부 / 도쿄 비인증 요청 401 응답과 필요한 Action을 기록한다. 이는 실제 인증 호출 성공 증거가 아니다. Resource를 모델 단위로 좁히는 형식은 확인 필요하며 추측한 ARN은 쓰지 않는다. Permission 예시의 Resource *는 이 미확정 사항에 따른 승인 범위다.
 

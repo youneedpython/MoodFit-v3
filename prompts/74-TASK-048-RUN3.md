@@ -3,7 +3,7 @@
 - 날짜: 2026-10-04
 - 목적: Container tmpfs 응답 추출과 Windows Python 경로 수정의 흐름 확인 및 기록 동기화
 - 단계: 승인된 TASK-048 Run 3 Executor 작업
-- Context: AGENTS.md, COMMON.md, TASK-048 Contract Run 3, DEC-039, 두 Smoke Script, Staging CD 문서와 WORK_LOG
+- Context: AGENTS.md, COMMON.md, TASK-048 Contract Run 3, DEC-040, 두 Smoke Script, Staging CD 문서와 WORK_LOG
 - Human Approval: TASK-048 Human Approved 2026-10-04 및 Run 3 명시 실행 지시
 
 ## 실제 Prompt

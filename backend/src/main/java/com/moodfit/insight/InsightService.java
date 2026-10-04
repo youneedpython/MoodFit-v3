@@ -66,12 +66,24 @@ public class InsightService {
             return text;
         }
         catch (RuntimeException failure) {
-            if (failure instanceof AnthropicServiceException service) {
-                log.warn("LLM generation failure kind={} status={}", failure.getClass().getSimpleName(), service.statusCode());
+            if (failure instanceof BedrockInsightGenerator.ResponseRejected rejected) {
+                log.warn("LLM generation failure kind={}", rejected.reason());
+            } else if (failure instanceof AnthropicServiceException service) {
+                log.warn("LLM generation failure kind={} status={} errorType={} message={}",
+                        failure.getClass().getSimpleName(), service.statusCode(),
+                        cleanFailureMessage(service.errorType().map(Object::toString).orElse("")), cleanFailureMessage(service.getMessage()));
             } else {
                 log.warn("LLM generation failure kind={}", failure.getClass().getSimpleName());
             }
             return null;
         }
+    }
+    static String cleanFailureMessage(String message) {
+        if (message == null || message.isBlank()) return "";
+        String cleaned = message.replaceAll("[\\p{Cc}\\p{Zl}\\p{Zp}]", " ")
+                .replaceAll("arn:[^\\s]+", "<arn>")
+                .replaceAll("[0-9]{12}", "<acct>");
+        int length = cleaned.codePointCount(0, cleaned.length());
+        return cleaned.substring(0, cleaned.offsetByCodePoints(0, Math.min(300, length)));
     }
 }
