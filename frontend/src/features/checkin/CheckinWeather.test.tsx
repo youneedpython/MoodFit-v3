@@ -31,6 +31,43 @@ const manual = () => fireEvent.click(screen.getByRole("button", { name: "직접 
 const automatic = () => fireEvent.click(screen.getByRole("button", { name: "자동으로 가져오기" }));
 
 describe("Check-in weather modes", () => {
+  it.each([false, true])("sends the fetched region, including after manual edits: %s", async (edit) => {
+    const { fetchMock } = setup();
+    await screen.findByText("서울특별시 명동 · 눈 · 23.3°C");
+    if (edit) {
+      manual();
+      fireEvent.change(temperature(), { target: { value: "21" } });
+      fireEvent.click(screen.getByLabelText("비"));
+    }
+    for (const [label, value] of [["심박수", "68"], ["호흡수", "18"], ["수면 점수", "86"], ["스트레스 수준", "31"], ["에너지 수준", "74"]]) {
+      fireEvent.change(screen.getByLabelText(new RegExp(label)), { target: { value } });
+    }
+    fireEvent.click(screen.getByRole("button", { name: "분석 요청" }));
+    await screen.findByText("Check-in이 저장되었습니다.");
+    const request = JSON.parse(fetchMock.mock.calls.find(([url]) => url === "/api/check-ins")![1]?.body as string);
+    expect(request.region).toBe("서울특별시 명동");
+    expect(request.temperature).toBe(edit ? 21 : 23.3);
+    expect(Object.keys(request).sort()).toEqual(["region", "energyLevel", "heartRate", "respiratoryRate", "sleepScore", "stressLevel", "temperature", "weather"].sort());
+  });
+
+  it.each([false, true])("omits region for fallback or initial manual mode: %s", async (initialManual) => {
+    if (initialManual) localStorage.setItem(AUTO_WEATHER_KEY, "false");
+    const { fetchMock } = setup(undefined, true);
+    if (!initialManual) {
+      await screen.findByText("현재 위치 · 눈 · 23.3°C");
+      manual();
+    }
+    for (const [label, value] of [["심박수", "68"], ["호흡수", "18"], ["수면 점수", "86"], ["스트레스 수준", "31"], ["에너지 수준", "74"], ["기온", "19"]]) {
+      fireEvent.change(screen.getByLabelText(new RegExp(label)), { target: { value } });
+    }
+    fireEvent.click(screen.getByLabelText("비"));
+    fireEvent.click(screen.getByRole("button", { name: "분석 요청" }));
+    await screen.findByText("Check-in이 저장되었습니다.");
+    const request = JSON.parse(fetchMock.mock.calls.find(([url]) => url === "/api/check-ins")![1]?.body as string);
+    expect(request).not.toHaveProperty("region");
+    fireEvent.click(screen.getByRole("button", { name: "새로 입력하기" }));
+    expect(temperature().value).toBe("");
+  });
   it("shows existing validation guidance before automatic weather is available", async () => {
     setup();
     fireEvent.click(screen.getByRole("button", { name: "분석 요청" }));

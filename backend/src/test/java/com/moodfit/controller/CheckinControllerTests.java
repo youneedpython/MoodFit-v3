@@ -33,6 +33,11 @@ import com.moodfit.repository.WellnessCheckinRepository;
 @AutoConfigureMockMvc
 class CheckinControllerTests {
 
+    @Test
+    void validatesAndPersistsRegionsInH2() throws Exception {
+        RegionAssertions.verify(mockMvc);
+    }
+
     @Autowired
     private MockMvc mockMvc;
 

@@ -46,6 +46,7 @@ export function WellnessHero({ checkin }: WellnessHeroProps) {
           <span>
             <span className="wellness-hero__weather-label">{WEATHER_LABELS[weather.condition]}</span>
             <span className="wellness-hero__temperature">{weather.temperature.toFixed(1)}°C</span>
+            {weather.region && <span className="weather-region">{weather.region}</span>}
           </span>
         </div>
       </div>

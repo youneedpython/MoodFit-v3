@@ -61,6 +61,12 @@ public class WellnessCheckin {
     @Column(nullable = false, length = 10)
     private WeatherCondition weather;
 
+    @Column(length = 80)
+    private String region;
+
+    public void assignRegion(String region) { this.region = region; }
+    public String getRegion() { return region; }
+
     @Column(name = "wellness_score", nullable = false)
     private int wellnessScore;
 

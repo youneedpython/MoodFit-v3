@@ -18,6 +18,7 @@ public record HistoryItemResponse(
         Integer energyLevel,
         BigDecimal temperature,
         WeatherCondition weather,
+        String region,
         /** 추천 음식 이름 (Mood Item, Context Item 순서, DEC-020) */
         List<String> foodNames,
         /** 추천 음악 제목 (Mood Item, Context Item 순서, DEC-020) */

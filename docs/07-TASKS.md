@@ -50,8 +50,6 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 
 | Task | Milestone | 작업 | 상태 | Dependency | Human Approval |
 |---|---|---|---|---|---|
-| TASK-042 | Milestone 42 | Social Login / Guest / User Scoped Data | DONE | TASK-029, TASK-036, TASK-039 | Human Approved 2026-10-04; Executor 구현 완료, Verify / Review / Merge 대기 |
-| TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | READY | TASK-042 구현 후 실환경 확인 | TASK-042 후속 등록, 실제 값 / AWS 실행은 후속 Contract와 Gate에 따름 |
 | TASK-001 | Milestone 1 | Project Bootstrap | DONE | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | DONE | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
@@ -93,6 +91,9 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-039 | Milestone 39 | Staging CD Rollout Wait Fix | DONE | TASK-029, TASK-038 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
 | TASK-040 | Milestone 40 | Weather Auto Default / Region Display | DONE | TASK-035, TASK-037 완료 | Human Gate 사전 승인 및 명시 실행 (2026-10-04), 최종 완료 승인 대기 |
 | TASK-041 | Milestone 41 | Header Logo Link / Alignment (로고 클릭 이동 + 정렬) | DONE | TASK-037 완료 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
+| TASK-042 | Milestone 42 | Social Login / Guest / User Scoped Data | DONE | TASK-029, TASK-036, TASK-039 | Human Approved 2026-10-04; Executor 구현 완료, Verify / Review / Merge 대기 |
+| TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | READY | TASK-042 구현 후 실환경 확인 | TASK-042 후속 등록, 실제 값 / AWS 실행은 후속 Contract와 Gate에 따름 |
+| TASK-044 | Milestone 44 | Check-in Region Record (지역 저장 / Dashboard · History 표시) | DONE | TASK-040, TASK-042 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1873,3 +1874,12 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - Dependency: TASK-042 App 구현. TASK-043 Contract와 필요한 Human Gate / 명시 실행 지시 후 진행한다.
 - 범위: Secrets Manager / ECS 환경 변수 주입, 환경별 공개 주소 및 제공자 Callback 등록, Google / Kakao 실제 로그인 확인.
 - Production 승인과 IAM / Infra 변경 Gate를 유지한다. 실제 값은 Repository / Prompt / Log에 기록하지 않는다.
+
+## TASK-044 — Check-in Region Record (지역 저장 / Dashboard · History 표시)
+
+- Milestone 44 / DONE: 2026-10-04 Human 승인 Contract와 명시 실행 지시에 따른 Executor 구현 완료 반영이다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않는다.
+- Dependency: TASK-040 / TASK-042. DEC-035는 지역 이름 저장만 승인하며 좌표 비전송 / 비저장과 사용자별 분리를 유지한다.
+- Backend: 선택 region 검증 / V4 nullable 컬럼 / 생성·최신·이력 반환, H2 / MySQL 저장·Migration / 사용자 분리 테스트.
+- Frontend: 자동 조회된 이름만 전송하고 직접 입력 수정 시 유지한다. 대체 문구는 보내지 않으며 Dashboard / History / 결과에 지역이 있을 때만 표시한다.
+- API 예시의 region은 null로 유지하며 개인정보 안내 / 승인 Decision / Prompt / README를 갱신했다. 자체 실행은 npm 캐시 / Gradle 잠금 / Docker 권한 제약으로 제한되었다. 상세 증거는 WORK_LOG를 따른다.
+- Merge 후 Staging에서 저장 → Dashboard / History 표시와 지역 없는 기존 기록을 확인한다. 390 / 768 / 1280px 캡처 / 시각 검토를 남긴다. 다른 Task 상태와 TASK-030 / BLOCKED는 유지한다.

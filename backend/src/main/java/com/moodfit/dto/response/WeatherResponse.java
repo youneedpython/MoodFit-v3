@@ -6,5 +6,6 @@ import com.moodfit.dto.request.WeatherCondition;
 
 public record WeatherResponse(
         BigDecimal temperature,
-        WeatherCondition condition) {
+        WeatherCondition condition,
+        String region) {
 }

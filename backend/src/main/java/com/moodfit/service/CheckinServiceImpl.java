@@ -57,6 +57,7 @@ public class CheckinServiceImpl implements CheckinService {
                 analysis.music());
 
         checkin.assignUser(com.moodfit.auth.UserIdentity.current().id());
+        checkin.assignRegion(request.region());
         return toCheckinResponse(repository.save(checkin), analysis.moodLabel());
     }
 
@@ -92,7 +93,7 @@ public class CheckinServiceImpl implements CheckinService {
                         checkin.getSleepScore(),
                         checkin.getStressLevel(),
                         checkin.getEnergyLevel()),
-                new WeatherResponse(checkin.getTemperature(), checkin.getWeather()),
+                new WeatherResponse(checkin.getTemperature(), checkin.getWeather(), checkin.getRegion()),
                 checkin.getFoodRecommendations().stream()
                         .map(this::toFoodResponse)
                         .toList(),
@@ -114,6 +115,7 @@ public class CheckinServiceImpl implements CheckinService {
                 checkin.getEnergyLevel(),
                 checkin.getTemperature(),
                 checkin.getWeather(),
+                checkin.getRegion(),
                 checkin.getFoodRecommendations().stream()
                         .map(FoodRecommendationValue::getName)
                         .toList(),
