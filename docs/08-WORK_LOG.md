@@ -3644,3 +3644,14 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - `bash scripts/container-smoke.sh`: app.jar 미생성으로 preflight 중단, Docker 설정 / daemon 접근도 제한됐다. 실제 Code / Test 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다.
 - `git diff --check`와 변경 문서 / 계약의 UTF-8 및 치환 흔적 검사를 수행했다. 실행 화면 캡처는 설치 / 실행 제한으로 만들지 못했다. 승인된 Claude 세션이 390 / 768 / 1280px 화면 검토와 캡처를 남기고, Merge 뒤 Staging에서 평가 후 새 추천 / 기존 기록 보존 / 삭제 흐름을 확인한다.
 - Git / AWS 후속 작업은 수행하지 않았다. Executor DONE은 구현 완료이며 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.
+
+### TASK-055 Run 2 — 기존 구현 재확인 (2026-10-05)
+
+- Run 2 최초 Working Tree는 clean이었다. 승인된 Task source와 필수 Context, DEC-042 및 Run 1 구현을 읽고 재확인했다. 구현 수정이 필요한 불일치는 발견하지 않아 Source와 다른 Task 상태는 유지했다.
+- 평가 없음의 기존 순환 결과를 모든 기분 / 상황과 여러 날짜에서 독립적으로 비교하는 Test, DISLIKE 건너뛰기와 부족분 보충, Pool별 LIKE 하나 이동 / 교체, 중복 방지와 결정성을 확인했다. Check-in 저장 시 본인 평가를 전달하고 이미 저장된 추천은 수정하지 않는다.
+- 로그인 / 기존 CSRF 적용, 체험 계정 GET 비활성 / 빈 목록과 PUT 고정 403, 현재 Pool 항목만 저장하는 검증, 본인 목록과 사용자별 저장 조건을 확인했다. 계정 삭제와 평가 저장의 동일 사용자 행 잠금 및 평가 삭제도 확인했다.
+- Dashboard / 결과 화면별 목록 조회, 항목별 Toggle / 접근성 / 낙관적 갱신과 실패 복구, 체험 안내 및 videoId 없는 곡의 버튼 제외, 개인정보 화면 / 삭제 설명 / 문서 연동을 확인했다. H2와 MySQL은 같은 API 검증 Helper를 사용한다.
+- Task source에 기록된 Run 1 Frontend Test 220건 / Build와 Claude 세션의 Sandbox 밖 Backend test bootJar 통과는 이전 실행의 참고 증거이며 이번 Executor의 실행 결과가 아니다.
+- Run 2 지시에 따라 Gradle을 실행하지 않았다. Gradle을 포함하는 verify.sh 및 Container Smoke도 이번 Executor에서는 실행하지 않았다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Smoke 통과는 아직 확인되지 않았다.
+- 이번 변경은 Run 2 기록과 Prompt뿐이다. git diff --check 및 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 검사를 수행한다. 화면 캡처와 Merge 뒤 Staging 확인은 승인된 Claude 세션 / Human의 후속 작업으로 유지한다.
+- Git / AWS 작업은 수행하지 않았다. Executor DONE은 Run 2 재확인과 기록 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다.
