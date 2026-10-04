@@ -388,3 +388,28 @@ Check-in 저장 / 최신 / 이력은 인증된 사용자만 접근하며 본인 
 
 TASK-006 Backend Domain / API Core 구현 시 위 결정은 DEC-014를 따른다.
 추가 API Contract 또는 DB Schema 변경이 필요하면 별도 Human Approval을 받는다.
+
+## 11. LLM Insight API (TASK-045, DEC-037)
+
+모든 경로는 기존 세션 로그인을 요구한다. POST는 기존 CSRF 정책을 적용한다. Check-in의 생성 / 최신 / 이력 응답은 변경하지 않는다.
+
+| Method / 경로 | 동작 | 응답 |
+|---|---|---|
+| GET /api/check-ins/{id}/insight | 본인 기록의 저장된 코멘트 조회 | 200 Insight |
+| POST /api/check-ins/{id}/insight | 없으면 생성·저장, 있으면 재호출 없이 반환 | 200 Insight, 생성 실패의 text는 null |
+| GET /api/reports/weekly | 본인의 가장 최근 저장된 리포트 | 200 WeeklyReport |
+| POST /api/reports/weekly | 오늘 포함 최근 7일의 최신 30건으로 생성·저장 | 200 WeeklyReport, 기록 부족 422 |
+
+Insight 필드는 enabled(boolean), available(boolean), text(string 또는 null), generatedAt(ISO 8601 UTC 또는 null)이다. WeeklyReport에는 periodStart / periodEnd(서울 달력 날짜 YYYY-MM-DD 또는 null), recordCount(정수)를 추가한다. 저장된 리포트가 없으면 기간과 생성 시각은 null, 기록 수는 0이다. 생성 실패 리포트의 기간과 기록 수는 시도한 자료를 나타내며 이전 리포트는 DB에 유지한다.
+
+enabled는 기능 설정 값이며 available은 기능 켜짐 + Google/Kakao 사용자 여부다. 한도 잔여량은 available에 반영하지 않고 POST에서 429로 판정한다. GET은 체험 계정과 꺼진 기능에도 200이며 available false다. 소유권은 꺼진 기능에서도 먼저 검사하고 다른 사용자 기록은 404 CHECKIN_NOT_FOUND다. 모델 ID / Region / Role은 응답에 넣지 않는다.
+
+| 오류 | 고정 Code | 의미 |
+|---|---|---|
+| 403 | LLM_UNAVAILABLE | 기능 꺼짐 또는 체험 계정의 생성 요청 |
+| 422 | LLM_INSUFFICIENT_RECORDS | 주간 기록 3건 미만, 외부 호출과 한도 소비 없음 |
+| 429 | LLM_DAILY_LIMIT | 서울 날짜 기준 사용자당 시도 한도 초과 |
+
+ErrorResponse는 기존 code / message / fieldErrors 형식을 사용한다. 인증 없음과 CSRF 실패는 기존 UNAUTHENTICATED / FORBIDDEN을 유지한다.
+
+공유 예시: [꺼진 코멘트](../contracts/insight-disabled-200.json), [생성 코멘트](../contracts/insight-generated-200.json), [꺼진 주간 리포트](../contracts/weekly-disabled-200.json), [생성 리포트](../contracts/weekly-generated-200.json), [사용 불가](../contracts/insight-unavailable-403.json), [한도](../contracts/insight-limit-429.json), [기록 부족](../contracts/weekly-insufficient-422.json). 보내는 자료와 실패·비용 정책은 [23-LLM-INSIGHT.md](23-LLM-INSIGHT.md)를 따른다.

@@ -96,6 +96,8 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-042 | Milestone 42 | Social Login / Guest / User Scoped Data | DONE | TASK-029, TASK-036, TASK-039 | Human Approved 2026-10-04; Executor 구현 완료, Verify / Review / Merge 대기 |
 | TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | READY | TASK-042 구현 후 실환경 확인 | TASK-042 후속 등록, 실제 값 / AWS 실행은 후속 Contract와 Gate에 따름 |
 | TASK-044 | Milestone 44 | Check-in Region Record (지역 저장 / Dashboard · History 표시) | DONE | TASK-040, TASK-042 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-045 | Milestone 45 | LLM Insight (AI 맞춤 코멘트 + 주간 리포트) | DONE | TASK-042, TASK-044 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-046 | Milestone 46 | Infra: LLM 환경 값 / Task Role 권한 | READY | TASK-045 | 후속 Contract와 AWS 실행 Gate에 따름 |
 
 ---
 
@@ -1886,3 +1888,17 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - Frontend: 자동 조회된 이름만 전송하고 직접 입력 수정 시 유지한다. 대체 문구는 보내지 않으며 Dashboard / History / 결과에 지역이 있을 때만 표시한다.
 - API 예시의 region은 null로 유지하며 개인정보 안내 / 승인 Decision / Prompt / README를 갱신했다. 자체 실행은 npm 캐시 / Gradle 잠금 / Docker 권한 제약으로 제한되었다. 상세 증거는 WORK_LOG를 따른다.
 - Merge 후 Staging에서 저장 → Dashboard / History 표시와 지역 없는 기존 기록을 확인한다. 390 / 768 / 1280px 캡처 / 시각 검토를 남긴다. 다른 Task 상태와 TASK-030 / BLOCKED는 유지한다.
+
+## TASK-045 — LLM Insight (AI 맞춤 코멘트 + 주간 리포트)
+
+- Milestone 45 / DONE: Human Approved 2026-10-04 Contract와 Run 2 실행 지시의 Executor 구현 완료다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않는다.
+- Dependency: TASK-042 / TASK-044. 생성 대상, 전송 자료, 비용 한도 및 AssumeRole 계정 구조는 DEC-037을 따른다.
+- Backend: 꺼짐 기본값 / 지연 Client / V5 / 저장·재사용 / 소유권 / 소셜 사용자 / DB 시도 한도 / 주간 리포트 / 실패 fallback과 Test.
+- Frontend: 결과 자동 생성, Dashboard 조회와 버튼, History 주간 리포트, 꺼짐 숨김 / 체험 안내 / 진행·실패·한도·기록 부족 안내.
+- Sandbox의 npm 캐시 접근과 Docker 권한 / app.jar 부재로 자체 실행 검증과 캡처가 제한됐다. 검증 기준은 Orchestrator이며 실행 성공을 주장하지 않는다. 실제 Bedrock 호출은 TASK-046 뒤 Staging에서 확인한다.
+
+## TASK-046 — Infra: LLM 환경 값 / Task Role 권한
+
+- Milestone 46 / READY: TASK-045 후속 등록만 한다. 이 실행에서 Infra 구현과 AWS 호출을 하지 않는다.
+- 환경 값 주입, ECS Task Role의 AssumeRole 권한, 다른 계정의 Bedrock 호출 Role과 Trust를 후속 승인 Contract에 따라 구현·적용한다.
+- 실제 모델 응답, 비용, 오류 fallback과 Staging 확인은 후속 범위다. AWS Resource / IAM 변경과 Production 실행 Gate를 유지한다.

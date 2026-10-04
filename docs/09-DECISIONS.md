@@ -1503,3 +1503,16 @@ Human Approved (2026-10-04, 제공된 Task Contract와 명시 실행 지시)
 - 자동 조회 뒤 직접 입력으로 수정해도 지역을 유지한다. 처음부터 직접 입력하거나 조회 대체 문구인 현재 위치는 저장하지 않는다. Dashboard / History / 결과 화면에 지역이 있을 때만 날씨와 함께 표시하고 개인정보 안내를 갱신한다.
 
 Executor DONE은 구현 완료이며 Verify / Claude Review / Human Squash Merge를 대신하지 않는다. Merge 후 Staging의 지역 저장과 표시를 확인한다. 상세는 [19-LOCATION-WEATHER.md](19-LOCATION-WEATHER.md)를 따른다.
+
+## DEC-037 TASK-045 LLM Insight
+
+Human Approved (2026-10-04, 제공된 Task Contract와 명시 실행 지시)
+
+- AI 맞춤 코멘트와 주간 리포트를 Amazon Bedrock Claude Sonnet 5.5 및 공식 Anthropic Java SDK로 생성한다. Score / 상태 / 추천은 DEC-014 규칙이 정하며 LLM은 설명만 쓴다.
+- Check-in 저장과 분리된 요청으로 생성하고 DB에 저장한다. 저장된 코멘트는 재호출하지 않는다. 실패 / 시간 초과 / 빈 문장 / 거절 / 길이 초과 종료는 저장하지 않고 기존 규칙 문장을 유지한다.
+- 수치, 날씨와 승인된 규칙 결과만 전송한다. 이름, 이메일, 사용자 번호, 기록 번호, 좌표, 지역 이름은 제외한다. 진단·치료·약 권유 금지와 의학적 조언이 아니라는 표시를 적용한다.
+- 소셜 사용자만 생성한다. 체험 계정은 차단한다. 하루 시도 한도 기본값은 코멘트 10회, 리포트 2회이며 실패도 센다. 출력 상한과 20초 요청 제한 / SDK 재시도 1회를 적용한다. Global endpoint의 해외 추론 처리를 수용한다.
+- 계정 구조 A안: ECS Task Role이 다른 AWS 계정의 Bedrock 전용 Role을 AssumeRole한다. Role 환경 값과 Infra 권한은 TASK-046에서 적용한다. API Key는 사용하지 않는다.
+- 승인 Dependency는 anthropic-java / anthropic-java-bedrock 2.67.0 및 버전 생략 AWS SDK sts다. 다른 Dependency와 npm Dependency는 추가하지 않는다.
+- 선택 설정이 없으면 App은 기존대로 시작하며 기능만 꺼진다. 새 API 4개에 enabled와 available을 분리해 꺼짐과 체험 계정 안내를 구분한다. 기존 API 계약은 유지한다.
+- V5 새 Table, 사용자별 시도 한도, 조회 / 생성 API와 Prompt 세부는 [23-LLM-INSIGHT.md](23-LLM-INSIGHT.md)에 기록한다. 이 결정은 TASK-046의 AWS 실행 승인이나 Production 승인을 대신하지 않는다.

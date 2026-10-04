@@ -57,7 +57,7 @@ public class AuthSecurityConfig {
             CookieCsrfTokenRepository csrfRepository, HttpSessionSecurityContextRepository contexts) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/actuator/health/**", "/api/auth/**").permitAll()
-                .requestMatchers("/api/check-ins", "/api/check-ins/**").authenticated()
+                .requestMatchers("/api/check-ins", "/api/check-ins/**", "/api/reports/**").authenticated()
                 .anyRequest().permitAll());
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepository)
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));

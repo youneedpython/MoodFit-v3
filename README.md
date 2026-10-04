@@ -251,3 +251,5 @@ MoodFit-v3/
 ├── .github/workflows/   CI, Milestone 자동 Close
 └── AGENTS.md            Agent 작업 규칙
 ```
+
+AI 맞춤 코멘트와 최근 7일 주간 리포트는 기존 규칙의 Score·상태·추천을 참고 문장으로 설명합니다. 기능이 설정된 경우에만 소셜 로그인 사용자가 생성할 수 있으며, 결과를 저장해 재조회하고 실패 시 기존 규칙 문장을 유지합니다. 이름과 지역 같은 식별 정보는 모델에 보내지 않으며 의학적 조언을 제공하지 않습니다. 기본값은 꺼짐이고 실제 Bedrock 환경 연결은 TASK-046에서 진행합니다. 자세한 정책은 [LLM Insight](docs/23-LLM-INSIGHT.md)를 참고하세요.
