@@ -1503,3 +1503,11 @@ Human Approved (2026-10-04, 제공된 Task Contract와 명시 실행 지시)
 - 자동 조회 뒤 직접 입력으로 수정해도 지역을 유지한다. 처음부터 직접 입력하거나 조회 대체 문구인 현재 위치는 저장하지 않는다. Dashboard / History / 결과 화면에 지역이 있을 때만 날씨와 함께 표시하고 개인정보 안내를 갱신한다.
 
 Executor DONE은 구현 완료이며 Verify / Claude Review / Human Squash Merge를 대신하지 않는다. Merge 후 Staging의 지역 저장과 표시를 확인한다. 상세는 [19-LOCATION-WEATHER.md](19-LOCATION-WEATHER.md)를 따른다.
+## DEC-037 TASK-046 LLM Value Injection / 계정 간 호출 A안
+
+Human Approved (2026-10-04, LLM Gate / A안 및 명시 실행 지시)
+
+- MoodFit 계정의 모델 사용 제한으로 Human의 다른 계정에 Bedrock 호출 전용 Role을 만들고 환경별 ECS TaskRole이 그 ARN 하나를 AssumeRole한다. API Key는 쓰지 않으며 비용은 호출 Role 계정에 청구된다. 다른 계정 콘솔 작업은 Human 전용이다.
+- App은 기본 false인 LlmEnabled, 모델 / Region, 값이 있을 때만 LLM_ROLE_ARN을 주입한다. 하루 한도는 Backend 기본 10 / 2를 사용한다. 기존 자격 증명 주입과 ExecutionRole은 유지한다.
+- 호출 Role Trust는 MoodFit Task Role 하나만, Permission은 bedrock-mantle:CreateInference 하나만 허용한다. Resource 모델 제한 ARN 형식은 확인 필요하며 Resource * 예시를 승인한다. 추측한 ARN은 사용하지 않는다.
+- Merge 후 Human이 호출 Role 생성 → IAM UPDATE → 현재 실행 digest를 유지한 App UPDATE → 실제 AI 코멘트 확인을 수행한다. Production 실행 승인은 별도다. 상세는 [24-LLM-INFRA.md](24-LLM-INFRA.md)를 따른다.

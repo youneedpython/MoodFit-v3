@@ -122,5 +122,9 @@
   {
     "ParameterKey": "OAuthCredentialArn",
     "ParameterValue": "<OAuthCredentialArn>"
+  },
+  {
+    "ParameterKey": "LlmRoleArn",
+    "ParameterValue": "<LlmRoleArn>"
   }
 ]

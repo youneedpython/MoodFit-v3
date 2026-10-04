@@ -3390,3 +3390,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - History: 각 기록의 날씨 아래에 지역이 보이고, 지역이 없는 기록은 빈 자리 없이 날씨만 보인다.
   - 긴 지역 이름에서도 세 폭 모두 가로 넘침이 없었다(문서 폭 측정).
 - 실제 Backend와 연결한 저장 → 표시 흐름은 Merge 뒤 Staging에서 확인한다. Review F-002(MySQL Testcontainers Test의 실제 실행 여부)는 Remote CI의 backend Job 기준으로 본다.
+## 2026-10-04 TASK-046 — LLM Value Injection (Infra)
+
+- Human 승인 LLM Gate / A안과 명시 실행 지시에 따라 App의 네 Parameter / 조건부 Role 환경 변수, IAM TaskRole의 특정 ARN AssumeRole 권한을 추가했다. ExecutionRole과 기존 자격 증명 주입 목록 / Health / Image / Log 설정은 유지했다.
+- 환경별 Stack에 TaskRole 하나가 생성되는 구조를 확인했다. Production을 실행하지 않고 환경별 Parameter / Trust 분리와 Human 전용 다른 계정 콘솔 절차를 문서화했다. Resource 모델 제한 형식 미확정 사항과 승인된 단일 Action / Resource * 예시를 기록했다.
+- TASK-045 문서가 없어 docs/24-LLM-INFRA.md를 사용했다. Parameter / 호출 Role Policy 예시, 배포 Runbook / 접근 정책 / DEC-037 / TASK-046 Milestone 46과 Prompt 70을 갱신했다.
+- Verification: bash scripts/iac-validate.sh는 AWS CLI가 실행 환경에 없어 첫 단계에서 Exit 1로 중단됐다. Template 검증 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다. git diff --check는 Exit 0이었다. 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다.
+- Executor 구현 완료를 DONE으로 반영했다. Merge 후 Human Role 생성 / IAM·App UPDATE / 실제 AI 응답 확인이 남아 있다. Git 작업과 AWS 변경은 수행하지 않았다.
