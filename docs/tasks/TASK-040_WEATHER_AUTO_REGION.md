@@ -63,6 +63,15 @@ Check-in 화면의 날씨를 **자동 조회가 기본**이 되게 하고, 조�
 - 좌표 / 지역 이름 저장, 로그 출력
 - API Key가 필요한 서비스 사용
 
+## Run 2 범위 (2026-10-04, Claude 세션 기록)
+
+Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1은 Orchestrator Verify에서 멈췄다(Review 전).
+
+- 실패: `frontend/src/services/weather.test.ts`의 "sends the same rounded coordinates to both APIs and returns weather with a region fallback" 1건. 나머지 116건은 통과했다.
+- 원인: `vi.fn().mockResolvedValue(new Response(...))`가 두 번의 fetch(지역 / 날씨)에 **같은 Response 객체**를 돌려준다. Response body는 한 번만 읽을 수 있어 두 번째 읽기가 실패하고 날씨 조회가 "날씨 응답을 가져오지 못했습니다"로 끝난다. 구현이 아니라 Test의 mock 문제다.
+- Run 2에서 할 일: 이 Test(와 같은 방식의 mock을 쓰는 다른 Test가 있으면 함께)를 호출마다 새 Response를 돌려주게 고친다(`mockImplementation`). 호출 순서(`mock.calls[0]` / `[1]`)에 기대는 검증은 URL origin으로 구분하게 바꾼다. 기대값이 의도와 다르면(예: 지역 이름 fallback을 검증하려는 것이면 지역 응답을 실패 / 빈 값으로 따로 준다) 의도에 맞게 고친다.
+- 구현 코드는 Test를 고치는 데 꼭 필요한 경우가 아니면 바꾸지 않는다. Run 1의 문서 변경은 유지하고 `docs/08-WORK_LOG.md`에 Run 2 기록을 추가한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

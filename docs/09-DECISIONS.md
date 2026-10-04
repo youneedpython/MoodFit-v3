@@ -1443,3 +1443,18 @@ Human Approved (2026-10-04, Task Contract 사전 승인 및 명시 실행 지시
 ### 실행 경계
 
 설정·운영·실환경 검증은 [21-STAGING-CD.md](21-STAGING-CD.md)를 따른다. 이 승인은 Production 생성 / 배포나 권한 확대 승인이 아니다. TASK-029 DONE은 Executor 구현 완료 반영이며 실제 배포 두 번 / 롤백 경로는 Merge 이후 확인한다. TASK-030은 Production 생성 승인과 선행 기능 Task 후 READY로 전환하며 현재 BLOCKED다.
+
+---
+
+## DEC-033 TASK-040 날씨 자동 기본 / 지역 표시
+
+### 상태
+
+Human Approved (2026-10-04, Task Contract Gate 사전 승인 및 명시 실행 지시)
+
+### 확정 결정
+
+- Check-in은 저장된 모드가 없으면 자동 조회한다. 기존 `moodfit.autoWeather=false`는 직접 입력으로 유지한다. 사용자가 고른 모드만 저장하며 일시적인 실패는 저장된 모드를 변경하지 않는다. 위치 권한 거부는 직접 입력을 저장한다.
+- BigDataCloud Client용 Reverse Geocoding API를 브라우저에서 사용한다(API Key 없음). `principalSubdivision` / `locality`의 검증된 문자열만 Check-in에 표시한다. 실패하면 지역은 현재 위치로 표시하고 날씨는 사용할 수 있다.
+- TASK-035의 소수 첫째 자리 결정을 소수 둘째 자리 반올림으로 대체한다. 같은 좌표를 Open-Meteo와 BigDataCloud 두 곳에만 전송한다. 좌표와 지역 이름은 브라우저 저장소 / Backend / 로그에 남기지 않는다.
+- Backend / API 계약 / DB / Dependency는 변경하지 않는다. 제출 값은 기존 기온과 날씨 종류다. 이용 조건 확인 범위와 운영 한계는 [19-LOCATION-WEATHER.md](19-LOCATION-WEATHER.md)에 기록한다.

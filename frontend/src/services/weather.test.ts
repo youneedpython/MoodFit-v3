@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchLocalWeather, mapWeatherCode, parseWeather, roundCoordinate, WEATHER_TIMEOUT_MS } from "./weather";
+import { fetchLocalWeather, mapWeatherCode, parseWeather, parseRegion, roundCoordinate, WEATHER_TIMEOUT_MS } from "./weather";
 
 afterEach(() => vi.useRealTimers());
 const body = { current: { temperature_2m: 19.26, weather_code: 61 } };
@@ -13,6 +13,13 @@ function locationMock(code?: number) {
 }
 
 describe("weather service", () => {
+  it("validates, deduplicates and bounds region parts", () => {
+    expect(parseRegion({ principalSubdivision: "서울", locality: "명동" })).toBe("서울 명동");
+    expect(parseRegion({ principalSubdivision: "서울", locality: " 서울 " })).toBe("서울");
+    expect(parseRegion({ principalSubdivision: 42, locality: " " })).toBe("현재 위치");
+    expect(parseRegion(null)).toBe("현재 위치");
+    expect(parseRegion({ locality: "가".repeat(100) })).toHaveLength(40);
+  });
   it("maps every documented WMO code and rejects every gap", () => {
     const groups = { CLEAR: [0, 1], CLOUDY: [2, 3, 45, 48], RAIN: [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99], SNOW: [71, 73, 75, 77, 85, 86] };
     for (let code = -1; code <= 100; code++) {
@@ -23,8 +30,8 @@ describe("weather service", () => {
     for (const code of [NaN, Infinity, 1.5]) expect(() => mapWeatherCode(code)).toThrow();
   });
   it("rounds both hemispheres and checks coordinate bounds", () => {
-    expect(roundCoordinate(37.5665, 90)).toBe(37.6);
-    expect(roundCoordinate(-126.978, 180)).toBe(-127);
+    expect(roundCoordinate(37.5665, 90)).toBe(37.57);
+    expect(roundCoordinate(-126.978, 180)).toBe(-126.98);
     for (const value of [NaN, Infinity, 91]) expect(() => roundCoordinate(value, 90)).toThrow();
   });
   it("validates response types and original temperature bounds before rounding", () => {
@@ -33,16 +40,30 @@ describe("weather service", () => {
     for (const temperature of [-30.01, 50.01, NaN, Infinity, "20", null]) expect(() => parseWeather({ current: { temperature_2m: temperature, weather_code: 0 } })).toThrow();
     for (const value of [null, {}, { current: {} }, { current: { temperature_2m: 20, weather_code: "0" } }]) expect(() => parseWeather(value)).toThrow();
   });
-  it("sends only rounded coordinates to Open-Meteo and returns only form values", async () => {
+  it("sends the same rounded coordinates to both APIs and returns weather with a region fallback", async () => {
     locationMock();
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(body)));
     vi.stubGlobal("fetch", fetchMock);
-    expect(await fetchLocalWeather(new AbortController().signal)).toEqual({ temperature: 19.3, weather: "RAIN" });
-    const url = new URL(fetchMock.mock.calls[0][0]);
+    expect(await fetchLocalWeather(new AbortController().signal)).toEqual({ temperature: 19.3, weather: "RAIN", region: "현재 위치" });
+    const url = new URL(fetchMock.mock.calls[1][0]);
     expect(url.origin).toBe("https://api.open-meteo.com");
-    expect(url.searchParams.get("latitude")).toBe("37.6");
-    expect(url.searchParams.get("longitude")).toBe("127");
+    expect(url.searchParams.get("latitude")).toBe("37.57");
+    expect(url.searchParams.get("longitude")).toBe("126.98");
+    const regionUrl = new URL(fetchMock.mock.calls[0][0]);
+    expect(regionUrl.origin).toBe("https://api.bigdatacloud.net");
+    expect(regionUrl.searchParams.get("latitude")).toBe("37.57");
+    expect(regionUrl.searchParams.get("longitude")).toBe("126.98");
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: "omit", referrerPolicy: "no-referrer" });
+    expect(fetchMock.mock.calls[1][1]).toMatchObject({ credentials: "omit", referrerPolicy: "no-referrer" });
+  });
+  it("bounds a stalled region lookup without losing successful weather", async () => {
+    vi.useFakeTimers(); locationMock();
+    vi.stubGlobal("fetch", vi.fn((url: string) => url.includes("bigdatacloud")
+      ? new Promise<Response>(() => {})
+      : Promise.resolve(new Response(JSON.stringify(body)))));
+    const result = fetchLocalWeather(new AbortController().signal);
+    await vi.advanceTimersByTimeAsync(WEATHER_TIMEOUT_MS);
+    expect(await result).toEqual({ temperature: 19.3, weather: "RAIN", region: "현재 위치" });
   });
   it.each([1, 2, 3])("reports geolocation error %s without calling weather API", async (code) => {
     locationMock(code);

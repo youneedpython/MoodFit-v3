@@ -3261,3 +3261,14 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Human 요청(2026-10-04)으로 README 화면 이미지 6장(`docs/images/readme/`)을 현재 화면(로고, 추천 5개, 추천 음악 재생 버튼)으로 교체했다. 같은 방식으로 캡처했다.
 - 병행 개발 중이라 미뤄 둔 등록을 정리했다: `docs/07-TASKS.md`에 TASK-037 DONE 행과 절 추가(Milestone 37).
 - 배포 참고: 아이콘 파일은 Hash 없는 이름으로 긴 cache가 붙는다. 로고를 바꿀 때는 파일 이름을 바꾼다.
+
+## 2026-10-04 — TASK-040 날씨 자동 기본 / 지역 표시
+
+- Human 사전 승인과 명시 실행 지시에 따라 TASK-040만 구현했다. 기본 자동 / 기존 false 유지, 자동 요약과 직접 입력 전환, 다시 조회, 결과 값 유지, 실패 후 입력 화면과 권한 거부만 설정 저장을 구현했다.
+- BigDataCloud 지역 이름 요청을 추가하고 두 API에 같은 소수 둘째 자리 좌표를 전송한다. 지역 문자열 타입 / 빈 값 / 중복 / 길이를 검증하며 실패 시 현재 위치로 대체한다. 지역 요청은 시간 제한 / 중단 / 쿠키와 Referrer 제외를 적용한다. 좌표와 지역 이름은 저장 / 로그 / Backend 요청에 포함하지 않는다.
+- 기존 요청 검증과 늦은 응답 보호를 유지하고 모드 / 진행 안내와 요약에 접근성 상태를 제공한다. 기존 Token과 줄바꿈 규칙으로 작은 화면을 지원한다. 새 Dependency / Backend / API 계약 / Infra는 변경하지 않았다.
+- Test는 자동 기본 / false 유지 / 성공 요약 / 지역 실패 / 지역 시간 초과 / 위치 오류 / 날씨 실패 후 제출 / 늦은 응답 / 조회 중 검증을 반영했다. 기존 수동 입력 Test는 저장된 직접 입력 모드를 명시한다.
+- Executor 참고 검증: 개별 Vitest 명령은 설치된 Vitest가 없어 실행하지 못했다. `bash scripts/verify.sh`는 npm ci 단계에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build 전체 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다.
+- Node.js 24의 TypeScript 실행으로 서비스의 기본 설정, 좌표 반올림 / 범위, 지역 문자열 검증, 두 API 전송 좌표와 개인정보 옵션, 지역 실패 후 날씨 유지, 권한 거부 오류를 네트워크 없는 Mock으로 검증해 통과했다. `git diff --check`와 변경 문서 UTF-8 / 연속 물음표 / U+FFFD 확인을 수행했다.
+- DEC-033, 위치 안내, README, Milestone 40 / TASK-040 DONE 및 Prompt 65 / 색인을 반영했다. DONE은 Executor 구현 완료이며 Verify / Review / Human Merge 승인 전이다. 기존 TASK-030 BLOCKED와 다른 Task 상태는 유지했다. Git 후속 작업은 수행하지 않았다.
+- Contract가 docs/images를 허용하지 않아 화면 캡처는 추가하지 않았다. 승인된 후속 작업으로 390 / 768 / 1280px 화면과 Staging 실제 권한 / 자동 조회 / 지역 표시 / 실패 후 제출을 확인한다. BigDataCloud 조건은 공식 문서에서 확인한 범위만 기록하고 나머지는 확인 필요로 남겼다.

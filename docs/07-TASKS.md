@@ -89,6 +89,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-037 | Milestone 37 | Logo / Favicon (로고 / 파비콘) | DONE | Human 지시와 시안 A 선택(2026-10-04), Review PASS | PR #19 Human Squash Merge로 확정 |
 | TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04), 최종 완료 승인 대기 |
 | TASK-039 | Milestone 39 | Staging CD Rollout Wait Fix | DONE | TASK-029, TASK-038 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
+| TASK-040 | Milestone 40 | Weather Auto Default / Region Display | DONE | TASK-035, TASK-037 완료 | Human Gate 사전 승인 및 명시 실행 (2026-10-04), 최종 완료 승인 대기 |
 
 ---
 
@@ -1766,6 +1767,24 @@ DONE은 Executor 구현 완료 반영이며 Orchestrator Verify / Claude Review 
 ### 상세 Task Contract
 
 [`TASK-039_CD_ROLLOUT_WAIT.md`](tasks/TASK-039_CD_ROLLOUT_WAIT.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
+
+---
+
+## TASK-040 — Weather Auto Default / Region Display
+
+### 상태
+
+```text
+DONE
+```
+
+2026-10-04 사전 승인 Contract와 명시 실행 지시에 따라 Milestone 40의 Executor 구현 완료를 반영했다. 저장값이 없으면 자동으로 조회하고 지역 · 날씨 · 기온을 요약한다. 직접 입력으로 전환할 수 있으며 실패 시 입력을 제공한다. BigDataCloud 지역 이름 조회와 두 API의 소수 둘째 자리 좌표 처리, 개인정보 비저장 정책은 DEC-033을 따른다.
+
+DONE은 Executor 구현 완료이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 최종 완료 승인이 아니다. TASK-030 / Current Task의 BLOCKED와 다른 Task 상태는 유지한다. Merge 후 Staging에서 자동 조회 / 지역 표시 / 실패 후 제출과 화면 배치를 확인한다.
+
+### 상세 Task Contract
+
+[TASK-040_WEATHER_AUTO_REGION.md](tasks/TASK-040_WEATHER_AUTO_REGION.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
 
 ---
 
