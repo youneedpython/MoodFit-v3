@@ -1,4 +1,5 @@
 import { ButtonLink } from "../../components/Button/Button";
+import { InsightCard } from "../insight/InsightCard";
 import { Card } from "../../components/Card/Card";
 import { PageHeader } from "../../components/PageHeader/PageHeader";
 import { EmptyState, ErrorState, LoadingState } from "../../components/StateView/StateView";
@@ -17,6 +18,7 @@ export function HistoryPage() {
   return (
     <>
       <PageHeader title="History" description="최근 7일 웰니스 상태 변화를 확인합니다." />
+      <InsightCard weekly />
 
       {state.status === "loading" && (
         <Card>

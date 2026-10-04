@@ -3390,3 +3390,35 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - History: 각 기록의 날씨 아래에 지역이 보이고, 지역이 없는 기록은 빈 자리 없이 날씨만 보인다.
   - 긴 지역 이름에서도 세 폭 모두 가로 넘침이 없었다(문서 폭 측정).
 - 실제 Backend와 연결한 저장 → 표시 흐름은 Merge 뒤 Staging에서 확인한다. Review F-002(MySQL Testcontainers Test의 실제 실행 여부)는 Remote CI의 backend Job 기준으로 본다.
+
+## TASK-045 — LLM Insight Run 2 (2026-10-04)
+
+- 최초 Working Tree는 clean이었다. Human Approved Contract와 명시 실행 지시에 따라 이 Task의 허용 경로만 수정했다. Git 쓰기, AWS 호출, 실제 Bedrock 호출, Infra / Workflow / Script / npm manifest 변경은 하지 않았다.
+- 기능 꺼짐 기본값과 지연 Bedrock Client / AssumeRole A안, 본인 기록의 코멘트 조회·별도 생성·DB 재사용, 주간 리포트, 시도 한도와 실패 fallback을 구현했다. V5는 새 Table 3개만 만들며 unique 충돌 시 기존 코멘트를 반환한다. DB 사용자 행 잠금과 독립 Transaction으로 한도를 예약해 실패도 센다.
+- 허용 필드만 JSON으로 만들어 보내고 사용자·기록 식별자, 이름, 지역을 제외한다. 예외 본문과 입력 / 출력은 로그에 남기지 않는다. Prompt는 규칙 결과 불변과 의료 권유 금지를 적용하며 제어 문자 / 빈 응답 / 거절 / 길이 초과 종료를 처리한다.
+- 결과 / Dashboard의 AI 코멘트와 History 주간 리포트, 꺼짐 숨김 / 체험 안내 / 생성 진행 / 실패 / 422 / 429 안내 및 참고 문장 고지를 구현했다. 기록·사용자가 바뀌면 이전 비동기 응답이 새 화면을 덮지 않도록 분리했다.
+- Backend 가짜 Generator / 권한 / 저장 재사용 / 한도 / 개인정보 투영 / 응답 정리 / 동시 한도 및 저장 충돌, SDK 응답 처리, H2 / MySQL V4 → V5 Migration Test를 추가했다. 새 계약 예시를 실제 Backend 응답과 Frontend Test에서 공유한다. Test는 실제 Bedrock을 호출하지 않는다.
+- `bash scripts/verify.sh`: npm ci에서 Sandbox의 사용자 npm 캐시 stat EPERM으로 중단했다. Frontend Test / Build와 Backend Compile / Test는 실행되지 않았다. Contract가 Gradle 자체 실행 생략을 허용하므로 추가 Gradle 실행은 하지 않았다.
+- `bash scripts/container-smoke.sh`: app.jar가 없어 preflight에서 중단했고 Docker 설정 및 daemon 접근도 Access denied였다. Container / 실제 MySQL 검증 성공을 주장하지 않는다.
+- 캐시 Jar의 javap 출력에서 AnthropicClient.close, Message.stopReason, StopReason.asString / 종료 상수, JsonNode.propertyNames를 확인했다. javap 종료 시 캐시 접근 거부도 관찰했다. SDK 나머지 Builder는 Contract의 확인된 API를 사용했다. 전체 Compile과 Test는 Verify에서 확인 필요다.
+- `git diff --check` 통과. 신규 파일과 추가 줄의 Secret 검사, 변경 문서의 연속 물음표 / U+FFFD 직접 검사, 새 계약 JSON 파싱 검사 통과. 한글 문서는 UTF-8 apply_patch로 작성했다.
+- 앱 Build를 준비하지 못해 390 / 768 / 1280px 화면 캡처와 시각 검토를 실행하지 못했다. 승인된 Orchestrator/Human의 화면 확인을 후속 작업으로 남긴다. 실제 Bedrock / IAM / 환경 값 및 Staging 확인은 TASK-046이다.
+- TASKS에 Milestone 45의 Executor 구현 완료와 TASK-046 READY를 등록하고 DEC-037 / API / 기능 문서 / README / Prompt를 갱신했다. 다른 Task 상태와 기존 Current Task는 유지했다. Executor DONE은 Orchestrator Verify / Claude PASS / Human Squash Merge를 대신하지 않는다.
+
+### TASK-045 Review Rework (2026-10-04)
+
+- F-001: `/api/reports/**`를 Spring Security 인증 대상으로 추가하고 미인증 주간 리포트 GET / CSRF 포함 POST의 401 `UNAUTHENTICATED` 회귀 Test를 추가했다.
+- F-002: CRLF / CR을 LF로 정규화하고 줄바꿈을 보존한다. Tab은 공백으로 바꾸고 나머지 제어 문자만 제거한다. 문단과 제어 문자가 섞인 응답 Test를 추가했다.
+- F-003: 생성 예외는 Class 이름과 Anthropic HTTP 오류의 상태 Code만 기록한다. 거절과 출력 길이 초과 종료도 고정된 종류만 기록한다. 빈 응답은 종류만 남긴다. 예외 Message / 입력 / 응답 본문 / Stack trace는 기록하지 않으며 로그 내용 회귀 Test를 추가했다. 캐시 Jar의 `javap` 출력에서 `AnthropicServiceException.statusCode()`가 int를 반환하는 API임을 확인했다(출력 후 캐시 AccessDenied 진단도 발생).
+- F-004: 재생성 응답의 본문이 null이면 기존 주간 리포트 본문 / 기간 / 기록 수와 다시 만들기 버튼을 유지하고 실패 안내만 표시한다. Frontend 회귀 Test를 추가했다.
+- Executor 참고 검증: InsightCard Test 8건 PASS, `git diff --check` PASS. Backend Compile / Test는 Contract에 따라 자체 Gradle 실행을 생략하며 Sandbox 밖 Orchestrator Verify에서 판정한다.
+- F-005: 사용 가능한 Browser 도구와 설치된 Playwright / Puppeteer를 확인했으나 이 실행 환경에서 사용할 수 없었다. 화면 캡처는 수행하지 않았고 이미지 연결을 완료했다고 주장하지 않는다. 승인된 Orchestrator/Human이 Merge 전에 기능 켜짐 상태의 체험 안내 / 생성 결과 / 실패 문구 / 주간 리포트를 390 / 768 / 1280px에서 캡처해 `docs/images/task-045/`에 저장하고 이 Verification 절에 Markdown 이미지로 연결해야 한다. 이는 후속 작업이며 새로운 Human 결정 요청은 아니다.
+- 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사해 해당 흔적이 없음을 확인했다. Rework는 제공된 Finding 범위에 한정하며 Git 작업, 새로운 Dependency, Infra 수정, 실제 Bedrock 호출은 수행하지 않았다.
+
+### TASK-045 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- 진행: Run 1은 구현 전에 정지했다. Executor가 Task 문서의 설계 누락(체험 계정에서 "기능 꺼짐"과 "소셜 로그인 안내"를 응답으로 구분할 수 없음)을 보고했고, Claude 세션이 새 응답에 `enabled`를 추가하도록 문서를 고쳤다. Run 2에서 전체를 구현했다. Review 1회차 CHANGES_REQUIRED(주간 리포트 경로 인증 누락, 줄바꿈 제거, 실패 로그 없음, 재생성 실패 시 기존 리포트 사라짐) → 수정 → 2회차 PASS. Verify 3개 명령 통과.
+- Dependency와 SDK API는 Claude 세션이 Sandbox 밖에서 Gradle 해석과 `javap`로 확인해 Task 문서에 근거로 적었다.
+- 화면 확인(`docs/images/task-045/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 캡처했다. Dashboard의 AI 코멘트와 History의 주간 리포트를 390 / 768 / 1280px에서, 체험 계정 안내 / "AI 코멘트 받기" 버튼 / 생성 실패 문구를 1280px에서 확인했다. 세 폭 모두 가로 넘침이 없다.
+- **실제 Bedrock 호출은 아직 검증되지 않았다.** TASK-046(환경 값 주입, Task Role 권한, 다른 계정의 Role 생성) 뒤 Staging에서 확인한다. 그때까지 Staging에서는 기능이 꺼져 있어 화면에 영역이 나타나지 않는다.
+- 후속 후보(비차단, Review N-003 ~ N-005): Deprecated API 경고 확인, 거절 / 길이 초과 종료의 로그 중복, 한도 환경 값이 숫자가 아닐 때의 기본값 처리.

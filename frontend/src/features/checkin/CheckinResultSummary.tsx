@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { InsightCard } from "../insight/InsightCard";
 import { Badge } from "../../components/Badge/Badge";
 import { WEATHER_LABELS } from "../../constants/weather";
 import { Button, ButtonLink } from "../../components/Button/Button";
@@ -39,6 +40,7 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
       </div>
 
       <p className="checkin-result__summary">{result.summary}</p>
+      <InsightCard checkinId={result.id} autoGenerate />
       {result.weather.region && <p className="checkin-result__weather">
         {WEATHER_LABELS[result.weather.condition]} · {result.weather.temperature.toFixed(1)}°C
         <span className="weather-region">{result.weather.region}</span>

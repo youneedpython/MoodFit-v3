@@ -1,0 +1,33 @@
+{
+  "id": "TASK-045",
+  "title": "LLM Insight (AI 맞춤 코멘트 + 주간 리포트)",
+  "task_file": "docs/tasks/TASK-045_LLM_INSIGHT.md",
+  "allowed_paths": [
+    "backend/",
+    "frontend/src/",
+    "contracts/",
+    "docs/",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["bash", "scripts/container-smoke.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}
