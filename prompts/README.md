@@ -131,6 +131,7 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 59 | TASK-027 Approved Application Infra | ECS / ALB / Data 연결 / API Routing | Executor 구현 완료, TASK-028 비용·권한 승인 대기 |
 | 60 | TASK-028 Staging Preparation | 승인 A단계 배포 절차 / Script / Budget / 조회 초안 | A단계 Review PASS, B단계 배포 / Smoke 완료 |
 | 60 | TASK-035 Location / Weather (병행 개발, 파일 `60-TASK-035-LOCATION-WEATHER.md`) | 위치 인식 + 날씨 자동 조회 Frontend 구현 | Review PASS, PR #16 Merge. 병행 개발로 번호 60이 TASK-028 기록과 겹친다 |
+| 60 / 61 | TASK-036 Recommendation / Music Playback (병행 개발, 파일 `60-TASK-036-RECOMMENDATION-MUSIC-PLAYBACK.md`, `61-TASK-036-RUN-2-REWORK.md`) | 추천 5개 확대 / 추천 음악 재생, Run 2 Test 기대 문구 수정 | Review PASS, PR #17 |
 | 62 | TASK-029 Staging CD | Implementation (Gate C 사전 승인) | Executor 구현 완료, 실환경 검증 대기 |
 | 63 | TASK-038 OIDC Immutable Subject | 승인된 immutable Trust / 필수 ID Parameter / 운영 문서 | Executor 구현 완료, IAM 적용과 실환경 확인 대기 |
 | 64 | TASK-039 CD Rollout Wait | 승인된 ECS rollout 추가 대기 / 롤백 거부 / 문서 기록 | Executor 구현 완료, 실제 자동 배포 확인 대기 |

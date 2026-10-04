@@ -85,6 +85,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | DONE | TASK-032 완료, DEC-030 사전 승인. 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | Gate C 승인 완료 (DEC-030) |
 | TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | DONE | 사전 승인과 명시 실행에 따른 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | 2026-10-03 형식 / 거부 기준 / 적용 범위 / Resume / 강화 규칙 사전 승인 |
 | TASK-035 | Milestone 35 | Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회) | DONE | Human 지시(2026-10-04), Frontend만 변경, Review PASS | Gate 사전 승인, PR #16 Human Squash Merge로 확정 |
+| TASK-036 | Milestone 36 | Recommendation Five / Music Playback (추천 5개 + 추천 음악 바로 듣기) | DONE | Human 지시(2026-10-04), TASK-035 완료, Review PASS | Gate 사전 승인, PR #17 Human Squash Merge로 확정 |
 | TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04), 최종 완료 승인 대기 |
 | TASK-039 | Milestone 39 | Staging CD Rollout Wait Fix | DONE | TASK-029, TASK-038 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
 
@@ -1659,6 +1660,35 @@ Check-in의 기온과 날씨 입력을 현재 위치 기준으로 자동으로 �
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-035_LOCATION_WEATHER_AUTOFILL.md`](tasks/TASK-035_LOCATION_WEATHER_AUTOFILL.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-036 — Recommendation Five / Music Playback (추천 5개 + 추천 음악 바로 듣기)
+
+### 상태
+
+```text
+DONE
+```
+
+2026-10-04 Human 지시로 병행 개발했다. 추천 음식과 추천 음악을 각각 5개(기분 기준 3개 + 날씨 / 상황 기준 2개)로 늘리고, 추천 음악을 화면에서 바로 재생한다(YouTube 영상 embed). Backend 추천 규칙, DB Migration(`V2`, 영상 ID Column 추가), API 계약, Frontend를 함께 바꿨다. Claude Review PASS, PR #17 Human Squash Merge로 완료한다.
+
+### 목적
+
+추천을 더 풍부하게 보여 주고, 추천 음악을 다른 사이트로 이동하지 않고 들을 수 있게 한다.
+
+### Human Approval 또는 Gate
+
+- 추천 개수 변경, 응답에 영상 ID 추가(API 계약 변경), 외부 영상 embed 사용은 Human 사전 승인
+- 이전 기록에는 영상 ID가 없으며 그 경우 재생 버튼을 보여 주지 않는다
+
+### 완료 조건
+
+- 검증과 Review 통과, Staging 자동 배포 뒤 화면에서 동작 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-036_RECOMMENDATION_FIVE_AND_MUSIC_PLAYBACK.md`](tasks/TASK-036_RECOMMENDATION_FIVE_AND_MUSIC_PLAYBACK.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 

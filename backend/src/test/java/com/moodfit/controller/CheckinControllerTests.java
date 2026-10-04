@@ -67,12 +67,12 @@ class CheckinControllerTests {
                 .andExpect(jsonPath("$.mood.code").value("ENERGETIC"))
                 .andExpect(jsonPath("$.mood.label").value("활기 있음"))
                 .andExpect(jsonPath("$.wellnessScore").value(76))
-                .andExpect(jsonPath("$.foods.length()").value(2))
+                .andExpect(jsonPath("$.foods.length()").value(5))
                 .andExpect(jsonPath("$.foods[0].name").value("연어 샐러드"))
-                .andExpect(jsonPath("$.foods[1].name").value("따뜻한 채소 스튜"))
-                .andExpect(jsonPath("$.music.length()").value(2))
-                .andExpect(jsonPath("$.music[0].title").value("Light Motion Playlist"))
-                .andExpect(jsonPath("$.music[1].title").value("Rainy Indoor Playlist"));
+                .andExpect(jsonPath("$.foods[3].name").value("따뜻한 채소 스튜"))
+                .andExpect(jsonPath("$.music.length()").value(5))
+                .andExpect(jsonPath("$.music[0].title").value("Uptown Funk"))
+                .andExpect(jsonPath("$.music[3].title").value("Someone Like You"));
     }
 
     /**
@@ -156,9 +156,9 @@ class CheckinControllerTests {
                 .andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.items[0].mood.code").value("ENERGETIC"))
                 .andExpect(jsonPath("$.items[0].foodNames[0]").value("연어 샐러드"))
-                .andExpect(jsonPath("$.items[0].foodNames[1]").value("따뜻한 채소 스튜"))
-                .andExpect(jsonPath("$.items[0].musicTitles[0]").value("Light Motion Playlist"))
-                .andExpect(jsonPath("$.items[0].musicTitles[1]").value("Rainy Indoor Playlist"));
+                .andExpect(jsonPath("$.items[0].foodNames[3]").value("따뜻한 채소 스튜"))
+                .andExpect(jsonPath("$.items[0].musicTitles[0]").value("Uptown Funk"))
+                .andExpect(jsonPath("$.items[0].musicTitles[3]").value("Someone Like You"));
     }
 
     @Test

@@ -107,8 +107,8 @@ describe("HistoryPage", () => {
     expect(within(newest).getByText("76")).toBeTruthy();
     expect(within(newest).getByText("68 bpm")).toBeTruthy();
     expect(within(newest).getByText("비 · 19.0°C")).toBeTruthy();
-    expect(within(newest).getByText("연어 샐러드, 따뜻한 채소 스튜")).toBeTruthy();
-    expect(within(newest).getByText("Light Motion Playlist, Rainy Indoor Playlist")).toBeTruthy();
+    expect(within(newest).getByText("연어 샐러드, 소고기 채소 비빔밥, 통밀 닭고기 샌드위치, 따뜻한 채소 스튜, 버섯 칼국수")).toBeTruthy();
+    expect(within(newest).getByText("Uptown Funk, Can't Stop the Feeling!, Dynamite, Someone Like You, Wonderwall")).toBeTruthy();
     expect(newest.querySelector("time")?.getAttribute("dateTime")).toBe("2026-09-30T09:00:00Z");
 
     expect(within(rows[2]!).getByText("피곤함")).toBeTruthy();

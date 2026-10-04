@@ -36,7 +36,8 @@ MoodFit이 Wellness Score와 Mood를 계산하고, 그날의 상황에 맞는 �
 - Mood와 Wellness Score, 상태 요약 문장
 - 날씨와 기온
 - 5가지 Body Metric
-- 추천 음식 2개, 추천 음악 2개와 추천 이유
+- 추천 음식 5개, 실제 곡 추천 5개와 추천 이유
+- 음악 카드에서 바로 듣기와 YouTube에서 열기 (재생 클릭 전에는 외부 Player를 불러오지 않음)
 
 기록이 없으면 Check-in으로 안내하는 Empty State를 보여 줍니다.
 
@@ -67,11 +68,12 @@ MoodFit이 Wellness Score와 Mood를 계산하고, 그날의 상황에 맞는 �
 | Wellness Score | 수면 35% + 스트레스(낮을수록 좋음) 35% + 에너지 30%의 가중 평균 (0 ~ 100) |
 | Mood | 피곤함 → 활기 있음 → 차분함 → 균형 있음 순서로 조건을 확인해 결정 |
 | 날씨 Context | 5°C 이하는 추위, 30°C 이상은 더위, 그 외에는 날씨 상태(맑음 / 흐림 / 비 / 눈) |
-| 추천 | 음식·음악 각각 2개: 첫 번째는 Mood 기반, 두 번째는 날씨 Context 기반 |
+| 추천 | 새 기록의 음식·음악 각각 5개: Mood 기반 3개, 날씨 Context 기반 2개. 기존 기록은 저장된 추천을 유지 |
 | 요약 문장 | Mood와 날씨 Context 문장을 조합한 Template |
 
 - 심박수와 호흡수는 점수에 반영하지 않고 화면에 표시만 합니다.
 - 날씨와 기온은 점수에 반영하지 않고 추천과 요약에만 사용합니다.
+- 실제 곡은 승인된 YouTube 영상 목록을 사용합니다. 재생 버튼을 누르면 YouTube 내장 Player가 연결되며 외부 서비스로 요청이 나갑니다. 영상이 재생되지 않으면 카드의 YouTube 링크를 이용할 수 있습니다. [추천 음악 안내](docs/20-RECOMMENDATION-MUSIC-PLAYBACK.md)
 - 상세 기준과 경계값은 [DEC-014](docs/09-DECISIONS.md)와 [Wellness Rule 제안서](docs/10-WELLNESS-RULE-PROPOSAL.md)에 있습니다.
 
 ---

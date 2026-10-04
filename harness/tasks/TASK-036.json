@@ -1,0 +1,40 @@
+{
+  "id": "TASK-036",
+  "title": "추천 5개 확대와 추천 음악 바로 듣기 (YouTube 영상 연동)",
+  "task_file": "docs/tasks/TASK-036_RECOMMENDATION_FIVE_AND_MUSIC_PLAYBACK.md",
+  "allowed_paths": [
+    "backend/src/",
+    "frontend/src/",
+    "contracts/",
+    "docs/05-API_SPEC.md",
+    "docs/08-WORK_LOG.md",
+    "docs/20-RECOMMENDATION-MUSIC-PLAYBACK.md",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "backend/src/main/resources/db/migration/V1__create_checkin_tables.sql",
+    "backend/build.gradle",
+    "backend/settings.gradle",
+    "backend/gradle/",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/07-TASKS.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["bash", "scripts/container-smoke.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}

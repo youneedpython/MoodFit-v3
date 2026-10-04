@@ -126,6 +126,6 @@ public class CheckinServiceImpl implements CheckinService {
     }
 
     private MusicRecommendationResponse toMusicResponse(MusicRecommendationValue value) {
-        return new MusicRecommendationResponse(value.getTitle(), value.getArtist(), value.getTag(), value.getReason());
+        return new MusicRecommendationResponse(value.getTitle(), value.getArtist(), value.getTag(), value.getReason(), value.getVideoId());
     }
 }

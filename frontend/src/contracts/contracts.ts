@@ -26,13 +26,18 @@ type Equals<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B 
 
 type Expect<T extends true> = T;
 
+/** 새 추천 예시는 videoId가 필수이며, 조회 타입은 이전 기록의 null / 생략도 허용한다. */
+type NewCheckinContract = Omit<CheckinResponse, "music"> & {
+  music: (Omit<CheckinResponse["music"][number], "videoId"> & { videoId: string })[];
+};
+
 /*
  * 계약 파일과 api.ts Type의 필드 구성(이름, 중첩 구조, 값 형식)이 정확히 같아야 한다.
  * 필드가 누락 / 추가 / 변경되면 `npm run build`(tsc --noEmit)가 실패한다.
  */
 export type ContractTypeChecks = [
-  Expect<Equals<typeof createdJson, Widen<CheckinResponse>>>,
-  Expect<Equals<typeof latestJson, Widen<CheckinResponse>>>,
+  Expect<Equals<typeof createdJson, Widen<NewCheckinContract>>>,
+  Expect<Equals<typeof latestJson, Widen<NewCheckinContract>>>,
   Expect<Equals<typeof historyJson, Widen<HistoryResponse>>>,
   // Error 응답의 fieldErrors는 상황마다 Key가 달라 Key 목록과 값 형식만 비교한다.
   Expect<Equals<keyof typeof notFoundJson, keyof ErrorResponse>>,
