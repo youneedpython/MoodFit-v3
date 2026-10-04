@@ -3103,3 +3103,10 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - Executor 참고 실행: `bash scripts/verify.sh`는 npm 캐시 접근 EPERM으로 설치 단계에서 중단됐다. Backend 단독 `gradlew.bat test`도 Sandbox 밖 Gradle Wrapper lock 디렉터리를 만들 수 없어 시작하지 못했다. `bash scripts/container-smoke.sh`는 JAR 미생성과 Docker 접근 제한으로 실행되지 못했다. Test / Build / MySQL 통합 성공을 주장하지 않으며 최종 판정은 Sandbox 밖 Orchestrator Verify다.
 - 정적 검토: 계약 / API 문서 예시 일치, 승인 곡 ID 일치, 판정 함수 불변, 누적 허용 경로, UTF-8 / 연속 물음표 / U+FFFD와 `git diff --check`를 확인했다. 초기 임시 Python 실행의 PowerShell stdin 인코딩이 한글 리터럴을 물음표로 바꾼 문제를 발견해 UTF-8 apply_patch 파일로 재생성한 뒤 임시 파일을 삭제했다. 최종 변경에 치환 흔적은 없다.
 - 새 Human 결정은 필요하지 않다. Dependency / scripts / 인프라 / Decision 원본 / Task 상태 / AGENTS와 Git 작업은 변경하지 않았다. Merge 시 Task 등록과 Decision 이력 반영, Staging 재생·촬영과 화면 검토는 승인된 Claude 세션 / Human 후속 작업이다. 화면 캡처 기본 경로는 Contract 허용 경로 밖이라 Executor는 작성하지 않았다. 상세 운영과 Decision 초안은 [추천 음악 안내](20-RECOMMENDATION-MUSIC-PLAYBACK.md)에 기록했다.
+
+### TASK-036 Run 2 — COLD 테스트 기대 문구 수정
+
+- Run 2 승인 범위만 수정했다. `WellnessRulePolicyTests`의 COLD 사례에서 중복된 구절을 제거해 추천 이유를 "기온이 낮거나 눈 오는 날에 어울리는 따뜻한 분위기입니다."로 맞췄다.
+- 구현은 COLD와 SNOW를 같은 switch 분기로 처리하고 두 곡에 동일한 자연스러운 한 문장을 사용한다. SNOW와 다른 Context / Mood 테스트의 기대 문구도 구현과 대조했으며 추가 수정은 필요하지 않았다. 판정 규칙과 Run 1의 나머지 WIP는 유지했다.
+- Executor 참고 검증: `backend`에서 `./gradlew.bat test --no-daemon`을 실행했으나 Sandbox 밖 `C:\.gradle`의 Wrapper lock 상위 디렉터리 생성이 거부되어 테스트 시작 전에 종료됐다. Docker 없는 테스트도 실행 결과를 얻지 못했으며 테스트 통과를 주장하지 않는다. Docker 통합 테스트는 실행하지 않았다. 최종 검증은 Sandbox 밖 Orchestrator Verify 기준이다.
+- 변경 문서를 UTF-8로 직접 읽어 연속 물음표 치환 흔적과 U+FFFD가 없음을 확인했고 `git diff --check`를 통과했다. 새 Human 결정이나 Git 후속 작업은 수행하지 않았다.
