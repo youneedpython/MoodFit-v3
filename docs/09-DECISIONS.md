@@ -1477,3 +1477,12 @@ Human Approved (2026-10-04, 제공된 Task Contract의 Gate 결정과 명시 Rew
 - 실제 자격 증명은 사용하지 않으며 Secrets Manager → ECS 주입은 TASK-043에서 한다. Infra / Workflow / Production 실행 권한을 확대하지 않는다.
 
 설계와 한계는 [22-AUTH.md](22-AUTH.md)를 따른다. 이 결정은 DEC-019의 단일 사용자 가정을 변경하며 나머지 Wellness Rule과 Check-in 응답 형식을 유지한다.
+
+## DEC-035 TASK-043 OAuth 값 주입
+
+- Status: Human Approved (2026-10-04, TASK-042 Gate 9번 및 TASK-043 승인 Contract).
+- 환경별 OAuth Secret 하나를 Human이 생성하고 네 JSON Key의 값을 콘솔에서 직접 입력한다. Template는 Secret을 생성하지 않고 ARN만 받는다. 값과 실제 ARN / 계정 ID는 추적 파일이나 Agent 입력·로그에 기록하지 않는다.
+- App / IAM의 선택적 `OAuthCredentialArn`이 비어 있으면 네 환경 변수 주입과 읽기 Statement를 생략한다. ExecutionRole만 그 ARN 하나를 읽으며 TaskRole 권한은 추가하지 않는다. Secrets Manager 기본 Key를 전제로 하며 다른 KMS Key는 추가 권한 승인이 필요하다.
+- App은 필수 HTTPS origin `PublicUrl`과 기본 true인 `GuestLoginEnabled`를 환경 변수로 전달한다. 기존 DB 주입과 Health 설정을 유지한다.
+- Merge 후 Human이 Secret → IAM UPDATE → 현재 실행 digest를 유지한 App UPDATE → 안정화 순서로 적용한다. CD는 현재 revision의 설정을 이어받는다. Secret 교체 후에는 Service 새 배포가 필요하다.
+- 승인된 Claude 세션이 providers / Cookie Secure를 확인하고 Human이 실제 Google / Kakao 로그인을 확인한다. Production 실행 승인은 별도다. 상세 절차는 [22-AUTH.md](22-AUTH.md)를 따른다.

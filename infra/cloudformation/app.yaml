@@ -53,6 +53,19 @@ Parameters:
   DbCredentialArn:
     Type: "String"
     Description: "Data stack AppDbCredentialArn output; full generated resource ARN"
+  OAuthCredentialArn:
+    Type: "String"
+    Default: ""
+    AllowedPattern: '^$|^arn[:][a-z0-9-]+[:]secretsmanager[:]ap-northeast-2[:][0-9]{12}[:]secret[:][A-Za-z0-9/_+=.@-]+$'
+    Description: "Human-managed OAuth JSON secret; empty disables injection"
+  PublicUrl:
+    Type: "String"
+    AllowedPattern: '^https://[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::[0-9]{1,5})?$'
+    Description: "Public HTTPS origin without a trailing slash"
+  GuestLoginEnabled:
+    Type: "String"
+    Default: "true"
+    AllowedValues: ["true", "false"]
   DesiredCount:
     Type: "Number"
     Default: 2
@@ -66,6 +79,8 @@ Parameters:
     Type: "String"
     Default: "1024"
     AllowedValues: ["1024"]
+Conditions:
+  HasOAuthCredential: !Not [!Equals [!Ref OAuthCredentialArn, ""]]
 Resources:
   AccessLogBucket:
     Type: "AWS::S3::Bucket"
@@ -223,7 +238,13 @@ Resources:
           Environment:
             - Name: "DB_URL"
               Value: !Sub "jdbc:mysql://${DatabaseEndpoint}:3306/${DatabaseName}?sslMode=REQUIRED"
-          Secrets: [{Name: "DB_USERNAME", ValueFrom: !Sub "${DbCredentialArn}:username::"}, {Name: "DB_PASSWORD", ValueFrom: !Sub "${DbCredentialArn}:password::"}]
+            - {Name: "APP_PUBLIC_URL", Value: !Ref PublicUrl}
+            - {Name: "AUTH_GUEST_ENABLED", Value: !Ref GuestLoginEnabled}
+          Secrets: [{Name: "DB_USERNAME", ValueFrom: !Sub "${DbCredentialArn}:username::"}, {Name: "DB_PASSWORD", ValueFrom: !Sub "${DbCredentialArn}:password::"},
+            !If [HasOAuthCredential, {Name: "GOOGLE_CLIENT_ID", ValueFrom: !Sub "${OAuthCredentialArn}:google_client_id::"}, !Ref "AWS::NoValue"],
+            !If [HasOAuthCredential, {Name: "GOOGLE_CLIENT_SECRET", ValueFrom: !Sub "${OAuthCredentialArn}:google_client_code::"}, !Ref "AWS::NoValue"],
+            !If [HasOAuthCredential, {Name: "KAKAO_CLIENT_ID", ValueFrom: !Sub "${OAuthCredentialArn}:kakao_client_id::"}, !Ref "AWS::NoValue"],
+            !If [HasOAuthCredential, {Name: "KAKAO_CLIENT_SECRET", ValueFrom: !Sub "${OAuthCredentialArn}:kakao_client_code::"}, !Ref "AWS::NoValue"]]
           HealthCheck:
             Command: ["CMD-SHELL", "curl --fail --silent --max-time 4 http://127.0.0.1:8080/actuator/health/liveness >/dev/null || exit 1"]
             Interval: 30

@@ -111,6 +111,16 @@ Human 실행: `infra/iam/readonly-permission-set.json`의 AccountId / StagingSer
 
 비민감 배포 기록에는 Stack 종류 / Region / 상태 / Resource 종류·개수 / 비용 시작 시점 / 예상 일 USD 8와 실제 비용 확인일 / image Commit SHA / Smoke 통과 여부 / migration 소요 시간·Target 수를 남긴다. 실제 Resource inventory의 ID / ARN / 이메일 / header는 Human 로컬 비추적 파일에만 보관한다. B단계 검증 후 WORK_LOG 결과를 보완하고 TASK-028 DONE / TASK-029 READY를 같은 PR에 반영한다. 최종 완료 승인은 Remote CI와 Human Squash Merge다.
 
+## TASK-043 OAuth 적용 (Merge 후 Human 실행)
+
+1. Human이 Secrets Manager 기본 Key로 환경별 OAuth Secret을 생성한다. 네 JSON Key와 값 입력·비공개 규칙은 [22-AUTH.md](22-AUTH.md)를 따른다. Agent는 값을 읽지 않는다.
+2. IAM Stack UPDATE Change Set에 `OAuthCredentialArn`을 로컬 비추적 Parameter로 넣고 검토·실행한다. ExecutionRole의 해당 Secret 하나 읽기 권한만 추가되는지 확인한다.
+3. CD가 진행 중이지 않은지 확인하고 App Stack UPDATE Change Set을 준비한다. 동일 ARN과 필수 `PublicUrl`, `GuestLoginEnabled`를 넣으며 `BackendImage`는 현재 Service의 backend Image digest와 마지막 성공 CD Summary를 대조해 맞춘다. 기존 Parameter는 유지하고 오래된 Image 재배포가 없는지 검토·실행한다.
+4. 새 Task Definition을 사용하는 단일 COMPLETED Deployment, desired / running 2, pending 0과 Health를 확인한다. 실패하면 다음 확인을 중단하고 기존 실패·중단 절차를 따른다.
+5. 승인된 Claude 세션은 `/api/auth/me`의 `providers`와 HTTPS Cookie Secure 속성만 확인하며 Cookie 값을 공유하지 않는다. Human은 Google / Kakao 실제 로그인과 Callback 복귀를 확인한다.
+
+Secret 교체는 Service 새 배포 후 반영된다. Production은 같은 환경 분리 절차와 별도 실행 승인을 적용한다. 현재 Task는 Stack 갱신이나 Secret 생성을 실행하지 않는다.
+
 ## TASK-031 정리 개요
 
 별도 파괴적 작업 승인을 받은 뒤 트래픽·앱 중단 → Frontend / App 의존 Resource → IAM → Data → Network 순서를 검토한다. Data 삭제 보호 / final snapshot / 수동 snapshot 30일 보존, Retain된 자격 증명·로그·S3 version / ECR 공유 여부와 잔존 비용을 개별 확인한다. 인증서·Budget은 잔존 비용 확인을 끝낸 뒤 정리 여부를 결정한다. 현재 Task에는 Stack 삭제 / Bucket 비우기 / RDS 삭제 명령이 없다.

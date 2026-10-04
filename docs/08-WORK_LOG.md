@@ -1,5 +1,12 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-043 OAuth Value Injection (2026-10-04)
+
+- clean baseline에서 승인 Contract 범위의 App / IAM Template를 수정했다. OAuth ARN이 빈 경우 주입 / 권한을 생략하며 ExecutionRole에 해당 Secret 하나 읽기만 추가한다. DB / Health / TaskRole은 유지한다.
+- 공개 HTTPS origin과 체험 로그인 Parameter, Placeholder 예시와 Secret 생성 → IAM → 현재 실행 digest의 App UPDATE → 안정화 → providers / Cookie / 실제 로그인 절차를 문서화했다. DEC-035와 [Prompt 68](../prompts/68-TASK-043-OAUTH-VALUE-INJECTION.md)에 승인·지시를 기록했다.
+- Executor 참고 검증: `git diff --check` PASS. `bash scripts/iac-validate.sh`는 Sandbox의 Bash에서 AWS CLI를 찾지 못해 시작 단계에서 중단됐다. Template 검증 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다. 변경 문서의 연속 물음표와 U+FFFD를 직접 검사했다.
+- 실제 OAuth 값 / ARN / 계정 ID를 기록하지 않았으며 AWS / Git 작업은 수행하지 않았다. DONE은 구현 완료이며 Review / Merge / 실서비스 확인을 대신하지 않는다.
+
 ## TASK-041 — Header Logo Link / Alignment (2026-10-04)
 
 - 승인 Contract에 따라 로고 그림과 MoodFit 이름을 하나의 SPA 홈 링크로 연결했다. 날짜는 링크 밖에 두고 장식 그림의 빈 alt와 gradient를 유지했다.

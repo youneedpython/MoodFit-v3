@@ -29,7 +29,21 @@ Redirect URI는 공개 주소와 고정 Callback 경로를 결합한다. 요청 
 | Staging | `https://staging.moodfit.8949db.kr/api/auth/callback/google` | `https://staging.moodfit.8949db.kr/api/auth/callback/kakao` |
 | Production | `https://moodfit.8949db.kr/api/auth/callback/google` | `https://moodfit.8949db.kr/api/auth/callback/kakao` |
 
-TASK-043에서 제공자 Console 등록과 Secrets Manager → ECS 주입을 진행한다. Production 실행은 기존 Human Gate를 유지한다.
+Human이 제공자 Console 앱과 위 Callback 주소를 등록했다. TASK-043은 Secrets Manager → ECS 주입 Template를 구현하며 실제 적용은 Merge 후 Human이 수행한다. Production 실행은 기존 Human Gate를 유지한다.
+
+### OAuth Secret과 Stack 적용 (TASK-043)
+
+Human이 환경마다 Secret 하나(이름 예: `moodfit/staging/oauth`)를 콘솔에서 만든다. JSON Key는 `google_client_id`, `google_client_secret`, `kakao_client_id`, `kakao_client_secret` 네 개이며 값은 Human만 입력한다. 네 Key를 모두 생성해야 ECS가 주입할 수 있다. 한 제공자를 끄려면 그 제공자의 두 값을 빈 문자열로 둔다. Agent와 Claude 세션은 Secret 값을 조회하지 않는다. 실제 ARN / 계정 ID / 값은 추적 파일, Prompt, 로그에 남기지 않는다.
+
+Secrets Manager 기본 암호화 Key를 사용한다. 다른 KMS Key를 쓰면 실행 Role의 추가 권한과 Key 정책 검토가 필요하므로 현재 Template로 적용하지 않고 별도 Human 승인을 받는다. Template는 Secret을 생성하지 않으며 OAuth 값을 Parameter로 받지 않는다.
+
+IAM과 App의 `OAuthCredentialArn`에는 동일 환경의 Secret 전체 ARN을 로컬 비추적 Parameter 파일로 전달한다. 빈 문자열이면 OAuth 주입과 읽기 Statement가 생략된다. ExecutionRole만 그 Secret 하나를 읽고 TaskRole에는 권한이 없다. App의 필수 `PublicUrl`은 HTTPS origin이고 끝에 `/`를 붙이지 않는다. Staging은 `https://staging.moodfit.8949db.kr`, Production은 `https://moodfit.8949db.kr`이다. `GuestLoginEnabled`는 true / false이며 기본 true다. Parameter 예시의 ARN Placeholder는 Human이 로컬에서 교체하며 OAuth 없이 적용할 때는 빈 문자열을 사용한다.
+
+적용은 Secret 생성 → IAM Stack UPDATE Change Set 검토·실행 → App Stack UPDATE Change Set 검토·실행 → Service 안정화 확인 순서다. App의 `BackendImage`는 현재 Service가 실행 중인 digest로 맞춘다. 배포 중 CD와 Stack 변경이 겹치지 않도록 Human이 실행 상황을 확인한다. 이후 CD는 현재 Task Definition의 Image만 교체하므로 새 환경 변수와 Secret 참조를 이어받는다. 상세 순서는 [Staging Runbook](18-STAGING-DEPLOYMENT-RUNBOOK.md)을 따른다.
+
+안정화 뒤 승인된 Claude 세션이 `/api/auth/me`의 `providers`에 google / kakao가 있는지와 HTTPS 응답의 Session / CSRF Cookie Secure 속성을 확인한다. Cookie 값, 제공자 응답, 인가 Code는 출력하거나 저장 기록으로 공유하지 않는다. Human이 두 제공자의 실제 로그인과 Callback 후 앱 복귀를 확인한다. Template 구현 완료는 실서비스 로그인 성공을 뜻하지 않는다.
+
+Secret 값을 교체해도 실행 중인 Task에는 반영되지 않는다. Human이 Service를 새로 배포하고 안정화 / 제공자 / Cookie / 실제 로그인 확인을 반복한다. ARN이 바뀌면 IAM을 먼저 갱신하고 App의 ARN도 갱신한다. Production도 환경별 Secret과 공개 주소를 사용해 같은 순서로 진행하되 별도 Production 실행 승인과 Required Reviewer를 유지한다.
 
 ## 데이터 / Rolling 배포
 

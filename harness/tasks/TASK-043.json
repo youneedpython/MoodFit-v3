@@ -35,7 +35,8 @@
     "moodfit-readonly"
   ],
   "secret_scan_allow": [
-    "[\"secretsmanager:GetSecretValue\"]"
+    "[\"secretsmanager:GetSecretValue\"]",
+    "Secrets: [{Name: \"DB_USERNAME\", ValueFrom: !Sub \"${DbCredentialArn}:username::\"}, {Name: \"DB_PASSWORD\", ValueFrom: !Sub \"${DbCredentialArn}:password::\"}"
   ],
   "verify": [
     {

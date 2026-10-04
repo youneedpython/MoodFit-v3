@@ -24,7 +24,7 @@ TASK-042가 만든 소셜 로그인에 Google / Kakao OAuth 값과 공개 주소
 
 ### OAuth Secret
 
-- Human이 Secrets Manager에 Secret 하나를 만든다(환경별 1개, 이름 예: `moodfit/staging/oauth`). JSON Key는 4개다: `google_client_id`, `google_client_secret`, `kakao_client_id`, `kakao_client_secret`. Template은 이 Secret을 **만들지 않고 ARN을 Parameter로 받는다**(값이 Template / Change Set에 나타나지 않게 한다).
+- Human이 Secrets Manager에 Secret 하나를 만든다(환경별 1개, 이름 예: `moodfit/staging/oauth`). JSON Key는 4개다: `google_client_id`, `google_client_code`, `kakao_client_id`, `kakao_client_code`(Run 2에서 이름 확정). Template은 이 Secret을 **만들지 않고 ARN을 Parameter로 받는다**(값이 Template / Change Set에 나타나지 않게 한다).
 - `app.yaml`: Parameter `OAuthCredentialArn`(기본값 빈 문자열)을 추가한다. 값이 있으면 Container `Secrets`에 위 4개 환경 변수를 `<ARN>:<json key>::` 형식으로 추가한다. 빈 문자열이면 추가하지 않는다(Condition 사용). 기존 DB 주입 2개는 그대로 둔다.
 - `iam.yaml`: Parameter `OAuthCredentialArn`(기본값 빈 문자열)을 추가한다. 값이 있으면 `ExecutionRole`에 그 Secret 하나에 대한 읽기 권한 Statement를 추가한다(Resource는 그 ARN 하나, wildcard 금지). 빈 문자열이면 추가하지 않는다. TaskRole에는 권한을 주지 않는다(App이 직접 읽지 않는다).
 - Secret은 Secrets Manager 기본 Key로 암호화한다고 가정한다(별도 KMS 권한 없음). 다른 Key를 쓰면 추가 권한이 필요하다는 점을 문서에 적는다.
@@ -53,6 +53,21 @@ TASK-042가 만든 소셜 로그인에 Google / Kakao OAuth 값과 공개 주소
 - 실제 ARN / 계정 ID / OAuth 값을 추적 파일에 쓰지 않는다.
 - Workflow, Backend, Frontend, 다른 Stack 변경. Stack 갱신 실행(Human).
 - Template이 Secret을 만들거나 값을 Parameter로 받는 방식.
+
+## Run 2 범위 (2026-10-04, Claude 세션 기록)
+
+Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1은 Secret 검사(Guard)에서 멈췄다(Verify / Review 전). 실제 자격 증명은 없고 Template 표기가 규칙에 걸렸다.
+
+- 걸린 곳: `app.yaml`의 `Secrets:` 목록(Key 이름과 DB 암호 참조, JSON Key 이름에 들어 있던 자격 증명 단어 + `::`), `app.yaml` / `iam.yaml`의 `OAuthCredentialArn` `AllowedPattern`(`secret:` 뒤에 문자열이 오는 형태).
+- **Human 승인(2026-10-04)**: `Secrets:` 줄의 앞부분(DB 주입 2개까지, 닫는 대괄호 제외)을 허용 문구로 추가했다. 정확한 문구는 `harness/tasks/TASK-043.json`의 `secret_scan_allow`에 있다. 이미 승인된 DB 주입 줄에서 끝의 `]`만 뺀 형태다.
+- **OAuth Secret의 JSON Key 이름을 바꾼다**(추가 허용 문구가 필요 없게): `google_client_id`, `google_client_code`, `kakao_client_id`, `kakao_client_code`. 환경 변수 이름(Backend가 읽는 이름)은 그대로다.
+- Claude 세션이 WIP에 아래 두 가지 표기를 이미 반영했고, Sandbox 밖에서 Secret 검사 / cfn-lint / `validate-template` 통과를 확인했다. **이 표기를 그대로 유지한다.**
+  1. `app.yaml`: `Secrets:` 목록을 승인 문구로 시작하는 flow 형식으로 쓰고, OAuth 4개 항목은 줄마다 `!If [HasOAuthCredential, {...}, !Ref "AWS::NoValue"]`로 이어 붙인다.
+  2. `app.yaml` / `iam.yaml`: `AllowedPattern`의 구분 콜론을 `[:]`로 쓴다(뜻은 같다).
+- Run 2에서 할 일:
+  1. 문서와 예시 파일에서 JSON Key 이름을 새 이름으로 맞춘다(`docs/22-AUTH.md`, `docs/18` Runbook, Decision, WORK_LOG, Prompt 기록 등). 예전 이름이 남아 있지 않게 한다. Secret 검사에 걸리는 표기(자격 증명 단어 뒤 콜론 / 등호 + 값)를 문서에 새로 쓰지 않는다. JSON 예시가 필요하면 Key 이름을 표로 나열한다.
+  2. Template의 나머지 부분이 Task 설계와 맞는지 다시 확인한다(Condition, `ExecutionRole` Statement, `PublicUrl` / `GuestLoginEnabled`). 위 두 표기 외에 필요한 수정만 한다.
+  3. `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다.
 
 ## Verification
 
