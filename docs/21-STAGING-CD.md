@@ -60,6 +60,8 @@ Circuit Breaker는 ECS 배포 실패를 이전 안정 revision으로 돌린다. 
 
 ## App Stack drift와 Infra 경계
 
+TASK-043의 OAuth Secret 참조와 공개 주소 / 체험 로그인 설정은 Human의 IAM → App Stack UPDATE로 먼저 적용한다. CD는 현재 Service Task Definition을 복사해 Image만 바꾸므로 Stack이 만든 새 revision의 Environment / Secrets를 이후 배포에도 이어받는다. 코드 Merge만으로 기존 Task에 새 설정이 생기지 않는다. Secret 값 교체도 실행 중인 Task에 자동 반영되지 않아 Service 새 배포가 필요하다. Stack 변경은 진행 중 CD와 겹치지 않게 Human이 조율하고 현재 실행 digest를 유지한다. 적용·확인은 [22-AUTH.md](22-AUTH.md)를 따른다.
+
 CD는 Stack 생성 / 갱신 / 조회를 하지 않는다. Stack 밖에서 Task Definition revision을 등록하므로 App Stack BackendImage Parameter와 실제 실행 Image가 달라진다. 다음 App Stack 변경 전 Human은 마지막 성공 Summary의 Commit / digest와 현재 Service의 backend digest를 로컬 콘솔에서 대조한다. 승인된 Repository URI와 그 digest를 결합해 비추적 app Parameter 파일의 BackendImage를 갱신한다. 현재 실행 digest와 다른 값으로 오래된 Task Definition을 재배포하지 않도록 Change Set을 검토·승인한다. 실제 ARN / Parameter 원문은 공유하지 않는다. 앱 Change Set Role Trust의 Source 조건 검증은 CD에서 수행하지 않으며 미확인 사항으로 유지한다.
 
 ## 실제 배포 확인과 한계

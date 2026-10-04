@@ -118,5 +118,9 @@
   {
     "ParameterKey": "StagingAppStackArn",
     "ParameterValue": "<StagingAppStackArn>"
+  },
+  {
+    "ParameterKey": "OAuthCredentialArn",
+    "ParameterValue": "<OAuthCredentialArn>"
   }
 ]
