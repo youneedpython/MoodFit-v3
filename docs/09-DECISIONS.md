@@ -1430,6 +1430,8 @@ Human Approved (2026-10-03, TASK-027 Contract 사전 승인 및 명시 실행 �
 
 후속 결정: TASK-042 인증 Gate는 아래 DEC-033에 기록한다.
 
+변경 이력 (2026-10-04, TASK-050 / DEC-039): Human의 직접 지시로 문서만 변경된 Commit의 자동 배포 생략을 Gate C 승인했다. CI와 수동 배포는 유지한다.
+
 ### 상태
 
 Human Approved (2026-10-04, Task Contract 사전 승인 및 명시 실행 지시)
@@ -1529,6 +1531,19 @@ Human Approved (2026-10-04, LLM Gate / A안 및 명시 실행 지시)
 - 호출 Role Trust는 MoodFit Task Role 하나만, Permission은 bedrock-mantle:CreateInference 하나만 허용한다. Resource 모델 제한 ARN 형식은 확인 필요하며 Resource * 예시를 승인한다. 추측한 ARN은 사용하지 않는다.
 - Merge 후 Human이 호출 Role 생성 → IAM UPDATE → 현재 실행 digest를 유지한 App UPDATE → 실제 AI 코멘트 확인을 수행한다. Production 실행 승인은 별도다. 상세는 [24-LLM-INFRA.md](24-LLM-INFRA.md)를 따른다.
 
+## DEC-039 TASK-050 문서 전용 변경의 Staging CD 생략
+
+Human Approved (2026-10-04, "문서를 github에 push할 때는 cd는 진행되지 않도록 해." 직접 지시 및 승인 Contract, Gate C)
+
+- 자동 실행의 대상 Commit과 첫 번째 부모 간 변경 파일이 모두 docs / prompts / harness/tasks 아래 또는 .md 확장자이면 배포를 생략한다. 파일 0개 / 부모 없음 / 판정 실패는 배포한다.
+- contents read만 가진 판정 Job을 배포 Job 앞에 둔다. 문서 전용이면 staging Environment와 OIDC 권한이 있는 Job을 시작하지 않고 Workflow 성공 및 Summary를 남긴다.
+- 수동 실행은 항상 배포한다. CI, Trigger, concurrency, 기존 Action 버전과 배포 Step 내용은 유지한다. 신규 외부 Action이나 권한은 추가하지 않는다.
+- SHA는 환경 변수로 전달하고 형식을 검사한다. 파일 목록은 NUL로 구분하여 Shell 평가 없이 처리하고 Summary는 최대 20개 경로를 이스케이프하여 출력한다.
+- 직전 코드 배포가 실패한 뒤 문서 Commit이 들어오면 코드 배포를 복구하지 않는다. Human이 수동 배포한다. 운영 규칙과 예시는 [21-STAGING-CD.md](21-STAGING-CD.md)를 따른다.
+
+이 결정은 DEC-032의 자동 배포 조건만 변경하며 Production / Infra 실행 승인을 포함하지 않는다.
+
+---
 
 ## DEC-040 TASK-048 추천 다양화와 History 간격
 

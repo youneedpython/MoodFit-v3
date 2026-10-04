@@ -1,5 +1,34 @@
 # 21. Staging Continuous Deployment
 
+## 문서만 변경한 Commit의 자동 배포 생략 (TASK-050)
+
+DEC-039에 따라 자동 workflow_run은 contents read만 가진 classify Job에서 대상 SHA의 첫 번째 부모와 비교한다. SHA는 환경 변수로 전달하고 40자리 16진수 형식을 검사한다. git diff의 NUL 구분 파일 목록으로 판정하며 Rename은 이전 / 새 경로 모두 검사한다. 삭제된 코드 파일이 문서 경로로 이동한 경우도 배포한다.
+
+변경 파일이 하나 이상이고 모두 아래 경로에 해당할 때만 배포를 생략한다.
+
+- `docs/` 아래 전체
+- `prompts/` 아래 전체
+- `harness/tasks/` 아래 전체
+- 저장소 어디에 있든 확장자가 `.md`인 파일 (대소문자 구분)
+
+그 밖의 파일이 하나라도 있거나 파일이 0개, 부모 조회 불가, Checkout / 판정 명령 실패이면 배포한다. 잘못된 SHA 형식은 기존 배포 검증처럼 실패로 종료한다. 문서 전용이면 staging Environment와 OIDC 권한을 가진 deploy Job은 시작되지 않으며 Build / AWS / 배포 / Smoke를 실행하지 않는다. Workflow는 성공으로 끝나고 Summary에 "문서만 변경되어 배포를 건너뜀", Commit SHA, 변경 파일 수와 최대 20개 파일 이름을 표시한다. 파일 이름은 Shell 입력으로 사용하지 않고 JSON 및 HTML 이스케이프로 출력한다.
+
+수동 workflow_dispatch는 판정을 하지 않고 항상 배포한다. 기존 main Branch / Commit 이력 검증과 CI 필수 검사는 유지한다.
+
+### 판정 예시
+
+| 실행 / 변경 파일 | 기대 결과 |
+|---|---|
+| 자동: `docs/guide.txt`, `prompts/request.md`, `harness/tasks/TASK-050.json`, `README.md` | 문서 전용, 배포 생략 |
+| 자동: `docs/guide.md`, `backend/src/App.java` | 코드 포함, 배포 |
+| 자동: 파일 0개 | 배포 |
+| 자동: `config/settings.json` | docs 밖의 비 .md 파일, 배포 |
+| 자동: 첫 번째 부모 없음 또는 git diff 실패 | 배포 |
+| 자동: 코드 파일을 `docs/old.txt`로 이동 | 이전 코드 경로도 검사하여 배포 |
+| 수동: 문서 전용 Commit | 판정 생략, 배포 |
+
+판정은 대상 Commit 하나만 본다. 직전 코드 Commit 배포가 실패한 뒤 문서 Commit이 들어오면 배포를 생략하므로 미배포 코드는 다음 코드 Commit 또는 수동 실행에서 배포된다. 이 경우 main의 해당 SHA를 수동 실행으로 배포한다. Merge 후 문서 전용 / 코드 포함 자동 실행과 문서 SHA 수동 실행의 실제 결과를 확인한다.
+
 ## 승인과 검증 경계
 
 TASK-029의 2026-10-04 Gate C 사전 승인과 명시 실행 지시를 DEC-032에 기록했다. Executor DONE은 Workflow 구현 완료다. AWS 변경이나 GitHub 설정은 Executor가 수행하지 않았다. 실제 자동 배포 성공은 Merge 후 확인하며, 최종 완료 승인은 Remote CI와 Human Squash Merge다. Production 생성과 배포는 별도 승인 대상이다.
