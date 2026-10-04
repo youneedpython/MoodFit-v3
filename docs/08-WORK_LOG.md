@@ -3464,3 +3464,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Python 보조 검사로 Pool 최소 크기, 승인 제목 / 가수 / ID 62개 전체 집합, 음식 후보와 이름별 아이콘 Test 51개, API JSON 예시 동기화가 일치함을 확인했다. 두 Smoke의 실제 Python 검사 함수를 실행해 추천 내용 변화는 허용하고 개수 / 타입 / 키 / videoId 오류와 추천 외 값 불일치는 거부함을 확인했다. 변경된 모든 텍스트 파일의 UTF-8 / 연속 물음표 / U+FFFD 검사도 통과했다.
 - 화면 캡처는 Frontend 의존성 설치 제한으로 실행하지 못했다. 승인된 Claude 세션 / Human이 실행 가능한 환경에서 390 / 768 / 1280px, 리포트 표시 / 꺼짐을 확인하고 docs/images/task-048/에 캡처와 이 문서의 이미지 링크를 기록한다. Merge 후 Staging 추천 변화 / Smoke 확인이 남는다.
 - Executor 구현 완료를 DONE으로 기록한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지하며 Git 후속 작업은 수행하지 않았다. Verify / Review / Remote CI / Human Squash Merge 대기다.
+
+### TASK-048 Run 2 — History 간격 Test 수정 (2026-10-04)
+
+- Run 1 WIP Commit 이후 clean Working Tree에서 시작했다. 명시 승인된 Run 2 범위에 따라 History Test와 실행 기록만 수정했다.
+- Vitest에서 빈 문자열이 되는 `HistoryPage.css?raw` import와 CSS 문자열 정규식 검사를 제거했다. 리포트 표시 / 미표시 각각에서 두 묶음의 동일 `history` Class, 리포트의 직접 형제 관계, 자식 수와 마지막 요소를 검사해 불필요한 Wrapper가 남지 않는 구조 검증을 유지했다.
+- Executor 참고 검증: `npm.cmd test -- --run src/features/history/HistoryPage.test.tsx`는 설치된 Vitest 실행 파일이 없어 시작하지 못했다. 의존성 설치나 Backend 재검증은 수행하지 않았다. Contract가 허용한 구조 검사만 유지하며 간격 Token과 반응형 CSS 자체는 변경하지 않았다.
+- `git diff --check` 및 변경 문서의 연속 물음표 / U+FFFD 직접 검사를 수행한다. 결정적 검증의 기준은 Sandbox 밖 Orchestrator Verify이며 실행하지 못한 Test를 PASS로 보고하지 않는다.
+- Backend 통과는 Task 문서의 Claude 세션 실행 기록에 근거한 참고 사항이다. Container Smoke와 전체 Verify / Review는 대기이며 Executor DONE은 구현 완료만 뜻한다. Git 후속 작업은 수행하지 않았다.

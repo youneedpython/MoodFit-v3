@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import { CHECKIN_HISTORY } from "../../contracts/contracts";
 import type { HistoryItem } from "../../types/api";
 import { HistoryPage } from "./HistoryPage";
-import historyStyles from "./HistoryPage.css?raw";
 
 const weekly = vi.hoisted(() => ({ visible: false }));
 vi.mock("../insight/InsightCard", () => ({
@@ -75,9 +74,8 @@ describe("HistoryPage", () => {
       expect(cards.className).toBe("history");
       expect(group.className).toBe("history");
       expect(group.children).toHaveLength(visible ? 2 : 1);
+      expect(group.lastElementChild).toBe(cards);
       if (visible) expect(group.firstElementChild).toBe(screen.getByTestId("weekly-report"));
-      expect(historyStyles).toMatch(/\.history\s*\{[^}]*gap:\s*var\(--space-4\)/);
-      expect(historyStyles).not.toMatch(/@media[^}]*\.history\s*\{/);
     } finally {
       weekly.visible = false;
     }
