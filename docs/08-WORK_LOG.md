@@ -3279,3 +3279,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 좌표와 개인정보 요청 옵션 검증은 호출 순서 대신 URL origin으로 날씨 / 지역 요청을 구분한다. 요청이 정확히 두 번 발생하고 두 origin이 모두 존재하는지도 확인한다. 구현 코드와 Run 1 문서 및 다른 Task 상태는 유지했다.
 - Executor 참고 검증: bash scripts/verify.sh는 npm ci에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build는 시작되지 않았으며 통과를 주장하지 않는다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행했다.
 - 새 Human 결정과 Git 작업은 없다. DONE은 Run 2 수정 완료이며 Verify / Review 성공이나 Human 완료 승인을 대신하지 않는다.
+
+### TASK-040 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Run 1은 Orchestrator Verify에서 Test 1건 실패로 멈췄다(두 fetch에 같은 Response 객체를 돌려준 mock 문제). Run 1 구현을 WIP로 Commit하고 Run 2에서 Test만 고쳤다. Run 2 Verify 통과(Test 117건), Claude Review PASS.
+- Review가 남긴 화면 확인을 Claude 세션이 수행했다. 이 Branch의 Build를 로컬에서 띄우고 API는 Staging으로 연결해 캡처했다(`docs/images/task-040/`): 자동 모드 390 / 768 / 1280px, 직접 입력 전환, 위치 권한이 없을 때.
+  - 위치 허용: 화면에 들어오면 자동으로 조회해 "서울특별시 명동 · 맑음 · 23°C"처럼 표시한다.
+  - "직접 입력"으로 바꾸면 조회한 기온이 입력란에 그대로 남는다.
+  - 위치 권한이 없으면 기온 / 날씨 입력란이 보여 제출할 수 있다.
+- README의 Check-in 입력 화면 이미지(`docs/images/readme/checkin-form.png`)를 새 화면으로 교체했다.
+- 후속 후보(비차단): 자동 모드에서 조회 결과 줄이 안내 문구 아래에 놓인다. 결과를 위로 올리면 더 잘 보인다. 자동 모드에서 값 없이 제출할 때 focus가 갈 대상이 없다(Review INFO-004).
