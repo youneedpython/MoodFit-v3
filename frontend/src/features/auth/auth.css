@@ -1,0 +1,9 @@
+.login-card { max-width: 32rem; margin: 3rem auto; padding: 2rem; border: 1px solid var(--color-border); border-radius: 1.5rem; background: var(--color-surface); }
+.login-eyebrow { color: var(--color-accent-blue); letter-spacing: .12em; font-size: .75rem; }
+.login-actions { display: grid; gap: .75rem; margin: 2rem 0; }
+.login-actions button, .login-provider { padding: .85rem; border-radius: .75rem; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); text-align: center; }
+.user-menu { position: relative; flex-shrink: 0; margin-left: .5rem; }
+.user-avatar { width: 2.75rem; height: 2.75rem; border: 2px solid var(--color-border); border-radius: 50%; color: var(--color-text-inverse); font-weight: 700; cursor: pointer; }
+.user-menu__popup { position: absolute; right: 0; top: calc(100% + .5rem); width: min(16rem, calc(100vw - 2rem)); z-index: 20; padding: 1rem; border: 1px solid var(--color-border); border-radius: .75rem; background: var(--color-surface); box-shadow: 0 .5rem 2rem #0008; overflow-wrap: anywhere; }
+.user-menu__popup button { color: var(--color-text); background: var(--color-surface); padding: .65rem; width: 100%; border: 1px solid var(--color-border); border-radius: .5rem; }
+@media (max-width: 480px) { .login-card { margin: 1rem auto; padding: 1.25rem; } }

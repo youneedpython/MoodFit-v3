@@ -3270,3 +3270,22 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Task Contract Dependency 절의 "해석할 수 없으면(Sandbox Network 등) 문서에 적고 human_decisions_needed로 보고한다"에 따라 HUMAN_REQUIRED로 정지한다. 단순 Test 실행 제한을 제품 오류로 판정한 것이 아니라, Contract가 별도로 요구한 Dependency 확인 근거가 없는 상태다.
 - 권장안은 Human이 접근 가능한 Gradle 실행 환경과 해당 Boot BOM의 공식 모듈 해석 근거를 제공한 뒤 같은 Task를 재개하는 것이다. 대안은 Human이 Dependency 해석을 Sandbox 밖 Orchestrator로 넘기고 Executor의 선행 해석 조건을 대체하도록 명시 승인하는 것이다. Version 변경이나 CLI 설치 / 업데이트는 수행하지 않았다.
 - 인증 Source / DB Migration / API Contract / Smoke / Task 상태는 변경하지 않았다. 이번 변경은 실행 지시와 정지 근거 기록뿐이며 TASK-042 구현 완료를 주장하지 않는다. Git handoff는 수행하지 않았다.
+
+## TASK-042 — 전체 구현 Rework (2026-10-04)
+
+- 승인 Dependency 해석 근거를 포함한 최신 Contract와 F-001 ~ F-007을 기준으로 구현했다. 초기 Git Working Tree는 clean이었다. [Prompt 66](../prompts/66-TASK-042-REWORK.md)에 실행 범위를 기록했다.
+- 승인 Starter 5개를 Version 없이 추가했다. Java 제공자 등록은 값 두 개가 모두 있을 때만 활성화하며 미설정 환경에서도 시작한다. Redirect는 검증된 공개 origin과 고정 경로를 사용한다. JDBC Session은 7일 / Session id 교체 / HttpOnly / HTTPS Secure / SameSite Lax를 적용한다.
+- CSRF Cookie를 `/me`에서 발급하고 Frontend / Smoke가 Header로 전달한다. 미인증 조회 401과 CSRF / 권한 오류 403은 기존 JSON 형식이다. 로그인 완료 후 앱 사용자 Principal만 Session에 남기며 Authorized Client를 저장하지 않는다.
+- V3는 사용자 / 공유 체험 사용자 / Check-in 외래 키·조회 Index / Spring Session 구조를 추가했다. 기본값 1로 기존 기록과 이전 Version INSERT를 체험 계정에 연결한다. 새 저장 / 최신 / 이력은 인증 사용자 조건을 사용한다.
+- 로그인 화면 / 수집 정보 안내 / 제공자 버튼 / 체험 로그인 / 401 상태 초기화 / 아바타 메뉴를 추가했다. Esc / 바깥 클릭 / Focus / 로그아웃 Test를 추가했으며 기존 로고 / 날짜 Source는 변경하지 않았다.
+- Backend Test는 미설정 제공자, 체험 Session / 로그아웃, Cookie 기반 실제 CSRF 흐름, 사용자 간 분리, OAuth 가짜 사용자 정보와 고정 Location, 최소 저장 필드, H2 / MySQL 업그레이드와 이전 INSERT 호환을 포함한다. 기존 계약 Test에는 체험 사용자 인증과 CSRF를 적용했다.
+- 두 Smoke는 로그인 전 401과 체험 로그인 뒤 API를 확인한다. 권한 제한 임시 Cookie / Header 파일을 종료 시 지우며 값을 출력하지 않는다. Staging 합성 기록은 유지한다.
+
+### Verification
+
+- `npm test`: 16 Test Files / 126 Tests PASS. 인증 Test 4개를 별도로 실행해 PASS를 확인했다.
+- `npm run build`: TypeScript 검사와 Vite Build PASS.
+- `bash -n scripts/staging-smoke.sh`, `bash -n scripts/container-smoke.sh`, `git diff --check`: PASS.
+- Contract 승인에 따라 Gradle을 실행하지 않았다. Cache에 Security / Session 모듈의 메타데이터는 있으나 읽을 수 있는 관련 Jar를 찾지 못했다. Boot 4 / Security / Session API 호환성, H2 / MySQL Migration과 실제 Session 동작은 Verify에서 확인 필요다. 실제 실패를 Sandbox 제약으로 판정한 것은 아니다.
+- UI 캡처는 기존 Chrome Headless로 390 / 768 / 1280px를 시도했으나 Capture 파일을 얻지 못했다. 로그인 화면과 사용자 메뉴의 해당 폭 캡처 / 시각 검토는 Human 후속 작업으로 남긴다. CLI / 라이브러리는 설치하지 않았다.
+- Executor DONE은 구현 완료만 뜻한다. 실제 OAuth 로그인은 TASK-043 이후 확인하고 Merge 뒤 Staging 체험 Smoke를 확인한다. Git handoff는 수행하지 않았다.

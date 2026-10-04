@@ -11,6 +11,11 @@ import com.moodfit.entity.WellnessCheckin;
 
 public interface WellnessCheckinRepository extends JpaRepository<WellnessCheckin, Long> {
 
+    Optional<WellnessCheckin> findTopByUserIdOrderByRecordedAtDescIdDesc(Long userId);
+
+    @EntityGraph(attributePaths = {"foodRecommendations", "musicRecommendations"})
+    List<WellnessCheckin> findByUserIdAndRecordedAtGreaterThanEqualOrderByRecordedAtAsc(Long userId, Instant recordedAt);
+
     Optional<WellnessCheckin> findTopByOrderByRecordedAtDescIdDesc();
 
     /** History 추천 이력 요약(DEC-020)을 위해 Recommendation을 함께 조회해 기록마다 추가 Query가 발생하지 않게 한다. */

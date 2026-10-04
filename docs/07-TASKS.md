@@ -50,6 +50,8 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 
 | Task | Milestone | 작업 | 상태 | Dependency | Human Approval |
 |---|---|---|---|---|---|
+| TASK-042 | Milestone 42 | Social Login / Guest / User Scoped Data | DONE | TASK-029, TASK-036, TASK-039 | Human Approved 2026-10-04; Executor 구현 완료, Verify / Review / Merge 대기 |
+| TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | READY | TASK-042 구현 후 실환경 확인 | TASK-042 후속 등록, 실제 값 / AWS 실행은 후속 Contract와 Gate에 따름 |
 | TASK-001 | Milestone 1 | Project Bootstrap | DONE | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | DONE | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
@@ -1821,3 +1823,21 @@ DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Appro
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-016 Bootstrap Dependency Set은 Gate C와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
+
+---
+
+## TASK-042 — Social Login / Guest / User Scoped Data
+
+- Milestone 42 / DONE: 승인 Contract와 F-001 ~ F-007에 따른 Executor 구현 완료 반영이다. Orchestrator Verify / Claude PASS / Human Squash Merge를 대신하지 않는다.
+- Dependency: TASK-029 / TASK-036 / TASK-039. Human 승인: 2026-10-04 제공된 Task Contract의 Gate 결정과 명시 Rework 실행 지시.
+- Backend: 승인 Dependency 5개, Java 제공자 등록, JDBC Session / CSRF / JSON 오류, V3 사용자 / Session Migration, 사용자별 저장 / 최신 / 이력.
+- Frontend: 로그인 화면, 미인증 / 401 이동, Cookie / CSRF 요청, 아바타 메뉴. 로고 / 날짜 영역은 유지한다.
+- Smoke / 계약 / 인증 운영 문서를 갱신했다. Frontend 126 Test와 Build, 두 Smoke Script 구문 검사, Diff 공백 검사를 수행했다. Backend Compile / H2 / MySQL / Container 검증은 Sandbox 밖 Orchestrator가 판정한다.
+- 실서비스 Google / Kakao 로그인은 TASK-043 이후 확인한다. 다른 Task 상태와 기존 Current Task는 변경하지 않았다.
+
+## TASK-043 — Infra: OAuth 값 주입 — App / IAM Stack
+
+- Milestone 43 / READY: TASK-042의 승인된 후속 작업 등록이다. 이 Task에서는 구현하지 않았다.
+- Dependency: TASK-042 App 구현. TASK-043 Contract와 필요한 Human Gate / 명시 실행 지시 후 진행한다.
+- 범위: Secrets Manager / ECS 환경 변수 주입, 환경별 공개 주소 및 제공자 Callback 등록, Google / Kakao 실제 로그인 확인.
+- Production 승인과 IAM / Infra 변경 Gate를 유지한다. 실제 값은 Repository / Prompt / Log에 기록하지 않는다.

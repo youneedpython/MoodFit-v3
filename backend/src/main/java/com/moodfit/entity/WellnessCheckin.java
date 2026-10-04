@@ -29,6 +29,12 @@ public class WellnessCheckin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId = 1L;
+
+    public void assignUser(Long userId) { this.userId = userId; }
+    public Long getUserId() { return userId; }
+
     @Convert(converter = InstantUtcLocalDateTimeConverter.class)
     @Column(name = "recorded_at", nullable = false)
     private Instant recordedAt;

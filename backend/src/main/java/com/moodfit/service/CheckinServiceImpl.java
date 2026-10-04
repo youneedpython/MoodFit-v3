@@ -56,13 +56,14 @@ public class CheckinServiceImpl implements CheckinService {
                 analysis.foods(),
                 analysis.music());
 
+        checkin.assignUser(com.moodfit.auth.UserIdentity.current().id());
         return toCheckinResponse(repository.save(checkin), analysis.moodLabel());
     }
 
     @Override
     @Transactional(readOnly = true)
     public CheckinResponse getLatest() {
-        WellnessCheckin checkin = repository.findTopByOrderByRecordedAtDescIdDesc()
+        WellnessCheckin checkin = repository.findTopByUserIdOrderByRecordedAtDescIdDesc(com.moodfit.auth.UserIdentity.current().id())
                 .orElseThrow(CheckinNotFoundException::new);
         return toCheckinResponse(checkin, wellnessRulePolicy.moodLabel(checkin.getMood()));
     }
@@ -71,7 +72,7 @@ public class CheckinServiceImpl implements CheckinService {
     @Transactional(readOnly = true)
     public HistoryResponse getHistory(int days) {
         Instant from = clock.instant().truncatedTo(ChronoUnit.MICROS).minus(Duration.ofDays(days));
-        List<HistoryItemResponse> items = repository.findByRecordedAtGreaterThanEqualOrderByRecordedAtAsc(from)
+        List<HistoryItemResponse> items = repository.findByUserIdAndRecordedAtGreaterThanEqualOrderByRecordedAtAsc(com.moodfit.auth.UserIdentity.current().id(), from)
                 .stream()
                 .map(this::toHistoryItemResponse)
                 .toList();

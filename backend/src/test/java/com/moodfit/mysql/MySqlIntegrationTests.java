@@ -1,8 +1,8 @@
 package com.moodfit.mysql;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.moodfit.auth.GuestRequests.get;
+import static com.moodfit.auth.GuestRequests.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,11 +78,11 @@ class MySqlIntegrationTests {
     void connectsToMySqlAndAppliesFlywayMigration() {
         assertThat(jdbcTemplate.queryForObject("SELECT VERSION()", String.class)).startsWith("8.4.");
         assertThat(jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('1', '2') AND success = 1", Integer.class))
-                .isEqualTo(2);
+                "SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('1', '2', '3') AND success = 1", Integer.class))
+                .isEqualTo(3);
         assertThat(jdbcTemplate.queryForList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()", String.class))
-                .contains("wellness_checkin", "checkin_food_recommendation", "checkin_music_recommendation");
+                .contains("wellness_checkin", "checkin_food_recommendation", "checkin_music_recommendation", "app_user", "SPRING_SESSION", "SPRING_SESSION_ATTRIBUTES");
     }
 
     @Test

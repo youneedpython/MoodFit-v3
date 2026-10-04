@@ -130,6 +130,19 @@ Run 1에서 Executor Sandbox가 Gradle을 실행하지 못해 정지했다. Clau
 - Secret 검사에 걸리는 표기(자격 증명 이름 뒤 콜론이나 등호 + 값). 불가피하면 구현하지 말고 `human_decisions_needed`로 정확한 문구를 보고한다.
 - 로그 / 오류 응답에 Token, Cookie, 제공자 응답 원문 출력
 
+## Run 3 범위 (2026-10-04, Claude 세션 기록)
+
+Run 2 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 2는 두 번째 Cycle의 Orchestrator Verify(`scripts/verify.sh`)에서 멈췄다. Frontend Test / Build와 Backend Compile은 통과했고 Backend Test 1건이 실패했다. 그래서 `scripts/container-smoke.sh`는 아직 실행되지 않았고, 구현 전체에 대한 Claude Review도 아직 없다.
+
+- 실패: `AuthTests.unconfiguredProvidersAndCsrfCookie`(38행) — `GET /api/auth/me` 응답에 `XSRF-TOKEN` Cookie가 없다("No cookie with name XSRF-TOKEN").
+- 관찰: `AuthController.me`는 `CsrfToken` 인자를 받아 `getToken()`을 호출하지만 Cookie가 응답에 실리지 않았다. 지연 Token 방식에 기대면 이 구성에서는 저장이 일어나지 않는 것으로 보인다(정확한 원인은 Claude 세션이 확인하지 못했다).
+- Run 3에서 할 일:
+  1. `GET /api/auth/me`가 **항상** CSRF Cookie를 응답에 싣게 한다. 지연 Token에 기대지 말고 명시적으로 처리한다(예: 저장소에서 Token을 읽고, 없으면 생성해 `saveToken`으로 응답에 기록). 이미 유효한 Cookie가 있으면 같은 값을 유지해도 된다.
+  2. 체험 로그인 / 로그아웃 뒤 Token이 바뀌거나 지워지는 구현이면, Frontend와 두 Smoke Script가 그 뒤에 `GET /api/auth/me`로 Token을 다시 받는지 확인하고 맞춘다. 로그인 직후 첫 POST(Check-in 저장)가 403이 되지 않아야 한다. 이 흐름을 Test로 고정한다(체험 로그인 → `me` → Cookie의 Token으로 Check-in 저장 201).
+  3. 같은 원인으로 실패할 수 있는 다른 Test / Smoke 단계를 함께 점검한다. Executor가 Test를 실행할 수 없으므로 실패한 Test의 기대값을 구현에 맞춰 약하게 만들지 않는다(Cookie가 실제로 내려와야 한다).
+  4. `docs/08-WORK_LOG.md`와 `prompts/`에 Run 3 기록을 추가한다.
+- 그 밖의 범위는 바꾸지 않는다. Verify가 통과하면 Claude Review가 구현 전체를 검토한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

@@ -122,6 +122,32 @@ if grep -E '(^|/)\.env[^/]*(/|$)' "$work_dir/image-files" >/dev/null; then
   fail '.env file found in image filesystem'
 fi
 
+step 'Unauthenticated 401 and guest login / scoped check-in API'
+docker exec -i "$app" sh <<'SH'
+set -eu
+umask 077
+auth_dir=$(mktemp -d)
+trap 'rm -rf "$auth_dir"' EXIT
+base=http://127.0.0.1:8080
+code=$(curl --silent --output /dev/null --write-out '%{http_code}' "$base/api/check-ins/latest")
+[ "$code" = 401 ]
+curl --silent --fail --cookie-jar "$auth_dir/cookies" "$base/api/auth/me" > "$auth_dir/me"
+headers() {
+  awk -F '\t' -v name='X-XSRF-TOKEN' '$6 == "XSRF-TOKEN" { print "header = \"" name ": " $7 "\"" }' "$auth_dir/cookies" > "$auth_dir/headers"
+  [ -s "$auth_dir/headers" ]
+}
+headers
+code=$(curl --silent --cookie "$auth_dir/cookies" --cookie-jar "$auth_dir/cookies" --config "$auth_dir/headers" --request POST --output /dev/null --write-out '%{http_code}' "$base/api/auth/guest")
+[ "$code" = 204 ]
+curl --silent --fail --cookie "$auth_dir/cookies" --cookie-jar "$auth_dir/cookies" "$base/api/auth/me" > "$auth_dir/me"
+headers
+code=$(curl --silent --cookie "$auth_dir/cookies" --config "$auth_dir/headers" -H 'Content-Type: application/json' --data '{"heartRate":68,"respiratoryRate":18,"sleepScore":86,"stressLevel":31,"energyLevel":74,"temperature":19.0,"weather":"RAIN"}' --output "$auth_dir/create" --write-out '%{http_code}' "$base/api/check-ins")
+[ "$code" = 201 ]
+curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/check-ins/latest" > "$auth_dir/latest"
+cmp "$auth_dir/create" "$auth_dir/latest"
+curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/check-ins/history?days=7" > "$auth_dir/history"
+SH
+
 step 'DB outage: readiness 503 / liveness 200'
 docker stop --time 10 "$db" >/dev/null
 wait_probe readiness 503 90

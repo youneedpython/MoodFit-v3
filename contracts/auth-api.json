@@ -1,0 +1,15 @@
+{
+  "endpoints": [
+    { "method": "GET", "path": "/api/auth/me", "statuses": [200] },
+    { "method": "GET", "path": "/api/auth/login/{provider}", "statuses": [302, 404] },
+    { "method": "GET", "path": "/api/auth/callback/{provider}", "statuses": [302, 404] },
+    { "method": "POST", "path": "/api/auth/guest", "statuses": [204, 403, 404] },
+    { "method": "POST", "path": "/api/auth/logout", "statuses": [204, 403] }
+  ],
+  "anonymousExample": "auth-me-anonymous-200.json",
+  "guestExample": "auth-me-guest-200.json",
+  "checkinAuthenticationError": "checkin-401.json",
+  "csrfError": "auth-403.json",
+  "csrfCookieName": "XSRF-TOKEN",
+  "csrfHeaderName": "X-XSRF-TOKEN"
+}

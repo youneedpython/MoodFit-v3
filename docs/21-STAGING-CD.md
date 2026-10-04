@@ -64,6 +64,8 @@ CD는 Stack 생성 / 갱신 / 조회를 하지 않는다. Stack 밖에서 Task D
 
 ## 실제 배포 확인과 한계
 
+TASK-042 이후 Smoke는 `/api/check-ins/latest`의 미인증 401을 먼저 확인하고 `/api/auth/me`에서 CSRF Cookie를 발급받아 체험 로그인 204 뒤 기존 400 / 201 / latest / History 계약을 검사한다. 로그인 후 `/me`로 갱신된 CSRF 값을 사용한다. Cookie와 Header 설정은 권한을 제한한 임시 디렉터리에 보관하고 종료 시 지운다. 값은 출력하지 않는다. 합성 기록은 공유 체험 계정에 남기며 삭제하지 않는다. OAuth 제공자 값 없이 동작하는 이 경로가 자동 배포와 시연의 기본 경로다. Google / Kakao 실측은 TASK-043 이후 수행한다.
+
 Merge 이후 최소 두 번의 Staging 배포에서 Commit / digest / Task revision / Smoke PASS를 기록한다. 같은 SHA 수동 재배포로 immutable Tag 재사용도 확인한다. 실패 경로는 안전한 Mock에서 waiter가 이전 revision을 안정 상태로 반환해도 배포 실패가 되는지, Smoke 실패가 Workflow 실패와 실패 Step Summary로 남는지 확인한다. 실제 실패 주입은 사용자 영향과 DB 호환성을 검토한 뒤 수행한다. Executor Sandbox에서는 Workflow / AWS / GitHub 설정을 실행하지 않았다.
 
 Smoke는 AWS 자격 증명 없이 정적 페이지 / SPA / HTTP redirect / origin 차단 / 합성 Check-in 201 / latest·History 200 / 400 본문 계약을 검사한다. 합성 기록은 남는다. 다른 Check-in 입력과 동시에 실행하면 latest 비교가 실패할 수 있으므로 실환경 확인 중 입력을 중단한다. Smoke Script는 대상 Commit의 contracts를 사용하며 CI 실행에 필요한 변경이 없어 유지했다. IAM 정책의 실환경 수락과 3600초 내 완료 여부는 첫 자동 배포에서 확인한다.

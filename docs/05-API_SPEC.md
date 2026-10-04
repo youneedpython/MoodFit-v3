@@ -344,6 +344,22 @@ Error Response 형식은 Frontend Error UX와 함께 유지한다.
 
 ## 9. API 구현 원칙
 
+### TASK-042 인증 Contract (Human Approved 2026-10-04)
+
+Check-in 저장 / 최신 / 이력은 인증된 사용자만 접근하며 본인 기록만 응답한다. 기존 성공 응답 형식은 유지한다. 미인증 조회는 401 `UNAUTHENTICATED`, CSRF / 권한 실패는 403 `FORBIDDEN`이며 기존 `ErrorResponse` JSON 형식이다.
+
+| Method | 경로 | 응답 |
+|---|---|---|
+| GET | `/api/auth/me` | 200: `authenticated`, `user`(미인증 null), `providers`(설정된 제공자만), `guestEnabled`; CSRF Cookie 발급 |
+| GET | `/api/auth/login/{provider}` | 제공자 화면으로 302, 미설정 404 |
+| GET | `/api/auth/callback/{provider}` | 공개 주소 `/`로 302, 실패는 `/login?error=oauth`로 302 |
+| POST | `/api/auth/guest` | 공유 체험 Session 시작 204, 비활성 404 |
+| POST | `/api/auth/logout` | Session 종료 204 |
+
+사용자 필드는 `id`, `displayName`, `provider`이며 제공자는 `google`, `kakao`, `guest`다. 상태 변경 요청은 `XSRF-TOKEN` Cookie 값을 `X-XSRF-TOKEN` Header로 전달한다. Session Cookie는 HttpOnly / SameSite Lax이며 HTTPS에서 Secure다.
+
+예시는 [익명](../contracts/auth-me-anonymous-200.json), [체험](../contracts/auth-me-guest-200.json), [401](../contracts/checkin-401.json), [403](../contracts/auth-403.json), [Endpoint](../contracts/auth-api.json)을 따른다. 상세 설정은 [22-AUTH.md](22-AUTH.md)를 참고한다.
+
 - Controller에 분석 규칙을 직접 작성하지 않는다.
 - Request / Response DTO를 Entity와 분리한다.
 - Validation을 명시한다.
