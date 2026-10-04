@@ -4,6 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import { CHECKIN_CREATED, CHECKIN_VALIDATION_ERROR } from "../../contracts/contracts";
 import { CheckinPage } from "./CheckinPage";
 
+vi.mock("../dashboard/useRecommendationFeedback", () => ({
+  useRecommendationFeedback: () => ({ data: null, error: "", pending: [], toggle: vi.fn() })
+}));
+
 /** DEC-024: 공유 계약 파일(contracts/checkin-create-201.json) */
 const RESULT = CHECKIN_CREATED;
 

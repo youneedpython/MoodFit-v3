@@ -3631,3 +3631,16 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - 삭제 확인 창: 열리면 "취소"에 focus, Esc로 닫으면 아바타로 focus가 돌아온다. "삭제" 뒤 `/login`으로 이동하고 완료 문구가 보인다.
 - Merge 직후 Frontend Stack Change Set을 적용해야 `/login`, `/privacy` 직접 접근과 Staging Smoke가 통과한다(Human 승인에 따라 Claude 세션이 실행).
 - 후속 후보(비차단): 삭제 확인 창의 버튼이 기본 모양이다. 삭제 요청 진행 중에도 확인 창을 닫을 수 있다(Review R3-INFO-4).
+
+### TASK-055 — 추천 피드백 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. TASK-055 승인 Contract와 필수 Context를 확인하고 해당 Task만 IN_PROGRESS로 등록한 뒤 Executor 구현 완료를 DONE으로 반영했다. Current Task TASK-030 / BLOCKED와 다른 상태, 기존 Check-in 계약 / Infra / Dependency / Smoke는 유지했다.
+- V6에 사용자 / 종류 / 항목별 평가, 갱신 시각, 복합 유일성 / 외래 키 / 값 제약을 추가했다. GET은 본인 목록, PUT은 Pool 검증 후 저장·교체·null 삭제하며 체험 계정은 고정 오류로 차단한다. 계정 삭제와 저장은 같은 사용자 행 잠금으로 직렬화하고 삭제 트랜잭션에 본인 평가를 포함했다.
+- 추천은 기존 날짜 순환에서 DISLIKE를 건너뛰고 부족하면 순환 보충한다. Pool당 가장 가까운 사용 가능한 LIKE 하나만 앞세우고 Pool 간 중복을 막는다. 음식 / 음악을 분리하고 평가 없음의 결과, 개수, 판정과 저장 기록을 유지한다.
+- Dashboard / 결과 진입당 평가 목록을 조회하여 공통 Card에 전달한다. 항목별 접근 가능한 Toggle, 즉시 반영 / 실패 복구, 같은 항목 요청 중 재입력 방지와 안내를 추가했다. 체험과 videoId 없는 곡에는 버튼을 숨긴다. 개인정보 화면 / 삭제 설명 / API·추천·인증 문서 / DEC-042 / Prompt / README를 동기화했다.
+- Backend: 모든 기분 × 상황 × 여러 날짜의 독립적인 원래 순환 비교, 전체 DISLIKE 보충, LIKE 이동 / 교체 / 중복 / 결정성 Test를 추가했다. H2 / MySQL Testcontainers 공통 API 저장·교체·삭제 / 분리 / 검증 / 체험·인증·CSRF / 다음 Check-in / 기존 기록 보존 / 계정 삭제를 검사한다. 기존 계정 삭제 보존 / Rollback Test에도 평가 행을 포함했다.
+- Frontend: 공유 GET 계약을 사용하는 Toggle / aria-pressed / 교체 / 삭제 / 실패 복구 / 체험 안내 / 이전 곡 Test를 추가했다. 기존 Dashboard / Check-in·날씨 Test는 별도로 검증하는 평가 Hook을 격리하여 기존 요청 수의 전제를 유지했다.
+- 자체 `bash scripts/verify.sh`: npm ci에서 사용자 캐시 파일 open EPERM으로 중단됐다. Frontend Test / TypeScript / Build와 Backend Test / Build는 실행되지 않았다. 별도 Backend 대상 Test도 Gradle Wrapper 잠금 부모 경로 생성 제한으로 시작하지 못했다.
+- `bash scripts/container-smoke.sh`: app.jar 미생성으로 preflight 중단, Docker 설정 / daemon 접근도 제한됐다. 실제 Code / Test 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다.
+- `git diff --check`와 변경 문서 / 계약의 UTF-8 및 치환 흔적 검사를 수행했다. 실행 화면 캡처는 설치 / 실행 제한으로 만들지 못했다. 승인된 Claude 세션이 390 / 768 / 1280px 화면 검토와 캡처를 남기고, Merge 뒤 Staging에서 평가 후 새 추천 / 기존 기록 보존 / 삭제 흐름을 확인한다.
+- Git / AWS 후속 작업은 수행하지 않았다. Executor DONE은 구현 완료이며 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.

@@ -61,6 +61,7 @@ public abstract class AccountDeletionAssertions {
         jdbc.update("INSERT INTO checkin_insight (checkin_id, body, model_id, generated_at) VALUES (?, 'synthetic', 'test', CURRENT_TIMESTAMP)", id);
         jdbc.update("INSERT INTO weekly_report (user_id, period_start, period_end, body, record_count, model_id, generated_at) VALUES (?, CURRENT_DATE, CURRENT_DATE, 'synthetic', 1, 'test', CURRENT_TIMESTAMP)", user.id());
         jdbc.update("INSERT INTO llm_usage (user_id, kind, attempted_at) VALUES (?, 'INSIGHT', CURRENT_TIMESTAMP)", user.id());
+        jdbc.update("INSERT INTO recommendation_feedback (user_id, kind, item_name, rating, updated_at) VALUES (?, 'FOOD', '연어 샐러드', 'LIKE', CURRENT_TIMESTAMP)", user.id());
         String session = UUID.randomUUID().toString();
         long now = System.currentTimeMillis();
         jdbc.update("INSERT INTO SPRING_SESSION (PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, EXPIRY_TIME, PRINCIPAL_NAME) VALUES (?, ?, ?, ?, 604800, ?, ?)", session, session, now, now, now + 604800000L, user.getName());
@@ -72,7 +73,7 @@ public abstract class AccountDeletionAssertions {
         return new jakarta.servlet.http.Cookie("SESSION", java.util.Base64.getEncoder().encodeToString(session.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
     }
     private void assertCounts(UserIdentity user, int count) {
-        for (String table : List.of("app_user", "wellness_checkin", "weekly_report", "llm_usage")) {
+        for (String table : List.of("app_user", "wellness_checkin", "weekly_report", "llm_usage", "recommendation_feedback")) {
             String column = table.equals("app_user") ? "id" : "user_id";
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM " + table + " WHERE " + column + " = ?", Integer.class, user.id())).isEqualTo(count);
         }

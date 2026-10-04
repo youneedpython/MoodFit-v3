@@ -24,6 +24,7 @@ public class AccountDeletionService {
         }
         jdbc.update("DELETE FROM weekly_report WHERE user_id = ?", identity.id());
         jdbc.update("DELETE FROM llm_usage WHERE user_id = ?", identity.id());
+        jdbc.update("DELETE FROM recommendation_feedback WHERE user_id = ?", identity.id());
         jdbc.update("DELETE FROM wellness_checkin WHERE user_id = ?", identity.id());
         // End every existing session for this account, including sessions on other devices.
         jdbc.update("DELETE FROM SPRING_SESSION WHERE PRINCIPAL_NAME = ?", identity.getName());

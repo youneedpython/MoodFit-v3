@@ -1,0 +1,1 @@
+{"method":"PUT","path":"/api/recommendations/feedback","request":{"kind":"FOOD","item":"연어 샐러드","rating":"LIKE"},"status":204,"body":null}

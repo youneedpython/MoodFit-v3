@@ -30,17 +30,19 @@ public class CheckinServiceImpl implements CheckinService {
     private final WellnessCheckinRepository repository;
     private final WellnessRulePolicy wellnessRulePolicy;
     private final Clock clock;
+    private final RecommendationFeedbackService feedback;
 
-    public CheckinServiceImpl(WellnessCheckinRepository repository, WellnessRulePolicy wellnessRulePolicy, Clock clock) {
+    public CheckinServiceImpl(WellnessCheckinRepository repository, WellnessRulePolicy wellnessRulePolicy, Clock clock, RecommendationFeedbackService feedback) {
         this.repository = repository;
         this.wellnessRulePolicy = wellnessRulePolicy;
         this.clock = clock;
+        this.feedback = feedback;
     }
 
     @Override
     @Transactional
     public CheckinResponse create(CreateCheckinRequest request) {
-        WellnessRulePolicy.AnalysisResult analysis = wellnessRulePolicy.analyze(request);
+        WellnessRulePolicy.AnalysisResult analysis = wellnessRulePolicy.analyze(request, feedback.get(com.moodfit.auth.UserIdentity.current()));
         WellnessCheckin checkin = new WellnessCheckin(
                 clock.instant().truncatedTo(ChronoUnit.MICROS),
                 request.heartRate(),
