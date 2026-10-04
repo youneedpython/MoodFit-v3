@@ -30,6 +30,8 @@ IAM 예시의 Production 접두 항목은 staging에서 해당 조건 Resource�
 
 ## 공통 Change Set 절차
 
+TASK-038 이후 IAM Stack에는 RepositoryOwner / RepositoryName과 함께 RepositoryOwnerId / RepositoryId가 필수다. 두 ID는 숫자만 허용하며 기본값이 없다. `gh api repos/<owner>/<repository>`의 `owner.id` / `id`를 승인된 Claude 세션 또는 Human이 확인해 Git 비추적 로컬 IAM Parameter 파일에만 반영한다. 실제 ID와 응답 원문을 추적 파일이나 Agent 입력에 넣지 않는다. 기존 Stack UPDATE에도 새 Parameter가 필요하다. Human은 Merge 후 IAM Change Set에서 환경별 immutable subject와 기존 권한 보존을 검토하고 실행한다. Production 생성·갱신 승인을 이 절차에서 추론하지 않는다.
+
 Budget은 global 서비스지만 이 절차의 CloudFormation Budget Stack 생성·조회와 Template 검증은 모두 서울(ap-northeast-2)에서 수행한다. `staging-changeset.sh`, `staging-status.sh`, `iac-validate.sh`의 Region 선택이 동일하다. us-east-1은 certificate Stack에만 사용한다. Budget 예시의 Environment=staging 입력은 Budget 이름 moodfit-staging-monthly 구성에 사용하며 그대로 유지한다.
 
 Human 실행: 이름은 moodfit-staging-<stack>으로 고정한다. 서울이 기본이며 certificate만 us-east-1이다. create는 실행하지 않는다. 최초 CREATE / 이후 UPDATE를 명시한다. describe가 CREATE_COMPLETE / AVAILABLE이 된 후 Resource별 추가·수정·삭제와 Replacement / Conditional Replacement, IAM 권한, DNS, 보존 정책과 비용을 콘솔에서 직접 확인한다. 요약 개수만으로 승인하지 않는다. 변경 없음 Change Set은 실행하지 않는다.

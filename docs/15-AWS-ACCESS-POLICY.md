@@ -66,6 +66,7 @@ TASK-027 / DEC-031은 Data Stack이 무작위 생성한 자격 증명 ARN을 IAM
 Parameter 검토 규칙:
 
 - RepositoryOwner / RepositoryName / GitHubOidcProviderArn은 승인 Repository와 해당 계정 Provider 하나다. owner / repo / subject wildcard는 금지한다.
+- RepositoryOwnerId / RepositoryId는 필수 String Parameter이며 AllowedPattern `[0-9]+`로 숫자만 허용하고 빈 값은 거부한다. 기존 이름 Parameter와 Pattern은 유지한다. Human 또는 승인된 Claude 세션은 `gh api repos/<owner>/<repository>`의 `owner.id` / `id`를 각각 확인해 Git 비추적 로컬 Parameter 파일에만 넣는다. 실제 ID와 응답 원문은 출력·추적 문서·Agent 입력에 남기지 않는다. 예시 파일의 Placeholder는 적용 전에 교체한다.
 - RepositoryArn은 Staging에서 검증하고 Production이 참조하는 단일 immutable ECR Repository의 정확한 ARN이다. ProductionRepositoryArn은 사용하지 않는다. ServiceArn, ClusterArn, StaticBucketArn, DistributionArn, ExecutionRoleArn, TaskRoleArn은 환경별 전용 Resource의 정확한 ARN이다. Production 값을 Staging Parameter에 넣지 않는다.
 - ecs-execution-role-policy.json도 같은 RepositoryArn을 사용한다. execution role은 공용 이미지 Pull만, Log / DB credential은 환경별 범위를 유지한다.
 - StaticObjectArn은 해당 정적 Bucket의 객체 범위만 나타낸다. Revision family Pattern은 해당 환경의 승인된 family에 revision suffix wildcard만 허용한다. StackArn은 기존 앱 전용 Stack의 정확한 ARN이며 공용 Infrastructure Stack을 지정하지 않는다.
@@ -85,6 +86,8 @@ CloudFormation은 기존 앱 Stack의 UPDATE Change Set만 제안한다. CreateC
 ECS UpdateService는 환경별 TaskDefinition family ARN 조건도 제한하며 호출 시 명시적 revision ARN을 전달해야 한다. 승인된 digest / runtime Role / Desired Count 2 / rolling 최대 4개를 배포 입력 검증으로 확인한다. IAM의 Service ARN만으로 CPU / desiredCount / Image digest 변경을 통제할 수는 없으므로 임의 변경은 승인 범위 밖이다. 승인 Template / 고정 Artifact 검증 없이 Change Set이나 배포를 수행하지 않는다.
 
 ## 5. OIDC / Environment / Artifact 흐름
+
+TASK-038 Human 승인(2026-10-04)에 따라 immutable subject를 사용한다. Staging은 `repo:${RepositoryOwner}@${RepositoryOwnerId}/${RepositoryName}@${RepositoryId}:environment:staging`, Production은 `repo:${RepositoryOwner}@${RepositoryOwnerId}/${RepositoryName}@${RepositoryId}:environment:production`이다. 각 Role은 StringEquals로 해당 값 하나만 비교한다. 이름 형식 subject를 함께 허용하거나 StringLike / wildcard로 완화하지 않는다.
 
 OIDC Provider는 GitHub 발급자, audience는 sts.amazonaws.com이다. StringEquals subject는 환경별로 정확한 Repository와 staging 또는 production을 고정한다. 다른 Repository / environment / PR 기본 subject / branch 기본 subject는 불일치로 거부된다. Environment subject에는 branch가 없으므로 IAM Trust만으로 다른 Branch 거부를 보장하지 않는다. GitHub Environment main-only 정책과 Workflow의 main 검사를 함께 적용한다.
 

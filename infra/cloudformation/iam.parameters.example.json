@@ -20,6 +20,14 @@
     "ParameterValue": "<RepositoryName>"
   },
   {
+    "ParameterKey": "RepositoryOwnerId",
+    "ParameterValue": "<RepositoryOwnerId>"
+  },
+  {
+    "ParameterKey": "RepositoryId",
+    "ParameterValue": "<RepositoryId>"
+  },
+  {
     "ParameterKey": "GitHubOidcProviderArn",
     "ParameterValue": ""
   },

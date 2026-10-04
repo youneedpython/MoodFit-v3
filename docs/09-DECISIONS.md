@@ -1362,6 +1362,10 @@ Run 2 Claude PASS 설계안 docs/15-AWS-ACCESS-POLICY.md / infra/iam/ (Commit 1d
 - 일반 Stack CloudFormation service role의 SourceAccount / SourceArn 동작은 TASK-026 적용 시 검증한다. 미지원이면 조건을 제거하지 않고 중단한다.
 - N-003 / N-004 Parameter 이름은 RepositoryArn / AccountId로 통일한다. 전체 inline 정책의 Resource 이름 렌더링과 적용은 TASK-026 / TASK-027 Gate에서 한다.
 
+### 변경 이력
+
+- 2026-10-04 Human 승인 TASK-038: 첫 Staging CD의 OIDC 실패 원인은 이름 형식 Trust와 GitHub immutable subject의 불일치였다. subject를 `repo:${RepositoryOwner}@${RepositoryOwnerId}/${RepositoryName}@${RepositoryId}:environment:staging`으로 변경하며 Production은 끝이 production이다. RepositoryOwnerId / RepositoryId는 숫자만 허용하는 필수 Parameter다. 각 Role의 StringEquals 단일 값 비교, audience, 환경 분리, wildcard 금지와 기존 권한을 유지하며 이름 형식을 함께 허용하지 않는다. 실제 ID는 로컬 비추적 Parameter 파일에만 둔다. Merge 후 Human의 IAM Change Set 적용과 배포 재실행 확인이 필요하며 Production 실행 승인은 포함하지 않는다.
+
 B단계 Human은 Permission Set 2종 / 로컬 Profile을 먼저 구성하되 초기 inline 정책은 sts:GetCallerIdentity만 둔다. 전체 IAM 정책 / OIDC Provider / Role / Environment 생성과 Network / RDS / IAM 최초 구성 권한은 후속 Task Gate에서 정한다. Executor는 실제 AWS CLI / 설정을 사용하지 않고 Preflight / Fake CLI Test를 구현한다. TASK-026 실행 전 Human 구성과 실제 Profile Preflight 확인이 필요하다. 설계 승인은 Resource 생성 / Production 실행 승인이 아니다.
 
 ---

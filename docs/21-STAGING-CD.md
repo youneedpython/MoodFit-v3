@@ -29,7 +29,15 @@ Environment `staging`을 만들고 배포 Branch를 main만 허용한다. Requir
 | STATIC_BUCKET_NAME | Frontend Stack 정적 Bucket |
 | CLOUDFRONT_DISTRIBUTION_ID | Frontend Stack Distribution |
 
-Region은 ap-northeast-2, Cluster는 moodfit-staging, Service / family는 moodfit-staging-backend, Container는 app.yaml의 backend다. 사용자 URL은 https://staging.moodfit.8949db.kr 이다. 배포 Job만 OIDC 권한을 갖고 최상위 권한은 contents read다. Role의 기존 Repository / staging subject와 최소 API 권한을 유지한다. CloudFormation / IAM / 삭제 API를 호출하지 않는다.
+Region은 ap-northeast-2, Cluster는 moodfit-staging, Service / family는 moodfit-staging-backend, Container는 app.yaml의 backend다. 사용자 URL은 https://staging.moodfit.8949db.kr 이다. 배포 Job만 OIDC 권한을 갖고 최상위 권한은 contents read다. Role은 TASK-038의 immutable Repository / staging subject와 기존 최소 API 권한을 사용한다. CloudFormation / IAM / 삭제 API를 호출하지 않는다.
+
+### 첫 자동 배포 OIDC 실패와 조치 (2026-10-04)
+
+TASK-029 Merge(PR #18) 뒤 첫 실행은 OIDC 단계에서 `Not authorized to perform sts:AssumeRoleWithWebIdentity`로 실패했다. Claude 세션이 확인한 Repository 설정은 `use_default`와 `use_immutable_subject`가 모두 true였다. GitHub가 발급하는 subject에는 owner / repository 숫자 ID가 포함되지만 기존 IAM Trust는 이름 형식만 StringEquals로 비교해 불일치했다. Environment 값 4개와 Repository 이름, Workflow의 문제가 아니며 이름 형식으로 되돌리는 API 요청도 재조회 시 설정이 유지되었다.
+
+Human 승인 TASK-038은 IAM Trust를 `repo:${RepositoryOwner}@${RepositoryOwnerId}/${RepositoryName}@${RepositoryId}:environment:staging`으로 맞춘다. Production Template는 끝이 production인 별도 값 하나만 비교한다. audience / StringEquals / wildcard 금지와 배포 권한은 유지한다. 실제 ID는 로컬 비추적 Parameter 파일에만 둔다. Merge 후 Human이 IAM Stack Change Set을 검토·실행하고 실패한 배포를 다시 실행해 OIDC 단계 통과를 확인한다. Template 수정만으로 실환경 해결을 주장하지 않는다.
+
+Repository를 새로 만들거나 이전하면 RepositoryId 또는 RepositoryOwnerId가 바뀔 수 있으므로 이름과 두 ID를 다시 확인하고 IAM Stack을 갱신해야 한다. 이전 이름 형식을 함께 허용하는 우회는 하지 않는다.
 
 AWS 공식 Action은 다음 Release의 실제 Commit SHA로 고정했다(2026-10-04 공식 Release → Commit 링크 확인). 최신 버전이라는 주장은 하지 않는다. 그 밖에는 기존 CI 표기의 checkout v7 / setup-node v7 / setup-java v6만 사용한다.
 

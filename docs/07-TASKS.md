@@ -85,6 +85,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | DONE | TASK-032 완료, DEC-030 사전 승인. 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | Gate C 승인 완료 (DEC-030) |
 | TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | DONE | 사전 승인과 명시 실행에 따른 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | 2026-10-03 형식 / 거부 기준 / 적용 범위 / Resume / 강화 규칙 사전 승인 |
 | TASK-035 | Milestone 35 | Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회) | DONE | Human 지시(2026-10-04), Frontend만 변경, Review PASS | Gate 사전 승인, PR #16 Human Squash Merge로 확정 |
+| TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04), 최종 완료 승인 대기 |
 
 ---
 
@@ -1657,6 +1658,30 @@ Check-in의 기온과 날씨 입력을 현재 위치 기준으로 자동으로 �
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-035_LOCATION_WEATHER_AUTOFILL.md`](tasks/TASK-035_LOCATION_WEATHER_AUTOFILL.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-038 — GitHub OIDC Immutable Subject Trust
+
+### 상태
+
+```text
+DONE
+```
+
+### Dependency / 승인
+
+TASK-029 Merge(PR #18), 2026-10-04 Human 사전 승인과 명시 실행 지시에 따라 수행한다. Milestone 38이다.
+
+### 구현 / 완료 경계
+
+두 배포 Role의 subject를 owner / repository 숫자 ID가 포함된 immutable 형식으로 변경한다. 숫자 전용 필수 Parameter 두 개와 예시 Placeholder를 추가하고 Trust 예시 / 운영 문서 / DEC-029 이력을 맞춘다. StringEquals 단일 값, audience, 환경 분리와 기존 권한은 유지한다. 실제 ID와 AWS 실행은 포함하지 않는다.
+
+DONE은 Executor 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 뜻하지 않는다. Merge 후 Human이 IAM Stack Change Set을 적용하고 실패한 배포를 재실행해 OIDC 통과를 확인한다. TASK-030 / Current Task는 BLOCKED를 유지한다.
+
+### 상세 Task Contract
+
+[`TASK-038_OIDC_IMMUTABLE_SUBJECT.md`](tasks/TASK-038_OIDC_IMMUTABLE_SUBJECT.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
 
 ---
 

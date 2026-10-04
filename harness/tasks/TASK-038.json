@@ -1,0 +1,51 @@
+{
+  "id": "TASK-038",
+  "title": "GitHub OIDC Immutable Subject Trust",
+  "task_file": "docs/tasks/TASK-038_OIDC_IMMUTABLE_SUBJECT.md",
+  "allowed_paths": [
+    "infra/cloudformation/iam.yaml",
+    "infra/cloudformation/iam.parameters.example.json",
+    "infra/iam/",
+    "scripts/iac-validate.sh",
+    "docs/",
+    "README.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "infra/cloudformation/local/",
+    ".github/",
+    "frontend/",
+    "backend/",
+    "contracts/",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "agents_sections": [
+    "3"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/iac-validate.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}
