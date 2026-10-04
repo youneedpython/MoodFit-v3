@@ -3365,3 +3365,12 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다. 자체 실행 불가를 코드 검증 PASS로 취급하지 않는다. Dependency / Git / AWS 변경은 하지 않았다.
 - `git diff --check` 통과. 변경 문서의 UTF-8 / 연속 물음표 / U+FFFD 직접 검사, API 명세 JSON과 계약 예시 일치 / region null, Task 표 번호 순서 검사 통과. 실행 테스트 성공을 주장하지 않는다.
 - 앱 실행을 준비하지 못해 390 / 768 / 1280px 화면 캡처를 남기지 못했다. 캡처와 시각 검토, Merge 후 Staging의 지역 저장 / 표시 확인을 후속 작업으로 남긴다. Executor DONE은 구현 완료이며 Task 완료 승인이나 Verification 성공이 아니다.
+
+### TASK-044 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Orchestrator Verify 3개 명령 통과(Container Smoke 포함), Claude Review PASS(1회).
+- 화면 확인(`docs/images/task-044/`): 이 Branch의 Build를 로컬에서 띄우고 API는 계약 예시를 바탕으로 한 가짜 응답(지역 있음 / 없음 / 긴 이름)으로 대신해 390 / 768 / 1280px를 캡처했다.
+  - Dashboard 날씨 카드: 날씨와 기온 아래에 지역이 한 줄로 보인다. 지역이 없으면 지금과 같다(`dashboard-noregion-1280.png`).
+  - History: 각 기록의 날씨 아래에 지역이 보이고, 지역이 없는 기록은 빈 자리 없이 날씨만 보인다.
+  - 긴 지역 이름에서도 세 폭 모두 가로 넘침이 없었다(문서 폭 측정).
+- 실제 Backend와 연결한 저장 → 표시 흐름은 Merge 뒤 Staging에서 확인한다. Review F-002(MySQL Testcontainers Test의 실제 실행 여부)는 Remote CI의 backend Job 기준으로 본다.
