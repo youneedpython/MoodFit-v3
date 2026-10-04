@@ -12,7 +12,7 @@ Check-in 저장 이후 별도 요청으로 2 ~ 3문장의 코멘트와 실천 �
 
 코멘트에는 심박수, 호흡수, 수면 점수, 스트레스, 에너지, 기온, 날씨 종류와 규칙이 정한 Score, 상태, 요약, 음식 이름, 음악 제목만 보낸다. 주간 리포트에는 날짜(일 단위), Score, 상태, 수면 점수, 스트레스, 에너지, 날씨 종류, 기온만 보낸다. Entity를 직렬화하지 않고 허용 필드만 JSON으로 투영한다.
 
-사용자 번호, Check-in 번호, 표시 이름, 이메일, 좌표, 지역 이름은 보내지 않는다. 사용자 자유 문장을 받지 않는다. 입력 수치, 모델 응답, 예외 본문과 Stack trace를 로그에 남기지 않는다. Bedrock global endpoint의 추론이 해외 Region에서 처리될 수 있다는 점은 Human이 수용했다.
+사용자 번호, Check-in 번호, 표시 이름, 이메일, 좌표, 지역 이름은 보내지 않는다. 사용자 자유 문장을 받지 않는다. 입력 수치, 요청 본문, 모델 응답, 예외 응답 본문과 Stack trace를 로그에 남기지 않는다. HTTP 오류는 예외 Class, 상태 Code, 제공자 오류 종류와 getMessage()의 정리본만 WARN으로 남긴다. 12자리 연속 숫자는 `<acct>`, `arn:`으로 시작하는 공백 구분 단위는 `<arn>`으로 가리고 줄바꿈 / 제어 문자를 공백으로 바꾼 뒤 300자로 자른다. Network / 시간 초과 등은 Class 이름만, 거절 / 길이 초과는 고정 종류만 한 시도에 한 번 기록한다. 기존 `LLM generation failure kind=...` 검색 형식을 유지한다. Bedrock global endpoint의 추론이 해외 Region에서 처리될 수 있다는 점은 Human이 수용했다.
 
 ## Prompt와 응답 처리
 
@@ -27,6 +27,7 @@ Check-in 저장 이후 별도 요청으로 2 ~ 3문장의 코멘트와 실천 �
 | LLM_ENABLED | false | true일 때 생성 허용 |
 | LLM_MODEL_ID | anthropic.claude-sonnet-5-5 | Claude Sonnet 5.5 |
 | LLM_REGION | ap-northeast-2 | Bedrock Region |
+| LLM_ENDPOINT | runtime | runtime은 BedrockBackend / InvokeModel, mantle은 BedrockMantleBackend; 빈 값 / 알 수 없는 값은 runtime |
 | LLM_ROLE_ARN | 없음 | 다른 계정의 호출 전용 Role |
 | LLM_DAILY_INSIGHT_LIMIT | 10 | 사용자당 하루 코멘트 시도 |
 | LLM_DAILY_REPORT_LIMIT | 2 | 사용자당 하루 리포트 시도 |

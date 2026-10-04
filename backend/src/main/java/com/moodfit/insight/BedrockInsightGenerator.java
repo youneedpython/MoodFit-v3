@@ -2,6 +2,7 @@ package com.moodfit.insight;
 
 import java.time.Duration;
 import com.anthropic.bedrock.backends.BedrockMantleBackend;
+import com.anthropic.bedrock.backends.BedrockBackend;
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.ContentBlock;
@@ -9,8 +10,6 @@ import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Message;
 import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -20,7 +19,6 @@ import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
 
 @Component
 public class BedrockInsightGenerator implements InsightGenerator {
-    private static final Logger log = LoggerFactory.getLogger(BedrockInsightGenerator.class);
     static final String SYSTEM = "당신은 웰니스 코치입니다. 주어진 Score와 상태를 바꾸거나 다시 계산하지 마세요. "
             + "진단, 치료, 약 권유를 하지 마세요. 목록 기호와 Markdown 없이 존댓말 문장으로만 쓰세요. "
             + "입력에 없는 사실을 지어내지 마세요. 수치가 걱정스러워도 전문가 상담을 가볍게 권하는 정도만 쓰세요. ";
@@ -46,9 +44,13 @@ public class BedrockInsightGenerator implements InsightGenerator {
                             .refreshRequest(AssumeRoleRequest.builder().roleArn(settings.role()).roleSessionName("moodfit-llm").build()).build();
                     provider = assumed;
                 }
-                client = AnthropicOkHttpClient.builder()
-                        .backend(BedrockMantleBackend.builder().awsCredentialsProvider(provider).region(region).build())
-                        .timeout(Duration.ofSeconds(20)).maxRetries(1).build();
+                var builder = AnthropicOkHttpClient.builder();
+                if ("mantle".equals(settings.endpoint())) {
+                    builder.backend(BedrockMantleBackend.builder().awsCredentialsProvider(provider).region(region).build());
+                } else {
+                    builder.backend(BedrockBackend.builder().awsCredentialsProvider(provider).region(region).build());
+                }
+                client = builder.timeout(Duration.ofSeconds(20)).maxRetries(1).build();
             } catch (RuntimeException failure) {
                 close();
                 throw failure;
@@ -65,10 +67,14 @@ public class BedrockInsightGenerator implements InsightGenerator {
     static String responseText(Message message) {
         String reason = message.stopReason().map(value -> value.asString()).orElse("");
         if ("refusal".equals(reason) || "max_tokens".equals(reason)) {
-            log.warn("LLM generation failure kind={}", reason);
-            return null;
+            throw new ResponseRejected(reason);
         }
         return message.content().stream().filter(ContentBlock::isText).findFirst().map(block -> block.asText().text()).orElse(null);
+    }
+    static final class ResponseRejected extends RuntimeException {
+        private final String reason;
+        ResponseRejected(String reason) { this.reason = reason; }
+        String reason() { return reason; }
     }
     @PreDestroy public synchronized void close() {
         if (client != null) client.close();
