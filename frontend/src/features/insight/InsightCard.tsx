@@ -74,15 +74,17 @@ function InsightContent({ path, weekly, automatic }: { path: string; weekly: boo
   if (!response?.enabled) return null;
   return <Card title={weekly ? "주간 리포트" : "AI 코멘트"} className="insight-card">
     {!response.available ? <p>소셜 로그인 후 이용할 수 있습니다</p> : <>
+      <div className="insight-card__body">
       {weekly && "periodStart" in response && response.periodStart && <p className="insight-card__period">
         {response.periodStart} ~ {response.periodEnd} · {response.recordCount}건
       </p>}
       {response.text && <p className="insight-card__text">{response.text}</p>}
       {busy && <p role="status">{weekly ? "주간 리포트를 만드는 중입니다." : "AI 코멘트를 만드는 중입니다."}</p>}
       {error && <p role="alert">{error}</p>}
-      {(weekly || (!response.text && (!automatic || error))) && <Button variant="secondary" disabled={busy} onClick={() => void generate()}>
+      </div>
+      {(weekly || (!response.text && (!automatic || error))) && <div className="insight-card__actions"><Button variant="secondary" disabled={busy} onClick={() => void generate()}>
         {weekly ? (response.text ? "주간 리포트 다시 만들기" : "주간 리포트 만들기") : error ? "다시 시도" : "AI 코멘트 받기"}
-      </Button>}
+      </Button></div>}
       <small>AI가 생성한 참고용 문장이며 의학적 조언이 아닙니다.</small>
     </>}
   </Card>;

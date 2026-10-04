@@ -104,6 +104,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-050 | Milestone 50 | Skip Staging CD for Docs-only Changes | DONE | TASK-029, TASK-039 | Human Gate C 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-051 | Milestone 51 | AI Comment Readability | DONE | TASK-045, TASK-047, TASK-049 | Human 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-052 | Milestone 52 | Music Pool Curation (선곡 조정) | DONE | TASK-048 | Human 선곡 이동 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-053 | Milestone 53 | AI Card Layout (AI 코멘트 위치 / 주간 리포트 버튼 간격) | DONE | TASK-051 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-054 | Milestone 54 | Privacy Notice / Account Deletion / SPA Route Fix | DONE | TASK-042, TASK-044, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
@@ -1964,6 +1965,15 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - Container Smoke 성공 문구 한 줄에서 실제 검사하지 않는 400 표기를 제거했다.
 - 자체 검증은 npm 캐시 EPERM, Gradle Wrapper lock 생성 제한, JAR 미생성 / Docker 접근 제한으로 실행되지 않았다. 정적 Pool 대조 / Smoke 구문 / diff 검사는 통과했다. Sandbox 밖 Orchestrator Verify가 기준이다.
 - 다른 Task 상태와 Current Task TASK-030 / BLOCKED를 유지한다. DONE은 Verify / Review / Human Squash Merge 승인이 아니며 Merge 후 자동 배포 Smoke 확인이 남는다.
+
+## TASK-053 — AI Card Layout
+
+- 상태: DONE (Executor 구현 완료), Milestone 53. Dependency: TASK-051.
+- 승인: 2026-10-04 Human 명시 실행 지시와 TASK-053 Contract.
+- 결과 화면을 요약 → 날씨 / 지역 → AI 코멘트 → 추천 음식 / 음악 → 버튼 순서로 수정했다. 기존 구역 간격과 기능 꺼짐 시 빈 Wrapper 없는 구조를 유지한다.
+- AI 본문 / 버튼 구역에 --space-4, 기간 줄 / 본문에 --space-2와 기존 보조 색 / 작은 글자 Token을 적용했다. DOM 순서와 리포트 / 재시도 구조 Test를 보완했다.
+- 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Sandbox 밖 Orchestrator Verify가 기준이며 DONE은 검증 / Review / Human Squash Merge 승인을 대신하지 않는다.
+- Claude 세션의 390 / 768 / 1280px 캡처와 간격 측정이 남는다. 다른 Task 상태와 Current Task는 유지한다.
 
 ## TASK-054 — Privacy Notice / Account Deletion / SPA Route Fix
 
