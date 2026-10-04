@@ -3111,3 +3111,51 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - 참고 Test의 첫 Python subprocess는 Windows 기본 인코딩 / 시스템 bash 선택으로 실패했고 Git Bash 경로·UTF-8로 수정했다. 이후 stdin CRLF 자동 변환 때문에 확인 문구 비교가 실패해 Test 입력을 raw LF bytes로 수정한 뒤 통과했다. Script의 확인 조건을 완화하지 않았다.
 - Smoke 모의 Test의 최초 PATH 주입은 Git Bash의 curl 우선 경로 때문에 실제 정적 URL을 호출했고 연결 실패로 중단됐다(데이터 생성 단계 전). BASH_ENV 함수로 Fake curl을 명시 주입한 뒤 네트워크 없이 전체 계약 성공과 HTML 오류 본문 차단을 확인했다. request의 연결 실패에는 단계·경로가 포함된 일반 사유를 출력하도록 보완했다. 실제 배포·Smoke 완료로 기록하지 않는다.
 - Sandbox Python에는 YAML / cfn-lint 모듈이 없다. Template parsing / lint / AWS ValidateTemplate / 실환경 배포 성공을 주장하지 않는다. Orchestrator Verify가 Budget 포함 8개 Template를 검증한다. 최종 Diff 공백·문서 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 검사는 Executor 참고 증거다.
+
+## TASK-028 — B단계 Staging 최초 배포 결과 / DONE (2026-10-04, Claude 세션 기록)
+
+Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다. Claude 세션은 `moodfit-readonly`로 Change Set 내용과 Stack 상태를 확인했고, 이전 Stack의 출력값을 읽어 로컬 비추적 Parameter 파일(`infra/cloudformation/local/`)을 채웠다. Account ID / ARN / Zone ID / 이메일 / Origin 검증 값은 화면에 출력하거나 추적 파일에 쓰지 않았다.
+
+### 생성 결과 (모두 첫 Change Set에서 성공, Rollback 없음)
+
+| 순서 | Stack | Region | 결과 | 추가 Resource |
+|---|---|---|---|---|
+| 1 | budget | ap-northeast-2 | CREATE_COMPLETE | Budget 1 |
+| 2 | network | ap-northeast-2 | CREATE_COMPLETE | 39 (VPC, Subnet 6, NAT 2, EIP 2, S3 Gateway Endpoint, SG 3 등) |
+| 3 | ecr | ap-northeast-2 | CREATE_COMPLETE | Repository 1 |
+| 4 | data | ap-northeast-2 | CREATE_COMPLETE | 6 (RDS MySQL 8.4.11 Multi-AZ, 자격 증명, Parameter / Subnet Group, Log Group 2) |
+| 5 | certificate | us-east-1 | CREATE_COMPLETE | 인증서 1 (DNS 검증 자동 완료) |
+| 6 | frontend | ap-northeast-2 | CREATE_COMPLETE | 8 (S3, CloudFront, OAC, Origin Request 정책, Function, DNS A / AAAA) |
+| 7 | iam | ap-northeast-2 | CREATE_COMPLETE → UPDATE_COMPLETE | 6 (OIDC Provider, Role 4, Log Group). App 생성 후 실제 Role / Stack ARN으로 갱신(수정 2) |
+| 8 | app | ap-northeast-2 | CREATE_COMPLETE | 11 (ECS Cluster / Task Definition / Service, ALB, HTTPS Listener / Rule, Target Group, origin 인증서 / DNS, access log Bucket) |
+
+- Image: Commit `9f070f0`의 깨끗한 checkout에서 Build, Tag `sha-<full SHA>`로 Push, digest를 App Parameter에 사용했다.
+- Frontend: `scripts/staging-frontend.sh`로 Build / 업로드 / invalidation.
+- GitHub OIDC Provider는 계정에 없어서(Human 확인 0개) IAM Stack에서 새로 만들었다.
+
+### 검증
+
+- `scripts/staging-status.sh app`: ECS desired 2 / running 2 / pending 0, 배포 COMPLETED, Target 2개 healthy.
+- `scripts/staging-smoke.sh`: 통과(정적 페이지와 SPA 경로, origin 보호, 합성 Check-in 생성 201 / 최신 / History 200과 계약, invalid 입력 400 본문 보존). 합성 기록 1건은 남겼다.
+- Claude 세션 추가 확인: HTTP → HTTPS 301, ALB origin hostname 직접 접근은 연결 불가(CloudFront prefix list 외 차단), `/actuator/health`는 CloudFront로 노출되지 않음(403), `/api/check-ins/latest` / History 200.
+- 정적 검증으로 확인하지 못했던 항목(TASK-027 Review N-003): ALB access log Bucket 정책은 ALB 생성 시 통과, origin 인증서 DNS 검증 자동 완료, 생성된 DB 자격 증명이 RDS와 ECS에 전달되어 readiness 통과, Task 2개 동시 시작이 Health 유예 시간 안에 healthy. Flyway 대기 시간과 header 전달의 상세 실측(로그)은 Human 로컬 확인 항목으로 남긴다.
+- Budget Stack은 서울 Region에서 생성되었다(A단계 Review N-002 확인).
+- 미확인: 앱 Change Set Role Trust의 Source 조건 동작(DEC-029)은 그 Role로 Change Set을 실행할 때 확인한다(TASK-029).
+
+### 진행 중 발생한 일과 개선 후보
+
+- Human의 SSO 사용자에게 `AdministratorAccess` Permission Set이 없어 기존 `student11` Profile을 쓸 수 없었다. 관리자 정책이 연결된 다른 Permission Set으로 새 Profile(`happyitlab_student11`)을 만들어 사용했다. AWS 설정 파일을 다시 만들면서 `moodfit-readonly` / `moodfit-staging` Profile이 사라져 Claude 세션이 복구했다(같은 SSO 세션에 연결). 새 관리자 Profile은 Orchestrator 금지 목록에 추가했다.
+- `scripts/staging-changeset.sh create`는 실패 이유를 화면에 보여 주지 않는다(AWS CLI 오류 출력을 버린다). Budget Parameter의 이메일이 비어 있을 때 `PASS` 줄만 빠지고 이유가 보이지 않았다. 오류 종류를 표시하도록 개선한다.
+- `docs/18`의 Agent 확인 문구(TASK-028 A단계 Review N-003): `staging-status.sh`는 `moodfit-readonly` 세션이 필요하고 자격 증명이 필요 없는 것은 `staging-smoke.sh`뿐이다. 문서 정리 후보다.
+- Parameter 파일 8개를 손으로 채우는 절차는 번거롭다. 이번에는 Claude 세션이 Stack 출력에서 읽어 채웠다. 출력값을 다음 Stack의 로컬 Parameter 파일로 옮기는 보조 Script를 추적 파일로 만드는 것을 개선 후보로 둔다(TASK-030 Production 생성 전에 필요).
+- Claude 실행 파일 경로가 VS Code 확장 갱신으로 바뀌어 Orchestrator Preflight가 정지했다(병행 Task). `harness/config.local.json`을 갱신했다.
+- Background로 실행한 Orchestrator가 세션 종료로 중단되면 잠금 파일이 남는다. 소유 Process 종료를 확인한 뒤 Claude 세션이 제거했다.
+
+### 비용
+
+2026-10-04 오전부터 Staging 비용이 발생한다(DEC-027 기준 하루 약 USD 8). Human 결정: 검증과 영상 촬영 뒤 정리한다(TASK-031).
+
+### 후속 Roadmap 후보 (Human 결정, 2026-10-04)
+
+- **갤럭시 / Samsung Health 신체 정보 자동 연동은 이번 범위에서 제외한다.** Samsung Health Data SDK(v1.1.0)와 Health Connect는 Android 앱 전용이고 웹 API가 없다(Samsung Developer 문서 / 포럼 확인, 2026-10-04). Google Fit REST API는 신규 등록 중단 / 2026년 말 종료 예정이다. 웹 앱에서 자동 연동하려면 Android 연동 앱(Health Connect에서 읽어 MoodFit API로 전송)이 필요하다. 대안으로 Samsung Health 내보내기 파일 가져오기, 생체 정보 제공자 구조 준비가 있다.
+- 병행 개발 중인 기능: TASK-035(위치 인식 + 날씨 자동 조회, Review PASS, PR #16), TASK-036(추천 5개 확대 / 추천 음악 YouTube 재생, 개발 중). 이후 소셜 로그인(Google, Kakao)을 Production 전에 넣는다.

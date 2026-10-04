@@ -33,16 +33,16 @@ DONE
 
 ## 3. Current Task
 
-TASK-028 — Staging Deployment / Smoke Test
+TASK-029 — Staging Continuous Deployment
 
 Status:
 
 ```text
-IN_PROGRESS
+READY
 ```
 
-TASK-001 ~ TASK-027, TASK-032 ~ TASK-034는 DONE이다. TASK-027 완료 근거는 PR #14 Human Squash Merge(2026-10-03)다.
-TASK-028은 2026-10-03 승인 Contract와 명시 실행 지시로 A단계 배포 준비를 구현했다. 상태는 IN_PROGRESS이며 실제 AWS 변경은 없다. B단계 실제 배포와 Smoke 결과를 같은 PR에 반영하기 전 DONE 또는 Merge하지 않는다. TASK-029 이후는 BLOCKED다.
+TASK-001 ~ TASK-028, TASK-032 ~ TASK-034는 DONE이다. TASK-028은 2026-10-04 Staging 최초 배포와 Smoke 검증을 마쳤으며 완료는 PR #15의 Human Squash Merge로 확정한다.
+TASK-029는 READY이며 Human 승인된 `harness/tasks/TASK-029.json` Contract와 명시적 실행 지시 후 시작한다(CD 동작은 Gate C). TASK-030 이후는 BLOCKED다. 병행 개발 중인 기능 Task(TASK-035 위치 / 날씨, TASK-036 추천 5개 / 음악 재생)는 별도 Branch에 있으며 TASK-029 Merge 뒤에 등록 / Merge한다.
 
 ---
 
@@ -77,8 +77,8 @@ TASK-028은 2026-10-03 승인 Contract와 명시 실행 지시로 A단계 배포
 | TASK-025 | Milestone 25 | AWS SSO / GitHub OIDC / IAM / Environment Gate | DONE | TASK-023 / TASK-024, DEC-029 Human Approved | B단계 구현 완료 반영, Human Squash Merge로 확정 |
 | TASK-026 | Milestone 26 | AWS Infrastructure as Code Foundation | DONE | TASK-032 / TASK-033 / TASK-034 구현 완료 반영 (충족), TASK-023 / TASK-025 및 Permission Set / Profile / 실제 Preflight 확인 충족 | 필요 (비용 Resource Checkpoint) |
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | DONE | TASK-024, TASK-026 완료 | DEC-031 승인, PR 구현 완료 반영 / Human Squash Merge로 확정 |
-| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | IN_PROGRESS | TASK-025 ~ TASK-027 완료. 비용·운영 기간·Human 직접 실행 승인 | A단계 구현, B단계 배포·Smoke 전 DONE / Merge 금지 |
-| TASK-029 | Milestone 29 | Staging Continuous Deployment | BLOCKED | TASK-028 완료 | Gate C 필요 |
+| TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | DONE | TASK-025 ~ TASK-027 완료. 2026-10-04 Staging Stack 8개 생성, Image / Frontend 배포, Smoke 통과 | Human이 Change Set 직접 실행, PR #15 Squash Merge로 확정 |
+| TASK-029 | Milestone 29 | Staging Continuous Deployment | READY | TASK-028 완료 (충족) | Gate C 필요 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | TASK-029 완료 | 필요 (Production 항상 Human Approval) |
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
 | TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 정밀화는 TASK-034로 분리 / 새 Dependency 시 Gate |
@@ -1440,10 +1440,10 @@ ECS Fargate / ALB / RDS 연동과 Frontend → API Routing을 IaC로 완성한�
 ### 상태
 
 ```text
-IN_PROGRESS
+DONE
 ```
 
-2026-10-03 승인 Contract와 명시 실행 지시에 따라 A단계 절차 / Script / Budget / 조회 정책 초안을 구현했다. AWS 변경은 수행하지 않았다. B단계는 [배포 절차](18-STAGING-DEPLOYMENT-RUNBOOK.md)를 따라 Human 실행과 조회 확인 / Smoke로 진행하며 결과 기록 전 IN_PROGRESS를 유지한다.
+A단계(절차 / Script / Budget / 조회 정책 준비, Review PASS)와 B단계(2026-10-04 Human이 Change Set으로 Staging Stack 8개를 생성, Image와 Frontend 배포, Claude 세션이 조회 권한으로 상태 확인과 Smoke 실행)를 마쳤다. `https://staging.moodfit.8949db.kr`이 동작한다. 결과는 WORK_LOG에 있다. 완료는 PR #15의 Human Squash Merge로 확정한다.
 
 ### 목적
 
@@ -1468,10 +1468,10 @@ IN_PROGRESS
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
-TASK-028 완료 후 진행한다.
+TASK-028 완료로 선행 조건이 충족되었다. Human 승인된 `harness/tasks/TASK-029.json` Contract와 명시적 실행 지시 후 시작한다. CD 동작 변경은 Gate C다.
 
 ### 목적
 
