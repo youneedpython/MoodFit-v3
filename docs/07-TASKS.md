@@ -102,6 +102,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-048 | Milestone 48 | Recommendation Variety (추천 다양화) + History 여백 | DONE | TASK-036, TASK-042, TASK-047 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-049 | Milestone 49 | LLM Runtime Endpoint / Failure Diagnostics | DONE | TASK-045, TASK-046 | Human 승인 Contract 및 명시 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-050 | Milestone 50 | Skip Staging CD for Docs-only Changes | DONE | TASK-029, TASK-039 | Human Gate C 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-051 | Milestone 51 | AI Comment Readability | DONE | TASK-045, TASK-047, TASK-049 | Human 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1942,3 +1943,13 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 자동 실행에 읽기 전용 판정 Job을 추가했다. 문서 전용이면 배포 Job을 생략하며 수동 실행 / 판정 실패 / 파일 0개는 배포한다. CI와 기존 배포 Step은 유지한다.
 - 자체 참고 검증: 판정 Script 8개 분기 및 기존 배포 본문 / Trigger / concurrency 보존 확인, git diff --check 통과. 현재 Python에 PyYAML이 없어 Contract YAML 구조 검사는 실행하지 못했다. 설치하지 않았으며 Sandbox 밖 Orchestrator Verify가 기준이다.
 - DONE은 Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않는다. Merge 후 문서 전용 / 코드 포함 자동 실행 및 수동 실행을 확인한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
+
+## TASK-051 — AI Comment Readability
+
+- 상태: DONE (Executor 구현 완료), Milestone 51.
+- 승인: 2026-10-04 Human 명시 실행 지시와 [TASK-051 Contract](tasks/TASK-051_AI_COMMENT_READABILITY.md).
+- 코멘트의 문장별 줄바꿈과 주간 리포트 문단 Prompt, 줄바꿈 없는 응답의 결정적 보정과 기존 줄 정리를 구현했다. 길이 제한과 저장 / 실패 처리를 유지한다.
+- 상태 / 날씨는 기존 한국어 표시 이름으로 모델에 보내며 개인정보 제외와 입력 범위를 유지한다. 결과 화면은 날씨 / 지역 → 추천 → AI 코멘트 → 버튼 순서와 기존 간격 Token을 적용한다. Dashboard 위치는 유지한다.
+- Backend 문장 / 소수점 / 약어 / 기존 줄 / 길이 제한과 입력 투영 Test, Frontend DOM 순서 / 줄바꿈 본문 Class Test를 추가했다.
+- Executor 자체 Verify는 npm 캐시 접근 EPERM으로 설치 단계에서 중단됐다. Sandbox 밖 Orchestrator Verify가 기준이며 DONE은 검증 / Review / 최종 완료 승인을 뜻하지 않는다.
+- Claude 세션의 390 / 768 / 1280px 화면 캡처와 Merge 후 Staging 새 생성 확인이 남는다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.

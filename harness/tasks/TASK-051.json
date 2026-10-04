@@ -1,0 +1,39 @@
+{
+  "id": "TASK-051",
+  "title": "AI Comment Readability (줄바꿈 / 상태 이름 / 결과 화면 배치)",
+  "task_file": "docs/tasks/TASK-051_AI_COMMENT_READABILITY.md",
+  "allowed_paths": [
+    "backend/src/main/java/com/moodfit/insight/",
+    "backend/src/test/java/com/moodfit/insight/",
+    "frontend/src/",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "docs/23-LLM-INSIGHT.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "backend/build.gradle",
+    "backend/src/main/resources/",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}

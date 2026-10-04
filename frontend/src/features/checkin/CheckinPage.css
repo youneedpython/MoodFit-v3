@@ -195,6 +195,14 @@ fieldset.checkin-field {
   margin-top: var(--space-5);
 }
 
+.checkin-result > .insight-card {
+  margin-top: var(--space-5);
+}
+
+.checkin-result__weather {
+  margin-top: var(--space-4);
+}
+
 .checkin-result__actions {
   display: flex;
   flex-wrap: wrap;
