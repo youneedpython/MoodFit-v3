@@ -1,0 +1,38 @@
+{
+  "id": "TASK-049",
+  "title": "LLM Runtime Endpoint / Failure Diagnostics",
+  "task_file": "docs/tasks/TASK-049_LLM_RUNTIME_ENDPOINT.md",
+  "allowed_paths": [
+    "backend/src/main/java/com/moodfit/insight/",
+    "backend/src/test/java/com/moodfit/insight/",
+    "infra/iam/llm-invocation-permission.example.json",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "docs/23-LLM-INSIGHT.md",
+    "docs/24-LLM-INFRA.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "backend/build.gradle",
+    "backend/src/main/resources/",
+    "frontend/",
+    "contracts/",
+    "infra/cloudformation/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}
