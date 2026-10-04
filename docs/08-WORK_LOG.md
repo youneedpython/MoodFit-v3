@@ -1,5 +1,13 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-038 — GitHub OIDC Immutable Subject Trust (2026-10-04)
+
+- Human 사전 승인과 명시 실행 지시에 따라 두 배포 Role과 Trust 예시의 subject를 owner / repository 숫자 ID를 포함한 immutable 형식으로 변경했다. StringEquals의 값 하나, audience와 환경별 분리, wildcard 금지와 기존 권한을 유지했다.
+- IAM Template에 숫자만 허용하고 빈 값을 거부하는 RepositoryOwnerId / RepositoryId를 추가했다. 예시에는 Placeholder만 사용하며 실제 ID는 기록하지 않았다. scripts/iac-validate.sh에는 subject / Parameter 목록 검사가 없어 변경하지 않았다.
+- 접근 정책, 최초 배포 Runbook, Staging CD의 첫 실패 원인 / 후속 적용, DEC-029 변경 이력과 실행 Prompt를 기록했다. TASK-038 Milestone 38을 DONE으로 반영하며 Current Task TASK-030 / BLOCKED와 AGENTS.md는 유지했다. 다른 미등록 Task는 추가하지 않았다.
+- Executor 참고 검증: git diff --check 통과. bash scripts/iac-validate.sh는 현재 실행 환경에서 AWS CLI를 찾지 못해 Exit 1로 시작 단계에서 정지했다. 설치·로그인·실제 AWS 호출은 하지 않았으며 Template 검증 성공을 주장하지 않는다. Sandbox 밖 Orchestrator Verify가 판정 기준이다.
+- DONE은 Executor 구현 완료다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. Merge 후 승인된 Claude 세션이 실제 ID를 비추적 로컬 Parameter 파일에 넣고 Human이 IAM Change Set을 검토·실행한 뒤 실패한 배포를 재실행해 OIDC 단계 통과를 확인한다. Git 작업과 Stack 갱신은 수행하지 않았다.
+
 ## TASK-035 — 위치 / 날씨 자동 입력 (2026-10-04)
 
 - WIP 이어서 확인: 기존 좌표 반올림 / WMO 코드 검증 / 기온 범위 / 입력 보호 / 설정 끄기 / 실패 시 직접 입력 흐름을 유지했다. Permissions API의 동기 예외를 처리하고, 설정 변경 또는 직접 조회 성공 뒤 늦은 권한 응답이 중복 조회를 시작하지 않도록 보완했다. 두 경우의 mock 회귀 Test를 추가했다.
