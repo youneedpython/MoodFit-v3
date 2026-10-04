@@ -3472,3 +3472,12 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Executor 참고 검증: `npm.cmd test -- --run src/features/history/HistoryPage.test.tsx`는 설치된 Vitest 실행 파일이 없어 시작하지 못했다. 의존성 설치나 Backend 재검증은 수행하지 않았다. Contract가 허용한 구조 검사만 유지하며 간격 Token과 반응형 CSS 자체는 변경하지 않았다.
 - `git diff --check` 및 변경 문서의 연속 물음표 / U+FFFD 직접 검사를 수행한다. 결정적 검증의 기준은 Sandbox 밖 Orchestrator Verify이며 실행하지 못한 Test를 PASS로 보고하지 않는다.
 - Backend 통과는 Task 문서의 Claude 세션 실행 기록에 근거한 참고 사항이다. Container Smoke와 전체 Verify / Review는 대기이며 Executor DONE은 구현 완료만 뜻한다. Git 후속 작업은 수행하지 않았다.
+
+### TASK-048 Run 3 — Smoke 경로 검토와 기록 (2026-10-04)
+
+- 최초 Working Tree는 clean이었다. 승인된 Run 3 범위에 따라 두 Smoke의 경로 / 정리 / 비출력 흐름을 읽고 문서와 Prompt만 갱신했다. 다른 구현과 Task 상태는 변경하지 않았다.
+- Claude 세션이 수정한 `docker exec` / `cat` 응답 추출과 `python - "$(docker_path "$work_dir")"` 두 줄은 그대로 유지했다. tmpfs 파일을 실행 중 Container에서 읽고 create / latest / history만 호스트 파일에 저장하므로 Cookie / 인증 Header를 복사하거나 로그로 출력하지 않는다. 성공 시 인증 디렉터리를 제거하며 실패 시 EXIT 정리가 Container와 호스트 임시 파일을 제거한다.
+- `docker_path`는 Windows Git Bash에서 cygpath로 호스트 경로를 변환하고 Linux에서는 경로를 그대로 반환한다. Staging은 호스트 curl로 파일을 만들고 MSYS 변환을 끄지 않아 같은 문제가 적용되지 않는다. Staging Script 수정은 필요하지 않았다.
+- Task 문서에 따르면 Run 2의 전체 Verify는 통과했고, Container Smoke는 tmpfs 추출 실패와 Windows Python 경로 실패 후 Claude 세션의 두 줄 수정으로 Sandbox 밖 exit 0을 확인했다. 이는 이전 실행의 참고 근거이며 이번 Executor가 통합 검증을 실행했다는 뜻은 아니다.
+- Executor 참고 검증: `bash -n scripts/container-smoke.sh`, `bash -n scripts/staging-smoke.sh`, `git diff --check` 통과. 문서만 변경한 이번 Run에서는 전체 Test / Build / Container 실행을 반복하지 않았다. Sandbox 밖 Orchestrator Verify가 판정 기준이며 Executor DONE은 구현 완료만 뜻한다.
+- 한글 문서는 UTF-8 apply_patch로 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. Git 쓰기와 외부 배포는 수행하지 않았다. 화면 캡처와 Merge 후 Staging 날짜별 추천 / Smoke 확인은 기존 후속 작업으로 남는다.
