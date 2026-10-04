@@ -40,7 +40,6 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
       </div>
 
       <p className="checkin-result__summary">{result.summary}</p>
-      <InsightCard checkinId={result.id} autoGenerate />
       {result.weather.region && <p className="checkin-result__weather">
         {WEATHER_LABELS[result.weather.condition]} · {result.weather.temperature.toFixed(1)}°C
         <span className="weather-region">{result.weather.region}</span>
@@ -49,6 +48,8 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
       <div className="checkin-result__recommendations">
         <RecommendationCards foods={result.foods} music={result.music} />
       </div>
+
+      <InsightCard checkinId={result.id} autoGenerate />
 
       <div className="checkin-result__actions">
         <ButtonLink to="/">Dashboard로 이동</ButtonLink>

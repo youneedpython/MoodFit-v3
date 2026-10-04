@@ -90,6 +90,7 @@ class InsightTests {
         generate(id).andExpect(status().isOk()).andExpect(jsonPath("$.text").value(fake.output));
         generate(id).andExpect(status().isOk()); assertThat(fake.calls).isEqualTo(1);
         assertThat(fake.input).doesNotContain("비공개", "userId", "region", "recordedAt", "displayName", "checkinId");
+        assertThat(fake.input).contains("활기 있음", "비").doesNotContain("ENERGETIC", "RAIN");
         assertThat(mapper.readTree(fake.input).propertyNames()).containsExactlyInAnyOrder("score", "status", "sleepScore", "stressLevel", "energyLevel", "weather", "temperature", "heartRate", "respiratoryRate", "summary", "foods", "music");
         var saved = store.insight(id).orElseThrow();
         assertThat(saved.text()).isEqualTo(fake.output);
@@ -152,6 +153,7 @@ class InsightTests {
         fake.output = mapper.readTree(Files.readString(Path.of("..", "contracts", "weekly-generated-200.json"))).get("text").asText();
         mvc.perform(asUser(post("/api/reports/weekly").with(csrf()), user)).andExpect(status().isOk()).andExpect(jsonPath("$.recordCount").value(3));
         assertThat(fake.input).doesNotContain("비공개", "userId", "region", "heartRate", "summary", "foods", "music");
+        assertThat(fake.input).contains("활기 있음", "비").doesNotContain("ENERGETIC", "RAIN");
         assertThat(mapper.readTree(fake.input).get(0).propertyNames()).containsExactlyInAnyOrder("date", "score", "status", "sleepScore", "stressLevel", "energyLevel", "weather", "temperature");
         var response = mvc.perform(asUser(get("/api/reports/weekly"), user)).andExpect(status().isOk()).andExpect(jsonPath("$.text").value(fake.output)).andReturn();
         assertThat(mapper.readTree(response.getResponse().getContentAsString())).isEqualTo(mapper.readTree(Files.readString(Path.of("..", "contracts", "weekly-generated-200.json"))));
@@ -199,5 +201,21 @@ class InsightTests {
         assertThat(InsightText.clean("가".repeat(1300), true)).hasSize(1200);
         String emoji = InsightText.clean("🙂".repeat(650), false);
         assertThat(emoji.codePointCount(0, emoji.length())).isEqualTo(600);
+    }
+    @Test void formatsSentencesAndParagraphsOnlyWhenNoLineBreakExists() {
+        assertThat(InsightText.clean("기온은 17.9도입니다. 쉬세요! 괜찮으세요?", false))
+                .isEqualTo("기온은 17.9도입니다.\n쉬세요!\n괜찮으세요?");
+        assertThat(InsightText.clean("첫 문장. 둘째 문장! 셋째 문장? 넷째 문장. 다섯째 문장.", true))
+                .isEqualTo("첫 문장. 둘째 문장!\n\n셋째 문장? 넷째 문장.\n\n다섯째 문장.");
+        for (boolean weekly : new boolean[]{false, true}) {
+            assertThat(InsightText.clean(" 첫 문장. 둘째 문장. \r\n  \r\n\r\n 셋째 문장. ", weekly))
+                    .isEqualTo("첫 문장. 둘째 문장.\n\n셋째 문장.");
+            int limit = weekly ? 1200 : 600;
+            String result = InsightText.clean("🙂. ".repeat(500), weekly);
+            assertThat(result.codePointCount(0, result.length())).isEqualTo(limit);
+            assertThat(result).contains("\n");
+        }
+        assertThat(InsightText.clean("U.S.A.에서 쉬세요. 다음 문장.", false))
+                .isEqualTo("U.S.A.에서 쉬세요.\n다음 문장.");
     }
 }

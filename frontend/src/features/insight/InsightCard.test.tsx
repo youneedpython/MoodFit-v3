@@ -15,6 +15,13 @@ function response(body: unknown, status = 200) { return new Response(JSON.string
 function login(provider: "google" | "guest" = "google") { auth.state.user = { id: provider === "guest" ? 1 : 2, displayName: "사용자", provider }; }
 
 describe("AI 코멘트와 주간 리포트", () => {
+  it.each([false, true])("preserves line breaks in the text display class, weekly=%s", async (isWeekly) => {
+    login();
+    const text = "첫 문장.\n둘째 문장.\n\n셋째 문장.";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ ...(isWeekly ? weekly : generated), text })));
+    const view = render(<InsightCard weekly={isWeekly} checkinId={isWeekly ? undefined : 1} />);
+    await waitFor(() => expect(view.container.querySelector(".insight-card__text")?.textContent).toBe(text));
+  });
   it("hides disabled functionality", async () => {
     login(); const fetchMock = vi.fn().mockResolvedValue(response(disabled)); vi.stubGlobal("fetch", fetchMock);
     render(<InsightCard checkinId={1} autoGenerate />);
