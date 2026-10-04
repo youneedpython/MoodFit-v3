@@ -3253,3 +3253,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 배포 확인 사항: dist 전체가 Bucket에 업로드되므로 Root 아이콘과 manifest도 배포 대상이다. CloudFront SPA 처리는 /check-in, /history만 변경하여 아이콘 경로에 영향이 없다. Root 파일의 긴 cache 때문에 향후 로고 교체는 파일 이름 변경 또는 invalidation이 필요하다. 실제 배포는 수행하지 않았다.
 - 화면 캡처는 Contract allowed_paths에 docs/images가 없어 추가하지 않았다. 브라우저에서 390 / 768 / 1280px 배치 확인 및 Merge 후 Staging 탭 아이콘 / 상단 로고 확인은 후속 확인 항목이다.
 - Executor 구현 완료이며 Verify / Claude Review / Human Merge를 통한 Task 완료 승인 전이다. Git 후속 작업은 수행하지 않았다.
+
+### TASK-037 Merge 전 정리 (2026-10-04, Claude 세션 기록)
+
+- 최신 main(TASK-036 / 038 / 039 포함)을 Branch에 Merge했다. `docs/08-WORK_LOG.md` 충돌은 양쪽 기록을 모두 남겼다.
+- Review가 남긴 화면 확인을 수행했다. 이 Branch의 Build를 로컬에서 띄우고 API는 Staging으로 연결해 390 / 768 / 1280px 상단 메뉴를 캡처했다(`docs/images/task-037/`). 로고와 이름, 날짜가 한 줄에 놓이고 390px에서는 메뉴가 둘째 줄에 온전히 놓인다. 메뉴 항목 줄바꿈은 없다. 로고와 날짜 글자의 세로 정렬은 눈에 띄게 어긋나지 않아 CSS는 바꾸지 않았다.
+- Human 요청(2026-10-04)으로 README 화면 이미지 6장(`docs/images/readme/`)을 현재 화면(로고, 추천 5개, 추천 음악 재생 버튼)으로 교체했다. 같은 방식으로 캡처했다.
+- 병행 개발 중이라 미뤄 둔 등록을 정리했다: `docs/07-TASKS.md`에 TASK-037 DONE 행과 절 추가(Milestone 37).
+- 배포 참고: 아이콘 파일은 Hash 없는 이름으로 긴 cache가 붙는다. 로고를 바꿀 때는 파일 이름을 바꾼다.
