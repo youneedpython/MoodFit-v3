@@ -42,7 +42,7 @@ export function DashboardPage() {
       {state.status === "ready" && (
         <div className="dashboard">
           <WellnessHero checkin={state.checkin} />
-          <InsightCard checkinId={state.checkin.id} />
+          <InsightCard checkinId={state.checkin.id} autoGenerate />
           <BodyMetrics metrics={state.checkin.metrics} />
           <RecommendationCards foods={state.checkin.foods} music={state.checkin.music} />
         </div>

@@ -3430,3 +3430,23 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - TASK-045 문서가 없어 docs/24-LLM-INFRA.md를 사용했다. Parameter / 호출 Role Policy 예시, 배포 Runbook / 접근 정책 / DEC-038 / TASK-046 Milestone 46과 Prompt 70을 갱신했다.
 - Verification: bash scripts/iac-validate.sh는 AWS CLI가 실행 환경에 없어 첫 단계에서 Exit 1로 중단됐다. Template 검증 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다. git diff --check는 Exit 0이었다. 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다.
 - Executor 구현 완료를 DONE으로 반영했다. Merge 후 Human Role 생성 / IAM·App UPDATE / 실제 AI 응답 확인이 남아 있다. Git 작업과 AWS 변경은 수행하지 않았다.
+
+## 2026-10-04 TASK-047 — UI Polish
+
+- 승인 Contract와 명시 실행 지시에 따라 Frontend만 구현했다. Dashboard도 결과 화면처럼 저장된 AI 코멘트가 없으면 이용 가능한 소셜 계정에 자동 생성 요청을 보낸다. 기록별 자동 시도 표시로 StrictMode / 재Render / 실패 후 중복 생성을 막고 생성 진행과 실패 후 수동 "다시 시도"를 제공한다.
+- 추천 음식 Card에 음식 낱말 기반 Emoji를 추가했다. 현재 규칙의 23개 음식 이름 대응, 모르는 이름의 기본 아이콘과 aria-hidden 장식의 접근성 이름 Test를 추가했다. 음악과 Backend 규칙 / API / Dependency / Asset은 변경하지 않았다.
+- History 기록만 최신순 5개씩 나눈다. 이전 / 다음 disabled, 현재 위치 aria-live, 페이지 이동 후 제목 focus, 기록 수 감소 시 마지막 페이지 보정 Test를 추가했다. 그래프와 주간 리포트는 전체 기록을 유지한다.
+- AI Test는 StrictMode 자동 요청 1회, 재Render와 null / 403 / 429 / Network 실패 후 반복 없음, 수동 재시도, 생성 진행, 꺼짐 / 체험 계정의 생성 차단과 저장된 문장 재사용을 포함한다.
+- Executor 참고 검증: 관련 npm Test는 vitest 실행 파일이 없어 시작하지 못했다. `bash scripts/verify.sh`는 npm ci의 사용자 캐시 stat EPERM으로 설치 단계에서 중단됐다. Frontend Test / Build와 Backend 검증은 실행되지 않았으며 성공을 주장하지 않는다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- `git diff --check` 통과. 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. 한글 문서는 UTF-8 apply_patch로 작성했다.
+- 화면 캡처는 실행하지 않았다. Contract에 따라 Claude 세션이 390 / 768 / 1280px에서 자동 생성 / 실패 재시도 / 음식 아이콘 / 기록 이동을 확인한다. 캡처 경로는 Executor 허용 경로 밖이다.
+- TASKS에 Milestone 47 / DONE을 Executor 구현 완료로 기록하고 기능 문서 / README / Prompt를 갱신했다. Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않으며 다른 Task 상태와 Current Task는 유지했다. Git 후속 작업은 수행하지 않았다.
+
+### TASK-047 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Orchestrator Verify 통과(Frontend Test 176건, Build, Backend Test / Build), Claude Review PASS(1회).
+- 화면 확인(`docs/images/task-047/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 390 / 768 / 1280px를 캡처했다.
+  - Dashboard: 저장된 코멘트가 없는 상태로 들어가면 생성 요청(POST)이 **한 번** 나가고 코멘트가 표시됐다(요청 수를 세어 확인).
+  - 추천 음식 각 항목 앞에 Emoji 아이콘이 보인다.
+  - History: 기록 8건에서 첫 페이지 5건 / "1 / 2", "이전" 비활성. "다음"을 누르면 나머지 3건 / "2 / 2", "다음" 비활성, focus가 "기록" 제목으로 이동했다. 세 폭 모두 가로 넘침이 없다.
+- 후속 후보(비차단, Review INFO-002 / 003): "기록" Card의 제목 Markup 복제 정리, 한 글자 낱말(차 / 죽 등)로 고르는 아이콘 대응은 추천을 늘릴 때 대응표와 Test 목록을 함께 갱신해야 한다.
