@@ -77,6 +77,18 @@ Human이 2026-10-04 Staging 화면을 확인한 뒤 지시했다. TASK-028 / TAS
 6. `scripts/container-smoke.sh`와 `scripts/staging-smoke.sh`는 이 저장소 사본의 금지 경로다. API 응답 형식 변경으로 Smoke Script 수정이 필요하면 구현하지 않고 `handoff_actions`가 아닌 문서(`docs/20`)에 필요한 변경을 적는다.
 7. 새로 Human 결정이 필요한 사항만 `human_decisions_needed`로 보고한다(예: 판정 규칙 자체를 바꿔야 하는 경우, 파괴적 Migration이 필요한 경우, 새 Dependency가 필요한 경우).
 
+## Run 1 결과와 Run 2 작업 범위 (2026-10-04, Claude 세션 기록)
+
+Run 1: Codex가 Backend(추천 5개, 영상 ID, `V2` Migration), API 계약, Frontend(카드 5개, 재생), 문서를 작성했다. Verify의 `scripts/verify.sh`가 Backend Test 1건 실패로 **BLOCKED** 했다(74개 중 1개 실패, 1개는 CI 전용 Test로 건너뜀). 작업 폴더 상태는 검토 미완료 WIP로 Commit했다.
+
+- 실패 Test: `WellnessRulePolicyTests`의 Parameter 사례 `COLD`. 추천 이유 문구의 기대값과 실제 값이 다르다. 기대값에는 같은 구절이 두 번 반복되어 있고("…낮거나 …낮거나 눈 오는 날에…" 형태), 실제 값은 한 번이다. 구현과 Test 중 어느 쪽이 승인된 문구인지 확인해 맞춘다. COLD와 SNOW가 같은 곡을 공유하므로 상황별 이유 문구가 어떻게 만들어지는지(조건식) 점검한다.
+
+Run 2 Codex 작업 범위:
+
+1. 위 실패를 고친다. 문구는 자연스러운 한글 한 문장이어야 하고 같은 구절이 반복되지 않아야 한다.
+2. Backend Test 전체(`./gradlew test`에 해당하는 범위)가 통과하도록 다른 Test의 기대값도 점검한다. Executor Sandbox에서 Docker가 필요한 통합 Test는 실행할 수 없으므로, Docker 없이 실행되는 Test는 직접 실행해 확인하고 결과를 verification에 적는다.
+3. 그 밖의 범위는 WIP 상태를 유지한다.
+
 ## 제외 범위
 
 - Wellness Score / Mood / Context 판정 규칙 변경
