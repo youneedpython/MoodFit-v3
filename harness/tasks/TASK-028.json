@@ -1,0 +1,105 @@
+{
+  "id": "TASK-028",
+  "title": "Staging Deployment / Smoke Test",
+  "task_file": "docs/tasks/TASK-028_STAGING_DEPLOYMENT_SMOKE.md",
+  "allowed_paths": [
+    "infra/",
+    "scripts/iac-validate.sh",
+    "scripts/staging-changeset.sh",
+    "scripts/staging-image.sh",
+    "scripts/staging-frontend.sh",
+    "scripts/staging-smoke.sh",
+    "scripts/staging-status.sh",
+    ".gitignore",
+    "docs/",
+    "README.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/container-smoke.sh",
+    "frontend/",
+    "backend/",
+    "contracts/",
+    ".github/",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "agents_sections": [
+    "3"
+  ],
+  "aws_profiles": [
+    "moodfit-readonly"
+  ],
+  "secret_scan_allow": [
+    "Secrets: [{Name: \"DB_USERNAME\", ValueFrom: !Sub \"${DbCredentialArn}:username::\"}, {Name: \"DB_PASSWORD\", ValueFrom: !Sub \"${DbCredentialArn}:password::\"}]",
+    "MasterUserPassword: !Sub \"{{resolve:secretsmanager:${DbCredential}:SecretString:password}}\"",
+    "Type: \"AWS::SecretsManager::Secret\" # generated database credential",
+    "GenerateSecretString: {SecretStringTemplate: '{\"username\": \"moodfit_admin\"}', GenerateStringKey: \"password\", PasswordLength: 32, ExcludePunctuation: true}",
+    "[\"secretsmanager:GetSecretValue\"]"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/iac-validate.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/staging-changeset.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/staging-image.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/staging-frontend.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/staging-smoke.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/staging-status.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

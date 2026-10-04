@@ -129,3 +129,5 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 57 | TASK-034 Approved Allowlist | 승인 literal 목록 / Resume / 위치 기록 / 차단 강화 | Executor 구현 완료, 최종 완료 승인은 Human Squash Merge |
 | 58 | TASK-026 Approved IaC | Foundation Template / 정적 검증 | 구현 완료, 실제 적용은 별도 승인 |
 | 59 | TASK-027 Approved Application Infra | ECS / ALB / Data 연결 / API Routing | Executor 구현 완료, TASK-028 비용·권한 승인 대기 |
+| 60 | TASK-028 Staging Preparation | 승인 A단계 배포 절차 / Script / Budget / 조회 초안 | A단계 Review PASS, B단계 배포 / Smoke 완료 |
+| 60 | TASK-035 Location / Weather (병행 개발, 파일 `60-TASK-035-LOCATION-WEATHER.md`) | 위치 인식 + 날씨 자동 조회 Frontend 구현 | Review PASS, PR #16 Merge. 병행 개발로 번호 60이 TASK-028 기록과 겹친다 |
