@@ -3530,3 +3530,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 최신 main(TASK-049 포함)을 Merge했다. `docs/07-TASKS.md` 충돌은 양쪽을 모두 남겼다. Decision 번호는 병행 중인 다른 Task와 겹치지 않게 이 Task를 **DEC-040**으로 했다.
 - 화면 확인(`docs/images/task-048/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. History에서 "주간 리포트" / "최근 7일 Wellness Score" / "기록" Card 사이 간격을 측정했고 390 / 768 / 1280px 모두 16px, 16px로 같았다. Dashboard의 새 음식에도 아이콘이 표시된다.
 - 후속 후보(비차단, Review N-01 / N-02): Container Smoke 성공 문구에 실제로 검사하지 않는 "400"이 들어 있다. 몇 곡이 분위기와 맞지 않는 Pool에 들어 있다(선곡 조정).
+
+### TASK-051 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Orchestrator Verify 통과(Frontend Test 209건, Build, Backend Test / Build), Claude Review PASS(1회).
+- 화면 확인(`docs/images/task-051/`): 이 Branch의 Build를 로컬에서 띄우고 API는 줄바꿈이 들어간 가짜 응답으로 대신해 390 / 768 / 1280px를 캡처했다.
+  - Check-in 결과 화면: 요약 → 날씨 / 지역 → 추천 → AI 코멘트 → 버튼 순서다(Text 위치로 확인). AI 코멘트가 문장마다 줄이 바뀌어 보인다.
+  - 주간 리포트: 문단 사이 빈 줄이 표시된다.
+  - 세 폭 모두 가로 넘침이 없다.
+- 실제 모델이 줄을 어떻게 나누는지, 한국어 상태 이름으로 영문 Code가 사라지는지는 Merge 뒤 Staging에서 새로 생성해 확인한다.
+- LLM 호출 설정 경과(Staging, Claude 세션이 Human 승인 범위에서 App Stack 설정값을 변경): 호출 주소를 `bedrock-runtime`으로 바꾼 뒤 기본 모델 ID는 400("inference profile을 쓰라")으로 거부됐고, 모델 ID를 global 추론 Profile ID로 바꾸자 생성에 성공했다. 이후 Human 지시로 호출 Region을 서울로 되돌렸다.
