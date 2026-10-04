@@ -3310,3 +3310,47 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Run 1은 Orchestrator Verify의 타입 검사에서 멈췄다(Test의 `getByRole` 옵션 `exact`). Run 2에서 Test만 고쳤다. Run 2 Verify 통과(Test 123건), Claude Review PASS.
 - 화면 확인(`docs/images/task-041/`): 이 Branch의 Build를 로컬에서 띄워 390 / 768 / 1280px 상단 메뉴를 캡처했다. 1280px에서 로고 그림 / "MoodFit" 글자 / 날짜의 세로 중심이 같은 위치(34px)로 측정됐다.
 - Keyboard로 로고 Link에 focus하면 focus 표시가 보이고(`header-focus-1280.png`), History 화면에서 Enter를 누르면 `/`(Dashboard)로 이동했다. Link의 접근 가능한 이름은 "MoodFit" 하나다.
+
+## TASK-042 — Dependency 확인 선행 조건 정지 (2026-10-04)
+
+- Human의 명시 실행 지시와 `docs/tasks/TASK-042_SOCIAL_LOGIN.md`를 확인했다. 초기 `git status --short` 출력은 비어 있었다. 실행 지시는 [Prompt 65](../prompts/65-TASK-042-SOCIAL-LOGIN.md)에 기록했다.
+- Backend는 Spring Boot 4.1.1 / Gradle Wrapper 9.8.0이다. 승인된 새 Security / OAuth2 Client / Session JDBC Dependency의 BOM 해석을 확인하기 전 Wrapper 실행 가능 여부를 확인했다.
+- `backend`에서 `gradlew.bat --version`은 Exit 1로 종료했다. Sandbox 밖 `C:\.gradle\wrapper\dists`의 Wrapper lock 상위 디렉터리를 만들 수 없어 Gradle 자체가 시작되지 않았다. 별도 설치된 `gradle` 명령도 발견하지 못했다. Dependency 해석 / Test / Build는 실행 결과를 얻지 못했다.
+- Task Contract Dependency 절의 "해석할 수 없으면(Sandbox Network 등) 문서에 적고 human_decisions_needed로 보고한다"에 따라 HUMAN_REQUIRED로 정지한다. 단순 Test 실행 제한을 제품 오류로 판정한 것이 아니라, Contract가 별도로 요구한 Dependency 확인 근거가 없는 상태다.
+- 권장안은 Human이 접근 가능한 Gradle 실행 환경과 해당 Boot BOM의 공식 모듈 해석 근거를 제공한 뒤 같은 Task를 재개하는 것이다. 대안은 Human이 Dependency 해석을 Sandbox 밖 Orchestrator로 넘기고 Executor의 선행 해석 조건을 대체하도록 명시 승인하는 것이다. Version 변경이나 CLI 설치 / 업데이트는 수행하지 않았다.
+- 인증 Source / DB Migration / API Contract / Smoke / Task 상태는 변경하지 않았다. 이번 변경은 실행 지시와 정지 근거 기록뿐이며 TASK-042 구현 완료를 주장하지 않는다. Git handoff는 수행하지 않았다.
+
+## TASK-042 — 전체 구현 Rework (2026-10-04)
+
+- 승인 Dependency 해석 근거를 포함한 최신 Contract와 F-001 ~ F-007을 기준으로 구현했다. 초기 Git Working Tree는 clean이었다. [Prompt 66](../prompts/66-TASK-042-REWORK.md)에 실행 범위를 기록했다.
+- 승인 Starter 5개를 Version 없이 추가했다. Java 제공자 등록은 값 두 개가 모두 있을 때만 활성화하며 미설정 환경에서도 시작한다. Redirect는 검증된 공개 origin과 고정 경로를 사용한다. JDBC Session은 7일 / Session id 교체 / HttpOnly / HTTPS Secure / SameSite Lax를 적용한다.
+- CSRF Cookie를 `/me`에서 발급하고 Frontend / Smoke가 Header로 전달한다. 미인증 조회 401과 CSRF / 권한 오류 403은 기존 JSON 형식이다. 로그인 완료 후 앱 사용자 Principal만 Session에 남기며 Authorized Client를 저장하지 않는다.
+- V3는 사용자 / 공유 체험 사용자 / Check-in 외래 키·조회 Index / Spring Session 구조를 추가했다. 기본값 1로 기존 기록과 이전 Version INSERT를 체험 계정에 연결한다. 새 저장 / 최신 / 이력은 인증 사용자 조건을 사용한다.
+- 로그인 화면 / 수집 정보 안내 / 제공자 버튼 / 체험 로그인 / 401 상태 초기화 / 아바타 메뉴를 추가했다. Esc / 바깥 클릭 / Focus / 로그아웃 Test를 추가했으며 기존 로고 / 날짜 Source는 변경하지 않았다.
+- Backend Test는 미설정 제공자, 체험 Session / 로그아웃, Cookie 기반 실제 CSRF 흐름, 사용자 간 분리, OAuth 가짜 사용자 정보와 고정 Location, 최소 저장 필드, H2 / MySQL 업그레이드와 이전 INSERT 호환을 포함한다. 기존 계약 Test에는 체험 사용자 인증과 CSRF를 적용했다.
+- 두 Smoke는 로그인 전 401과 체험 로그인 뒤 API를 확인한다. 권한 제한 임시 Cookie / Header 파일을 종료 시 지우며 값을 출력하지 않는다. Staging 합성 기록은 유지한다.
+
+### Verification
+
+- `npm test`: 16 Test Files / 126 Tests PASS. 인증 Test 4개를 별도로 실행해 PASS를 확인했다.
+- `npm run build`: TypeScript 검사와 Vite Build PASS.
+- `bash -n scripts/staging-smoke.sh`, `bash -n scripts/container-smoke.sh`, `git diff --check`: PASS.
+- Contract 승인에 따라 Gradle을 실행하지 않았다. Cache에 Security / Session 모듈의 메타데이터는 있으나 읽을 수 있는 관련 Jar를 찾지 못했다. Boot 4 / Security / Session API 호환성, H2 / MySQL Migration과 실제 Session 동작은 Verify에서 확인 필요다. 실제 실패를 Sandbox 제약으로 판정한 것은 아니다.
+- UI 캡처는 기존 Chrome Headless로 390 / 768 / 1280px를 시도했으나 Capture 파일을 얻지 못했다. 로그인 화면과 사용자 메뉴의 해당 폭 캡처 / 시각 검토는 Human 후속 작업으로 남긴다. CLI / 라이브러리는 설치하지 않았다.
+- Executor DONE은 구현 완료만 뜻한다. 실제 OAuth 로그인은 TASK-043 이후 확인하고 Merge 뒤 Staging 체험 Smoke를 확인한다. Git handoff는 수행하지 않았다.
+
+### TASK-042 Run 3 — CSRF Cookie 명시 발급 (2026-10-04)
+
+- 초기 Working Tree는 clean이었다. Run 3 승인 범위에 따라 `/api/auth/me`에서 Cookie 저장소의 Token을 직접 읽고, 없으면 생성한 뒤 매 응답에 명시적으로 저장한다. 기존 Cookie가 있으면 같은 값을 다시 내려 준다. 지연 Token 인자에 기대던 처리를 제거했다.
+- Cookie가 실제 내려오는 기존 기대값을 유지하고, 기존 Cookie 재발급 / 체험 로그인 → me → Cookie와 Header를 사용한 Check-in 저장 201 / Token 없는 저장 403 / 로그아웃 → me → 체험 재로그인 흐름을 보강했다.
+- Frontend는 체험 로그인과 로그아웃 후 refresh로 me를 호출한다. 두 Smoke도 체험 로그인 직후 me와 CSRF Header 재생성을 수행하므로 수정할 필요가 없었다. Token과 Cookie 값은 출력하지 않았다.
+- Executor 참고 정적 검증: 두 Smoke의 Bash 구문 검사와 `git diff --check` PASS. 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 확인했다. Contract에 따라 Gradle / Backend Test / Container 실행은 수행하지 않았다. 추가한 회귀 Test의 실행과 Backend 동작은 Sandbox 밖 Orchestrator Verify에서 확인 필요다.
+- 구현 완료 보고는 Verify 성공이나 Task 완료 승인을 뜻하지 않는다. Run 2 전체 구현의 Claude Review와 Merge 후 Staging 체험 Smoke는 아직 남아 있다. 새로운 Human 결정과 Git 작업은 수행하지 않았다. 실행 지시는 [Prompt 67](../prompts/67-TASK-042-CSRF-COOKIE-REWORK.md)에 기록했다.
+
+### TASK-042 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- 진행: Run 1은 Executor Sandbox에서 Gradle을 실행할 수 없어 구현 없이 정지했다. Claude 세션이 Sandbox 밖에서 Dependency 5개의 해석을 확인해 Task 문서에 근거로 적었다. Run 2에서 전체를 구현했고 Backend Test 1건(`GET /api/auth/me`가 CSRF Cookie를 싣지 않음)으로 Verify가 멈췄다. Run 3에서 고쳤고 Verify 4개 명령 통과, Claude Review PASS.
+- 최신 main(TASK-040 / 041)을 Merge했다. 문서 충돌은 양쪽을 모두 남겼고, 번호가 겹친 Decision은 이 Task 쪽을 **DEC-034**로 바꿨다(DEC-033은 TASK-040). `AppLayout.tsx`는 TASK-041의 로고 Link와 이 Task의 사용자 메뉴를 함께 유지했다. Merge 뒤 Frontend Test 124건과 타입 검사가 통과했다.
+- 화면 확인(`docs/images/task-042/`): 이 Branch의 Build를 로컬에서 띄우고 인증 API는 가짜 응답으로 대신해 캡처했다. 로그인 화면과 아바타 메뉴를 390 / 768 / 1280px에서 확인했다. 미로그인 상태로 `/history`에 들어가면 `/login`으로 이동하고, "로그인 없이 둘러보기" 뒤 `/`로 이동하며, 아바타 메뉴는 Esc로 닫히고, 로그아웃하면 `/login`으로 돌아간다. 실제 Backend와 연결한 흐름은 Container Smoke(체험 로그인)와 Merge 뒤 Staging Smoke가 검증한다.
+- Merge 뒤 Staging 상태: OAuth 값과 `APP_PUBLIC_URL`이 아직 주입되지 않아 **체험 로그인만** 보인다. Cookie의 `Secure`도 TASK-043 전까지 붙지 않는다(Review F-003). 이 기간에는 공유 체험 계정만 쓸 수 있다.
+- 후속 후보(비차단): 제공자가 설정된 상태의 Context / Redirect Test(F-002, TASK-043에서 실측), 사용자 조건 없는 Repository Method 정리(F-004), 로그인 버튼의 제공자별 모양(지금은 같은 모양의 글자 버튼).

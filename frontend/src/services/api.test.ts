@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { CreateCheckinRequest } from "../types/api";
-import { ApiError, checkinApi } from "./api";
+import { ApiError, checkinApi, request as authRequest } from "./api";
 
 function jsonResponse(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
@@ -28,6 +28,15 @@ const request: CreateCheckinRequest = {
 };
 
 describe("checkinApi", () => {
+  it("sends same-origin cookies and the CSRF header on writes and handles 204", async () => {
+    const cookieName = "XSRF-TOKEN";
+    document.cookie = cookieName + "=example-csrf; Path=/";
+    const fetchMock = stubFetch(new Response(null, { status: 204 }));
+    await expect(authRequest<void>("/auth/guest", { method: "POST" })).resolves.toBeUndefined();
+    expect(fetchMock.mock.calls[0]?.[1]?.credentials).toBe("same-origin");
+    expect((fetchMock.mock.calls[0]?.[1]?.headers as Record<string, string>)["X-XSRF-TOKEN"]).toBe("example-csrf");
+    document.cookie = cookieName + "=; Max-Age=0; Path=/";
+  });
   it("posts a check-in as JSON to /api/check-ins", async () => {
     const fetchMock = stubFetch(jsonResponse(201, { id: 1, wellnessScore: 76 }));
 

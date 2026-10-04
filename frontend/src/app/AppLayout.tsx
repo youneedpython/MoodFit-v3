@@ -1,4 +1,5 @@
-import { Link, NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
+import { UserMenu } from "../features/auth/UserMenu";
 import { formatHeaderDate } from "../utils/dateTime";
 import "./AppLayout.css";
 
@@ -9,6 +10,7 @@ const NAV_ITEMS = [
 ];
 
 export function AppLayout() {
+  const login = useLocation().pathname === "/login";
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -23,7 +25,7 @@ export function AppLayout() {
             </Link>
             <span className="app-header__date">{formatHeaderDate(new Date())}</span>
           </div>
-          <nav aria-label="주요 메뉴">
+          {!login && <div className="app-header__account"><nav aria-label="주요 메뉴">
             <ul className="app-nav">
               {NAV_ITEMS.map((item) => (
                 <li key={item.to}>
@@ -37,7 +39,7 @@ export function AppLayout() {
                 </li>
               ))}
             </ul>
-          </nav>
+          </nav><UserMenu /></div>}
         </div>
       </header>
       <main id="main-content" className="container app-main" tabIndex={-1}>

@@ -5,14 +5,17 @@ fail() { printf 'FAIL: smoke %s\n' "$1" >&2; exit 1; }
 trap 'fail "transport, HTTP or contract check failed"' ERR
 command -v python >/dev/null || fail 'Python required'
 work=$(mktemp -d)
+chmod 700 "$work"
+umask 077
 trap 'rm -rf -- "$work"' EXIT
 base=https://staging.moodfit.8949db.kr
 request() {
   local expected=$1 path=$2 output=$3
   shift 3
-  code=$(curl --silent --show-error --connect-timeout 10 --max-time 30 --output "$output" --write-out '%{http_code}' "$@" "$base$path" 2>/dev/null) || fail "transport failed for $path"
+  code=$(curl --silent --show-error --connect-timeout 10 --max-time 30 --cookie "$work/cookies" --cookie-jar "$work/cookies" --config "$work/headers" --output "$output" --write-out '%{http_code}' "$@" "$base$path" 2>/dev/null) || fail "transport failed for $path"
   [[ "$code" == "$expected" ]] || fail "unexpected HTTP status for $path"
 }
+touch "$work/headers" "$work/cookies"
 printf 'STEP: static and SPA\n'
 request 200 / "$work/index"
 for path in /check-in /history; do
@@ -32,6 +35,29 @@ if origin_code=$(curl --silent --connect-timeout 10 --max-time 20 --output /dev/
 else
   [[ "$origin_code" == 000 ]] || fail 'origin returned unexpected partial response'
 fi
+printf 'STEP: unauthenticated 401 and guest login\n'
+request 401 /api/check-ins/latest "$work/unauthenticated"
+request 200 /api/auth/me "$work/me"
+csrf_headers() {
+  python - "$work" <<'PY'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1])
+rows = [line.split('\t') for line in (p / 'cookies').read_text().splitlines() if not line.startswith('#')]
+values = [row[6] for row in rows if len(row) == 7 and row[5] == 'XSRF-TOKEN']
+assert len(values) == 1 and values[0] and all(c.isalnum() or c == '-' for c in values[0])
+header_name = 'X-XSRF-TOKEN'
+(p / 'headers').write_text('header = "' + header_name + ': ' + values[0] + '"\n', encoding='utf-8')
+PY
+}
+csrf_headers
+request 204 /api/auth/guest "$work/guest" --request POST
+request 200 /api/auth/me "$work/me"
+csrf_headers
+python - "$work/me" <<'PY'
+import json, sys
+result = json.load(open(sys.argv[1], encoding='utf-8'))
+assert result['authenticated'] and result['user']['provider'] == 'guest'
+PY
 printf 'STEP: synthetic create and error preservation\n'
 request 400 /api/check-ins "$work/error" -H 'Content-Type: application/json' --data '{"heartRate":181,"respiratoryRate":18,"sleepScore":86,"stressLevel":31,"energyLevel":74,"temperature":19.0,"weather":"RAIN"}'
 request 201 /api/check-ins "$work/create" -H 'Content-Type: application/json' --data '{"heartRate":68,"respiratoryRate":18,"sleepScore":86,"stressLevel":31,"energyLevel":74,"temperature":19.0,"weather":"RAIN"}'

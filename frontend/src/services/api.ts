@@ -25,20 +25,26 @@ function isErrorResponse(body: unknown): body is ErrorResponse {
   return typeof body === "object" && body !== null && "code" in body && "message" in body;
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" };
   if (init.body !== undefined) {
     headers["Content-Type"] = "application/json";
   }
+  if (!["GET", "HEAD", "OPTIONS"].includes((init.method ?? "GET").toUpperCase())) {
+    const cookieName = "XSRF-TOKEN";
+    const csrfCookie = document.cookie.split("; ").find((item) => item.startsWith(cookieName + "="));
+    if (csrfCookie) headers["X-XSRF-TOKEN"] = decodeURIComponent(csrfCookie.slice(cookieName.length + 1));
+  }
 
   let response: Response;
   try {
-    response = await fetch(`${API_BASE}${path}`, { ...init, headers });
+    response = await fetch(`${API_BASE}${path}`, { ...init, credentials: "same-origin", headers });
   } catch {
     throw new ApiError(0, "NETWORK_ERROR", "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.");
   }
 
   if (!response.ok) {
+    if (response.status === 401) window.dispatchEvent(new Event("moodfit:unauthenticated"));
     const body: unknown = await response.json().catch(() => null);
     if (isErrorResponse(body)) {
       throw new ApiError(response.status, body.code, body.message, body.fieldErrors ?? {});
@@ -46,7 +52,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     throw new ApiError(response.status, "HTTP_ERROR", `요청을 처리하지 못했습니다. (HTTP ${response.status})`);
   }
 
-  return (await response.json()) as T;
+  return response.status === 204 ? undefined as T : (await response.json()) as T;
 }
 
 export const checkinApi = {

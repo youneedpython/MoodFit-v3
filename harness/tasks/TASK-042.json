@@ -1,0 +1,43 @@
+{
+  "id": "TASK-042",
+  "title": "Social Login (Google / Kakao) + Guest + User Scoped Data",
+  "task_file": "docs/tasks/TASK-042_SOCIAL_LOGIN.md",
+  "allowed_paths": [
+    "backend/",
+    "frontend/src/",
+    "contracts/",
+    "scripts/staging-smoke.sh",
+    "scripts/container-smoke.sh",
+    "docs/",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/iac-validate.sh",
+    "scripts/staging-changeset.sh",
+    "scripts/staging-image.sh",
+    "scripts/staging-frontend.sh",
+    "scripts/staging-status.sh",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["bash", "scripts/container-smoke.sh"], "cwd": "." },
+    { "command": ["bash", "-n", "scripts/staging-smoke.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}

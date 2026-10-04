@@ -16,7 +16,9 @@ describe("App routes", () => {
       "fetch",
       vi.fn((input: string) =>
         Promise.resolve(
-          input.startsWith("/api/check-ins/history")
+          input === "/api/auth/me"
+            ? new Response(JSON.stringify({ authenticated: true, user: { id: 1, displayName: "체험 계정", provider: "guest" }, providers: [], guestEnabled: true }), { status: 200 })
+            : input.startsWith("/api/check-ins/history")
             ? new Response(JSON.stringify({ days: 7, items: [] }), {
                 status: 200,
                 headers: { "Content-Type": "application/json" }
@@ -30,10 +32,10 @@ describe("App routes", () => {
     );
   });
 
-  it("renders the Dashboard at / inside the common layout", () => {
+  it("renders the Dashboard at / inside the common layout", async () => {
     renderAt("/");
 
-    expect(screen.getByRole("heading", { level: 1, name: "Dashboard" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: "Dashboard" })).toBeTruthy();
     expect(screen.getByRole("navigation", { name: "주요 메뉴" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "본문으로 건너뛰기" }).getAttribute("href")).toBe("#main-content");
     expect(screen.getByRole("main").id).toBe("main-content");
@@ -42,14 +44,15 @@ describe("App routes", () => {
   it.each([
     ["/check-in", "Daily Check-in"],
     ["/history", "History"]
-  ])("renders %s", (path, heading) => {
+  ])("renders %s", async (path, heading) => {
     renderAt(path);
 
-    expect(screen.getByRole("heading", { level: 1, name: heading })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: heading })).toBeTruthy();
   });
 
-  it("marks only the current navigation item with aria-current", () => {
+  it("marks only the current navigation item with aria-current", async () => {
     renderAt("/history");
+    await screen.findByRole("heading", { name: "History" });
 
     expect(screen.getByRole("link", { name: "History" }).getAttribute("aria-current")).toBe("page");
     expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("aria-current")).toBeNull();
@@ -58,6 +61,7 @@ describe("App routes", () => {
 
   it("navigates between screens through the navigation", async () => {
     const router = renderAt("/");
+    await screen.findByRole("heading", { name: "Dashboard" });
 
     fireEvent.click(screen.getByRole("link", { name: "Check-in" }));
 
@@ -65,10 +69,10 @@ describe("App routes", () => {
     expect(router.state.location.pathname).toBe("/check-in");
   });
 
-  it("shows a not found state for unknown paths", () => {
+  it("shows a not found state for unknown paths", async () => {
     renderAt("/unknown");
 
-    expect(screen.getByText("페이지를 찾을 수 없습니다.")).toBeTruthy();
+    expect(await screen.findByText("페이지를 찾을 수 없습니다.")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Dashboard로 이동" }).getAttribute("href")).toBe("/");
   });
 

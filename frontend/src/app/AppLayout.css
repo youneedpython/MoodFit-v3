@@ -7,6 +7,9 @@
   backdrop-filter: blur(8px);
 }
 
+.app-header__account { display: flex; align-items: center; gap: var(--space-1); }
+.app-header__account nav { flex: 1; min-width: 0; }
+
 .app-header__inner {
   display: flex;
   align-items: center;

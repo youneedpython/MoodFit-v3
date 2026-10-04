@@ -880,6 +880,8 @@ Human Approved
 
 ## DEC-019 TASK-006 Persistence Dependency / DB Schema
 
+변경 이력: 2026-10-04 TASK-042 Human 승인 / DEC-033에 따라 단일 사용자 기준을 소셜 사용자별 기록과 공유 체험 계정으로 확장한다. 기존 기록은 체험 사용자로 연결하고 V3로 사용자 / Session 구조를 추가한다.
+
 ### 결정
 
 TASK-006 Backend Domain / API Core 구현을 위해 다음 Persistence 구성과 DB Schema를 Gate C Human Review로 승인한다.
@@ -1425,6 +1427,8 @@ Human Approved (2026-10-03, TASK-027 Contract 사전 승인 및 명시 실행 �
 
 ## DEC-032 TASK-029 Staging CD Gate C
 
+후속 결정: TASK-042 인증 Gate는 아래 DEC-033에 기록한다.
+
 ### 상태
 
 Human Approved (2026-10-04, Task Contract 사전 승인 및 명시 실행 지시)
@@ -1458,3 +1462,18 @@ Human Approved (2026-10-04, Task Contract Gate 사전 승인 및 명시 실행 �
 - BigDataCloud Client용 Reverse Geocoding API를 브라우저에서 사용한다(API Key 없음). `principalSubdivision` / `locality`의 검증된 문자열만 Check-in에 표시한다. 실패하면 지역은 현재 위치로 표시하고 날씨는 사용할 수 있다.
 - TASK-035의 소수 첫째 자리 결정을 소수 둘째 자리 반올림으로 대체한다. 같은 좌표를 Open-Meteo와 BigDataCloud 두 곳에만 전송한다. 좌표와 지역 이름은 브라우저 저장소 / Backend / 로그에 남기지 않는다.
 - Backend / API 계약 / DB / Dependency는 변경하지 않는다. 제출 값은 기존 기온과 날씨 종류다. 이용 조건 확인 범위와 운영 한계는 [19-LOCATION-WEATHER.md](19-LOCATION-WEATHER.md)에 기록한다.
+
+---
+
+## DEC-034 TASK-042 Social Login / Guest / User Scoped Data
+
+Human Approved (2026-10-04, 제공된 Task Contract의 Gate 결정과 명시 Rework 실행 지시)
+
+- Google / Kakao만 지원하며 Backend Authorization Code / Spring Security / HttpOnly Cookie Session을 사용한다. Session은 JDBC에 저장하고 마지막 접근부터 7일간 유지한다.
+- 제공자 사용자 번호와 표시 이름만 저장한다. 이메일 / 사진 scope와 저장은 금지한다. 표시 이름 첫 글자와 기존 색 Token으로 사용자 아바타 / 로그아웃 메뉴를 제공한다.
+- Check-in 저장 / 최신 / 이력은 본인 기록만 다룬다. 기존 단일 사용자 기록은 하나의 공유 체험 계정으로 이관한다. 게스트와 Smoke는 이 계정을 사용한다. 남용 방지는 범위 밖이다.
+- CSRF / JSON 401·403 / Session Cookie HttpOnly·SameSite Lax·HTTPS Secure를 적용한다. Redirect는 `APP_PUBLIC_URL`과 고정 경로로 구성하며 Origin 주소를 사용하지 않는다.
+- 제공자 두 값이 모두 있을 때만 Java Code로 등록한다. 미설정 환경도 시작하고 체험 로그인한다. Dependency 5개 / V3 Migration / API 계약 / Smoke 변경을 승인한다. 사용자 Column 기본값 1로 이전 Version INSERT와 호환한다.
+- 실제 자격 증명은 사용하지 않으며 Secrets Manager → ECS 주입은 TASK-043에서 한다. Infra / Workflow / Production 실행 권한을 확대하지 않는다.
+
+설계와 한계는 [22-AUTH.md](22-AUTH.md)를 따른다. 이 결정은 DEC-019의 단일 사용자 가정을 변경하며 나머지 Wellness Rule과 Check-in 응답 형식을 유지한다.
