@@ -3663,3 +3663,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Claude 세션은 Docker Desktop을 시작한 뒤 Sandbox 밖 backend gradlew test 통과를 확인했다. MySQL Testcontainers Test가 포함됐고 Skip은 DockerAvailabilityTests 1건뿐이다. bash scripts/container-smoke.sh도 exit 0으로 통과했다고 Task source에 기록되어 있다. 이는 전달받은 이전 실행의 참고 증거이며 이번 Executor가 실행한 결과가 아니다.
 - Run 3 지시에 따라 Gradle과 전체 Verify / Container Smoke를 실행하지 않았다. 판정 기준은 이번 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다.
 - 한글 기록은 UTF-8 apply_patch로 작성했다. Git / AWS 작업은 수행하지 않았다. Executor DONE은 Run 3 기록 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Claude 세션의 화면 확인 / 캡처와 Human Squash Merge, Merge 뒤 Staging에서 평가 후 새 Check-in 추천 변화 확인은 후속 작업으로 유지한다.
+
+### TASK-055 Merge 전 확인 (2026-10-05, Claude 세션 기록)
+
+- 진행: Run 1에서 구현이 끝났고 Verify가 환경 문제로 두 번 멈췄다 — Gradle Cache 잠금("Timeout waiting to lock jars", 남아 있던 Daemon 25개), Docker Desktop 미실행. Claude 세션이 Daemon을 정리하고 Docker Desktop을 시작한 뒤 Sandbox 밖에서 `gradlew test`(MySQL Testcontainers 포함)와 `scripts/container-smoke.sh` 통과를 확인했다. Run 3에서 Verify 3개 명령 통과, Claude Review PASS.
+- Docker가 꺼져 있으면 MySQL Testcontainers Test가 실패하지 않고 건너뛰어진다(이번에 18건). Local 검증 결과를 볼 때 Skip 수를 함께 확인해야 한다.
+- 화면 확인(`docs/images/task-055/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 390 / 768 / 1280px를 캡처했다. 저장된 평가(좋아요 1, 별로예요 1)가 `aria-pressed`로 표시되고, 버튼 이름에 항목이 들어간다("새우 볶음밥 좋아요"). 누르면 저장 요청이 1회 나가고, 저장 실패 시 되돌아가며 오류 문구가 보인다. 체험 계정에는 버튼이 없고 안내 문구가 보인다. 세 폭 모두 가로 넘침이 없다.
+- 후속 후보(비차단, Review INFO-3 ~ 5): Prompt 색인에 Run 2 / 3 행 추가, 실제 Pool에서 LIKE 첫 자리 단언 추가, Pool에서 빠진 항목의 평가 정리.
