@@ -1,0 +1,49 @@
+{
+  "id": "TASK-041",
+  "title": "Header Logo Link / Alignment (로고 클릭 이동 + 정렬)",
+  "task_file": "docs/tasks/TASK-041_HEADER_LOGO_LINK.md",
+  "allowed_paths": [
+    "frontend/src/app/",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "frontend/src/features/",
+    "frontend/src/services/",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

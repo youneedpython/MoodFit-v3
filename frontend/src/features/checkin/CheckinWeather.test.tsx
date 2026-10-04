@@ -2,121 +2,118 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AUTO_WEATHER_KEY, WEATHER_TIMEOUT_MS } from "../../services/weather";
+import { CHECKIN_CREATED } from "../../contracts/contracts";
 import { CheckinPage } from "./CheckinPage";
 
 beforeEach(() => localStorage.clear());
 afterEach(() => { localStorage.clear(); vi.useRealTimers(); });
-function setup(state: PermissionState | "unsupported" = "prompt", locationError?: number, queryThrows = false, permission?: Promise<{ state: PermissionState }>) {
+const weatherBody = { current: { temperature_2m: 23.26, weather_code: 71 } };
+function setup(code?: number, regionFails = false, weatherFails = false) {
   const location = vi.fn((success: PositionCallback, failure: PositionErrorCallback) => {
-    if (locationError) failure({ code: locationError } as GeolocationPositionError);
+    if (code) failure({ code } as GeolocationPositionError);
     else success({ coords: { latitude: 37.5665, longitude: 126.978 } } as GeolocationPosition);
   });
-  const query = vi.fn().mockResolvedValue({ state });
-  if (permission) query.mockReturnValue(permission);
-  if (queryThrows) query.mockImplementation(() => { throw new TypeError("Unsupported permission"); });
-  vi.stubGlobal("navigator", { geolocation: { getCurrentPosition: location }, ...(state === "unsupported" ? {} : { permissions: { query } }) });
-  const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ current: { temperature_2m: 23.26, weather_code: 71 } })));
+  vi.stubGlobal("navigator", { geolocation: { getCurrentPosition: location } });
+  const fetchMock = vi.fn(async (url: string, _options?: RequestInit): Promise<Response> => {
+    if (url.includes("bigdatacloud")) {
+      if (regionFails) throw new Error();
+      return new Response(JSON.stringify({ principalSubdivision: "서울특별시", locality: "명동" }));
+    }
+    if (url.includes("open-meteo")) return new Response(JSON.stringify(weatherBody), { status: weatherFails ? 503 : 200 });
+    return new Response(JSON.stringify(CHECKIN_CREATED));
+  });
   vi.stubGlobal("fetch", fetchMock);
   render(<MemoryRouter><CheckinPage /></MemoryRouter>);
-  return { location, query, fetchMock };
+  return { location, fetchMock };
 }
-const button = () => screen.getByRole("button", { name: "현재 위치 날씨 가져오기" });
 const temperature = () => screen.getByLabelText(/기온/) as HTMLInputElement;
-const toggle = () => screen.getByRole("checkbox") as HTMLInputElement;
+const manual = () => fireEvent.click(screen.getByRole("button", { name: "직접 입력" }));
+const automatic = () => fireEvent.click(screen.getByRole("button", { name: "자동으로 가져오기" }));
 
-describe("Check-in weather autofill", () => {
-  it("fills both inputs, enables persisted preference and allows editing", async () => {
-    setup(); fireEvent.click(button());
-    await screen.findByText(/현재 위치의 날씨를 가져왔습니다/);
+describe("Check-in weather modes", () => {
+  it("shows existing validation guidance before automatic weather is available", async () => {
+    setup();
+    fireEvent.click(screen.getByRole("button", { name: "분석 요청" }));
+    expect(screen.getAllByText("값을 입력해 주세요.").length).toBeGreaterThan(0);
+    expect(screen.getByText("날씨를 선택해 주세요.")).toBeTruthy();
+    await act(async () => {});
+  });
+  it("defaults to automatic and summarizes region, weather and temperature", async () => {
+    const { location } = setup();
+    await screen.findByText("서울특별시 명동 · 눈 · 23.3°C");
+    expect(location).toHaveBeenCalledTimes(1);
+    expect(screen.queryByLabelText(/기온/)).toBeNull();
+    expect(localStorage.length).toBe(0);
+    manual();
     expect(temperature().value).toBe("23.3");
     expect((screen.getByLabelText("눈") as HTMLInputElement).checked).toBe(true);
-    expect(toggle().checked).toBe(true);
-    expect(localStorage.getItem(AUTO_WEATHER_KEY)).toBe("true");
-    expect(localStorage.length).toBe(1);
-    expect(screen.getByRole("link", { name: "Open-Meteo" }).getAttribute("href")).toBe("https://open-meteo.com/");
+    expect(localStorage.getItem(AUTO_WEATHER_KEY)).toBe("false");
     fireEvent.change(temperature(), { target: { value: "21" } });
     expect(temperature().value).toBe("21");
   });
-  it("automatically loads only with saved preference and granted permission", async () => {
-    localStorage.setItem(AUTO_WEATHER_KEY, "true");
-    const { location } = setup("granted");
-    await waitFor(() => expect(temperature().value).toBe("23.3"));
-    expect(location).toHaveBeenCalledTimes(1);
-  });
-  it.each(["prompt", "denied", "unsupported"] as const)("does not automatically request location for %s", async (state) => {
-    localStorage.setItem(AUTO_WEATHER_KEY, "true");
-    const { location } = setup(state);
-    await act(async () => {});
+  it("preserves false until explicitly selecting automatic", async () => {
+    localStorage.setItem(AUTO_WEATHER_KEY, "false");
+    const { location } = setup();
+    expect(temperature().value).toBe("");
     expect(location).not.toHaveBeenCalled();
+    automatic();
+    await screen.findByText("서울특별시 명동 · 눈 · 23.3°C");
+    expect(localStorage.getItem(AUTO_WEATHER_KEY)).toBe("true");
+    expect(localStorage.length).toBe(1);
   });
-  it("does not automatically load without saved preference", async () => {
-    const { location } = setup("granted"); await act(async () => {});
-    expect(location).not.toHaveBeenCalled();
+  it("uses a neutral region when the region service fails", async () => {
+    setup(undefined, true);
+    await screen.findByText("현재 위치 · 눈 · 23.3°C");
   });
-  it("keeps button-only behavior when permission query throws synchronously", async () => {
-    localStorage.setItem(AUTO_WEATHER_KEY, "true");
-    const { location } = setup("granted", undefined, true);
-    await act(async () => {});
-    expect(location).not.toHaveBeenCalled();
-    fireEvent.click(button());
-    await waitFor(() => expect(temperature().value).toBe("23.3"));
-    expect(location).toHaveBeenCalledTimes(1);
-  });
-  it("does not repeat a successful manual lookup when the permission reply arrives late", async () => {
-    localStorage.setItem(AUTO_WEATHER_KEY, "true");
-    let resolve!: (value: { state: PermissionState }) => void;
-    const permission = new Promise<{ state: PermissionState }>((done) => { resolve = done; });
-    const { location } = setup("granted", undefined, false, permission);
-    fireEvent.click(button());
-    await screen.findByText(/현재 위치의 날씨를 가져왔습니다/);
-    await act(async () => { resolve({ state: "granted" }); });
-    expect(location).toHaveBeenCalledTimes(1);
-  });
-  it.each([1, 2, 3])("keeps manual input available on location failure %s", async (code) => {
-    setup("prompt", code); fireEvent.click(button());
+  it.each([1, 2, 3])("falls back to editable fields on location error %s", async (code) => {
+    setup(code);
     expect((await screen.findByRole("alert")).textContent).toContain("직접 입력");
     expect(temperature().disabled).toBe(false);
     fireEvent.change(temperature(), { target: { value: "18" } });
     fireEvent.click(screen.getByLabelText("맑음"));
     expect(temperature().value).toBe("18");
-    expect(button().hasAttribute("disabled")).toBe(false);
+    expect(localStorage.getItem(AUTO_WEATHER_KEY)).toBe(code === 1 ? "false" : null);
   });
-  it.each(["http", "shape", "timeout"])("shows guidance and keeps manual input on API %s", async (kind) => {
-    const { fetchMock } = setup();
-    if (kind === "timeout") {
-      vi.useFakeTimers();
-      fetchMock.mockImplementation((_url, { signal }: RequestInit) => new Promise((_resolve, reject) => signal?.addEventListener("abort", () => reject(new Error()))));
-    } else fetchMock.mockResolvedValue(new Response("{}", { status: kind === "http" ? 500 : 200 }));
-    fireEvent.click(button());
-    if (kind === "timeout") { await act(async () => { await vi.advanceTimersByTimeAsync(WEATHER_TIMEOUT_MS); }); vi.useRealTimers(); }
-    expect((await screen.findByRole("alert")).textContent).toContain("직접 입력");
-    expect(temperature().disabled).toBe(false);
-    expect(temperature().value).toBe("");
-  });
-  it("preserves edits before and during a delayed request, including cleared values", async () => {
-    const { fetchMock } = setup();
-    let resolve!: (value: Response) => void;
-    fetchMock.mockImplementation(() => new Promise<Response>((done) => { resolve = done; }));
-    fireEvent.change(temperature(), { target: { value: "18" } });
-    fireEvent.click(button());
-    expect(screen.getByRole("button", { name: "날씨 조회 중..." }).hasAttribute("disabled")).toBe(true);
-    fireEvent.change(temperature(), { target: { value: "" } });
-    fireEvent.click(screen.getByLabelText("비"));
-    await act(async () => {});
-    await act(async () => { resolve(new Response(JSON.stringify({ current: { temperature_2m: 23, weather_code: 0 } }))); });
-    expect(temperature().value).toBe("");
-    expect((screen.getByLabelText("비") as HTMLInputElement).checked).toBe(true);
-    expect(screen.getByRole("status").textContent).toContain("유지");
-  });
-  it("persists disabling and cancels in-flight automatic fill", async () => {
+  it("preserves automatic preference after API failure and submits without location data", async () => {
     localStorage.setItem(AUTO_WEATHER_KEY, "true");
-    const { fetchMock } = setup("granted");
-    fetchMock.mockImplementation((_url, { signal }: RequestInit) => new Promise((_resolve, reject) => signal?.addEventListener("abort", () => reject(new Error()))));
-    await screen.findByRole("button", { name: "날씨 조회 중..." });
-    fireEvent.click(toggle());
-    expect(toggle().checked).toBe(false);
-    expect(localStorage.getItem(AUTO_WEATHER_KEY)).toBe("false");
-    expect(temperature().value).toBe("");
-    expect(button().hasAttribute("disabled")).toBe(false);
+    const { fetchMock } = setup(undefined, false, true);
+    await screen.findByRole("alert");
+    expect(localStorage.getItem(AUTO_WEATHER_KEY)).toBe("true");
+    for (const [label, value] of [["심박수", "68"], ["호흡수", "18"], ["수면 점수", "86"], ["스트레스 수준", "31"], ["에너지 수준", "74"], ["기온", "19"]]) {
+      fireEvent.change(screen.getByLabelText(new RegExp(label)), { target: { value } });
+    }
+    fireEvent.click(screen.getByLabelText("비"));
+    fireEvent.click(screen.getByRole("button", { name: "분석 요청" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    const request = JSON.parse(fetchMock.mock.calls[2][1]?.body as string);
+    expect(request.temperature).toBe(19);
+    expect(request.weather).toBe("RAIN");
+    expect(Object.keys(request).sort()).toEqual(["energyLevel", "heartRate", "respiratoryRate", "sleepScore", "stressLevel", "temperature", "weather"].sort());
+  });
+  it("does not overwrite manual input when an aborted response arrives late", async () => {
+    localStorage.setItem(AUTO_WEATHER_KEY, "false");
+    const { fetchMock } = setup();
+    const pending: ((response: Response) => void)[] = [];
+    fetchMock.mockImplementation(() => new Promise<Response>((done) => { pending.push(done); }));
+    automatic();
+    await act(async () => {});
+    manual();
+    fireEvent.change(temperature(), { target: { value: "18" } });
+    fireEvent.click(screen.getByLabelText("비"));
+    await act(async () => { pending.forEach((done) => done(new Response(JSON.stringify(weatherBody)))); });
+    expect(temperature().value).toBe("18");
+    expect((screen.getByLabelText("비") as HTMLInputElement).checked).toBe(true);
+  });
+  it("falls back on weather timeout without persisting manual mode", async () => {
+    vi.useFakeTimers();
+    const { fetchMock } = setup();
+    fetchMock.mockImplementation((_url, options) => new Promise<Response>((_resolve, reject) => {
+      options?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+    }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(WEATHER_TIMEOUT_MS); });
+    vi.useRealTimers();
+    expect((await screen.findByRole("alert")).textContent).toContain("시간");
+    expect(temperature().disabled).toBe(false);
+    expect(localStorage.getItem(AUTO_WEATHER_KEY)).toBeNull();
   });
 });
