@@ -97,7 +97,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | READY | TASK-042 구현 후 실환경 확인 | TASK-042 후속 등록, 실제 값 / AWS 실행은 후속 Contract와 Gate에 따름 |
 | TASK-044 | Milestone 44 | Check-in Region Record (지역 저장 / Dashboard · History 표시) | DONE | TASK-040, TASK-042 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-045 | Milestone 45 | LLM Insight (AI 맞춤 코멘트 + 주간 리포트) | DONE | TASK-042, TASK-044 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-046 | Milestone 46 | Infra: LLM 환경 값 / Task Role 권한 | READY | TASK-045 | 후속 Contract와 AWS 실행 Gate에 따름 |
+| TASK-046 | Milestone 46 | LLM Value Injection (Infra) | DONE | TASK-043, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1897,8 +1897,9 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - Frontend: 결과 자동 생성, Dashboard 조회와 버튼, History 주간 리포트, 꺼짐 숨김 / 체험 안내 / 진행·실패·한도·기록 부족 안내.
 - Sandbox의 npm 캐시 접근과 Docker 권한 / app.jar 부재로 자체 실행 검증과 캡처가 제한됐다. 검증 기준은 Orchestrator이며 실행 성공을 주장하지 않는다. 실제 Bedrock 호출은 TASK-046 뒤 Staging에서 확인한다.
 
-## TASK-046 — Infra: LLM 환경 값 / Task Role 권한
+## TASK-046 — LLM Value Injection (Infra)
 
-- Milestone 46 / READY: TASK-045 후속 등록만 한다. 이 실행에서 Infra 구현과 AWS 호출을 하지 않는다.
-- 환경 값 주입, ECS Task Role의 AssumeRole 권한, 다른 계정의 Bedrock 호출 Role과 Trust를 후속 승인 Contract에 따라 구현·적용한다.
-- 실제 모델 응답, 비용, 오류 fallback과 Staging 확인은 후속 범위다. AWS Resource / IAM 변경과 Production 실행 Gate를 유지한다.
+- Milestone 46 / DONE: 2026-10-04 승인 Contract와 명시 실행 지시에 따른 Executor 구현 완료다. Verify / Claude Review / Human Squash Merge를 대신하지 않는다.
+- Dependency: TASK-043 / TASK-045. DEC-038(A안)에 따른 조건부 ECS 환경 값과 TaskRole의 특정 호출 Role AssumeRole 권한, 다른 계정 Policy 예시와 Human 적용 절차를 구현했다.
+- TASK-045 문서가 없어 [24-LLM-INFRA.md](24-LLM-INFRA.md)에 기록했다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
+- 자체 IaC 검증은 실행 환경의 AWS CLI 부재로 시작 단계에서 중단됐다. 실제 Template 오류 판정이 아니며 Sandbox 밖 Orchestrator Verify가 기준이다. 실제 호출 / 비용 확인은 Merge 후 Human 실행이다.

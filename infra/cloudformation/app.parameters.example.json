@@ -94,5 +94,21 @@
   {
     "ParameterKey": "GuestLoginEnabled",
     "ParameterValue": "true"
+  },
+  {
+    "ParameterKey": "LlmRoleArn",
+    "ParameterValue": "<LlmRoleArn>"
+  },
+  {
+    "ParameterKey": "LlmEnabled",
+    "ParameterValue": "false"
+  },
+  {
+    "ParameterKey": "LlmModelId",
+    "ParameterValue": "anthropic.claude-sonnet-5-5"
+  },
+  {
+    "ParameterKey": "LlmRegion",
+    "ParameterValue": "ap-northeast-2"
   }
 ]

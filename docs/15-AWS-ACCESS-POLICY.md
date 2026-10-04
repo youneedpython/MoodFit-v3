@@ -145,3 +145,8 @@ DEC-029 승인 → B단계 Contract 확대 / 명시 실행 → Preflight 구현 
 - [ECS 권한 표](https://docs.aws.amazon.com/service-authorization/latest/reference/list_ecs.html): RegisterTaskDefinition family 범위 및 DescribeTaskDefinition 전체 Resource 예외.
 
 Permission Set 범위 / duration / 보존 기간은 2026-10-03 Human이 승인했다. 실제 적용 권한은 후속 Task Gate와 구체적 Diff에 연결한다.
+# TASK-046 계정 간 LLM 호출 권한 추가
+
+DEC-038 / Human Approved 2026-10-04 A안에 따라 환경별 ECS TaskRole에 LlmRoleArn 하나의 sts:AssumeRole 권한을 조건부 추가한다. 빈 값이면 권한을 추가하지 않으며 ExecutionRole은 유지한다. 다른 계정의 호출 Role은 해당 Task Role 하나만 신뢰하고 bedrock-mantle:CreateInference만 허용한다. Resource 모델 제한 형식은 확인 필요하여 승인 예시는 Resource *를 사용한다. API Key 없이 SigV4로 호출하며 비용은 호출 Role 계정에 청구된다.
+
+Agent / Claude 세션은 다른 계정에 접근하거나 Role을 생성하지 않는다. 실제 ARN은 IAM Stack 출력에서 Human이 확인하고 비추적 입력에만 둔다. Production은 별도 실행 승인과 환경 분리를 유지한다. [LLM Infra 절차](24-LLM-INFRA.md)를 따른다.

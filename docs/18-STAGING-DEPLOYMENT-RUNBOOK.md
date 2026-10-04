@@ -124,3 +124,8 @@ Secret 교체는 Service 새 배포 후 반영된다. Production은 같은 환�
 ## TASK-031 정리 개요
 
 별도 파괴적 작업 승인을 받은 뒤 트래픽·앱 중단 → Frontend / App 의존 Resource → IAM → Data → Network 순서를 검토한다. Data 삭제 보호 / final snapshot / 수동 snapshot 30일 보존, Retain된 자격 증명·로그·S3 version / ECR 공유 여부와 잔존 비용을 개별 확인한다. 인증서·Budget은 잔존 비용 확인을 끝낸 뒤 정리 여부를 결정한다. 현재 Task에는 Stack 삭제 / Bucket 비우기 / RDS 삭제 명령이 없다.
+## TASK-046 LLM 적용 순서 (Merge 후 Human 실행)
+
+Human이 다른 계정 콘솔에서 호출 Role을 생성한 뒤 MoodFit Staging IAM UPDATE(LlmRoleArn) → App UPDATE(LlmEnabled true / 동일 LlmRoleArn / 현재 실행 digest의 BackendImage) 순서로 검토·실행한다. 기존 Parameter를 유지하고 CD 동시 실행을 피한다. IAM Task Role ARN은 Stack 출력에서 확인하며 실제 값은 문서에 남기지 않는다.
+
+안정화 / Health 확인 후 소셜 로그인 → Check-in → AI 코멘트와 주간 리포트를 확인한다. 실패하면 민감 값 없이 Application Log의 실패 종류를 확인한다. 끄려면 현재 digest를 유지한 App UPDATE에서 LlmEnabled false로 바꾸고 완전한 비용 차단은 다른 계정 Role 삭제 또는 Trust 비우기와 기존 세션 만료를 고려한다. Policy 예시 / 환경별 경계 / 미확정 Resource 제한은 [24-LLM-INFRA.md](24-LLM-INFRA.md)를 따른다. Executor는 Stack 변경을 실행하지 않는다.

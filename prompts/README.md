@@ -70,6 +70,7 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 
 | No | Prompt | 단계 | 상태 |
 |---|---|---|---|
+| 70 | TASK-046 LLM Value Injection | 승인 A안 Infra / Policy 예시 / Human 적용 절차 | Executor 구현 완료, Verify / Review / Merge 및 실제 적용 대기 |
 | 01 | Requirements Review | Harness Review | 완료 |
 | 02 | Decision Sync | Human Decision 반영 | 완료 |
 | 03 | Plan Create | Planning | 완료 |

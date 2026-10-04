@@ -66,6 +66,23 @@ Parameters:
     Type: "String"
     Default: "true"
     AllowedValues: ["true", "false"]
+  LlmEnabled:
+    Type: "String"
+    Default: "false"
+    AllowedValues: ["true", "false"]
+  LlmRoleArn:
+    Type: "String"
+    Default: ""
+    AllowedPattern: '^$|^arn[:][a-z0-9-]+[:]iam[:][:][0-9]{12}[:]role/[A-Za-z0-9+=,.@_-]+(/[A-Za-z0-9+=,.@_-]+)*$'
+    Description: "Exact cross-account invocation role; empty omits injection"
+  LlmModelId:
+    Type: "String"
+    Default: "anthropic.claude-sonnet-5-5"
+    AllowedPattern: '^[A-Za-z0-9.:-]+$'
+  LlmRegion:
+    Type: "String"
+    Default: "ap-northeast-2"
+    AllowedPattern: '^[a-z]{2}(-[a-z]+)+-[0-9]+$'
   DesiredCount:
     Type: "Number"
     Default: 2
@@ -80,6 +97,7 @@ Parameters:
     Default: "1024"
     AllowedValues: ["1024"]
 Conditions:
+  HasLlmRole: !Not [!Equals [!Ref LlmRoleArn, ""]]
   HasOAuthCredential: !Not [!Equals [!Ref OAuthCredentialArn, ""]]
 Resources:
   AccessLogBucket:
@@ -240,6 +258,10 @@ Resources:
               Value: !Sub "jdbc:mysql://${DatabaseEndpoint}:3306/${DatabaseName}?sslMode=REQUIRED"
             - {Name: "APP_PUBLIC_URL", Value: !Ref PublicUrl}
             - {Name: "AUTH_GUEST_ENABLED", Value: !Ref GuestLoginEnabled}
+            - {Name: "LLM_ENABLED", Value: !Ref LlmEnabled}
+            - {Name: "LLM_MODEL_ID", Value: !Ref LlmModelId}
+            - {Name: "LLM_REGION", Value: !Ref LlmRegion}
+            - !If [HasLlmRole, {Name: "LLM_ROLE_ARN", Value: !Ref LlmRoleArn}, !Ref "AWS::NoValue"]
           Secrets: [{Name: "DB_USERNAME", ValueFrom: !Sub "${DbCredentialArn}:username::"}, {Name: "DB_PASSWORD", ValueFrom: !Sub "${DbCredentialArn}:password::"},
             !If [HasOAuthCredential, {Name: "GOOGLE_CLIENT_ID", ValueFrom: !Sub "${OAuthCredentialArn}:google_client_id::"}, !Ref "AWS::NoValue"],
             !If [HasOAuthCredential, {Name: "GOOGLE_CLIENT_SECRET", ValueFrom: !Sub "${OAuthCredentialArn}:google_client_code::"}, !Ref "AWS::NoValue"],

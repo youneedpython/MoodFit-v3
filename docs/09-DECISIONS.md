@@ -1516,3 +1516,14 @@ Human Approved (2026-10-04, 제공된 Task Contract와 명시 실행 지시)
 - 승인 Dependency는 anthropic-java / anthropic-java-bedrock 2.67.0 및 버전 생략 AWS SDK sts다. 다른 Dependency와 npm Dependency는 추가하지 않는다.
 - 선택 설정이 없으면 App은 기존대로 시작하며 기능만 꺼진다. 새 API 4개에 enabled와 available을 분리해 꺼짐과 체험 계정 안내를 구분한다. 기존 API 계약은 유지한다.
 - V5 새 Table, 사용자별 시도 한도, 조회 / 생성 API와 Prompt 세부는 [23-LLM-INSIGHT.md](23-LLM-INSIGHT.md)에 기록한다. 이 결정은 TASK-046의 AWS 실행 승인이나 Production 승인을 대신하지 않는다.
+
+---
+
+## DEC-038 TASK-046 LLM Value Injection / 계정 간 호출 A안
+
+Human Approved (2026-10-04, LLM Gate / A안 및 명시 실행 지시)
+
+- MoodFit 계정의 모델 사용 제한으로 Human의 다른 계정에 Bedrock 호출 전용 Role을 만들고 환경별 ECS TaskRole이 그 ARN 하나를 AssumeRole한다. API Key는 쓰지 않으며 비용은 호출 Role 계정에 청구된다. 다른 계정 콘솔 작업은 Human 전용이다.
+- App은 기본 false인 LlmEnabled, 모델 / Region, 값이 있을 때만 LLM_ROLE_ARN을 주입한다. 하루 한도는 Backend 기본 10 / 2를 사용한다. 기존 자격 증명 주입과 ExecutionRole은 유지한다.
+- 호출 Role Trust는 MoodFit Task Role 하나만, Permission은 bedrock-mantle:CreateInference 하나만 허용한다. Resource 모델 제한 ARN 형식은 확인 필요하며 Resource * 예시를 승인한다. 추측한 ARN은 사용하지 않는다.
+- Merge 후 Human이 호출 Role 생성 → IAM UPDATE → 현재 실행 digest를 유지한 App UPDATE → 실제 AI 코멘트 확인을 수행한다. Production 실행 승인은 별도다. 상세는 [24-LLM-INFRA.md](24-LLM-INFRA.md)를 따른다.

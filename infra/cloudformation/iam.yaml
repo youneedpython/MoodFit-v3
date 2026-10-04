@@ -43,6 +43,11 @@ Parameters:
     Default: ""
     AllowedPattern: '^$|^arn[:][a-z0-9-]+[:]secretsmanager[:]ap-northeast-2[:][0-9]{12}[:]secret[:][A-Za-z0-9/_+=.@-]+$'
     Description: "Human-managed OAuth JSON secret; empty omits read permission"
+  LlmRoleArn:
+    Type: "String"
+    Default: ""
+    AllowedPattern: '^$|^arn[:][a-z0-9-]+[:]iam[:][:][0-9]{12}[:]role/[A-Za-z0-9+=,.@_-]+(/[A-Za-z0-9+=,.@_-]+)*$'
+    Description: "Exact cross-account invocation role for this environment"
   RepositoryArn:
     Type: "String"
   EnvironmentLogStreamArnPattern:
@@ -174,6 +179,18 @@ Resources:
   TaskRole:
     Type: "AWS::IAM::Role"
     Properties:
+      Policies:
+        - !If
+          - HasLlmRole
+          - PolicyName: "AssumeLlmInvocationRole"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Sid: "AssumeLlmInvocationRole"
+                  Effect: "Allow"
+                  Action: "sts:AssumeRole"
+                  Resource: !Ref LlmRoleArn
+          - !Ref AWS::NoValue
       AssumeRolePolicyDocument:
         "Version": "2012-10-17"
         "Statement":
@@ -593,6 +610,7 @@ Outputs:
     Value:
       Fn::Sub: "arn:${AWS::Partition}:logs:${AWS::Region}:${AccountId}:log-group:/moodfit/${Environment}/application:log-stream:*"
 Conditions:
+  HasLlmRole: !Not [!Equals [!Ref LlmRoleArn, ""]]
   HasOAuthCredential: !Not [!Equals [!Ref OAuthCredentialArn, ""]]
   CreateProvider:
     Fn::Equals:
