@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  classify:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
@@ -28,6 +28,77 @@ jobs:
        github.event.workflow_run.head_repository.full_name == github.repository &&
        github.event.workflow_run.repository.full_name == github.repository &&
        github.event.workflow_run.path == '.github/workflows/ci.yml')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      should_deploy: ${{ steps.classify.outputs.should_deploy }}
+    steps:
+      - name: Checkout history for automatic classification
+        if: github.event_name == 'workflow_run'
+        id: history
+        continue-on-error: true
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Classify deployment commit
+        id: classify
+        env:
+          REQUESTED_SHA: ${{ github.event.inputs.commit_sha || github.event.workflow_run.head_sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          HISTORY_OUTCOME: ${{ steps.history.outcome }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import html
+          import json
+          import os
+          import re
+          import subprocess
+
+          sha = os.environ['REQUESTED_SHA']
+          if not re.fullmatch(r'[a-fA-F0-9]{40}', sha):
+              raise SystemExit('Invalid full commit SHA')
+          sha = sha.lower()
+          should_deploy = True
+          paths = []
+          reason = 'Manual deployment; classification bypassed'
+          if os.environ['EVENT_NAME'] == 'workflow_run':
+              reason = 'Classification unavailable or empty; deploy by default'
+              if os.environ['HISTORY_OUTCOME'] == 'success':
+                  try:
+                      result = subprocess.run(
+                          ['git', 'diff', '--no-renames', '--name-only', '-z', sha + '^', sha, '--'],
+                          check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                      raw = result.stdout
+                      if raw and not raw.endswith(b'\0'):
+                          raise ValueError('Incomplete path list')
+                      paths = raw[:-1].split(b'\0') if raw else []
+                      if paths and all(paths):
+                          docs_only = all(
+                              p.startswith((b'docs/', b'prompts/', b'harness/tasks/')) or p.endswith(b'.md')
+                              for p in paths)
+                          should_deploy = not docs_only
+                          reason = '문서만 변경되어 배포를 건너뜀' if docs_only else 'Code changes; deploy'
+                  except (OSError, subprocess.CalledProcessError, ValueError):
+                      paths = []
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('should_deploy=' + str(should_deploy).lower() + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write('### Staging deployment classification\n\n' + reason + '\n\n')
+              summary.write('Commit: `' + sha + '`\n\nChanged files: ' + str(len(paths)) + '\n\n')
+              for path in paths[:20]:
+                  safe = html.escape(json.dumps(path.decode('utf-8', errors='backslashreplace'), ensure_ascii=True))
+                  summary.write('<pre>' + safe + '</pre>\n')
+              if len(paths) > 20:
+                  summary.write('\nOnly the first 20 paths are shown.\n')
+          PY
+
+  deploy:
+    needs: classify
+    if: needs.classify.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 55
     environment: staging

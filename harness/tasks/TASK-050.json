@@ -1,0 +1,40 @@
+{
+  "id": "TASK-050",
+  "title": "Skip Staging CD for Docs-only Changes",
+  "task_file": "docs/tasks/TASK-050_CD_SKIP_DOCS_ONLY.md",
+  "allowed_paths": [
+    ".github/workflows/deploy-staging.yml",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "docs/09-DECISIONS.md",
+    "docs/21-STAGING-CD.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    ".github/workflows/ci.yml",
+    ".github/workflows/milestones.yml",
+    "harness/",
+    "scripts/",
+    "infra/",
+    "frontend/",
+    "backend/",
+    "contracts/",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "secret_scan_allow": [
+    "id-token: write"
+  ],
+  "verify": [
+    {
+      "command": ["python", "-c", "import yaml,sys; d=yaml.safe_load(open('.github/workflows/deploy-staging.yml',encoding='utf-8')); assert isinstance(d,dict) and 'jobs' in d, 'workflow structure'"],
+      "cwd": "."
+    },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}

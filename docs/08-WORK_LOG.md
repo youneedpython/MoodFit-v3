@@ -3469,3 +3469,17 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - 추천 음식 각 항목 앞에 Emoji 아이콘이 보인다.
   - History: 기록 8건에서 첫 페이지 5건 / "1 / 2", "이전" 비활성. "다음"을 누르면 나머지 3건 / "2 / 2", "다음" 비활성, focus가 "기록" 제목으로 이동했다. 세 폭 모두 가로 넘침이 없다.
 - 후속 후보(비차단, Review INFO-002 / 003): "기록" Card의 제목 Markup 복제 정리, 한 글자 낱말(차 / 죽 등)로 고르는 아이콘 대응은 추천을 늘릴 때 대응표와 Test 목록을 함께 갱신해야 한다.
+
+## TASK-050 — 문서 전용 변경의 Staging CD 생략 (2026-10-04)
+
+- Human 직접 지시 / 승인 Contract의 Gate C에 따라 TASK-050만 IN_PROGRESS로 시작하고 Executor 구현 완료를 DONE으로 반영했다. 다른 Task와 Current Task는 유지했다.
+- contents read 판정 Job에서 SHA 형식과 첫 번째 부모 대비 NUL 파일 목록을 검사한다. 문서 전용일 때 Environment / OIDC 배포 Job을 생략하고 성공 Summary를 남긴다. 수동 실행과 판정 실패 / 빈 변경은 배포한다.
+- Rename은 양쪽 경로를 검사하며 파일 이름은 Shell 평가 없이 처리하고 Summary에서 JSON / HTML 이스케이프한다. CI / Trigger / concurrency와 기존 배포 Step은 변경하지 않았다.
+- DEC-039와 DEC-032 변경 이력, 운영 판정 예시 / 직전 코드 배포 실패 한계 및 실행 Prompt를 기록했다.
+
+### Verification / 후속 작업
+
+- 자체 참고 검증: Script 구문 및 문서 전용 / 코드 포함 / 파일 0개 / docs 밖 비 .md / 특수 파일 이름 / git 실패 / 수동 실행 / Checkout 실패의 8개 분기 PASS.
+- HEAD와 대조해 기존 배포 Job 본문, Trigger, concurrency 보존 확인 PASS. git diff --check PASS.
+- Contract YAML 구조 검사는 현재 Python의 PyYAML 미설치로 실행하지 못했다(ModuleNotFoundError). 추가 설치하지 않았다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- 실제 Workflow / AWS / 배포는 실행하지 않았다. Executor DONE은 Verify / Claude Review / Human Squash Merge 승인이 아니다. Merge 후 문서 전용 자동 실행의 성공 / 배포 생략과 코드 포함 자동 배포, 문서 SHA 수동 배포를 확인한다.
