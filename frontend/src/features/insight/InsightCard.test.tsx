@@ -35,18 +35,45 @@ describe("AI 코멘트와 주간 리포트", () => {
     expect(fetchMock.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(1);
     expect(screen.getByText(/의학적 조언이 아닙니다/)).toBeTruthy();
   });
-  it("Dashboard only reads until a user clicks and handles null generation", async () => {
+  it("automatically attempts once after null failure and retries only on click", async () => {
     login(); const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(response({ ...disabled, enabled: true, available: true }))); vi.stubGlobal("fetch", fetchMock);
-    render(<InsightCard checkinId={1} />);
-    fireEvent.click(await screen.findByRole("button", { name: "AI 코멘트 받기" }));
+    const view = render(<StrictMode><InsightCard checkinId={1} autoGenerate /></StrictMode>);
     expect(await screen.findByText("지금은 AI 코멘트를 만들 수 없습니다")).toBeTruthy();
-    expect(fetchMock.mock.calls[1][1].method).toBe("POST");
+    view.rerender(<StrictMode><InsightCard checkinId={1} autoGenerate /></StrictMode>);
+    expect(fetchMock.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "다시 시도" }));
+    await waitFor(() => expect(fetchMock.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(2));
   });
   it("reads saved text with React escaping without regeneration", async () => {
     login(); const fetchMock = vi.fn().mockResolvedValue(response({ ...generated, text: "<script>문장</script>" })); vi.stubGlobal("fetch", fetchMock);
     const view = render(<InsightCard checkinId={1} autoGenerate />);
     expect(await screen.findByText("<script>문장</script>")).toBeTruthy();
     expect(view.container.querySelector("script")).toBeNull(); expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+  it.each([403, 429, "network"] as const)("자동 생성 실패 %s 뒤 반복 없이 수동 재시도를 제공한다", async (status) => {
+    login();
+    const fetchMock = vi.fn((_url: string, init: RequestInit) => {
+      if (init.method !== "POST") return Promise.resolve(response({ ...disabled, enabled: true, available: true }));
+      return status === "network" ? Promise.reject(new TypeError("Network failure"))
+        : Promise.resolve(response({ code: "FAILED", message: "실패" }, status));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const view = render(<StrictMode><InsightCard checkinId={1} autoGenerate /></StrictMode>);
+    expect(await screen.findByRole("alert")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "다시 시도" })).toBeTruthy();
+    view.rerender(<StrictMode><InsightCard checkinId={1} autoGenerate /></StrictMode>);
+    expect(fetchMock.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(1);
+  });
+  it("shows generation progress and does not expose a second request while pending", async () => {
+    login(); let finish: (value: Response) => void = () => undefined;
+    vi.stubGlobal("fetch", vi.fn((_url: string, init: RequestInit) => init.method === "POST"
+      ? new Promise<Response>((resolve) => { finish = resolve; })
+      : Promise.resolve(response({ ...disabled, enabled: true, available: true }))));
+    render(<InsightCard checkinId={1} autoGenerate />);
+    expect(await screen.findByRole("status")).toBeTruthy();
+    expect(screen.queryByRole("button")).toBeNull();
+    await act(async () => finish(response(generated)));
+    expect(await screen.findByText(generated.text)).toBeTruthy();
   });
   it("displays weekly period, regeneration, minimum and quota errors", async () => {
     login(); const fetchMock = vi.fn().mockResolvedValueOnce(response(weekly)).mockResolvedValueOnce(response(insufficient, 422)).mockResolvedValueOnce(response(limited, 429));
