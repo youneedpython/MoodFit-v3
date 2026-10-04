@@ -1,0 +1,41 @@
+{
+  "id": "TASK-052",
+  "title": "Music Pool Curation (선곡 조정)",
+  "task_file": "docs/tasks/TASK-052_MUSIC_POOL_CURATION.md",
+  "allowed_paths": [
+    "backend/src/main/java/com/moodfit/service/WellnessRulePolicy.java",
+    "backend/src/test/",
+    "scripts/container-smoke.sh",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "docs/20-RECOMMENDATION-MUSIC-PLAYBACK.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "backend/build.gradle",
+    "backend/src/main/resources/",
+    "frontend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/staging-smoke.sh",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["bash", "scripts/container-smoke.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}
