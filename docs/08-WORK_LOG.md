@@ -3441,3 +3441,12 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - `git diff --check` 통과. 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. 한글 문서는 UTF-8 apply_patch로 작성했다.
 - 화면 캡처는 실행하지 않았다. Contract에 따라 Claude 세션이 390 / 768 / 1280px에서 자동 생성 / 실패 재시도 / 음식 아이콘 / 기록 이동을 확인한다. 캡처 경로는 Executor 허용 경로 밖이다.
 - TASKS에 Milestone 47 / DONE을 Executor 구현 완료로 기록하고 기능 문서 / README / Prompt를 갱신했다. Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않으며 다른 Task 상태와 Current Task는 유지했다. Git 후속 작업은 수행하지 않았다.
+
+### TASK-047 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Orchestrator Verify 통과(Frontend Test 176건, Build, Backend Test / Build), Claude Review PASS(1회).
+- 화면 확인(`docs/images/task-047/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 390 / 768 / 1280px를 캡처했다.
+  - Dashboard: 저장된 코멘트가 없는 상태로 들어가면 생성 요청(POST)이 **한 번** 나가고 코멘트가 표시됐다(요청 수를 세어 확인).
+  - 추천 음식 각 항목 앞에 Emoji 아이콘이 보인다.
+  - History: 기록 8건에서 첫 페이지 5건 / "1 / 2", "이전" 비활성. "다음"을 누르면 나머지 3건 / "2 / 2", "다음" 비활성, focus가 "기록" 제목으로 이동했다. 세 폭 모두 가로 넘침이 없다.
+- 후속 후보(비차단, Review INFO-002 / 003): "기록" Card의 제목 Markup 복제 정리, 한 글자 낱말(차 / 죽 등)로 고르는 아이콘 대응은 추천을 늘릴 때 대응표와 Test 목록을 함께 갱신해야 한다.
