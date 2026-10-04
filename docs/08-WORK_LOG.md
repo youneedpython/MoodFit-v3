@@ -3621,3 +3621,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 이번 `bash scripts/verify.sh`는 npm ci에서 사용자 캐시 stat EPERM으로 중단했다. Frontend Test / TypeScript / Build와 Backend Test / Build는 실행되지 않았다. Container Smoke / IaC 검증은 이번 Run에서 실행하지 않았다. 판정 기준은 Sandbox 밖 Orchestrator Verify다.
 - `bash -n scripts/staging-smoke.sh`와 `git diff --check` PASS. 상수의 저장 / 읽기 / 제거 참조를 정적으로 확인했다. UTF-8 apply_patch로 기록을 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. 실행 화면 캡처는 만들지 못했으며 기존 화면 확인 후속 작업은 유지한다.
 - Executor DONE은 Run 3 구현 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Git / AWS 작업을 수행하지 않았다. Human Squash Merge 이후 Frontend Stack을 먼저 갱신하고 Staging 직접 접근 / 삭제 / 재로그인 흐름을 확인한다.
+
+### TASK-054 Merge 전 확인 (2026-10-05, Claude 세션 기록)
+
+- 진행: Run 1은 구현 뒤 AWS SSO Session 만료로 Verify가 시작되지 못했다. Run 2는 Frontend Test 1건에서 멈췄다. Claude 세션이 Sandbox 밖에서 Test를 돌려 고쳤다 — 삭제 뒤 완료 안내가 사라지는 결함(인증 Guard가 `/login`으로 다시 보내며 Query가 지워짐 → 1회용 `sessionStorage` 값으로 전달), Test Helper의 Compile 오류 2건. Run 3에서 Verify 5개 명령 통과, Claude Review PASS.
+- 최신 main을 Merge했고 문서 충돌은 양쪽을 모두 남겼다.
+- 화면 확인(`docs/images/task-054/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다.
+  - `/privacy`: 로그인 없이 열리고 390 / 768 / 1280px에서 가로 넘침이 없다. 로그인 화면에 안내 Link 2개(본문, Footer).
+  - 삭제 확인 창: 열리면 "취소"에 focus, Esc로 닫으면 아바타로 focus가 돌아온다. "삭제" 뒤 `/login`으로 이동하고 완료 문구가 보인다.
+- Merge 직후 Frontend Stack Change Set을 적용해야 `/login`, `/privacy` 직접 접근과 Staging Smoke가 통과한다(Human 승인에 따라 Claude 세션이 실행).
+- 후속 후보(비차단): 삭제 확인 창의 버튼이 기본 모양이다. 삭제 요청 진행 중에도 확인 창을 닫을 수 있다(Review R3-INFO-4).
