@@ -109,13 +109,13 @@ message.content().stream().filter(ContentBlock::isText).findFirst()
 
 | Method / 경로 | 동작 |
 |---|---|
-| `GET /api/check-ins/{id}/insight` | 저장된 코멘트 조회. 200 `{ "available": bool, "text": string 또는 null, "generatedAt": string 또는 null }`. `available`은 "이 사용자가 지금 생성 요청을 할 수 있는가"(기능 켜짐 + 소셜 로그인 사용자)다 |
+| `GET /api/check-ins/{id}/insight` | 저장된 코멘트 조회. 200 `{ "enabled": bool, "available": bool, "text": string 또는 null, "generatedAt": string 또는 null }`. `enabled`는 기능이 켜져 있는가(`LLM_ENABLED`), `available`은 "이 사용자가 지금 생성 요청을 할 수 있는가"(기능 켜짐 + 소셜 로그인 사용자)다 |
 | `POST /api/check-ins/{id}/insight` | 저장된 것이 있으면 그대로 돌려준다(재호출 없음). 없으면 생성해 저장하고 돌려준다. 응답 형식은 GET과 같다. 생성에 실패하면 200에 `text` null |
-| `GET /api/reports/weekly` | 가장 최근 주간 리포트 조회. 200 `{ "available": bool, "text": ..., "periodStart": ..., "periodEnd": ..., "generatedAt": ..., "recordCount": n }`(없으면 `text` null) |
+| `GET /api/reports/weekly` | 가장 최근 주간 리포트 조회. 200 `{ "enabled": bool, "available": bool, "text": ..., "periodStart": ..., "periodEnd": ..., "generatedAt": ..., "recordCount": n }`(없으면 `text` null) |
 | `POST /api/reports/weekly` | 최근 7일 기록으로 리포트를 만들어 저장하고 돌려준다. 기록이 3건 미만이면 호출하지 않고 422 |
 
 - 다른 사용자의 Check-in id면 404(존재를 드러내지 않는다).
-- 체험 계정이나 기능이 꺼진 상태에서 POST하면 403(`ErrorResponse`, 고정 Code). GET은 `available` false로 200.
+- 체험 계정이나 기능이 꺼진 상태에서 POST하면 403(`ErrorResponse`, 고정 Code). GET은 `available` false로 200(`enabled`는 실제 설정 값).
 - 하루 한도를 넘으면 429(`ErrorResponse`). 한도는 **시도 횟수** 기준으로 센다(실패도 센다, 비용 방어).
 - 기존 Check-in 응답(생성 / 최신 / 이력)의 형식은 **바꾸지 않는다.**
 - POST는 CSRF Token이 필요하다(기존 설정 그대로).
@@ -140,7 +140,7 @@ message.content().stream().filter(ContentBlock::isText).findFirst()
 - Check-in 결과 화면과 Dashboard: "AI 코멘트" 영역.
   - 소셜 로그인 사용자: 결과 화면에 들어오면 자동으로 생성 요청(POST)한다. Dashboard는 조회(GET)만 하고, 저장된 것이 없으면 "AI 코멘트 받기" 버튼을 보여 준다.
   - 생성 중 표시, 실패하면 "지금은 AI 코멘트를 만들 수 없습니다" 한 줄(기존 규칙 문장은 그대로 보인다).
-  - 체험 계정: "소셜 로그인 후 이용할 수 있습니다" 안내(버튼 없음). 기능이 꺼져 있으면 영역을 아예 보여 주지 않는다 — 이를 구분할 수 있게 `available`과 로그인 수단(`provider`)으로 판단한다.
+  - 표시 규칙: `enabled`가 false면 영역을 아예 보여 주지 않는다(모든 사용자). `enabled`가 true이고 `available`이 false면(체험 계정) "소셜 로그인 후 이용할 수 있습니다" 안내만 보여 준다(버튼 없음). 둘 다 true면 위 동작을 한다. 주간 리포트 Card도 같은 규칙을 쓴다.
   - 본문 아래에 작은 글씨로 "AI가 생성한 참고용 문장이며 의학적 조언이 아닙니다."
 - History: "주간 리포트" Card. 저장된 리포트를 보여 주고 "주간 리포트 만들기 / 다시 만들기" 버튼을 둔다. 기록 부족(422)과 한도 초과(429)는 안내 문구로 보여 준다.
 - 본문은 React 기본 escaping으로 출력한다. 줄바꿈은 CSS로 처리한다(HTML 삽입 금지).
@@ -165,6 +165,14 @@ message.content().stream().filter(ContentBlock::isText).findFirst()
 - Infra / Workflow / Smoke Script 변경, API Key 사용, 실제 Bedrock 호출을 하는 Test
 - Score / 상태 / 추천을 LLM 결과로 바꾸는 것
 - 응답 원문이나 입력 수치를 로그에 남기는 것
+
+## Run 2 범위 (2026-10-04, Claude 세션 기록)
+
+Run 1은 구현 전에 정지했다(변경 없음). Executor가 요구사항 충돌을 보고했다: 체험 계정은 기능이 켜져 있든 꺼져 있든 `available`이 false라, 응답만으로 "기능 꺼짐 → 영역 숨김"과 "기능 켜짐 → 소셜 로그인 안내"를 구분할 수 없다.
+
+- 이것은 Claude 세션이 쓴 Task 문서의 설계 누락이다. Executor의 권장안대로 **새 응답 4개에 `enabled`(기능 켜짐 여부)를 추가**해 위 설계에 반영했다. 새로 만드는 API의 형식을 정하는 것이며 기존 API 계약, 보내는 Data, Gate 결정은 바뀌지 않는다.
+- `enabled`는 설정 값만 나타낸다(모델 ID, Region, Role 같은 값은 응답에 넣지 않는다).
+- Run 2는 이 문서 전체를 구현한다. 그 밖에 구현에 필요한 세부(Field 이름, Table 이름, 오류 Code 문자열 등)는 Task의 의도 안에서 Executor가 정하고 문서에 적는다. 새로 Human 결정이 필요한 것은 Gate 결정(보내는 Data, 호출 대상, 비용 한도, 계정 구조)을 바꾸는 경우뿐이다.
 
 ## Verification
 
