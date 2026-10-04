@@ -33,7 +33,16 @@ Human이 제공자 Console 앱과 위 Callback 주소를 등록했다. TASK-043�
 
 ### OAuth Secret과 Stack 적용 (TASK-043)
 
-Human이 환경마다 Secret 하나(이름 예: `moodfit/staging/oauth`)를 콘솔에서 만든다. JSON Key는 `google_client_id`, `google_client_secret`, `kakao_client_id`, `kakao_client_secret` 네 개이며 값은 Human만 입력한다. 네 Key를 모두 생성해야 ECS가 주입할 수 있다. 한 제공자를 끄려면 그 제공자의 두 값을 빈 문자열로 둔다. Agent와 Claude 세션은 Secret 값을 조회하지 않는다. 실제 ARN / 계정 ID / 값은 추적 파일, Prompt, 로그에 남기지 않는다.
+Human이 환경마다 Secret 하나(이름 예: `moodfit/staging/oauth`)를 콘솔에서 만든다. Run 2 승인에 따른 JSON Key는 아래 네 개이며 값은 Human만 입력한다. 네 Key를 모두 생성해야 ECS가 주입할 수 있다. 한 제공자를 끄려면 그 제공자의 두 값을 빈 문자열로 둔다. Agent와 Claude 세션은 Secret 값을 조회하지 않는다. 실제 ARN / 계정 ID / 값은 추적 파일, Prompt, 로그에 남기지 않는다.
+
+| JSON Key | ECS 환경 변수 이름 |
+|---|---|
+| `google_client_id` | `GOOGLE_CLIENT_ID` |
+| `google_client_code` | `GOOGLE_CLIENT_SECRET` |
+| `kakao_client_id` | `KAKAO_CLIENT_ID` |
+| `kakao_client_code` | `KAKAO_CLIENT_SECRET` |
+
+`client_code` Key에는 제공자의 Client Secret 값을 입력한다. OAuth Callback의 일회성 Authorization Code를 넣는 Key가 아니다. Backend 환경 변수 이름은 기존 계약을 유지한다.
 
 Secrets Manager 기본 암호화 Key를 사용한다. 다른 KMS Key를 쓰면 실행 Role의 추가 권한과 Key 정책 검토가 필요하므로 현재 Template로 적용하지 않고 별도 Human 승인을 받는다. Template는 Secret을 생성하지 않으며 OAuth 값을 Parameter로 받지 않는다.
 

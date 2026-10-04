@@ -113,7 +113,7 @@ Human 실행: `infra/iam/readonly-permission-set.json`의 AccountId / StagingSer
 
 ## TASK-043 OAuth 적용 (Merge 후 Human 실행)
 
-1. Human이 Secrets Manager 기본 Key로 환경별 OAuth Secret을 생성한다. 네 JSON Key와 값 입력·비공개 규칙은 [22-AUTH.md](22-AUTH.md)를 따른다. Agent는 값을 읽지 않는다.
+1. Human이 Secrets Manager 기본 Key로 환경별 OAuth Secret을 생성한다. JSON Key는 `google_client_id`, `google_client_code`, `kakao_client_id`, `kakao_client_code`이며 두 `client_code` Key에는 제공자의 Client Secret 값을 입력한다. 값 입력·비공개 규칙과 환경 변수 매핑은 [22-AUTH.md](22-AUTH.md)를 따른다. Agent는 값을 읽지 않는다.
 2. IAM Stack UPDATE Change Set에 `OAuthCredentialArn`을 로컬 비추적 Parameter로 넣고 검토·실행한다. ExecutionRole의 해당 Secret 하나 읽기 권한만 추가되는지 확인한다.
 3. CD가 진행 중이지 않은지 확인하고 App Stack UPDATE Change Set을 준비한다. 동일 ARN과 필수 `PublicUrl`, `GuestLoginEnabled`를 넣으며 `BackendImage`는 현재 Service의 backend Image digest와 마지막 성공 CD Summary를 대조해 맞춘다. 기존 Parameter는 유지하고 오래된 Image 재배포가 없는지 검토·실행한다.
 4. 새 Task Definition을 사용하는 단일 COMPLETED Deployment, desired / running 2, pending 0과 Health를 확인한다. 실패하면 다음 확인을 중단하고 기존 실패·중단 절차를 따른다.

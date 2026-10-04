@@ -1481,6 +1481,7 @@ Human Approved (2026-10-04, 제공된 Task Contract의 Gate 결정과 명시 Rew
 ## DEC-035 TASK-043 OAuth 값 주입
 
 - Status: Human Approved (2026-10-04, TASK-042 Gate 9번 및 TASK-043 승인 Contract).
+- Run 2 Human Approved (2026-10-04): JSON Key는 `google_client_id`, `google_client_code`, `kakao_client_id`, `kakao_client_code`로 확정한다. 두 `client_code` Key는 Client Secret 값을 담으며 Backend 환경 변수 이름은 유지한다. 승인된 DB 주입 목록 앞부분과 조건부 flow 표기, ARN 패턴의 `[:]` 표기를 유지한다.
 - 환경별 OAuth Secret 하나를 Human이 생성하고 네 JSON Key의 값을 콘솔에서 직접 입력한다. Template는 Secret을 생성하지 않고 ARN만 받는다. 값과 실제 ARN / 계정 ID는 추적 파일이나 Agent 입력·로그에 기록하지 않는다.
 - App / IAM의 선택적 `OAuthCredentialArn`이 비어 있으면 네 환경 변수 주입과 읽기 Statement를 생략한다. ExecutionRole만 그 ARN 하나를 읽으며 TaskRole 권한은 추가하지 않는다. Secrets Manager 기본 Key를 전제로 하며 다른 KMS Key는 추가 권한 승인이 필요하다.
 - App은 필수 HTTPS origin `PublicUrl`과 기본 true인 `GuestLoginEnabled`를 환경 변수로 전달한다. 기존 DB 주입과 Health 설정을 유지한다.

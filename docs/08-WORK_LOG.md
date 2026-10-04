@@ -1,5 +1,14 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-043 Run 2 문서 정합성 (2026-10-04)
+
+- 초기 Working Tree는 clean이며 Run 1의 검토 미완료 WIP가 baseline이다. Run 1 Guard 중단과 Claude 세션의 Template 표기 수정·Sandbox 밖 사전 검사 기록은 Contract의 이력이며 이번 Executor 검증 결과로 간주하지 않는다.
+- JSON Key를 `google_client_id`, `google_client_code`, `kakao_client_id`, `kakao_client_code`로 문서 / Runbook / DEC-035에 맞췄다. `client_code`는 Client Secret 값이며 Callback Authorization Code가 아님을 설명했다. Backend 환경 변수 이름은 유지했다.
+- App / IAM의 빈 ARN Condition, 네 조건부 주입, ExecutionRole의 단일 Secret 읽기 Statement와 TaskRole 권한 유지, 필수 HTTPS origin 및 체험 로그인 기본값을 확인했다. 승인된 flow 목록과 `[:]` 패턴을 유지했다. Parameter 예시는 Placeholder만 있어 수정할 필요가 없었다.
+- TASK-043 목록 행을 기존 상세 절과 같은 Milestone 43 / DONE으로 맞췄다. 다른 Task 상태와 Current Task는 유지했다. [Prompt 69](../prompts/69-TASK-043-RUN2.md)에 Run 2 실행 지시를 기록했다.
+- Executor 참고 검증: `git diff --check` PASS. `bash scripts/iac-validate.sh`는 Sandbox Bash에서 AWS CLI를 찾지 못해 시작 단계에서 중단됐다. IaC 검증 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다. 수정 문서의 연속 물음표와 U+FFFD 및 이전 JSON Key 잔존 여부를 직접 검사했다.
+- 실제 Secret / ARN / 계정 ID를 읽거나 기록하지 않았고 AWS 변경 및 Git handoff를 수행하지 않았다. DONE은 Executor 구현 완료이며 Verify / Review / Human Merge / 실제 로그인 확인을 대신하지 않는다.
+
 ## TASK-043 OAuth Value Injection (2026-10-04)
 
 - clean baseline에서 승인 Contract 범위의 App / IAM Template를 수정했다. OAuth ARN이 빈 경우 주입 / 권한을 생략하며 ExecutionRole에 해당 Secret 하나 읽기만 추가한다. DB / Health / TaskRole은 유지한다.
