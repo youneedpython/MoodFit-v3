@@ -46,12 +46,12 @@ Codex는 구현 또는 수정 작업을 시작하기 전에 작업 목적에 맞
 
 현재 단계는 **TASK Execution 단계**이다.
 
-TASK-001 ~ TASK-027와 TASK-032 / TASK-033 / TASK-034는 구현 완료를 반영했다. 2026-10-03 승인 Contract와 명시 실행 지시에 따라 TASK-027 Application Template 구현을 이번 PR에 DONE으로 반영한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-028은 실제 비용 Resource 생성이므로 BLOCKED를 유지하며 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. TASK-029 이후도 BLOCKED다.
+TASK-001 ~ TASK-028와 TASK-032 / TASK-033 / TASK-034는 완료를 반영했다. TASK-029는 2026-10-04 Gate C 사전 승인과 명시 실행 지시에 따라 Staging CD Workflow / 문서 구현 완료를 DONE으로 반영했다. 실제 자동 배포와 Smoke 반복 검증은 Merge 이후 확인한다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. TASK-030은 Production 생성 승인과 선행 기능 Task 후 READY이며 현재 BLOCKED다.
 
 Current Task:
 
 ```text
-TASK-028 — Staging Deployment / Smoke Test
+TASK-030 — Production Continuous Deployment / Approval / Rollback
 ```
 
 Status:
@@ -62,7 +62,7 @@ BLOCKED
 
 AWS 기준은 DEC-027(B안 / 서울 / 환경당 월 USD 300), DEC-028(immutable ECR / digest 고정), DEC-029(IAM / OIDC / Secret 정책), DEC-030(MySQL 8.4.11)이다. Domain은 8949db.kr, Staging 사용자 / origin hostname은 staging.moodfit.8949db.kr / origin.staging.moodfit.8949db.kr이며 모두 HTTPS다. DNS 위임 복구와 Permission Set / 승인 Profile / 실제 Preflight 선행 조건은 TASK-026 Contract에서 확인했다. 기존 Hosted Zone을 참조한다.
 
-TASK-026 / TASK-027은 CloudFormation Template와 정적 검증 Script만 구현했다. Executor는 실제 AWS 조회 / Stack 생성 / IAM 변경 / 비용 Resource 생성을 수행하지 않았다. Application Gate와 TASK-026 자격 증명 결정 3 대체는 DEC-031을 따른다. 구현과 위험 / 검증 한계는 docs/17-AWS-IAC-FOUNDATION.md를 따른다. 최초 적용은 TASK-028 별도 승인이다. 설계 승인은 Resource / Production 실행 승인이 아니다. 검증 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 승인된 Orchestrator가 Git 후속 작업을 수행한다.
+TASK-026 / TASK-027은 CloudFormation Template와 정적 검증 Script만 구현했다. TASK-028 B단계는 Human 관리자 Profile 실행과 moodfit-readonly 확인으로 Staging 최초 배포·Smoke PASS를 기록했다. Application Gate와 TASK-026 자격 증명 결정 3 대체는 DEC-031을 따른다. Staging CD의 실행 경계는 DEC-032와 docs/21-STAGING-CD.md를 따르며 CloudFormation / IAM 변경을 포함하지 않는다. 구현과 위험 / 검증 한계는 docs/17-AWS-IAC-FOUNDATION.md와 docs/18-STAGING-DEPLOYMENT-RUNBOOK.md를 따른다. 설계 승인은 Production 실행 승인이 아니다. 검증 성공 + Executor DONE + Claude PASS + 미해결 Human Gate 없음 이후 승인된 Orchestrator가 Git 후속 작업을 수행한다.
 
 Multi-Agent 정책은 DEC-026, Wellness Rule은 DEC-014, Persistence / Schema는 DEC-019, GitHub Actions Bot은 DEC-021, Post-MVP 기준은 DEC-015 / DEC-022 / DEC-023 / DEC-024다. TASK-034의 승인 literal 허용 목록과 엄격한 마스킹 / 기존 Secret 차단 규칙을 유지한다. 상세 이력은 docs/07-TASKS.md / docs/08-WORK_LOG.md를 따른다.
 

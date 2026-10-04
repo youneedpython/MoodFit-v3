@@ -1,5 +1,26 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-038 — GitHub OIDC Immutable Subject Trust (2026-10-04)
+
+- Human 사전 승인과 명시 실행 지시에 따라 두 배포 Role과 Trust 예시의 subject를 owner / repository 숫자 ID를 포함한 immutable 형식으로 변경했다. StringEquals의 값 하나, audience와 환경별 분리, wildcard 금지와 기존 권한을 유지했다.
+- IAM Template에 숫자만 허용하고 빈 값을 거부하는 RepositoryOwnerId / RepositoryId를 추가했다. 예시에는 Placeholder만 사용하며 실제 ID는 기록하지 않았다. scripts/iac-validate.sh에는 subject / Parameter 목록 검사가 없어 변경하지 않았다.
+- 접근 정책, 최초 배포 Runbook, Staging CD의 첫 실패 원인 / 후속 적용, DEC-029 변경 이력과 실행 Prompt를 기록했다. TASK-038 Milestone 38을 DONE으로 반영하며 Current Task TASK-030 / BLOCKED와 AGENTS.md는 유지했다. 다른 미등록 Task는 추가하지 않았다.
+- Executor 참고 검증: git diff --check 통과. bash scripts/iac-validate.sh는 현재 실행 환경에서 AWS CLI를 찾지 못해 Exit 1로 시작 단계에서 정지했다. 설치·로그인·실제 AWS 호출은 하지 않았으며 Template 검증 성공을 주장하지 않는다. Sandbox 밖 Orchestrator Verify가 판정 기준이다.
+- DONE은 Executor 구현 완료다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다. Merge 후 승인된 Claude 세션이 실제 ID를 비추적 로컬 Parameter 파일에 넣고 Human이 IAM Change Set을 검토·실행한 뒤 실패한 배포를 재실행해 OIDC 단계 통과를 확인한다. Git 작업과 Stack 갱신은 수행하지 않았다.
+
+## TASK-035 — 위치 / 날씨 자동 입력 (2026-10-04)
+
+- WIP 이어서 확인: 기존 좌표 반올림 / WMO 코드 검증 / 기온 범위 / 입력 보호 / 설정 끄기 / 실패 시 직접 입력 흐름을 유지했다. Permissions API의 동기 예외를 처리하고, 설정 변경 또는 직접 조회 성공 뒤 늦은 권한 응답이 중복 조회를 시작하지 않도록 보완했다. 두 경우의 mock 회귀 Test를 추가했다.
+- 이번 Executor 참고 검증: `bash scripts/verify.sh`는 Frontend 설치 단계에서 Sandbox의 npm 캐시 접근 EPERM으로 중단되어 Test / Build를 실행하지 못했다. 재시도나 권한 확대는 수행하지 않았다. `git diff --check` 통과, 변경 문서의 UTF-8 / 연속 물음표 / U+FFFD 검사 통과. 최종 검증 판정은 Sandbox 밖 Orchestrator Verify 기준이다.
+
+- 승인 Contract와 명시 실행 지시에 따라 Frontend 날씨 조회 Service와 Check-in 버튼 / 자동 조회 설정 / 접근성 안내를 구현했다. 기온·날씨 입력과 Backend 요청 계약은 유지한다.
+- 좌표는 소수 첫째 자리로 반올림한 값만 Open-Meteo로 전달하며 저장·Log에 남기지 않는다. localStorage에는 자동 조회 boolean만 기록한다. 위치·API 요청은 각각 10초로 제한하고 외부 응답의 타입 / 기온 범위 / 문서화된 WMO 코드를 검증한다.
+- Permissions API가 이미 허용을 반환하고 저장된 설정이 켜진 경우에만 진입 시 조회한다. 직접 입력·수정·삭제한 날씨 값은 유지하며 자동 조회 끄기 / 저장 시작 / 화면 이탈 시 진행 중 요청을 취소한다.
+- mock Test: WMO 코드 전체·미정의 코드, 좌표 반올림, 기온 범위·응답 검증, 성공 시 두 칸 채움, 위치·API 실패 / 시간 초과, 자동 권한 조건, 직접 입력 보호, 자동 조회 끄기를 추가했다.
+- 참고 검증: 초기 npm Test / Build는 vitest / tsc 실행 파일 부재로 실행되지 않았다. `bash scripts/verify.sh`는 Frontend npm ci 단계에서 Sandbox의 npm cache 접근 EPERM으로 중단돼 Test / Build 및 Backend 검증에 도달하지 못했다. 자동 재시도·도구 설치·권한 우회는 하지 않았다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- `git diff --check` 통과. 수정 Markdown의 UTF-8 / 연속 물음표 / U+FFFD를 직접 검사했다. Backend / API 계약 / Dependency / 금지 문서는 수정하지 않았다.
+- 화면 캡처는 Contract가 docs/images 경로를 허용하지 않아 저장하지 않았다. TASK-028 / TASK-029 Merge 뒤 Human Squash Merge, Staging CD 후 실제 권한 동작과 390 / 768 / 1280px 화면·영상 확인, Claude 세션의 Task / Decision 완료 기록 정리가 남아 있다. 새 Human 결정은 필요하지 않으며 Executor DONE은 Task 완료 승인을 대신하지 않는다.
+
 ## TASK-034 — Run 2 WIP Review 수정 (2026-10-03)
 
 - R1-001: Human이 활성 Contract 허용 목록 변경만 Commit한 Source revision을 Resume에서 검증한다. 각 중간 Commit의 단일 부모 / 변경 파일 / 비목록 fingerprint / 목록 형식을 확인하고 Git 단계의 HEAD 및 parent 기준으로 전달한다. 기존 Workspace HEAD와 누적 Snapshot 검사는 유지한다.
@@ -3094,6 +3115,111 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - 허용 문구 4개를 실행 전에 Guard로 미리 시험해 정했다. Codex는 Workspace의 Contract 파일에서 문구를 직접 읽어 그대로 사용했고 Guard 정지 없이 통과했다. 여러 줄 block 형태는 Guard가 줄을 이어서 판정해 차단하므로 한 줄 flow 형태를 썼다(개선 후보: 구분 기호 뒤 값 탐색이 줄바꿈을 넘지 않게 하는 방안을 검토).
 - Review N-001 ~ N-003은 TASK-028 문서에 입력으로 기록했다. TASK-028은 BLOCKED를 유지한다(Human의 비용 승인과 Stack 생성 권한 결정 후 READY).
 
+## 2026-10-03 — TASK-028 Run 2 Budget 경고 보완
+
+- Run 1 W2001 원인인 미사용 Environment를 BudgetName의 Sub 참조에 사용했다. staging만 허용하며 기존 Budget 이름을 유지한다. Parameter 예시와 Human Script의 staging 검증도 그대로 유효하다. 경고를 무시하는 검증 완화는 하지 않았다.
+- Budget Stack 생성·조회·검증 Region을 ap-northeast-2로 문서화했다. 기존 세 Script의 Region 선택과 일치하며 certificate만 us-east-1을 사용한다. TASK-028 IN_PROGRESS와 나머지 A단계 WIP 상태를 유지한다.
+- Executor Python에 cfn-lint 모듈이 없어 lint 성공을 주장하지 않는다. 실제 AWS 호출과 Git 후속 작업은 수행하지 않았다. Orchestrator의 Sandbox 밖 검증이 기준이다.
+
+## 2026-10-03 — TASK-028 A단계 Staging 배포 준비
+
+- 승인 Contract와 명시 실행 지시에 따라 Human Change Set 생성·확인·명시 확인 입력 후 실행, clean SHA 기반 임시 checkout 이미지 Build / immutable Push, 임시 Frontend Build / 정적 업로드 / invalidation Script를 작성했다. Profile은 필수이며 moodfit-readonly / Production alias는 거부한다. AWS 쓰기 명령을 Executor가 실행하지 않았다.
+- 고정 moodfit-readonly 상태 조회는 Stack / Change Set 개수 / Event 상태 / ECS rollout / Target Health만 출력한다. 공개 URL Smoke는 HTML·SPA·HTTP redirect·origin 차단·합성 Check-in 생성 / 최신 / History / 400 오류 계약을 검사한다. 실제 Staging Smoke 성공 증거는 없다.
+- 월 USD 300 Budget과 실제 50 / 80 / 100%, forecast 100% 이메일 알림 Template, 로컬 비추적 Parameter 형식, 조회 정책 초안을 준비했다. Budget은 공유 Resource 누락을 피하는 계정 전체 보수적 알림이며 실제 Staging 비용은 별도 확인한다. 조회 권한 적용은 Human만 한다.
+- TASK-027 N-001의 MoodFitEnvironment Tag를 Task Definition에 추가했다. 정적 CloudFront behavior에만 두 SPA 경로 rewrite를 추가하고 API 오류는 보존했다. docs/18에 Human 실행 / Agent 확인, 비용 시점 / 대기 추정 / 실패·재개 / TASK-031 정리 개요와 실환경 확인 항목을 기록했다.
+- TASK-028 상태는 IN_PROGRESS이며 TASK-029 이후 BLOCKED를 유지한다. Executor DONE은 A단계 구현 완료만 의미한다. B단계 배포 결과를 같은 PR에 반영하기 전 Merge하지 않는다. Commit / Push / Branch / PR 작업은 수행하지 않았다.
+- Executor 참고 검증: 6개 Bash Script 구문, inline Python AST, infra JSON 형식, 명시 Profile / 삭제 명령 없음, Human Script의 조회 Profile 거부를 확인했다. Fake AWS로 잘못된 확인 문구가 execute API를 호출하지 않고 정확한 입력만 실행하는 것을 확인했다. 조회 Script가 고정 조회 Profile과 읽기 API만 쓰는 것을 확인했다. 실제 AWS 호출은 없다.
+- 참고 Test의 첫 Python subprocess는 Windows 기본 인코딩 / 시스템 bash 선택으로 실패했고 Git Bash 경로·UTF-8로 수정했다. 이후 stdin CRLF 자동 변환 때문에 확인 문구 비교가 실패해 Test 입력을 raw LF bytes로 수정한 뒤 통과했다. Script의 확인 조건을 완화하지 않았다.
+- Smoke 모의 Test의 최초 PATH 주입은 Git Bash의 curl 우선 경로 때문에 실제 정적 URL을 호출했고 연결 실패로 중단됐다(데이터 생성 단계 전). BASH_ENV 함수로 Fake curl을 명시 주입한 뒤 네트워크 없이 전체 계약 성공과 HTML 오류 본문 차단을 확인했다. request의 연결 실패에는 단계·경로가 포함된 일반 사유를 출력하도록 보완했다. 실제 배포·Smoke 완료로 기록하지 않는다.
+- Sandbox Python에는 YAML / cfn-lint 모듈이 없다. Template parsing / lint / AWS ValidateTemplate / 실환경 배포 성공을 주장하지 않는다. Orchestrator Verify가 Budget 포함 8개 Template를 검증한다. 최종 Diff 공백·문서 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 검사는 Executor 참고 증거다.
+
+## TASK-028 — B단계 Staging 최초 배포 결과 / DONE (2026-10-04, Claude 세션 기록)
+
+Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다. Claude 세션은 `moodfit-readonly`로 Change Set 내용과 Stack 상태를 확인했고, 이전 Stack의 출력값을 읽어 로컬 비추적 Parameter 파일(`infra/cloudformation/local/`)을 채웠다. Account ID / ARN / Zone ID / 이메일 / Origin 검증 값은 화면에 출력하거나 추적 파일에 쓰지 않았다.
+
+### 생성 결과 (모두 첫 Change Set에서 성공, Rollback 없음)
+
+| 순서 | Stack | Region | 결과 | 추가 Resource |
+|---|---|---|---|---|
+| 1 | budget | ap-northeast-2 | CREATE_COMPLETE | Budget 1 |
+| 2 | network | ap-northeast-2 | CREATE_COMPLETE | 39 (VPC, Subnet 6, NAT 2, EIP 2, S3 Gateway Endpoint, SG 3 등) |
+| 3 | ecr | ap-northeast-2 | CREATE_COMPLETE | Repository 1 |
+| 4 | data | ap-northeast-2 | CREATE_COMPLETE | 6 (RDS MySQL 8.4.11 Multi-AZ, 자격 증명, Parameter / Subnet Group, Log Group 2) |
+| 5 | certificate | us-east-1 | CREATE_COMPLETE | 인증서 1 (DNS 검증 자동 완료) |
+| 6 | frontend | ap-northeast-2 | CREATE_COMPLETE | 8 (S3, CloudFront, OAC, Origin Request 정책, Function, DNS A / AAAA) |
+| 7 | iam | ap-northeast-2 | CREATE_COMPLETE → UPDATE_COMPLETE | 6 (OIDC Provider, Role 4, Log Group). App 생성 후 실제 Role / Stack ARN으로 갱신(수정 2) |
+| 8 | app | ap-northeast-2 | CREATE_COMPLETE | 11 (ECS Cluster / Task Definition / Service, ALB, HTTPS Listener / Rule, Target Group, origin 인증서 / DNS, access log Bucket) |
+
+- Image: Commit `9f070f0`의 깨끗한 checkout에서 Build, Tag `sha-<full SHA>`로 Push, digest를 App Parameter에 사용했다.
+- Frontend: `scripts/staging-frontend.sh`로 Build / 업로드 / invalidation.
+- GitHub OIDC Provider는 계정에 없어서(Human 확인 0개) IAM Stack에서 새로 만들었다.
+
+### 검증
+
+- `scripts/staging-status.sh app`: ECS desired 2 / running 2 / pending 0, 배포 COMPLETED, Target 2개 healthy.
+- `scripts/staging-smoke.sh`: 통과(정적 페이지와 SPA 경로, origin 보호, 합성 Check-in 생성 201 / 최신 / History 200과 계약, invalid 입력 400 본문 보존). 합성 기록 1건은 남겼다.
+- Claude 세션 추가 확인: HTTP → HTTPS 301, ALB origin hostname 직접 접근은 연결 불가(CloudFront prefix list 외 차단), `/actuator/health`는 CloudFront로 노출되지 않음(403), `/api/check-ins/latest` / History 200.
+- 정적 검증으로 확인하지 못했던 항목(TASK-027 Review N-003): ALB access log Bucket 정책은 ALB 생성 시 통과, origin 인증서 DNS 검증 자동 완료, 생성된 DB 자격 증명이 RDS와 ECS에 전달되어 readiness 통과, Task 2개 동시 시작이 Health 유예 시간 안에 healthy. Flyway 대기 시간과 header 전달의 상세 실측(로그)은 Human 로컬 확인 항목으로 남긴다.
+- Budget Stack은 서울 Region에서 생성되었다(A단계 Review N-002 확인).
+- 미확인: 앱 Change Set Role Trust의 Source 조건 동작(DEC-029)은 그 Role로 Change Set을 실행할 때 확인한다(TASK-029).
+
+### 진행 중 발생한 일과 개선 후보
+
+- Human의 SSO 사용자에게 `AdministratorAccess` Permission Set이 없어 기존 `student11` Profile을 쓸 수 없었다. 관리자 정책이 연결된 다른 Permission Set으로 새 Profile(`happyitlab_student11`)을 만들어 사용했다. AWS 설정 파일을 다시 만들면서 `moodfit-readonly` / `moodfit-staging` Profile이 사라져 Claude 세션이 복구했다(같은 SSO 세션에 연결). 새 관리자 Profile은 Orchestrator 금지 목록에 추가했다.
+- `scripts/staging-changeset.sh create`는 실패 이유를 화면에 보여 주지 않는다(AWS CLI 오류 출력을 버린다). Budget Parameter의 이메일이 비어 있을 때 `PASS` 줄만 빠지고 이유가 보이지 않았다. 오류 종류를 표시하도록 개선한다.
+- `docs/18`의 Agent 확인 문구(TASK-028 A단계 Review N-003): `staging-status.sh`는 `moodfit-readonly` 세션이 필요하고 자격 증명이 필요 없는 것은 `staging-smoke.sh`뿐이다. 문서 정리 후보다.
+- Parameter 파일 8개를 손으로 채우는 절차는 번거롭다. 이번에는 Claude 세션이 Stack 출력에서 읽어 채웠다. 출력값을 다음 Stack의 로컬 Parameter 파일로 옮기는 보조 Script를 추적 파일로 만드는 것을 개선 후보로 둔다(TASK-030 Production 생성 전에 필요).
+- Claude 실행 파일 경로가 VS Code 확장 갱신으로 바뀌어 Orchestrator Preflight가 정지했다(병행 Task). `harness/config.local.json`을 갱신했다.
+- Background로 실행한 Orchestrator가 세션 종료로 중단되면 잠금 파일이 남는다. 소유 Process 종료를 확인한 뒤 Claude 세션이 제거했다.
+
+### 비용
+
+2026-10-04 오전부터 Staging 비용이 발생한다(DEC-027 기준 하루 약 USD 8). Human 결정: 검증과 영상 촬영 뒤 정리한다(TASK-031).
+
+### 후속 Roadmap 후보 (Human 결정, 2026-10-04)
+
+- **갤럭시 / Samsung Health 신체 정보 자동 연동은 이번 범위에서 제외한다.** Samsung Health Data SDK(v1.1.0)와 Health Connect는 Android 앱 전용이고 웹 API가 없다(Samsung Developer 문서 / 포럼 확인, 2026-10-04). Google Fit REST API는 신규 등록 중단 / 2026년 말 종료 예정이다. 웹 앱에서 자동 연동하려면 Android 연동 앱(Health Connect에서 읽어 MoodFit API로 전송)이 필요하다. 대안으로 Samsung Health 내보내기 파일 가져오기, 생체 정보 제공자 구조 준비가 있다.
+- 병행 개발 중인 기능: TASK-035(위치 인식 + 날씨 자동 조회, Review PASS, PR #16), TASK-036(추천 5개 확대 / 추천 음악 YouTube 재생, 개발 중). 이후 소셜 로그인(Google, Kakao)을 Production 전에 넣는다.
+
+### TASK-035 Merge 순서 변경과 등록 (2026-10-04, Claude 세션 기록)
+
+- Human이 PR #16(TASK-035)을 PR #15(TASK-028)보다 먼저 Squash Merge했다(main `839195d`). 계획한 순서는 TASK-028 → TASK-029 → TASK-035였다. TASK-035는 Frontend만 바꾸므로 Infra / 배포 절차에 영향이 없다.
+- TASK-028 Branch에 main을 Merge했다(충돌 없음). strict Required Check 때문에 PR #15는 최신 main 기준으로 다시 CI를 통과해야 한다.
+- 병행 개발 중이라 미뤄 둔 TASK-035 등록을 이 PR에서 정리했다: `docs/07-TASKS.md`에 TASK-035 DONE 행과 절 추가(Milestone 35 자동 Close 대상), Prompt 색인 보완. Prompt 파일 번호 60이 두 Task에서 겹친다(파일 이름은 다르다).
+- TASK-035 Review 비차단 지적(후속 후보): 수동 조회 실패 뒤 늦게 도착한 권한 응답으로 자동 조회가 한 번 시작되는 경로의 Test, 이미 채워진 값이 있을 때 버튼을 다시 누르면 값은 유지되는데 성공 문구가 나오는 점.
+- Staging에는 아직 TASK-035가 배포되지 않았다(배포된 Frontend는 Commit `9f070f0` 기준).
+
+## TASK-029 — Staging Continuous Deployment 구현 (2026-10-04)
+
+- Gate C 사전 승인과 명시 실행 지시에 따라 main push CI 성공 후 Staging 자동 배포와 main 이력 full SHA 수동 재배포 / 롤백 Workflow를 작성했다. OIDC는 Backend Test / bootJar / Image Build 뒤에 취득하며 3600초 세션, 자동 재시도 없음, 단일 concurrency를 적용했다.
+- 기존 immutable SHA Tag 재사용 / digest 형식 검사, 현재 Task Definition의 backend Image 교체와 staging 요청 Tag, ECS target revision 안정화 확인을 구현했다. Circuit Breaker로 이전 revision에 복귀했을 때 waiter 성공을 배포 성공으로 오인하지 않는다. Frontend asset 먼저 / HTML no-cache / 삭제 없음 / invalidation 완료 후 기존 Smoke를 실행한다.
+- Summary는 Commit / digest / revision 번호 / 결과 / 실패 Step만 기록한다. AWS 원문과 식별값은 출력하지 않고 임시 파일을 정리한다. ECR 로그인 Action의 사용자·암호 출력을 Script가 직접 다루지 않는다. AWS 공식 Action 두 개의 Release Commit SHA를 공식 링크로 확인해 고정했다.
+- docs/21에 Environment 설정, Secret 이름과 출처, 실패·부분 배포 대응, DB Migration 롤백 불가, 이전 SHA Frontend 재빌드, App Stack BackendImage drift 처리와 실제 배포 검증 한계를 기록했다. DEC-032와 DEC-021 변경 이력, 관련 배포 문서와 Prompt를 갱신했다. TASK-029 DONE은 Executor 구현 완료 반영이며 Current Task TASK-030 / BLOCKED, Production 생성 승인과 선행 기능 Task 후 READY 조건을 유지했다. TASK-036 / TASK-037은 새로 등록하지 않았다.
+- Executor 참고 검증: Workflow의 12개 Bash run 블록 구문과 inline Python AST, staging-smoke Bash 구문, git diff --check가 통과했다. 네트워크 없는 Mock으로 Task Definition Image / Tag 변경과 나머지 설정 보존, target revision 정상 상태 수락 / 이전 revision 복귀 거부, Smoke 실패 Summary를 확인했다. 기존 Secret 검사 함수와 승인 literal 목록으로 신규 파일·추가 줄을 검사했고 AGENTS 승인 3절 범위 비교가 통과했다.
+- 참고 검사 도중 PowerShell native 인자 전달로 Python 검사 문자열이 손상돼 첫 구문 검사가 시작 전에 실패했다. UTF-8 stdin으로 수정 후 통과했다. Mock 첫 실행은 inline snippet 추출 개수 가정 오류로 중단됐고 실제 standalone 블록 세 개를 검사하도록 수정 후 통과했다. 제품 검증 실패를 성공으로 바꾸지 않았다.
+- Sandbox Python에 PyYAML이 없어 Contract YAML 검사를 실행하지 못했다. 설치·업데이트하지 않았으며 YAML 판정은 Sandbox 밖 Orchestrator Verify가 기준이다. GitHub Workflow / AWS 변경 / 실제 Smoke / Git handoff는 실행하지 않았다. 최소 두 번의 자동 배포와 실환경 IAM 수락 / 세션 시간 / 안전한 실패 경로 확인은 Merge 이후 기록한다. Orchestrator Verify / Claude PASS / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다.
+
+### TASK-029 Review 결과와 Merge 전 정리 (2026-10-04, Claude 세션 기록)
+
+- Orchestrator Claude Review: PASS(비차단 지적 6건). Draft PR #18.
+- Claude 세션 확인: AWS Action 2개의 고정 Commit SHA가 upstream Tag(`configure-aws-credentials` v4.3.1, `amazon-ecr-login` v2.0.1)와 일치한다. Workflow가 교체하는 Container 이름 `backend`와 `workflow_run` 대상 이름 `CI`가 `app.yaml` / `ci.yml`과 일치한다.
+- Review 지적 반영: DEC-021 변경 이력 한 줄이 구분선 밖에 놓여 있어 DEC-021 "변경 이력" 안으로 옮겼다.
+- GitHub Environment `staging`(main Branch만 허용, 승인자 없음)과 Environment Secret 4개는 Human 승인에 따라 Claude 세션이 `gh`로 등록했다. 값은 Stack 출력에서 읽어 전달했고 출력 / 기록하지 않았다.
+- 남긴 비차단 지적(후속 후보):
+  - `concurrency`가 Workflow 단위라 수동 실행과 자동 실행이 한 줄로 대기한다(의도한 동작). 대기 중인 실행은 최신 1개만 남는다.
+  - CD가 등록한 Task Definition revision에는 요청 Tag `MoodFitEnvironment`만 붙는다. Stack이 붙이던 다른 Tag는 없다.
+  - AWS CLI 오류 출력을 숨겨 실패 원인 파악이 어렵다. 첫 배포가 실패하면 식별값을 가린 진단 출력을 추가한다.
+  - HTML이 아닌 Root 파일(아이콘 등 Hash 없는 파일)에도 1년 immutable cache가 붙는다. 아이콘을 바꿀 때는 파일 이름을 바꾼다(로고 Task에서 다시 다룬다).
+- 실제 검증은 Merge 뒤 첫 자동 배포다. 이 배포로 위치 인식 + 날씨 자동 조회(TASK-035)가 Staging에 올라간다. 결과는 Merge 후 기록한다.
+
+## TASK-039 — Staging CD Rollout Wait Fix (2026-10-04)
+
+- Human의 명시 실행 지시와 승인 Contract에 따라 ECS 대기 Step만 수정했다. services-stable 직후 rolloutState가 IN_PROGRESS일 수 있는 시간차를 최대 10분 / 15초 간격 DescribeServices 조회로 처리한다. 개별 조회는 최대 30초와 남은 시간으로 제한한다.
+- Service와 단일 목표 Deployment의 Task Definition 일치, COMPLETED, desired 2 / running 2 / pending 0을 모두 요구한다. Service의 목표 불일치와 목표 Deployment FAILED는 즉시 실패하며 나머지는 제한 시간 안에서 기다린다. 조회 오류와 시간 초과에는 짧은 이유만 출력하고 AWS 원문 / 계정 ID / ARN을 출력하지 않는다.
+- 다른 Step / 권한 / Trigger / Action 고정 SHA를 변경하지 않았다. docs/21에 이번 실패와 판정 방식을 기록하고 TASK-039를 Milestone 39 / DONE으로 반영했다. TASK-030 / Current Task BLOCKED와 AGENTS.md를 유지했다. 실행 지시는 Prompt 64에 기록했다.
+- Executor 참고 검증: inline Python AST와 네트워크 없는 Mock 7개가 통과했다(IN_PROGRESS 후 성공, 롤백, FAILED, 복수 Deployment 후 성공, IN_PROGRESS / Task 수 / 복수 Deployment 시간 초과). git diff --check가 통과했다. 변경 문서의 UTF-8, 연속 물음표 치환 흔적과 U+FFFD 검사를 수행했다.
+- Sandbox Python에 PyYAML이 없어 Contract YAML 구조 검사는 실행되지 않았다. 설치하지 않았으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다. 실제 AWS 호출 / 배포 / Git handoff는 수행하지 않았다. DONE은 Executor 구현 완료이며 Verify / Review / Remote CI / Human Squash Merge 전 완료 승인이 아니다. Merge 후 Frontend 배포와 Smoke까지 자동 배포 전체 통과를 확인한다.
+
 ## 2026-10-04 — TASK-036 추천 5개와 음악 바로 듣기 구현
 
 - 승인된 TASK-036 Contract에 따라 새 추천을 음식·음악 각각 Mood 3개 + Context 2개로 확대했다. 기존 음식 항목과 점수 / Mood / Context / Summary 판정은 유지했다. 음악은 승인된 실제 곡 22개와 정확한 영상 ID만 사용한다.
@@ -3110,3 +3236,10 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - 구현은 COLD와 SNOW를 같은 switch 분기로 처리하고 두 곡에 동일한 자연스러운 한 문장을 사용한다. SNOW와 다른 Context / Mood 테스트의 기대 문구도 구현과 대조했으며 추가 수정은 필요하지 않았다. 판정 규칙과 Run 1의 나머지 WIP는 유지했다.
 - Executor 참고 검증: `backend`에서 `./gradlew.bat test --no-daemon`을 실행했으나 Sandbox 밖 `C:\.gradle`의 Wrapper lock 상위 디렉터리 생성이 거부되어 테스트 시작 전에 종료됐다. Docker 없는 테스트도 실행 결과를 얻지 못했으며 테스트 통과를 주장하지 않는다. Docker 통합 테스트는 실행하지 않았다. 최종 검증은 Sandbox 밖 Orchestrator Verify 기준이다.
 - 변경 문서를 UTF-8로 직접 읽어 연속 물음표 치환 흔적과 U+FFFD가 없음을 확인했고 `git diff --check`를 통과했다. 새 Human 결정이나 Git 후속 작업은 수행하지 않았다.
+
+### TASK-036 Merge 전 정리 (2026-10-04, Claude 세션 기록)
+
+- 최신 main(TASK-029 / 038 / 039 포함)을 Branch에 Merge했다. `docs/08-WORK_LOG.md` 충돌은 양쪽 기록을 모두 남겼다.
+- 병행 개발 중이라 미뤄 둔 등록을 정리했다: `docs/07-TASKS.md`에 TASK-036 DONE 행과 절 추가(Milestone 36), Prompt 색인 보완.
+- Staging Smoke는 계약 예시 파일과 실제 응답을 비교한다. 이 PR이 계약 예시를 5개 / 영상 ID 형식으로 바꿨고 Backend 계약 Test가 같은 파일을 검증하므로 배포 뒤 Smoke 기준도 함께 바뀐다.
+- DB Migration `V2`는 Column 추가(nullable)라 이전 Version Task와 함께 실행되는 Rolling 배포 중에도 호환된다. Migration은 롤백되지 않는다.

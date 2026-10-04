@@ -1,0 +1,51 @@
+{
+  "id": "TASK-039",
+  "title": "Staging CD Rollout Wait Fix",
+  "task_file": "docs/tasks/TASK-039_CD_ROLLOUT_WAIT.md",
+  "allowed_paths": [
+    ".github/workflows/deploy-staging.yml",
+    "docs/",
+    "README.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    ".github/workflows/ci.yml",
+    ".github/workflows/milestones.yml",
+    "harness/",
+    "scripts/",
+    "infra/",
+    "frontend/",
+    "backend/",
+    "contracts/",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "agents_sections": [
+    "3"
+  ],
+  "secret_scan_allow": [
+    "id-token: write"
+  ],
+  "verify": [
+    {
+      "command": [
+        "python",
+        "-c",
+        "import yaml,sys; d=yaml.safe_load(open('.github/workflows/deploy-staging.yml',encoding='utf-8')); assert isinstance(d,dict) and 'jobs' in d, 'workflow structure'"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}
