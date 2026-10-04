@@ -3450,3 +3450,17 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - 추천 음식 각 항목 앞에 Emoji 아이콘이 보인다.
   - History: 기록 8건에서 첫 페이지 5건 / "1 / 2", "이전" 비활성. "다음"을 누르면 나머지 3건 / "2 / 2", "다음" 비활성, focus가 "기록" 제목으로 이동했다. 세 폭 모두 가로 넘침이 없다.
 - 후속 후보(비차단, Review INFO-002 / 003): "기록" Card의 제목 Markup 복제 정리, 한 글자 낱말(차 / 죽 등)로 고르는 아이콘 대응은 추천을 늘릴 때 대응표와 Test 목록을 함께 갱신해야 한다.
+
+
+## 2026-10-04 TASK-048 — 추천 다양화 + History 여백
+
+- 승인 Contract와 명시 실행 지시에 따라 음식 / 음악 후보 Pool을 Code 상수로 확대했다. 기존 곡과 oEmbed 확인 40곡만 사용하며 주입된 Clock의 서울 날짜 epochDay로 기분 3개 / 상황 2개를 순환 선택한다. 상황 후보에서 중복을 건너뛰고 기존 판정 / 요약 / 응답 형식 / 저장 기록을 유지한다.
+- 고정 시각 epochDay 20724의 생성 / 최신 / History 계약과 API 예시, 날짜별 추천은 형식만 검사하는 두 Smoke를 동기화했다. Container Smoke는 인증 자료를 복사하지 않고 응답 본문만 호스트에서 검사한다.
+- Backend는 후보 크기 / 승인 메타데이터 전체 집합 / 24조합 × 366일 / 결정성 / 하루 이동 / 중복 / 순환 / 서울 UTC 15시 경계 Test를 추가했다. 기존 판정 경계값 Test는 epochDay 0 고정 Clock으로 유지했다.
+- Frontend는 51개 메뉴 전체의 기대 Emoji를 이름별로 고정했다. 한 글자 낱말의 오인식을 피하고 History의 리포트와 나머지 Card에 동일 .history / --space-4 간격을 적용했다. 리포트가 null이면 빈 간격이 없음을 구조 / CSS Test로 확인하도록 했다.
+- Executor 참고 검증: bash scripts/verify.sh는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Backend 단독 gradlew.bat test는 Sandbox 밖 Gradle Wrapper lock 생성 제한으로 시작하지 못했다. Container Smoke는 JAR 미생성으로 preflight 중단됐고 Docker 접근도 제한됐다. 실제 Test / Build / 통합 성공을 주장하지 않는다. Sandbox 밖 Orchestrator Verify가 판정 기준이다.
+- bash -n으로 두 Smoke 구문 검사, git diff --check를 수행했다. 변경 문서의 연속 물음표 치환 흔적 / U+FFFD와 추천 계약 / 승인 목록 / 아이콘 동기화를 직접 검사한다. 문서는 UTF-8로 작성했다.
+- 보조 검증: 실제 WellnessRulePolicy / 추천 Value Java를 임시 디렉터리에서 javac로 컴파일하고 실행했다(프레임워크 Annotation / 요청 DTO만 Stub). 8,784개 조합의 개수 / 중복 / 결정성 / 하루 이동 / 요약 유지, 고정 시각 계약, 상황 중복 건너뛰기와 서울 날짜 경계가 통과했다. 처음 발견한 Pool 상수 괄호 오류와 예시 계산 스크립트의 마지막 후보 누락을 수정하고 다시 통과했다. 이는 Spring / DB / 전체 JUnit 검증을 대신하지 않는다.
+- Python 보조 검사로 Pool 최소 크기, 승인 제목 / 가수 / ID 62개 전체 집합, 음식 후보와 이름별 아이콘 Test 51개, API JSON 예시 동기화가 일치함을 확인했다. 두 Smoke의 실제 Python 검사 함수를 실행해 추천 내용 변화는 허용하고 개수 / 타입 / 키 / videoId 오류와 추천 외 값 불일치는 거부함을 확인했다. 변경된 모든 텍스트 파일의 UTF-8 / 연속 물음표 / U+FFFD 검사도 통과했다.
+- 화면 캡처는 Frontend 의존성 설치 제한으로 실행하지 못했다. 승인된 Claude 세션 / Human이 실행 가능한 환경에서 390 / 768 / 1280px, 리포트 표시 / 꺼짐을 확인하고 docs/images/task-048/에 캡처와 이 문서의 이미지 링크를 기록한다. Merge 후 Staging 추천 변화 / Smoke 확인이 남는다.
+- Executor 구현 완료를 DONE으로 기록한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지하며 Git 후속 작업은 수행하지 않았다. Verify / Review / Remote CI / Human Squash Merge 대기다.

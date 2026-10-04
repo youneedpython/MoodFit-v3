@@ -4,7 +4,7 @@
 
 ## 추천 규칙
 
-새 Check-in은 음식과 음악을 각각 5개 생성한다. 순서는 Mood 3개 → Context 2개다. Wellness Score 계산, Mood 우선순위와 경계값, 기온 우선 Context 선택, Summary 문장은 DEC-014 그대로 유지한다. 음식은 기존 Mood / Context 항목을 각 그룹 첫 항목으로 유지하고 일반 식사 제안만 추가한다. 한 응답 내 음식 이름 / 곡 / 영상 ID는 중복되지 않는다.
+새 Check-in은 음식과 음악을 각각 5개 생성한다. 순서는 Mood 3개 → Context 2개다. Wellness Score 계산, Mood 우선순위와 경계값, 기온 우선 Context 선택, Summary 문장은 DEC-014 그대로 유지한다. TASK-048 이후 음식은 확대된 후보 Pool에서 서울 날짜별로 선택한다. 기존 항목은 후보로 유지한다. 한 응답 내 음식 이름 / 곡 / 영상 ID는 중복되지 않는다.
 
 History는 DEC-020의 `foodNames` / `musicTitles` 목록을 유지하고 5개 제목을 모두 표시한다. 영상 메타데이터가 없는 History에는 재생 UI를 추가하지 않는다. Dashboard와 Check-in 결과는 같은 추천 카드로 곡 제목, 가수, Tag, 이유와 재생을 제공한다.
 
@@ -37,7 +37,7 @@ History는 DEC-020의 `foodNames` / `musicTitles` 목록을 유지하고 5개 �
 | CLOUDY | Paradise | Coldplay | `1G4isv_Fylg` |
 | CLOUDY | Hymn for the Weekend | Coldplay | `YykjpeuMNEk` |
 
-곡 목록은 `WellnessRulePolicy`와 `RecommendationMatrixTests`에서 관리한다. 추가 / 교체는 Human의 승인된 목록 변경 후 코드, 계약 예시, API 문서와 테스트를 함께 갱신한다. 임의 영상 ID 생성, YouTube Data API, 외부 Script와 음원 다운로드는 사용하지 않는다.
+곡 목록은 `WellnessRulePolicy`와 독립 승인 목록 Fixture를 둔 `RecommendationMatrixTests`에서 관리한다. 추가 / 교체는 Human의 승인된 목록 변경 후 코드, 계약 예시, API 문서와 테스트를 함께 갱신한다. 임의 영상 ID 생성, YouTube Data API, 외부 Script와 음원 다운로드는 사용하지 않는다.
 
 ## 재생과 개인정보
 
@@ -58,7 +58,7 @@ Flyway `V2__add_music_video_id.sql`은 추천 음악 Table에 nullable `VARCHAR(
 - MySQL 8.4.11 통합 테스트는 V1 / V2 적용, nullable 열, 새 ID 저장 / 최신 조회, 기존 2개 기록의 최신 / History API 호환을 확인한다.
 - Frontend 테스트는 5개 표시, 클릭 전 iframe 없음, 클릭 후 주소, 링크 속성, 잘못된 ID / 기존 기록, Player 닫기 / 추천 변경을 확인한다. 문서 예시와 계약 파일도 함께 비교한다.
 - Executor 참고 실행에서 `scripts/verify.sh`는 npm 캐시 접근 EPERM으로 설치 단계가 중단됐다. Backend 단독 Test도 Gradle Wrapper의 Sandbox 밖 lock 디렉터리 생성 제한으로 실행되지 못했다. Container Smoke는 JAR 미생성과 Docker 접근 제한으로 수행되지 않았다. 통과를 주장하지 않으며 최종 기준은 Sandbox 밖 Orchestrator Verify다.
-- `scripts/container-smoke.sh`는 Health / 이미지 / DB 장애 검사이며 추천 개수를 검사하지 않으므로 현재 API 변경에 따른 수정이 필요 없다. `scripts/staging-smoke.sh`의 추천 개수 / 기존 Playlist 기대값이 있다면 승인된 별도 범위에서 음식·음악 5개와 승인 곡 / `videoId`, 기존 2개 기록 예외로 갱신해야 한다. 이 Task에서는 scripts를 수정하지 않는다.
+- TASK-048에서 두 Smoke Script에 추천 형식 검사를 반영했다. Container Smoke는 Health / 이미지 / DB 장애 검사를 유지하며 생성 / 최신 / History 본문 계약도 검사한다. 기존 저장 기록의 두 항목 추천은 기존 호환 Test에서 검증하며 Smoke는 새 합성 기록의 5개를 검사한다.
 - Merge 순서는 TASK-028 → TASK-029 → TASK-035 → TASK-036이다. Merge 후 Staging CD와 실제 영상 재생 / 촬영을 확인한다. 화면 캡처 기본 위치 `docs/images/task-036/`는 이 Contract의 allowed_paths 밖이므로 Executor는 캡처 파일을 작성하지 않았다. 승인된 Claude 세션 / Human이 390 / 768 / 1280px 화면 검토와 기록을 수행한다.
 
 ## Decision 기록 초안
@@ -70,3 +70,67 @@ Claude 세션이 Merge 시점에 다음 변경 이력을 정리한다. 이 문�
 - DEC-024: 음악 항목에 선택적 `videoId` 추가, 새 생성 / 최신 추천 예시는 5개, History 이름 / 제목 목록은 동일 필드로 5개 제공. 계약 예시 / 문서 / Frontend / Backend 테스트 동기화.
 
 `docs/07-TASKS.md`, `AGENTS.md`, `docs/09-DECISIONS.md`의 Task 등록 / 완료 반영은 병행 개발 Merge 시점에 Claude 세션이 정리한다.
+
+
+## TASK-048 날짜별 추천 다양화
+
+Human Approved 2026-10-04 / DEC-039. 음식 기분 Pool은 각각 8개, 상황 Pool은 각각 6개다. 음악 기분 Pool은 TIRED 13곡 / ENERGETIC 26곡 / CALM 13곡 / BALANCED 14곡, 상황 Pool은 COLD 7곡 / HOT 8곡 / RAIN 9곡 / SNOW 6곡 / CLEAR 10곡 / CLOUDY 9곡이다. Pool은 Code의 상수이며 DB / 설정 파일로 옮기지 않는다.
+
+주입된 Clock의 시각을 Asia/Seoul 날짜로 변환한 epochDay가 기준이다. 음식과 음악은 각자 Pool 크기로 나눈 나머지부터 기분 3개, 상황 2개를 순서대로 고른다. 끝에서는 처음으로 돌아가고 상황에서 이미 고른 항목이면 다음으로 넘어간다. 음식 이름과 음악 videoId로 중복을 제거한다. 같은 서울 날짜 / 기분 / 상황이면 결과가 같고 날짜가 바뀌면 시작 위치가 한 칸 옮겨 간다. UTC 15시가 서울 날짜 경계다.
+
+추천은 생성 시 저장하며 이후 최신 / History 조회에서 다시 고르지 않는다. Score / 상태 / 상황 판정과 요약은 그대로이며 음식 / 음악 각각 5개와 기존 API 응답 형식을 유지한다. 계약 예시는 2026-09-28T03:00:00Z (서울 2026-09-28, epochDay 20724)의 결과로 동기화했다.
+
+### 추가 승인 곡
+
+Claude 세션이 YouTube oEmbed로 영상 존재 / embed 가능 / 제목 일치를 확인했다(2026-10-04). Executor는 Contract의 제목 / 가수 / ID를 그대로 반영했으며 외부 재조회는 수행하지 않았다. 기존 곡도 후보에 유지한다.
+
+| 제목 | 가수 | videoId |
+|---|---|---|
+| Viva La Vida | Coldplay | `dvgZkm1xWPE` |
+| Yellow | Coldplay | `yKNxeF4KMsY` |
+| Fix You | Coldplay | `k4V3Mo61fJM` |
+| Hello | Adele | `YQHsXMglC9A` |
+| Shape of You | Ed Sheeran | `JGwWNGJdvx8` |
+| Just the Way You Are | Bruno Mars | `LjhCEhWiKXk` |
+| Roar | Katy Perry | `CevxZvSJLk8` |
+| Firework | Katy Perry | `QGJuMBdaqIw` |
+| Believer | Imagine Dragons | `7wtfhZwyrcc` |
+| Thunder | Imagine Dragons | `fKopy74weus` |
+| Wake Me Up | Avicii | `IcrbM1l_BoI` |
+| Get Lucky | Daft Punk | `5NV6Rdv1a3I` |
+| Don't Stop Me Now | Queen | `HgzGwKwLmgM` |
+| Don't Stop Believin' | Journey | `1k8craCGpgs` |
+| Take On Me | a-ha | `djV11Xbc914` |
+| Don't Know Why | Norah Jones | `tO4dxvguQDk` |
+| Stay With Me | Sam Smith | `pB-5XG-DbAA` |
+| ocean eyes | Billie Eilish | `viimfQi_pUw` |
+| Someone You Loved | Lewis Capaldi | `zABLecsR5UE` |
+| Butter | BTS | `WMweEpGlu_U` |
+| 봄날 (Spring Day) | BTS | `xEeFrLSkMm8` |
+| 밤편지 | IU | `BzYnNdJhZQw` |
+| Blueming | IU | `D1PvIWdJ8xo` |
+| Hype Boy | NewJeans | `11cta61wi0g` |
+| 양화대교 | Zion.T | `uLUvHUzd4UA` |
+| 여행 | 볼빨간사춘기 | `xRbPAVnqtcs` |
+| 어떻게 이별까지 사랑하겠어, 널 사랑하는 거지 | AKMU | `m3DZsBw5bnE` |
+| Nuvole Bianche | Ludovico Einaudi | `4VR-6AS0-l4` |
+| Riptide | Vance Joy | `uJ_1HMAGb4k` |
+| I'm Yours | Jason Mraz | `EkHTsc9PU2A` |
+| Lovely Day | Bill Withers | `bEeaS6fuUoA` |
+| September | Earth, Wind & Fire | `Gs069dndIYk` |
+| Good as Hell | Lizzo | `SmbmeOgWsqE` |
+| Levitating | Dua Lipa | `TUVcZfQe-Kw` |
+| Don't Start Now | Dua Lipa | `oygrmJFKYZY` |
+| Blinding Lights | The Weeknd | `4NRXx6U8ABQ` |
+| As It Was | Harry Styles | `H5v3kku4y6Q` |
+| Watermelon Sugar | Harry Styles | `E07s5ZYygMg` |
+| Circles | Post Malone | `wXhTHyIgQ_U` |
+| Sunflower | Post Malone, Swae Lee | `ApXoWvfEYVU` |
+
+### Smoke / 아이콘 / 화면 검증
+
+두 Smoke는 foods / music / foodNames / musicTitles의 5개, 예시와 같은 키 집합과 값 타입을 검사한다. videoId는 11자 문자열 또는 null이다. Score / 기분 / 요약 / 지표 / 날씨 등은 기존 예시와 값까지 비교한다. 요약은 추천 후보와 무관하므로 값 비교를 유지한다. 최신 본문은 생성 본문과 동일해야 한다. Cookie / Token은 출력하지 않는다.
+
+Backend Test는 후보 크기, 승인된 제목 / 가수 / ID 전체 집합, 24조합 × 366일의 결정성 / 하루 이동 / 중복 없음, 끝에서 처음으로 순환과 상황 중복 건너뛰기, 서울 날짜 경계를 검사한다. DEC-014 판정 경계 Test는 epochDay 0의 고정 Clock으로 기존 기준을 유지한다. Frontend는 Backend 후보 전체 51개 메뉴의 기대 Emoji를 이름별로 고정하고, 짧은 낱말의 부분 일치를 피한다. History는 주간 리포트와 기존 Card를 동일한 .history / --space-4 레이아웃에 두며 꺼진 리포트가 null이면 빈 간격이 없다.
+
+자체 Test / Build는 Sandbox 제약으로 실행되지 않았으며 Orchestrator Verify가 기준이다. 390 / 768 / 1280px 화면 캡처는 실행 가능한 Frontend 환경에서 승인된 Claude 세션 / Human이 확인하고 docs/images/task-048/에 기록한다. Merge 후 Staging에서 날짜별 추천과 Smoke를 확인한다.

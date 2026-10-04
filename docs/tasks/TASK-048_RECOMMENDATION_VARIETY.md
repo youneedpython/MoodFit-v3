@@ -131,6 +131,15 @@
 - 계약 예시는 실행 없이 손으로 계산해야 할 수 있다. 고정 시각 `2026-09-28T03:00:00Z`는 Asia/Seoul로 2026-09-28이며 `epochDay`는 20724다(1970-01-01부터 날수). Pool 크기로 나눈 나머지를 계산해 예시를 맞춘다. Verify에서 어긋나면 다음 Run에서 고친다.
 - Test의 타입 오류에 주의한다(`tsc --noEmit`가 Build에 포함된다).
 
+## Run 2 범위 (2026-10-04, Claude 세션 기록)
+
+Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1은 Orchestrator Verify(`scripts/verify.sh`)의 Frontend Test에서 멈췄다(Review 전). Frontend Test 206건 중 2건 실패.
+
+- 실패: `frontend/src/features/history/HistoryPage.test.tsx`의 "uses the same card gap with weekly report visible=true / false" 2건. `import historyStyles from "./HistoryPage.css?raw"`로 읽은 값이 Test 환경에서 **빈 문자열**이라 CSS 내용을 정규식으로 검사하는 줄이 실패한다(Vitest 설정에서 CSS import가 비워진다).
+- Run 2에서 할 일: 이 Test가 CSS **파일 내용 문자열**에 기대지 않게 한다. 구조 검사(같은 묶음 안에 주간 리포트 Card와 그래프 Card가 형제로 있고, 주간 리포트가 없을 때 빈 Wrapper가 남지 않음)는 유지한다. 간격 값 자체를 검사하려면 Node의 `fs`로 CSS 파일을 직접 읽는 방식처럼 Test 환경에서 실제로 동작하는 방법을 쓰되, Sandbox에서 실행해 볼 수 없으면 구조 검사만 남긴다. `?raw` import는 지운다.
+- 참고: Claude 세션이 WIP 상태에서 `backend`의 `gradlew test`를 Sandbox 밖에서 실행했고 통과했다(Backend는 이 Run에서 바꿀 필요가 없다). `scripts/container-smoke.sh`는 아직 실행되지 않았다.
+- 그 밖의 구현은 바꾸지 않는다. `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

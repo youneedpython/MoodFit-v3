@@ -121,19 +121,19 @@ Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에
   },
   "foods": [
     {
-      "name": "연어 샐러드",
-      "tag": "에너지 균형",
-      "reason": "가볍게 에너지를 유지하기 좋은 메뉴입니다."
-    },
-    {
-      "name": "소고기 채소 비빔밥",
-      "tag": "균형 식사",
-      "reason": "현재 컨디션에 맞춰 천천히 즐기기 좋은 식사입니다."
-    },
-    {
-      "name": "통밀 닭고기 샌드위치",
+      "name": "새우 볶음밥",
       "tag": "일상 메뉴",
-      "reason": "일상 식사로 편하게 선택할 수 있는 메뉴입니다."
+      "reason": "현재 컨디션에 맞춰 편하게 즐기기 좋은 메뉴입니다."
+    },
+    {
+      "name": "불고기 정식",
+      "tag": "일상 메뉴",
+      "reason": "현재 컨디션에 맞춰 편하게 즐기기 좋은 메뉴입니다."
+    },
+    {
+      "name": "콩나물 비빔밥",
+      "tag": "일상 메뉴",
+      "reason": "현재 컨디션에 맞춰 편하게 즐기기 좋은 메뉴입니다."
     },
     {
       "name": "따뜻한 채소 스튜",
@@ -148,20 +148,6 @@ Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에
   ],
   "music": [
     {
-      "title": "Uptown Funk",
-      "artist": "Mark Ronson ft. Bruno Mars",
-      "tag": "가벼운 활력",
-      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
-      "videoId": "OPf0YbXqDm0"
-    },
-    {
-      "title": "Can't Stop the Feeling!",
-      "artist": "Justin Timberlake",
-      "tag": "가벼운 활력",
-      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
-      "videoId": "ru0K8uYEZWw"
-    },
-    {
       "title": "Dynamite",
       "artist": "BTS",
       "tag": "가벼운 활력",
@@ -169,18 +155,32 @@ Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에
       "videoId": "gdZLi9oWNZg"
     },
     {
-      "title": "Someone Like You",
-      "artist": "Adele",
-      "tag": "잔잔한 감성",
-      "reason": "비 오는 날의 실내 분위기에 어울립니다.",
-      "videoId": "hLQl3WQQoQ0"
+      "title": "Viva La Vida",
+      "artist": "Coldplay",
+      "tag": "가벼운 활력",
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
+      "videoId": "dvgZkm1xWPE"
     },
     {
-      "title": "Wonderwall",
-      "artist": "Oasis",
+      "title": "Shape of You",
+      "artist": "Ed Sheeran",
+      "tag": "가벼운 활력",
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
+      "videoId": "JGwWNGJdvx8"
+    },
+    {
+      "title": "Someone You Loved",
+      "artist": "Lewis Capaldi",
       "tag": "잔잔한 감성",
       "reason": "비 오는 날의 실내 분위기에 어울립니다.",
-      "videoId": "bx1Bh8ZvH84"
+      "videoId": "zABLecsR5UE"
+    },
+    {
+      "title": "밤편지",
+      "artist": "IU",
+      "tag": "잔잔한 감성",
+      "reason": "비 오는 날의 실내 분위기에 어울립니다.",
+      "videoId": "BzYnNdJhZQw"
     }
   ]
 }
@@ -277,18 +277,18 @@ GET /api/check-ins/history?days=7
       "weather": "RAIN",
       "region": null,
       "foodNames": [
-        "연어 샐러드",
-        "소고기 채소 비빔밥",
-        "통밀 닭고기 샌드위치",
+        "새우 볶음밥",
+        "불고기 정식",
+        "콩나물 비빔밥",
         "따뜻한 채소 스튜",
         "버섯 칼국수"
       ],
       "musicTitles": [
-        "Uptown Funk",
-        "Can't Stop the Feeling!",
         "Dynamite",
-        "Someone Like You",
-        "Wonderwall"
+        "Viva La Vida",
+        "Shape of You",
+        "Someone You Loved",
+        "밤편지"
       ]
     }
   ]

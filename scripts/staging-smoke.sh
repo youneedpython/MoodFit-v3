@@ -68,12 +68,25 @@ import datetime, json, pathlib, sys
 p = pathlib.Path(sys.argv[1])
 def load(name): return json.loads((p / name).read_text(encoding='utf-8'))
 def contract(name): return json.loads(pathlib.Path('contracts/' + name + '.json').read_text(encoding='utf-8'))
+def recommendation(actual, expected):
+    if isinstance(expected, dict):
+        assert isinstance(actual, dict) and actual.keys() == expected.keys()
+        for key, value in expected.items():
+            if key == 'videoId':
+                assert actual[key] is None or (type(actual[key]) is str and len(actual[key]) == 11)
+            else: recommendation(actual[key], value)
+    else:
+        assert type(actual) is type(expected)
+
 def match(actual, expected):
     if isinstance(expected, dict):
         assert isinstance(actual, dict) and actual.keys() == expected.keys()
         for key, value in expected.items():
             if key == 'id': assert type(actual[key]) is int and actual[key] > 0
             elif key == 'recordedAt': datetime.datetime.fromisoformat(actual[key].replace('Z', '+00:00'))
+            elif key in ('foods', 'music', 'foodNames', 'musicTitles'):
+                assert isinstance(actual[key], list) and len(actual[key]) == 5
+                for item in actual[key]: recommendation(item, value[0])
             else: match(actual[key], value)
     elif isinstance(expected, list):
         assert isinstance(actual, list) and len(actual) == len(expected)
