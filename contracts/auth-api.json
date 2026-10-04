@@ -4,7 +4,8 @@
     { "method": "GET", "path": "/api/auth/login/{provider}", "statuses": [302, 404] },
     { "method": "GET", "path": "/api/auth/callback/{provider}", "statuses": [302, 404] },
     { "method": "POST", "path": "/api/auth/guest", "statuses": [204, 403, 404] },
-    { "method": "POST", "path": "/api/auth/logout", "statuses": [204, 403] }
+    { "method": "POST", "path": "/api/auth/logout", "statuses": [204, 403] },
+    { "method": "DELETE", "path": "/api/auth/account", "statuses": [204, 401, 403] }
   ],
   "anonymousExample": "auth-me-anonymous-200.json",
   "guestExample": "auth-me-guest-200.json",

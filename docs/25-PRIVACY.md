@@ -1,0 +1,55 @@
+# 25. 개인정보 처리 안내
+
+시행일: 2026-10-04. 공개 화면은 `/privacy`이며 로그인 없이 열립니다.
+
+MoodFit은 포트폴리오 / 교육용 웰니스 서비스이며 의료 서비스가 아닙니다. 이 문서는 실제 처리 내용을 설명하며 법률 검토를 거친 문서가 아닙니다. 확인하지 않은 법적 근거, 인증이나 준수를 주장하지 않습니다.
+
+## 처리하는 정보와 목적
+
+| 구분 | 정보와 목적 | 근거 |
+|---|---|---|
+| 로그인 | Google / Kakao 사용자 번호와 표시 이름(닉네임)으로 계정을 구분합니다. 이메일과 프로필 사진은 요청하거나 저장하지 않습니다 | TASK-042, AuthSettings / UserLoginService |
+| 체크인 | 심박수, 호흡수, 수면 점수, 스트레스, 에너지, 기온, 날씨 종류, 자동 조회 지역 이름, 기록 시각과 규칙이 계산한 점수 / 상태 / 추천을 저장해 결과와 이력을 보여 줍니다 | TASK-006 / TASK-044, V1 / V4 Migration |
+| AI 문장 | AI 코멘트, 주간 리포트와 하루 생성 한도 계산용 생성 시도 기록을 저장합니다 | TASK-045, InsightStore / V5 Migration |
+| 로그인 상태 | 로그인 유지용 Cookie와 서버 세션을 사용합니다. 마지막 사용 뒤 7일 유지됩니다 | TASK-042, AuthSecurityConfig |
+| 브라우저 저장 | 날씨 자동 조회 사용 여부 한 가지 값을 localStorage에 저장합니다. 계정 삭제 완료 안내를 표시하기 위한 일회용 값을 sessionStorage에 저장하고 로그인 화면에서 읽은 직후 지웁니다. 이 값에는 좌표나 개인 정보를 넣지 않습니다 | TASK-035 / TASK-040 / TASK-054 Run 3, DeleteAccountDialog / LoginPage |
+| 접속 기록 | 서비스 운영용 Load Balancer 접속 로그(IP 주소 등)와 Application 로그를 30일 보관합니다 | app.yaml / data.yaml / iam.yaml |
+
+## 저장하지 않는 정보
+
+위도 / 경도는 브라우저에서 날씨와 지역 이름 조회에만 사용합니다. 좌표를 저장하거나 MoodFit 서버로 보내지 않습니다(TASK-035 / TASK-040).
+
+## 외부 서비스로 나가는 정보
+
+| 받는 곳 | 전달 내용과 시점 | 근거 |
+|---|---|---|
+| Google / Kakao | 로그인 요청을 서버와 브라우저에서 전달하며 사용자가 제공자 서비스에서 직접 인증합니다 | TASK-042 |
+| Open-Meteo / BigDataCloud | 날씨 자동 조회 시 브라우저에서 소수 둘째 자리로 줄인 좌표를 보내 날씨 / 지역 이름을 조회합니다 | TASK-035 / TASK-040 |
+| YouTube | 사용자가 “바로 듣기”를 누를 때 브라우저에서 youtube-nocookie.com으로 영상 요청을 보냅니다 | TASK-036 |
+| Amazon Bedrock (Anthropic Claude) | 소셜 로그인 사용자가 AI 코멘트 / 주간 리포트를 생성할 때 서버에서 체크인 수치, 날씨, 규칙 결과를 전달합니다. 사용자 번호 / 이름 / 지역 이름 / 좌표 / 기록 번호는 보내지 않습니다. global 추론 Profile을 사용하므로 국외 Region에서 처리될 수 있습니다 | TASK-045 / TASK-046 / TASK-049, BedrockInsightGenerator, TASK-051 Merge 전 실행 기록 |
+
+## 보관 위치와 기간
+
+서비스 데이터는 AWS 서울 Region의 Private Subnet에 있는 RDS MySQL에 저장합니다. 계정과 기록, AI 문장과 생성 시도 기록은 계정 삭제 시 지웁니다. 자동 백업은 14일 보관하므로 삭제 전 데이터가 백업에 최대 14일 남을 수 있습니다. 세션은 마지막 사용 뒤 7일, 접속 / Application 로그는 30일 보관합니다. 근거는 TASK-042 및 app.yaml / data.yaml / iam.yaml입니다.
+
+## 보호 조치
+
+Database 저장 암호화를 사용합니다(data.yaml의 StorageEncrypted). 사용자 ↔ CloudFront ↔ Load Balancer 구간은 HTTPS이며 Application ↔ Database 연결에는 TLS를 요구합니다(app.yaml의 sslMode REQUIRED). 로그인 Cookie에는 HttpOnly, Secure, SameSite=Lax를 적용합니다. 운영자가 권한이 분리된 AWS 계정으로 접근합니다(DEC-029). Secure Cookie 설명은 HTTPS로 제공되는 배포 환경 기준이며 로컬 HTTP 개발 환경에는 Secure가 적용되지 않습니다.
+
+## 체험 계정 주의
+
+“로그인 없이 둘러보기”는 하나의 공유 계정입니다. 모든 방문자가 기록을 보고 쓸 수 있으므로 개인적인 수치를 입력하지 마세요. 공유 계정은 방문자가 삭제할 수 없습니다(TASK-042 / TASK-054).
+
+## 계정과 기록 삭제
+
+소셜 로그인 후 사용자 메뉴의 “내 데이터 삭제”를 선택하고 확인하면 본인의 체크인과 추천, AI 코멘트, 주간 리포트, 생성 시도 기록과 계정을 함께 삭제하고 로그인 상태를 종료합니다. 삭제는 되돌릴 수 없습니다. 다시 로그인하면 이전 기록이 없는 새 계정으로 시작합니다. 백업(14일)과 접속 로그(30일)는 각 보관 기간까지 남을 수 있습니다.
+
+TASK-054의 `DELETE /api/auth/account`는 로그인과 CSRF 검증 후 본인 사용자 행을 잠그고 자식 → 부모 순서로 한 트랜잭션에서 삭제합니다. 해당 계정의 다른 기기 세션도 종료합니다. 체험 계정은 고정 오류 `GUEST_ACCOUNT_DELETION_FORBIDDEN`으로 403을 반환합니다. 신규 Migration은 없습니다.
+
+## 문의
+
+[GitHub Issue로 문의하기 (외부 링크)](https://github.com/youneedpython/MoodFit-v3/issues). 공개 문의에는 건강 수치나 개인 인증 정보를 올리지 마세요.
+
+## 검증과 한계
+
+TASK-054 Contract의 확인된 사실을 기준으로 작성했습니다. 법률 검토나 외부 서비스의 별도 보관 정책을 확인한 문서는 아닙니다. 코드 / Template 구현 완료가 실환경 배포 성공을 뜻하지 않습니다. Merge 직후 Human이 Frontend Stack을 먼저 갱신하고 Staging 직접 접근과 실제 소셜 계정 삭제를 확인합니다. 상세 적용 순서는 [Staging Runbook](18-STAGING-DEPLOYMENT-RUNBOOK.md)을 따릅니다.

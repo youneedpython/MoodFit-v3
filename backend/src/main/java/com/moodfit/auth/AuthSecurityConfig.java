@@ -56,6 +56,7 @@ public class AuthSecurityConfig {
     SecurityFilterChain security(HttpSecurity http, AuthSettings settings, UserLoginService users,
             CookieCsrfTokenRepository csrfRepository, HttpSessionSecurityContextRepository contexts) throws Exception {
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/account").authenticated()
                 .requestMatchers("/actuator/health", "/actuator/health/**", "/api/auth/**").permitAll()
                 .requestMatchers("/api/check-ins", "/api/check-ins/**", "/api/reports/**").authenticated()
                 .anyRequest().permitAll());

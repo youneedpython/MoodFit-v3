@@ -1,0 +1,48 @@
+{
+  "id": "TASK-054",
+  "title": "Privacy Notice / Account Deletion / SPA Route Fix",
+  "task_file": "docs/tasks/TASK-054_PRIVACY_AND_ACCOUNT_DELETION.md",
+  "allowed_paths": [
+    "backend/",
+    "frontend/src/",
+    "contracts/",
+    "infra/cloudformation/frontend.yaml",
+    "scripts/staging-smoke.sh",
+    "docs/",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "backend/build.gradle",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "infra/cloudformation/local/",
+    "infra/cloudformation/app.yaml",
+    "infra/cloudformation/iam.yaml",
+    "infra/cloudformation/data.yaml",
+    "infra/cloudformation/network.yaml",
+    ".github/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/container-smoke.sh",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "aws_profiles": [
+    "moodfit-readonly"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["bash", "scripts/container-smoke.sh"], "cwd": "." },
+    { "command": ["bash", "scripts/iac-validate.sh"], "cwd": "." },
+    { "command": ["bash", "-n", "scripts/staging-smoke.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}

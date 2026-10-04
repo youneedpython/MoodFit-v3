@@ -7,3 +7,7 @@
 .user-menu__popup { position: absolute; right: 0; top: calc(100% + .5rem); width: min(16rem, calc(100vw - 2rem)); z-index: 20; padding: 1rem; border: 1px solid var(--color-border); border-radius: .75rem; background: var(--color-surface); box-shadow: 0 .5rem 2rem #0008; overflow-wrap: anywhere; }
 .user-menu__popup button { color: var(--color-text); background: var(--color-surface); padding: .65rem; width: 100%; border: 1px solid var(--color-border); border-radius: .5rem; }
 @media (max-width: 480px) { .login-card { margin: 1rem auto; padding: 1.25rem; } }
+.account-dialog-backdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px; background: rgba(0, 0, 0, .75); }
+.account-dialog { max-width: 520px; max-height: 90vh; overflow: auto; padding: 24px; border-radius: 16px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); }
+.account-dialog-actions { display: flex; justify-content: flex-end; gap: 12px; }
+.account-dialog button { min-height: 44px; padding: 8px 20px; }

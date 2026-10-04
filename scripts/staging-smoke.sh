@@ -18,7 +18,7 @@ request() {
 touch "$work/headers" "$work/cookies"
 printf 'STEP: static and SPA\n'
 request 200 / "$work/index"
-for path in /check-in /history; do
+for path in /check-in /history /login /privacy '/login?error=oauth'; do
   request 200 "$path" "$work/spa"
   cmp -s "$work/index" "$work/spa" || fail 'SPA route does not return index document'
 done

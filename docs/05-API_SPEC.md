@@ -413,3 +413,25 @@ enabled는 기능 설정 값이며 available은 기능 켜짐 + Google/Kakao 사
 ErrorResponse는 기존 code / message / fieldErrors 형식을 사용한다. 인증 없음과 CSRF 실패는 기존 UNAUTHENTICATED / FORBIDDEN을 유지한다.
 
 공유 예시: [꺼진 코멘트](../contracts/insight-disabled-200.json), [생성 코멘트](../contracts/insight-generated-200.json), [꺼진 주간 리포트](../contracts/weekly-disabled-200.json), [생성 리포트](../contracts/weekly-generated-200.json), [사용 불가](../contracts/insight-unavailable-403.json), [한도](../contracts/insight-limit-429.json), [기록 부족](../contracts/weekly-insufficient-422.json). 보내는 자료와 실패·비용 정책은 [23-LLM-INSIGHT.md](23-LLM-INSIGHT.md)를 따른다.
+
+## 12. 계정과 기록 삭제 (TASK-054, DEC-041)
+
+`DELETE /api/auth/account` — 로그인과 CSRF 필요, Request Body 없음.
+
+소셜 사용자의 체크인 / 음식·음악 추천 / AI 코멘트 / 주간 리포트 / 생성 시도 / 사용자 행을 자식 → 부모 순서로 한 트랜잭션에서 삭제하고 해당 계정 세션을 종료한다. 다른 사용자와 공유 체험 계정의 데이터는 삭제하지 않는다. 다시 같은 제공자 계정으로 로그인하면 새 사용자 번호로 만들어진다.
+
+### Response — 204 No Content
+
+응답 본문 없음. 다음은 전송 본문이 아닌 [204 계약 예시](../contracts/account-delete-204.json)의 검증 메타데이터다.
+
+```json
+{"method":"DELETE","path":"/api/auth/account","status":204,"body":null}
+```
+
+### 체험 계정 — 403 Forbidden
+
+```json
+{"code":"GUEST_ACCOUNT_DELETION_FORBIDDEN","message":"체험 계정은 삭제할 수 없습니다.","fieldErrors":{}}
+```
+
+미로그인은 401 UNAUTHENTICATED, CSRF 누락 / 불일치는 403 FORBIDDEN으로 기존 ErrorResponse 계약을 유지한다. CSRF 필터가 인증보다 먼저 실행되므로 미로그인 요청이라도 CSRF가 없으면 403을 반환한다. 삭제 확인 화면과 [개인정보 처리 안내](25-PRIVACY.md)는 되돌릴 수 없으며 백업에 최대 14일 데이터가 남을 수 있다는 점을 안내한다. [체험 오류 예시](../contracts/account-delete-guest-403.json).

@@ -81,7 +81,7 @@ VCS_REF=$(git rev-parse HEAD) bash scripts/staging-image.sh "$HUMAN_PROFILE"
 bash scripts/staging-frontend.sh "$HUMAN_PROFILE"
 ```
 
-이미지 Script는 linux/amd64 / VCS_REF OCI label / sha-<full SHA>를 사용한다. 출력 digest를 Human이 App 파일의 BackendImage에 반영한다. URI / 계정은 출력하지 않는다. Frontend는 assets를 먼저 올리고 HTML은 no-cache로 올린다. 삭제 동기화는 하지 않는다. CloudFront 기본 managed cache 정책의 최소 TTL로 HTML이 짧게 남을 수 있으므로 invalidation 완료 후 확인한다. SPA rewrite는 /check-in과 /history에만 적용하며 /api의 상태·본문을 HTML로 바꾸지 않는다.
+이미지 Script는 linux/amd64 / VCS_REF OCI label / sha-<full SHA>를 사용한다. 출력 digest를 Human이 App 파일의 BackendImage에 반영한다. URI / 계정은 출력하지 않는다. Frontend는 assets를 먼저 올리고 HTML은 no-cache로 올린다. 삭제 동기화는 하지 않는다. CloudFront 기본 managed cache 정책의 최소 TTL로 HTML이 짧게 남을 수 있으므로 invalidation 완료 후 확인한다. TASK-054의 SPA rewrite는 /check-in, /history, /login, /privacy에 적용하며 /api의 상태·본문과 정적 파일 경로를 HTML로 바꾸지 않는다.
 
 Agent 확인 (staging-status는 승인된 moodfit-readonly 세션 필요, staging-smoke만 AWS 자격 증명 불필요):
 
@@ -129,3 +129,13 @@ Secret 교체는 Service 새 배포 후 반영된다. Production은 같은 환�
 Human이 다른 계정 콘솔에서 호출 Role을 생성한 뒤 MoodFit Staging IAM UPDATE(LlmRoleArn) → App UPDATE(LlmEnabled true / 동일 LlmRoleArn / 현재 실행 digest의 BackendImage) 순서로 검토·실행한다. 기존 Parameter를 유지하고 CD 동시 실행을 피한다. IAM Task Role ARN은 Stack 출력에서 확인하며 실제 값은 문서에 남기지 않는다.
 
 안정화 / Health 확인 후 소셜 로그인 → Check-in → AI 코멘트와 주간 리포트를 확인한다. 실패하면 민감 값 없이 Application Log의 실패 종류를 확인한다. 끄려면 현재 digest를 유지한 App UPDATE에서 LlmEnabled false로 바꾸고 완전한 비용 차단은 다른 계정 Role 삭제 또는 Trust 비우기와 기존 세션 만료를 고려한다. Policy 예시 / 환경별 경계 / 미확정 Resource 제한은 [24-LLM-INFRA.md](24-LLM-INFRA.md)를 따른다. Executor는 Stack 변경을 실행하지 않는다.
+
+## TASK-054 Frontend Function 적용 순서 (Merge 직후 Human 실행)
+
+1. **Merge 직후 Frontend Stack을 먼저 갱신한다.** Human이 자동 CD 실행 상황을 확인하고 Stack 갱신과 겹치지 않도록 조정한다. 코드 Merge / S3 배포만으로 CloudFront Function은 바뀌지 않는다.
+2. Merge Commit의 `infra/cloudformation/frontend.yaml`로 기존 Staging Frontend Stack UPDATE Change Set을 준비한다. 기존 Parameter는 UsePreviousValue로 유지하며 비공개 origin 검증 값을 읽거나 출력하지 않는다. IAM / App / Data / Network Stack은 변경하지 않는다.
+3. Change Set에서 SpaRouting FunctionCode의 경로 배열에 `/login`, `/privacy`만 추가되고 `/api` behavior와 정적 파일 처리가 유지되는지 Human이 검토한 뒤 실행한다. Stack UPDATE_COMPLETE와 Function 게시 / 배포 반영을 확인한다.
+4. 이 변경 후 Application / Frontend 자동 배포 완료를 확인하고 `bash scripts/staging-smoke.sh`를 실행한다. Smoke는 `/login`, `/privacy`, `/login?error=oauth`를 포함한 SPA 응답이 index 문서와 같은지 엄격히 검사한다. 새 검사 실패를 경고로 낮추지 않는다. Stack 갱신보다 CD Smoke가 먼저 실행되면 배포 검증은 실패할 수 있다. Human은 Stack 반영 후 승인된 배포를 재실행해 복구한다.
+5. Staging에서 `/login?error=oauth`, `/privacy`를 직접 열고 새로 고침한다. Human의 별도 테스트 소셜 계정으로 기록 / AI 문장 생성 → 삭제 확인 → 로그인 화면 완료 표시 → 다시 로그인한 계정에 이전 기록 없음과 공유 체험 기록 보존을 확인한다. 실제 계정 정보 / Cookie / 건강 수치는 로그나 캡처에 남기지 않는다.
+
+CloudFormation 적용은 Human 후속 실행이며 Executor는 AWS 변경을 하지 않는다. Production은 별도 실행 승인과 Required Reviewer를 유지한다.

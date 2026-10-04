@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 ];
 
 export function AppLayout() {
-  const login = useLocation().pathname === "/login";
+  const login = ["/login", "/privacy"].includes(useLocation().pathname);
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -45,6 +45,7 @@ export function AppLayout() {
       <main id="main-content" className="container app-main" tabIndex={-1}>
         <Outlet />
       </main>
+      <footer className="container app-footer"><Link to="/privacy">개인정보 처리 안내</Link></footer>
     </>
   );
 }

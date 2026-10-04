@@ -105,6 +105,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-051 | Milestone 51 | AI Comment Readability | DONE | TASK-045, TASK-047, TASK-049 | Human 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-052 | Milestone 52 | Music Pool Curation (선곡 조정) | DONE | TASK-048 | Human 선곡 이동 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-053 | Milestone 53 | AI Card Layout (AI 코멘트 위치 / 주간 리포트 버튼 간격) | DONE | TASK-051 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-054 | Milestone 54 | Privacy Notice / Account Deletion / SPA Route Fix | DONE | TASK-042, TASK-044, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1973,3 +1974,13 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - AI 본문 / 버튼 구역에 --space-4, 기간 줄 / 본문에 --space-2와 기존 보조 색 / 작은 글자 Token을 적용했다. DOM 순서와 리포트 / 재시도 구조 Test를 보완했다.
 - 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Sandbox 밖 Orchestrator Verify가 기준이며 DONE은 검증 / Review / Human Squash Merge 승인을 대신하지 않는다.
 - Claude 세션의 390 / 768 / 1280px 캡처와 간격 측정이 남는다. 다른 Task 상태와 Current Task는 유지한다.
+
+## TASK-054 — Privacy Notice / Account Deletion / SPA Route Fix
+
+- 상태: DONE (Executor 구현 완료), Milestone 54. Dependency: TASK-042 / TASK-044 / TASK-045.
+- 승인: 2026-10-04 Human 승인 Contract와 명시 실행 지시, DEC-041. TASK-054를 IN_PROGRESS로 등록하고 구현 완료를 DONE으로 반영했다. 다른 Task와 기존 Current Task 상태는 변경하지 않는다.
+- 공개 `/privacy`에 확인된 처리 사실 / 목적 / 외부 전달·국외 처리 / 암호화 / 보관 기간 / 체험 계정 / 삭제 / 문의를 안내한다. 로그인 화면 / 사용자 메뉴 / Footer에서 연결한다.
+- 로그인·CSRF가 필요한 계정 삭제 API와 취소 기본 초점 / Esc / 초점 가두기 Dialog를 구현했다. 소셜 본인 데이터 전체를 Transaction으로 삭제하며 계정 세션을 종료한다. 공유 계정은 고정 오류 403으로 거부한다.
+- CloudFront의 알려진 경로 배열과 Staging Smoke에 `/login`, `/privacy` 및 로그인 오류 Query 검사를 추가했다. Human이 Merge 직후 Frontend Stack을 먼저 갱신해야 한다.
+- H2 / MySQL Testcontainers 공통 삭제·보존·Rollback·재로그인·권한 Test와 Frontend / API 계약 / SPA 함수 Test를 추가했다. 자체 전체 검증은 Sandbox 제한으로 완료하지 못했으며 정적 SPA / Query / 계약·인코딩 / 구문·diff 검사를 수행했다.
+- 검증과 Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. 화면 캡처와 Human Frontend Stack 적용 / Staging 실제 삭제 흐름 확인은 후속 작업이다.

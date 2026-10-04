@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { useSearchParams } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router";
 import { useAuth } from "./AuthProvider";
 import { request } from "../../services/api";
+import { ACCOUNT_DELETED_FLAG } from "./accountDeletionNotice";
 import "./auth.css";
 
 export function LoginPage() {
@@ -9,6 +10,13 @@ export function LoginPage() {
   const [params] = useSearchParams();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  // The deletion flow marks completion in sessionStorage because the auth guard can replace the URL (and its query) on the way here.
+  const [deleted] = useState(() => {
+    try { return sessionStorage.getItem(ACCOUNT_DELETED_FLAG) === "1"; } catch { return false; }
+  });
+  useEffect(() => {
+    try { sessionStorage.removeItem(ACCOUNT_DELETED_FLAG); } catch { /* storage unavailable */ }
+  }, []);
   async function guest() {
     setBusy(true); setError(false);
     try { await request<void>("/auth/guest", { method: "POST" }); await auth?.refresh(); }
@@ -19,6 +27,7 @@ export function LoginPage() {
     <p className="login-eyebrow">YOUR DAILY WELLNESS</p>
     <h1>MoodFit에 로그인</h1>
     <p>오늘의 마음과 몸을 기록하고 나에게 맞는 추천을 만나 보세요.</p>
+    {(deleted || params.has("deleted")) && <p role="status">계정과 기록을 삭제했습니다. 다시 로그인하면 새 계정으로 시작합니다.</p>}
     {(params.has("error") || error) && <p role="alert">로그인하지 못했습니다. 다시 시도해 주세요.</p>}
     <div className="login-actions">
       {auth?.state.providers.filter((provider) => provider === "google" || provider === "kakao").map((provider) =>
@@ -26,6 +35,7 @@ export function LoginPage() {
       {auth?.state.guestEnabled && <button disabled={busy} onClick={guest}>{busy ? "로그인 중…" : "로그인 없이 둘러보기"}</button>}
     </div>
     <p>제공자의 사용자 번호와 닉네임만 저장합니다. 이메일과 프로필 사진은 수집하지 않습니다.</p>
-    {auth?.state.guestEnabled && <p>체험 계정의 기록은 모든 방문자가 함께 보고 사용할 수 있습니다.</p>}
+    <Link to="/privacy">개인정보 처리 안내</Link>
+    {auth?.state.guestEnabled && <p>체험 계정의 기록은 모든 방문자가 함께 보고 사용할 수 있습니다. 개인적인 수치를 입력하지 마세요.</p>}
   </section>;
 }
