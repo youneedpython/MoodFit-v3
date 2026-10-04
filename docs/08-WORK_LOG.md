@@ -3346,3 +3346,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Frontend는 체험 로그인과 로그아웃 후 refresh로 me를 호출한다. 두 Smoke도 체험 로그인 직후 me와 CSRF Header 재생성을 수행하므로 수정할 필요가 없었다. Token과 Cookie 값은 출력하지 않았다.
 - Executor 참고 정적 검증: 두 Smoke의 Bash 구문 검사와 `git diff --check` PASS. 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 확인했다. Contract에 따라 Gradle / Backend Test / Container 실행은 수행하지 않았다. 추가한 회귀 Test의 실행과 Backend 동작은 Sandbox 밖 Orchestrator Verify에서 확인 필요다.
 - 구현 완료 보고는 Verify 성공이나 Task 완료 승인을 뜻하지 않는다. Run 2 전체 구현의 Claude Review와 Merge 후 Staging 체험 Smoke는 아직 남아 있다. 새로운 Human 결정과 Git 작업은 수행하지 않았다. 실행 지시는 [Prompt 67](../prompts/67-TASK-042-CSRF-COOKIE-REWORK.md)에 기록했다.
+
+### TASK-042 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- 진행: Run 1은 Executor Sandbox에서 Gradle을 실행할 수 없어 구현 없이 정지했다. Claude 세션이 Sandbox 밖에서 Dependency 5개의 해석을 확인해 Task 문서에 근거로 적었다. Run 2에서 전체를 구현했고 Backend Test 1건(`GET /api/auth/me`가 CSRF Cookie를 싣지 않음)으로 Verify가 멈췄다. Run 3에서 고쳤고 Verify 4개 명령 통과, Claude Review PASS.
+- 최신 main(TASK-040 / 041)을 Merge했다. 문서 충돌은 양쪽을 모두 남겼고, 번호가 겹친 Decision은 이 Task 쪽을 **DEC-034**로 바꿨다(DEC-033은 TASK-040). `AppLayout.tsx`는 TASK-041의 로고 Link와 이 Task의 사용자 메뉴를 함께 유지했다. Merge 뒤 Frontend Test 124건과 타입 검사가 통과했다.
+- 화면 확인(`docs/images/task-042/`): 이 Branch의 Build를 로컬에서 띄우고 인증 API는 가짜 응답으로 대신해 캡처했다. 로그인 화면과 아바타 메뉴를 390 / 768 / 1280px에서 확인했다. 미로그인 상태로 `/history`에 들어가면 `/login`으로 이동하고, "로그인 없이 둘러보기" 뒤 `/`로 이동하며, 아바타 메뉴는 Esc로 닫히고, 로그아웃하면 `/login`으로 돌아간다. 실제 Backend와 연결한 흐름은 Container Smoke(체험 로그인)와 Merge 뒤 Staging Smoke가 검증한다.
+- Merge 뒤 Staging 상태: OAuth 값과 `APP_PUBLIC_URL`이 아직 주입되지 않아 **체험 로그인만** 보인다. Cookie의 `Secure`도 TASK-043 전까지 붙지 않는다(Review F-003). 이 기간에는 공유 체험 계정만 쓸 수 있다.
+- 후속 후보(비차단): 제공자가 설정된 상태의 Context / Redirect Test(F-002, TASK-043에서 실측), 사용자 조건 없는 Repository Method 정리(F-004), 로그인 버튼의 제공자별 모양(지금은 같은 모양의 글자 버튼).
