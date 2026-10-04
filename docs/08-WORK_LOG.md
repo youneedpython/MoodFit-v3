@@ -3180,3 +3180,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 병행 개발 중이라 미뤄 둔 TASK-035 등록을 이 PR에서 정리했다: `docs/07-TASKS.md`에 TASK-035 DONE 행과 절 추가(Milestone 35 자동 Close 대상), Prompt 색인 보완. Prompt 파일 번호 60이 두 Task에서 겹친다(파일 이름은 다르다).
 - TASK-035 Review 비차단 지적(후속 후보): 수동 조회 실패 뒤 늦게 도착한 권한 응답으로 자동 조회가 한 번 시작되는 경로의 Test, 이미 채워진 값이 있을 때 버튼을 다시 누르면 값은 유지되는데 성공 문구가 나오는 점.
 - Staging에는 아직 TASK-035가 배포되지 않았다(배포된 Frontend는 Commit `9f070f0` 기준).
+
+## TASK-037 — Logo / Favicon (2026-10-04, Executor 구현)
+
+- Human이 승인한 시안 A의 제공 Asset을 그대로 사용했다. HTML에 SVG / PNG 탭 아이콘, Apple 아이콘, manifest, 배경 theme-color와 서비스 설명을 연결했다.
+- Manifest에 MoodFit 이름, Root 시작 경로, standalone 표시와 192 / 512 아이콘을 지정했다. 상단 메뉴에는 빈 alt의 장식용 로고를 넣고 기존 크기 / 간격 Token을 사용했다. 브랜드와 메뉴 글자는 줄바꿈하지 않으며 기존 Mobile 메뉴 배치를 유지한다. README에도 같은 원본을 상대 경로와 지정 크기로 연결했다.
+- AppLayout Test는 로고 경로, 빈 alt, 접근성 트리에서 이미지 제외, MoodFit 텍스트 한 번 표시를 확인한다. Dependency / 제공 Asset / 상태 문서는 변경하지 않았다.
+- Executor 참고 검증: 개별 Test는 설치된 Vitest가 없어 실행되지 않았다. `bash scripts/verify.sh`는 npm ci 단계에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 최종 검증 기준이다.
+- 배포 확인 사항: dist 전체가 Bucket에 업로드되므로 Root 아이콘과 manifest도 배포 대상이다. CloudFront SPA 처리는 /check-in, /history만 변경하여 아이콘 경로에 영향이 없다. Root 파일의 긴 cache 때문에 향후 로고 교체는 파일 이름 변경 또는 invalidation이 필요하다. 실제 배포는 수행하지 않았다.
+- 화면 캡처는 Contract allowed_paths에 docs/images가 없어 추가하지 않았다. 브라우저에서 390 / 768 / 1280px 배치 확인 및 Merge 후 Staging 탭 아이콘 / 상단 로고 확인은 후속 확인 항목이다.
+- Executor 구현 완료이며 Verify / Claude Review / Human Merge를 통한 Task 완료 승인 전이다. Git 후속 작업은 수행하지 않았다.
