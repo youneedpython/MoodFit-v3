@@ -68,6 +68,8 @@ describe("AI 코멘트와 주간 리포트", () => {
     const view = render(<StrictMode><InsightCard checkinId={1} autoGenerate /></StrictMode>);
     expect(await screen.findByRole("alert")).toBeTruthy();
     expect(screen.getByRole("button", { name: "다시 시도" })).toBeTruthy();
+    expect(screen.getByRole("alert").parentElement?.className).toBe("insight-card__body");
+    expect(screen.getByRole("button", { name: "다시 시도" }).parentElement?.className).toBe("insight-card__actions");
     view.rerender(<StrictMode><InsightCard checkinId={1} autoGenerate /></StrictMode>);
     expect(fetchMock.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(1);
   });
@@ -86,6 +88,13 @@ describe("AI 코멘트와 주간 리포트", () => {
     login(); const fetchMock = vi.fn().mockResolvedValueOnce(response(weekly)).mockResolvedValueOnce(response(insufficient, 422)).mockResolvedValueOnce(response(limited, 429));
     vi.stubGlobal("fetch", fetchMock); render(<InsightCard weekly />);
     expect(await screen.findByText(weekly.text)).toBeTruthy();
+    const body = screen.getByText(weekly.text).parentElement;
+    const actions = screen.getByRole("button", { name: "주간 리포트 다시 만들기" }).parentElement;
+    expect(body?.className).toBe("insight-card__body");
+    expect(body?.querySelector(".insight-card__period")).toBeTruthy();
+    expect(actions?.className).toBe("insight-card__actions");
+    expect(body?.nextElementSibling).toBe(actions);
+    expect(actions?.nextElementSibling?.tagName).toBe("SMALL");
     fireEvent.click(screen.getByRole("button", { name: "주간 리포트 다시 만들기" }));
     expect(await screen.findByText("최근 7일 기록이 3건 이상 필요합니다.")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "주간 리포트 다시 만들기" }));
