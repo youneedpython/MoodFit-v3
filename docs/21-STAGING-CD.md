@@ -14,9 +14,15 @@ TASK-029의 2026-10-04 Gate C 사전 승인과 명시 실행 지시를 DEC-032�
 2. OIDC Staging Role 세션 3600초 취득, ECR 로그인. 세션 취득 재시도와 AWS CLI 오류 재시도는 비활성이다. Waiter는 정상 상태 전환을 조회하며 실패한 배포를 다시 제출하지 않는다.
 3. `sha-<full SHA>` Tag를 조회한다. ImageNotFoundException일 때만 Push한다. 그 밖의 조회 오류는 실패다. 기존 immutable Tag는 재사용하며 덮어쓰지 않는다. digest 형식을 확인하고 ECS에는 repository와 digest를 결합한다.
 4. Service가 이전 안정 상태인지 확인하고 현재 Task Definition에서 backend Container의 Image만 교체한다. 조회 전용 필드를 제거하고 등록 요청에 MoodFitEnvironment staging Tag를 포함한다. 새 revision으로 Service를 갱신한다.
-5. 안정화 후 Service가 새 Task Definition을 실행하며 COMPLETED / desired 2 / running 2 / pending 0인지 재확인한다. Circuit Breaker로 이전 revision에 복귀한 경우 waiter 성공만으로 배포 성공을 판단하지 않는다.
+5. services-stable 후 DescribeServices를 15초 간격으로 최대 10분 추가 조회한다. Service와 단일 Deployment가 목표 Task Definition이며 COMPLETED / desired 2 / running 2 / pending 0일 때 성공한다. Service의 목표 불일치(롤백) 또는 목표 Deployment의 FAILED는 즉시 실패한다. IN_PROGRESS / 복수 Deployment / 미충족 Task 수는 계속 기다리며 시간 초과 시 마지막 미충족 조건을 출력한다. 조회 오류는 재시도 없이 짧은 이유로 실패하고 AWS 원문 / 식별값은 출력하지 않는다. 조회 한 번도 최대 30초와 남은 제한 시간으로 제한한다.
 6. 동일 Commit의 Frontend npm ci / Test / Build 후 asset을 먼저 업로드하고 HTML은 no-cache로 업로드한다. 삭제 동기화는 없다. CloudFront 전체 invalidation 완료 후 Smoke를 실행한다.
 7. 실패해도 Step Summary에 Commit / Image digest / Task revision 번호 / 배포·Smoke 결과 / 실패 Step을 기록한다. 계정 ID, Repository 주소, Bucket 이름, Distribution ID, ARN, AWS 응답 JSON은 Summary / Artifact / 로그로 출력하지 않는다. 민감 응답은 runner 임시 파일에 제한 권한으로 저장하고 종료 시 제거한다.
+
+### ECS 안정화 뒤 rollout 판정 실패 (2026-10-04, TASK-039)
+
+TASK-038 적용 후 재실행은 OIDC / ECR Push / Task Definition 등록 / Service 갱신을 통과했지만 대기 Step의 단일 COMPLETED 검사에서 실패했다. 실패 직후 Claude의 읽기 전용 확인에서는 새 revision 하나가 PRIMARY / COMPLETED이고 desired 2 / running 2, 실패 Task 0과 deployment completed 이벤트가 확인됐다. Backend는 갱신됐고 Frontend 이후 단계는 실행되지 않았다.
+
+services-stable은 단일 Deployment와 running / desired 일치로 종료하므로 rolloutState가 잠시 IN_PROGRESS일 수 있다. TASK-039는 waiter 뒤 제한 시간 동안 COMPLETED를 추가로 기다린다. Circuit Breaker 롤백은 계속 실패로 처리한다. 다른 Step / 권한 / Trigger / Action 고정 SHA는 유지하며 실제 자동 배포 전체 통과는 Merge 후 확인한다.
 
 ## GitHub 설정 (승인된 Claude 세션)
 

@@ -86,6 +86,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | DONE | 사전 승인과 명시 실행에 따른 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | 2026-10-03 형식 / 거부 기준 / 적용 범위 / Resume / 강화 규칙 사전 승인 |
 | TASK-035 | Milestone 35 | Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회) | DONE | Human 지시(2026-10-04), Frontend만 변경, Review PASS | Gate 사전 승인, PR #16 Human Squash Merge로 확정 |
 | TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04), 최종 완료 승인 대기 |
+| TASK-039 | Milestone 39 | Staging CD Rollout Wait Fix | DONE | TASK-029, TASK-038 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
 
 ---
 
@@ -1682,6 +1683,30 @@ DONE은 Executor 구현 완료 반영이며 Orchestrator Verify / Claude Review 
 ### 상세 Task Contract
 
 [`TASK-038_OIDC_IMMUTABLE_SUBJECT.md`](tasks/TASK-038_OIDC_IMMUTABLE_SUBJECT.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
+
+---
+
+## TASK-039 — Staging CD Rollout Wait Fix
+
+### 상태
+
+```text
+DONE
+```
+
+### Dependency / 승인
+
+TASK-029, TASK-038과 2026-10-04 Human의 "CD 에러 해결" 명시 실행 지시에 따른다. Milestone 39다.
+
+### 구현 / 완료 경계
+
+services-stable 이후 DescribeServices를 15초 간격으로 최대 10분 조회한다. 목표 Task Definition과 단일 목표 Deployment, COMPLETED, desired 2 / running 2 / pending 0을 모두 만족해야 성공한다. Service가 이전 revision으로 복귀하거나 목표 Deployment가 FAILED면 즉시 실패한다. 나머지 상태는 제한 시간 안에서 기다리며 실패 이유에는 식별값이나 AWS 원문을 포함하지 않는다.
+
+DONE은 Executor 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인이 아니다. Merge 후 Frontend 배포와 Smoke까지 자동 배포가 통과하는지 확인한다. TASK-030 / Current Task는 BLOCKED를 유지한다.
+
+### 상세 Task Contract
+
+[`TASK-039_CD_ROLLOUT_WAIT.md`](tasks/TASK-039_CD_ROLLOUT_WAIT.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
 
 ---
 

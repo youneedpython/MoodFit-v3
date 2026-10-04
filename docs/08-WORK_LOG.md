@@ -3211,3 +3211,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - AWS CLI 오류 출력을 숨겨 실패 원인 파악이 어렵다. 첫 배포가 실패하면 식별값을 가린 진단 출력을 추가한다.
   - HTML이 아닌 Root 파일(아이콘 등 Hash 없는 파일)에도 1년 immutable cache가 붙는다. 아이콘을 바꿀 때는 파일 이름을 바꾼다(로고 Task에서 다시 다룬다).
 - 실제 검증은 Merge 뒤 첫 자동 배포다. 이 배포로 위치 인식 + 날씨 자동 조회(TASK-035)가 Staging에 올라간다. 결과는 Merge 후 기록한다.
+
+## TASK-039 — Staging CD Rollout Wait Fix (2026-10-04)
+
+- Human의 명시 실행 지시와 승인 Contract에 따라 ECS 대기 Step만 수정했다. services-stable 직후 rolloutState가 IN_PROGRESS일 수 있는 시간차를 최대 10분 / 15초 간격 DescribeServices 조회로 처리한다. 개별 조회는 최대 30초와 남은 시간으로 제한한다.
+- Service와 단일 목표 Deployment의 Task Definition 일치, COMPLETED, desired 2 / running 2 / pending 0을 모두 요구한다. Service의 목표 불일치와 목표 Deployment FAILED는 즉시 실패하며 나머지는 제한 시간 안에서 기다린다. 조회 오류와 시간 초과에는 짧은 이유만 출력하고 AWS 원문 / 계정 ID / ARN을 출력하지 않는다.
+- 다른 Step / 권한 / Trigger / Action 고정 SHA를 변경하지 않았다. docs/21에 이번 실패와 판정 방식을 기록하고 TASK-039를 Milestone 39 / DONE으로 반영했다. TASK-030 / Current Task BLOCKED와 AGENTS.md를 유지했다. 실행 지시는 Prompt 64에 기록했다.
+- Executor 참고 검증: inline Python AST와 네트워크 없는 Mock 7개가 통과했다(IN_PROGRESS 후 성공, 롤백, FAILED, 복수 Deployment 후 성공, IN_PROGRESS / Task 수 / 복수 Deployment 시간 초과). git diff --check가 통과했다. 변경 문서의 UTF-8, 연속 물음표 치환 흔적과 U+FFFD 검사를 수행했다.
+- Sandbox Python에 PyYAML이 없어 Contract YAML 구조 검사는 실행되지 않았다. 설치하지 않았으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다. 실제 AWS 호출 / 배포 / Git handoff는 수행하지 않았다. DONE은 Executor 구현 완료이며 Verify / Review / Remote CI / Human Squash Merge 전 완료 승인이 아니다. Merge 후 Frontend 배포와 Smoke까지 자동 배포 전체 통과를 확인한다.
