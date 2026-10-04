@@ -99,6 +99,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-045 | Milestone 45 | LLM Insight (AI 맞춤 코멘트 + 주간 리포트) | DONE | TASK-042, TASK-044 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-046 | Milestone 46 | LLM Value Injection (Infra) | DONE | TASK-043, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-047 | Milestone 47 | UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기) | DONE | TASK-036, TASK-045 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-049 | Milestone 49 | LLM Runtime Endpoint / Failure Diagnostics | DONE | TASK-045, TASK-046 | Human 승인 Contract 및 명시 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1912,3 +1913,12 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 공통 추천 음식 Card에 이름 낱말 기반 장식 Emoji를 추가했다. 현재 규칙의 모든 음식 이름과 기본 아이콘 / 접근성 Test를 추가했고 음악과 추천 규칙은 유지한다.
 - History 기록은 최신순으로 5개씩 표시하며 이전 / 다음, 위치 알림, 제목 focus와 기록 감소 시 페이지 보정을 제공한다. 그래프와 주간 리포트는 전체 기록을 사용한다.
 - Sandbox의 npm 캐시 EPERM으로 자체 Verify가 설치 단계에서 중단되어 Test / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify이며 Claude 세션이 390 / 768 / 1280px 화면 캡처를 확인한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
+
+## TASK-049 — LLM Runtime Endpoint / Failure Diagnostics
+
+- 상태: DONE (Executor 구현 완료), Milestone 49.
+- 승인: 2026-10-04 Human 승인 Contract 및 명시 실행 지시. Dependency는 TASK-045 / TASK-046이다.
+- 기본 runtime / 선택 mantle Backend, 동일 요청 설정, 마스킹된 HTTP 오류 진단과 거절 / 길이 초과 단일 로그를 구현했다. InvokeModel 권한 예시와 운영 문서를 갱신했다.
+- 선택 Logic / 오류 문장 정리 / 실패 로그 Test를 추가했다. 실제 Bedrock 호출은 수행하지 않았다.
+- Sandbox 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge가 최종 기준이며 DONE은 이를 대신하지 않는다.
+- Merge / 자동 배포 후 Human이 다른 계정 호출 Role의 권한을 추가하고 Staging 실제 생성을 확인한다. 400이 추론 Profile을 요구하면 정확한 ID를 확인해 LlmModelId와 App Stack을 갱신한다. 다른 Task 상태와 Current Task는 유지한다.

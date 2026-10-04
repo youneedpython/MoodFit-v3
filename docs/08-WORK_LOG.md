@@ -1,5 +1,17 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-049 — LLM Runtime Endpoint / Failure Diagnostics (2026-10-04)
+
+- 초기 Working Tree는 clean이었다. Human 승인 Contract와 명시 실행 지시에 따라 허용 경로만 수정했다. Git 후속 작업 / AWS 변경 / 실제 Bedrock 호출은 수행하지 않았다.
+- LLM_ENDPOINT가 mantle일 때만 기존 Backend를 선택하고 기본 / 빈 값 / 알 수 없는 값은 runtime Backend를 사용한다. 자격 증명 / AssumeRole, Region, 제한 시간, 재시도, 모델 환경 값과 요청 내용은 공유한다.
+- HTTP 오류는 예외 Class / 상태 / 오류 종류와 getMessage() 정리본을 WARN으로 기록한다. 12자리 숫자와 ARN을 가리고 줄바꿈 / 제어 문자를 공백으로 바꾼 뒤 Unicode 기준 300자로 제한한다. 응답 body()와 요청 / 생성 본문은 읽거나 기록하지 않는다. 그 밖의 예외는 Class만 기록한다.
+- 거절 / 길이 초과는 내부 실패 종류로 서비스에 전달하여 한 번만 기록하고 저장하지 않는다. 기존 빈 응답 fallback과 기능 꺼짐 동작을 유지한다.
+- 설정 선택, null / 빈 Message, 계정 번호 / ARN 마스킹, 제어 문자 정리, 길이 제한, HTTP 오류 진단 / body 미사용과 거절·길이 초과 시도당 단일 로그 Test를 추가 / 갱신했다. 실제 Bedrock을 호출하는 Test는 없다.
+- InvokeModel 권한 예시와 환경 값 / 404 경과 / 추론 Profile 요구 400 대응 / Human 운영 절차를 문서화했다. 다른 Task 상태와 Current Task는 유지했다.
+- `bash scripts/verify.sh`: npm ci 단계에서 사용자 npm 캐시 stat EPERM으로 Exit 1. Test / Build와 Backend 검증은 실행되지 않았다. Sandbox 제약에 따른 결과이며 성공을 주장하지 않는다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- `git diff --check`: PASS. 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. 한글 문서는 UTF-8 apply_patch로 작성했다.
+- Executor DONE은 구현 완료이며 Verify / Review / Human Squash Merge나 실제 생성 성공을 대신하지 않는다. Merge / 자동 배포 뒤 Human이 다른 계정 Role에 권한을 추가하고 Staging 실제 생성을 확인한다.
+
 ## TASK-043 Run 2 문서 정합성 (2026-10-04)
 
 - 초기 Working Tree는 clean이며 Run 1의 검토 미완료 WIP가 baseline이다. Run 1 Guard 중단과 Claude 세션의 Template 표기 수정·Sandbox 밖 사전 검사 기록은 Contract의 이력이며 이번 Executor 검증 결과로 간주하지 않는다.

@@ -3,7 +3,7 @@
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "bedrock-mantle:CreateInference",
+      "Action": ["bedrock-mantle:CreateInference", "bedrock:InvokeModel"],
       "Resource": "*"
     }
   ]

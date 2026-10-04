@@ -78,6 +78,14 @@ Staging에서 AI 코멘트 생성이 404로 실패한다. Bedrock 호출 경로�
 
 - Sandbox에서 Gradle을 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다.
 
+## Run 2 범위 (2026-10-04, Claude 세션 기록)
+
+Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1은 Orchestrator Verify의 Backend Compile에서 멈췄다(Review 전).
+
+- 오류: `backend/src/main/java/com/moodfit/insight/InsightService.java` 74행 — `service.errorType().orElse("")`. `errorType()`은 `Optional<com.anthropic.models.ErrorType>`이라 문자열 기본값을 줄 수 없다("incompatible types: String cannot be converted to ErrorType").
+- Run 2에서 할 일: `errorType()`을 문자열로 바꾼 뒤 기본값을 준다(예: `service.errorType().map(Object::toString).orElse("")`). 같은 형태의 Type 불일치가 다른 곳에도 있는지 확인한다. 그 밖의 설계는 바꾸지 않는다.
+- `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

@@ -20,11 +20,12 @@ class BedrockResponseTests {
         when(text.text()).thenReturn("첫 문장");
         when(message.content()).thenReturn(List.of(block, block));
         when(message.stopReason()).thenReturn(Optional.of(StopReason.REFUSAL));
-        assertThat(BedrockInsightGenerator.responseText(message)).isNull();
-        assertThat(output.getOut()).contains("kind=refusal");
+        assertThatThrownBy(() -> BedrockInsightGenerator.responseText(message))
+                .isInstanceOf(BedrockInsightGenerator.ResponseRejected.class);
         when(message.stopReason()).thenReturn(Optional.of(StopReason.MAX_TOKENS));
-        assertThat(BedrockInsightGenerator.responseText(message)).isNull();
-        assertThat(output.getOut()).contains("kind=max_tokens").doesNotContain("첫 문장");
+        assertThatThrownBy(() -> BedrockInsightGenerator.responseText(message))
+                .isInstanceOf(BedrockInsightGenerator.ResponseRejected.class);
+        assertThat(output.getOut()).doesNotContain("LLM generation failure", "첫 문장");
         when(message.stopReason()).thenReturn(Optional.of(StopReason.END_TURN));
         assertThat(BedrockInsightGenerator.responseText(message)).isEqualTo("첫 문장");
         when(message.content()).thenReturn(List.of());
