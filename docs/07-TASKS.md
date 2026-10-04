@@ -51,7 +51,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | Task | Milestone | 작업 | 상태 | Dependency | Human Approval |
 |---|---|---|---|---|---|
 | TASK-042 | Milestone 42 | Social Login / Guest / User Scoped Data | DONE | TASK-029, TASK-036, TASK-039 | Human Approved 2026-10-04; Executor 구현 완료, Verify / Review / Merge 대기 |
-| TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | READY | TASK-042 구현 후 실환경 확인 | TASK-042 후속 등록, 실제 값 / AWS 실행은 후속 Contract와 Gate에 따름 |
+| TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | DONE | TASK-042 Merge / Staging 체험 로그인 확인 | Executor 구현 완료, Verify / Review / Human Merge 및 실제 적용은 후속 확인 |
 | TASK-001 | Milestone 1 | Project Bootstrap | DONE | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | DONE | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
@@ -1869,7 +1869,8 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 
 ## TASK-043 — Infra: OAuth 값 주입 — App / IAM Stack
 
-- Milestone 43 / READY: TASK-042의 승인된 후속 작업 등록이다. 이 Task에서는 구현하지 않았다.
-- Dependency: TASK-042 App 구현. TASK-043 Contract와 필요한 Human Gate / 명시 실행 지시 후 진행한다.
+- Milestone 43 / DONE: 승인 Contract와 명시 실행 지시에 따른 Executor 구현 완료다. Verify / Review / Human Squash Merge 전 최종 완료 승인이 아니다.
+- Dependency: TASK-042 Merge(PR #24), Staging 체험 로그인 확인. Human Approved 2026-10-04 / DEC-035.
+- 구현: 조건부 OAuth 주입과 ExecutionRole 권한, 필수 공개 HTTPS 주소, 체험 로그인 Parameter 및 배포 문서. 실제 적용은 Merge 후 Human이 수행한다. 다른 Task 상태와 Current Task는 유지한다.
 - 범위: Secrets Manager / ECS 환경 변수 주입, 환경별 공개 주소 및 제공자 Callback 등록, Google / Kakao 실제 로그인 확인.
 - Production 승인과 IAM / Infra 변경 Gate를 유지한다. 실제 값은 Repository / Prompt / Log에 기록하지 않는다.

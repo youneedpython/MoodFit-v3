@@ -38,6 +38,11 @@ Parameters:
   AppDbCredentialArn:
     Type: "String"
     Description: "Use the data stack AppDbCredentialArn output for approved staging runtime"
+  OAuthCredentialArn:
+    Type: "String"
+    Default: ""
+    AllowedPattern: '^$|^arn[:][a-z0-9-]+[:]secretsmanager[:]ap-northeast-2[:][0-9]{12}[:]secret[:][A-Za-z0-9/_+=.@-]+$'
+    Description: "Human-managed OAuth JSON secret; empty omits read permission"
   RepositoryArn:
     Type: "String"
   EnvironmentLogStreamArnPattern:
@@ -159,6 +164,13 @@ Resources:
                 "Effect": "Allow"
                 Action: ["secretsmanager:GetSecretValue"]
                 "Resource": !Ref AppDbCredentialArn
+              - !If
+                - HasOAuthCredential
+                - Sid: "InjectOAuthCredential"
+                  Effect: "Allow"
+                  Action: ["secretsmanager:GetSecretValue"]
+                  Resource: !Ref OAuthCredentialArn
+                - !Ref AWS::NoValue
   TaskRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -581,6 +593,7 @@ Outputs:
     Value:
       Fn::Sub: "arn:${AWS::Partition}:logs:${AWS::Region}:${AccountId}:log-group:/moodfit/${Environment}/application:log-stream:*"
 Conditions:
+  HasOAuthCredential: !Not [!Equals [!Ref OAuthCredentialArn, ""]]
   CreateProvider:
     Fn::Equals:
       -

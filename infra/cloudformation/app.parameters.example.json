@@ -82,5 +82,17 @@
   {
     "ParameterKey": "TaskMemory",
     "ParameterValue": "1024"
+  },
+  {
+    "ParameterKey": "OAuthCredentialArn",
+    "ParameterValue": "<OAuthCredentialArn>"
+  },
+  {
+    "ParameterKey": "PublicUrl",
+    "ParameterValue": "https://staging.moodfit.8949db.kr"
+  },
+  {
+    "ParameterKey": "GuestLoginEnabled",
+    "ParameterValue": "true"
   }
 ]
