@@ -1,0 +1,40 @@
+{
+  "id": "TASK-037",
+  "title": "Logo / Favicon",
+  "task_file": "docs/tasks/TASK-037_LOGO_FAVICON.md",
+  "allowed_paths": [
+    "frontend/index.html",
+    "frontend/public/site.webmanifest",
+    "frontend/src/",
+    "docs/08-WORK_LOG.md",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "frontend/public/favicon.svg",
+    "frontend/public/icon-32.png",
+    "frontend/public/apple-touch-icon.png",
+    "frontend/public/icon-192.png",
+    "frontend/public/icon-512.png",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/07-TASKS.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}
