@@ -56,13 +56,24 @@ class AuthTests {
     @Test void rawCookieCsrfWorksForSpaGuestAndWrites() throws Exception {
         var anonymous = mvc.perform(get("/api/auth/me")).andReturn().getResponse().getCookie("XSRF-TOKEN");
         assertThat(anonymous).isNotNull();
+        mvc.perform(get("/api/auth/me").cookie(anonymous)).andExpect(status().isOk())
+                .andExpect(cookie().value("XSRF-TOKEN", anonymous.getValue()));
         var login = mvc.perform(post("/api/auth/guest").cookie(anonymous).header("X-XSRF-TOKEN", anonymous.getValue()))
                 .andExpect(status().isNoContent()).andReturn();
         var session = login.getResponse().getCookie("SESSION");
         var fresh = mvc.perform(get("/api/auth/me").cookie(session)).andReturn().getResponse().getCookie("XSRF-TOKEN");
         assertThat(fresh).isNotNull();
+        mvc.perform(post("/api/check-ins").cookie(session)
+                .contentType(MediaType.APPLICATION_JSON).content(INPUT)).andExpect(status().isForbidden());
         mvc.perform(post("/api/check-ins").cookie(session, fresh).header("X-XSRF-TOKEN", fresh.getValue())
                 .contentType(MediaType.APPLICATION_JSON).content(INPUT)).andExpect(status().isCreated());
+        mvc.perform(post("/api/auth/logout").cookie(session, fresh).header("X-XSRF-TOKEN", fresh.getValue()))
+                .andExpect(status().isNoContent());
+        var loggedOut = mvc.perform(get("/api/auth/me")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.authenticated").value(false)).andReturn().getResponse().getCookie("XSRF-TOKEN");
+        assertThat(loggedOut).isNotNull();
+        mvc.perform(post("/api/auth/guest").cookie(loggedOut).header("X-XSRF-TOKEN", loggedOut.getValue()))
+                .andExpect(status().isNoContent());
     }
     @Test void socialIdentityIsStableAndMinimal() {
         var google = users.social("google", Map.of("sub", "google-test", "name", "  " + "가".repeat(50) + "  ", "email", "private@example.invalid", "picture", "https://example.invalid/photo"));

@@ -3289,3 +3289,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Contract 승인에 따라 Gradle을 실행하지 않았다. Cache에 Security / Session 모듈의 메타데이터는 있으나 읽을 수 있는 관련 Jar를 찾지 못했다. Boot 4 / Security / Session API 호환성, H2 / MySQL Migration과 실제 Session 동작은 Verify에서 확인 필요다. 실제 실패를 Sandbox 제약으로 판정한 것은 아니다.
 - UI 캡처는 기존 Chrome Headless로 390 / 768 / 1280px를 시도했으나 Capture 파일을 얻지 못했다. 로그인 화면과 사용자 메뉴의 해당 폭 캡처 / 시각 검토는 Human 후속 작업으로 남긴다. CLI / 라이브러리는 설치하지 않았다.
 - Executor DONE은 구현 완료만 뜻한다. 실제 OAuth 로그인은 TASK-043 이후 확인하고 Merge 뒤 Staging 체험 Smoke를 확인한다. Git handoff는 수행하지 않았다.
+
+### TASK-042 Run 3 — CSRF Cookie 명시 발급 (2026-10-04)
+
+- 초기 Working Tree는 clean이었다. Run 3 승인 범위에 따라 `/api/auth/me`에서 Cookie 저장소의 Token을 직접 읽고, 없으면 생성한 뒤 매 응답에 명시적으로 저장한다. 기존 Cookie가 있으면 같은 값을 다시 내려 준다. 지연 Token 인자에 기대던 처리를 제거했다.
+- Cookie가 실제 내려오는 기존 기대값을 유지하고, 기존 Cookie 재발급 / 체험 로그인 → me → Cookie와 Header를 사용한 Check-in 저장 201 / Token 없는 저장 403 / 로그아웃 → me → 체험 재로그인 흐름을 보강했다.
+- Frontend는 체험 로그인과 로그아웃 후 refresh로 me를 호출한다. 두 Smoke도 체험 로그인 직후 me와 CSRF Header 재생성을 수행하므로 수정할 필요가 없었다. Token과 Cookie 값은 출력하지 않았다.
+- Executor 참고 정적 검증: 두 Smoke의 Bash 구문 검사와 `git diff --check` PASS. 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 확인했다. Contract에 따라 Gradle / Backend Test / Container 실행은 수행하지 않았다. 추가한 회귀 Test의 실행과 Backend 동작은 Sandbox 밖 Orchestrator Verify에서 확인 필요다.
+- 구현 완료 보고는 Verify 성공이나 Task 완료 승인을 뜻하지 않는다. Run 2 전체 구현의 Claude Review와 Merge 후 Staging 체험 Smoke는 아직 남아 있다. 새로운 Human 결정과 Git 작업은 수행하지 않았다. 실행 지시는 [Prompt 67](../prompts/67-TASK-042-CSRF-COOKIE-REWORK.md)에 기록했다.

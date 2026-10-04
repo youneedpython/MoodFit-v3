@@ -22,8 +22,11 @@ public class AuthController {
         this.settings = settings; this.users = users; this.contexts = contexts; this.csrfRepository = csrfRepository;
     }
     @GetMapping("/me")
-    public AuthResponse me(Authentication authentication, CsrfToken csrf) {
-        csrf.getToken();
+    public AuthResponse me(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+        CsrfToken csrf = csrfRepository.loadToken(request);
+        if (csrf == null) csrf = csrfRepository.generateToken(request);
+        // Explicitly issue the cookie on every bootstrap, including after login/logout clears it.
+        csrfRepository.saveToken(csrf, request, response);
         UserIdentity user = authentication != null && authentication.getPrincipal() instanceof UserIdentity identity ? identity : null;
         return new AuthResponse(user != null, user, settings.providers(), settings.guestEnabled());
     }
