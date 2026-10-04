@@ -140,6 +140,20 @@ Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1�
 - 참고: Claude 세션이 WIP 상태에서 `backend`의 `gradlew test`를 Sandbox 밖에서 실행했고 통과했다(Backend는 이 Run에서 바꿀 필요가 없다). `scripts/container-smoke.sh`는 아직 실행되지 않았다.
 - 그 밖의 구현은 바꾸지 않는다. `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다.
 
+## Run 3 범위 (2026-10-04, Claude 세션 기록)
+
+Run 2까지의 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 2에서 `scripts/verify.sh`는 통과했고(Frontend Test 수정 완료), `scripts/container-smoke.sh`가 실패했다(Review 전).
+
+- 실패 1: 응답 파일을 Container에서 꺼내는 `docker cp "$app:/tmp/moodfit-api-smoke/<name>" ...`가 "Could not find the file"로 실패했다. App Container의 `/tmp`는 tmpfs라 `docker cp`로 읽을 수 없다.
+- 실패 2(1을 고친 뒤 드러남): Windows Git Bash에서 `python - "$work_dir"`에 넘긴 경로가 `/c/...` 형태라 Python이 파일을 찾지 못했다(`MSYS_NO_PATHCONV=1`이 설정되어 있어 자동 변환이 없다).
+- Claude 세션이 WIP에 아래 두 줄을 고쳤고, Sandbox 밖에서 `bash scripts/container-smoke.sh`가 끝까지 통과(exit 0)하는 것을 확인했다. **이 두 줄은 그대로 유지한다.**
+  1. `docker cp` 대신 `docker exec "$app" cat "/tmp/moodfit-api-smoke/$response" > "$work_dir/$response"`
+  2. `python - "$(docker_path "$work_dir")" <<'PY'` (기존 `docker_path` Helper는 `cygpath`가 있으면 Windows 경로로 바꾸고, 없으면 그대로 돌려준다)
+- Run 3에서 할 일:
+  1. 위 두 줄이 Script의 다른 부분(임시 파일 정리, 값 미출력, Linux CI에서의 동작)과 어긋나지 않는지 읽고 확인한다. `scripts/staging-smoke.sh`에 같은 종류의 문제가 있는지 확인한다(그 Script는 Container 안이 아니라 Host에서 curl을 실행한다).
+  2. 문서(`docs/21-STAGING-CD.md`, `docs/08-WORK_LOG.md`)에 Smoke 변경과 이번 경과를 맞게 적는다. `prompts/`에 Run 3 기록을 추가한다.
+  3. 그 밖의 구현은 바꾸지 않는다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

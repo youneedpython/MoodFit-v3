@@ -150,10 +150,10 @@ SH
 
 # Copy response bodies only; cookies and authentication headers remain in the container.
 for response in create latest history; do
-  docker cp "$app:/tmp/moodfit-api-smoke/$response" "$(docker_path "$work_dir/$response")" >/dev/null
+  docker exec "$app" cat "/tmp/moodfit-api-smoke/$response" > "$work_dir/$response"
 done
 docker exec "$app" rm -rf /tmp/moodfit-api-smoke
-python - "$work_dir" <<'PY'
+python - "$(docker_path "$work_dir")" <<'PY'
 import datetime, json, pathlib, sys
 p = pathlib.Path(sys.argv[1])
 def load(name): return json.loads((p / name).read_text(encoding='utf-8'))
