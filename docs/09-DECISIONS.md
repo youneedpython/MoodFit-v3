@@ -556,6 +556,10 @@ TASK-006 Unit Test의 기대값으로 사용한다. (heartRate / respiratoryRate
 
 Music 열의 이름은 `Playlist`를 생략해 표기했다.
 
+### 변경 이력
+
+- 2026-10-04 (TASK-036, Human 승인): 추천 음식 / 음악을 각각 5개로 늘렸다(기분 기준 3개 + 날씨 / 상황 기준 2개). 점수와 기분 판정 규칙은 바꾸지 않았다.
+
 ### 상태
 
 ```text
@@ -969,6 +973,10 @@ Core MVP는 단일 사용자 구조를 유지하므로 `user_id`는 추가하지
 - 기존 `.github/workflows/ci.yml`은 변경하지 않는다.
 - H2를 이용한 Persistence Test는 기존 `gradlew test`에 포함한다.
 
+### 변경 이력
+
+- 2026-10-04 (TASK-036, Human 승인): Migration `V2`로 추천 음악에 영상 ID Column(nullable)을 추가했다. 이전 기록은 값이 없다.
+
 ### 상태
 
 ```text
@@ -1194,6 +1202,10 @@ TASK-017 API 계약 테스트(Frontend / Backend)를 Gate C Human Review를 통�
 - 새로운 Dependency 없음 (`package.json` / `build.gradle` 변경 없음)
 - `ci.yml`, `scripts/verify.ps1`, `scripts/verify.sh` 실행 명령 변경 없음
 - JSON Schema / OpenAPI / Pact / E2E는 도입하지 않는다. (필요 시 별도 Gate C)
+
+### 변경 이력
+
+- 2026-10-04 (TASK-036, Human 승인): API 계약 예시를 추천 5개와 음악 항목의 `videoId`(없으면 null) 형식으로 갱신했다. 계약 Test와 Staging Smoke가 같은 예시를 기준으로 한다.
 
 ### 상태
 
