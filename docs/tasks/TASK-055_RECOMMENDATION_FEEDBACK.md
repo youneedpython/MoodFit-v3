@@ -108,6 +108,13 @@
 - Sandbox에서 Gradle / npm Test를 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다.
 - 지난 Task들에서 반복된 실수에 주의한다: Java의 괄호 짝 / Type 불일치(`Optional`에 다른 Type 기본값), Test의 `tsc --noEmit` 타입 오류, CSS를 `?raw`로 읽는 Test(빈 문자열), 같은 Spring Context를 쓰는 다른 Test의 상태를 바꾸는 Test(`csrf()` 대신 기존 Test가 쓰는 방식 확인, 만든 Data 정리), 여러 fetch에 같은 `Response` 객체를 돌려주는 mock.
 
+## Run 2 범위 (2026-10-05, Claude 세션 기록)
+
+Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1은 Orchestrator Verify의 Backend Test 단계에서 멈췄다(Review 전). **구현 문제가 아니라 환경 문제**였다: Gradle Cache 잠금을 다른 Process가 쥐고 있어 "Timeout waiting to lock jars"로 Build가 시작되지 못했다(남아 있던 Gradle Daemon). Frontend Test 220건과 Build는 통과했다.
+
+- Claude 세션이 Gradle Daemon을 정리한 뒤 WIP 상태에서 `backend`의 `gradlew test bootJar`를 Sandbox 밖에서 실행했고 통과했다. `scripts/container-smoke.sh`는 아직 실행하지 않았다.
+- Run 2에서 할 일: 구현을 다시 읽어 Task 설계(특히 평가가 없을 때 결과 불변, 체험 계정 차단, Pool에 있는 항목만 저장, 계정 삭제 포함)와 맞는지 확인하고, 고칠 것이 있으면 고친다. `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다. Sandbox에서 Gradle을 실행하려고 시도하지 않는다(Daemon이 남아 다음 검증을 막는다).
+
 ## Verification
 
 - `bash scripts/verify.sh`
