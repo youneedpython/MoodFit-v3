@@ -118,6 +118,22 @@
 
 - Sandbox에서 Gradle / npm / AWS CLI를 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다. Test의 타입 오류(`tsc --noEmit`)와 Java Type 불일치에 주의한다.
 
+## Run 2 범위 (2026-10-05, Claude 세션 기록)
+
+Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1은 Orchestrator Verify 시작 단계의 AWS 사전 점검에서 멈췄다(Human의 AWS SSO Session 만료, "AWS Preflight: lookup-failed"). 구현 문제가 아니며 Verify / Review는 실행되지 않았다.
+
+- Claude 세션이 WIP 상태에서 `bash scripts/verify.sh`를 Sandbox 밖에서 실행했다: Frontend Test 215건 중 **1건 실패**(그래서 Build와 Backend Test는 이어지지 않았다).
+  - 실패: `frontend/src/features/privacy/privacy.test.tsx` — "defaults to cancel, traps focus, closes with cancel/Escape and deletes after confirmation". focus가 특정 버튼에 있어야 하는 단언에서 실제 focus가 `body`였다(`expected <body> to be <button>`).
+  - 원인 후보: 삭제 Dialog를 닫은 뒤 focus를 원래 버튼(아바타 / 메뉴 항목)으로 돌려주지 않거나, Dialog를 열 때 "취소"에 focus가 가지 않거나, 사용자 메뉴가 닫히면서 focus 대상이 DOM에서 사라진다.
+- Run 2에서 할 일:
+  1. 삭제 Dialog의 focus 동작을 고친다 — 열릴 때 "취소"에 focus, Tab이 Dialog 안에서만 돈다, 닫히면(취소 / Esc) **화면에 남아 있는 요소**(아바타 버튼)로 focus를 돌려준다. Test가 구현의 실제 동작을 검사하게 맞춘다(단언을 약하게 만들어 통과시키지 않는다).
+  2. **Backend Test 1건 실패를 고친다.** Claude 세션이 WIP 상태에서 `backend`의 `gradlew test`를 Sandbox 밖에서 실행했다: 120건 중 1건 실패, 1건 Skip.
+     - 실패: `com.moodfit.auth.AuthTests.rawCookieCsrfWorksForSpaGuestAndWrites` — "Status expected:<204> but was:<403>". 이 Test는 `main`에서는 통과한다(Remote CI 기준). 실패 위치는 204를 기대하는 요청(체험 로그인 또는 로그아웃)이다.
+     - `AuthSecurityConfig`의 변경은 `/api/auth/account`를 인증 대상으로 추가한 한 줄뿐이다. 그래서 **새로 추가한 Test(`AccountDeletionTests` 등)가 같은 Spring Context / DB / Session 상태를 바꿔 기존 Test에 영향을 주는지**를 먼저 의심한다(예: 체험 사용자 행이나 Session Table을 지움, CSRF Cookie 상태, Test 실행 순서). 새 Test가 만든 Data는 그 Test 안에서 정리하고, 체험 사용자(id 1)와 다른 Test가 쓰는 Data를 지우지 않게 한다.
+     - 새 Test 자체(`AccountDeletionTests`, `MySqlAccountDeletionTests`)와 계약 Test는 이 실행에서 실패하지 않았다.
+  3. `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다.
+- 그 밖의 구현은 바꾸지 않는다.
+
 ## Verification
 
 - `bash scripts/verify.sh`
