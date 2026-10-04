@@ -95,11 +95,15 @@ class AuthTests {
         jdbc.update("DELETE FROM checkin_food_recommendation WHERE checkin_id IN (SELECT id FROM wellness_checkin WHERE user_id IN (?, ?))", a.id(), b.id());
         jdbc.update("DELETE FROM checkin_music_recommendation WHERE checkin_id IN (SELECT id FROM wellness_checkin WHERE user_id IN (?, ?))", a.id(), b.id());
         jdbc.update("DELETE FROM wellness_checkin WHERE user_id IN (?, ?)", a.id(), b.id());
-        mvc.perform(post("/api/check-ins").with(authentication(authA)).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(INPUT)).andExpect(status().isCreated());
-        mvc.perform(get("/api/check-ins/latest").with(authentication(authA))).andExpect(status().isOk());
+        String regionalInput = INPUT.replace("\"weather\":\"RAIN\"", "\"weather\":\"RAIN\",\"region\":\"명동\"");
+        mvc.perform(post("/api/check-ins").with(authentication(authA)).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(regionalInput))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.weather.region").value("명동"));
+        mvc.perform(get("/api/check-ins/latest").with(authentication(authA))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.weather.region").value("명동"));
         mvc.perform(get("/api/check-ins/latest").with(authentication(authB))).andExpect(status().isNotFound());
         mvc.perform(get("/api/check-ins/history").with(authentication(authB))).andExpect(jsonPath("$.items").isEmpty());
-        mvc.perform(get("/api/check-ins/history").with(authentication(authA))).andExpect(jsonPath("$.items.length()").value(1));
+        mvc.perform(get("/api/check-ins/history").with(authentication(authA))).andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].region").value("명동"));
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM wellness_checkin WHERE user_id = ?", Integer.class, a.id())).isEqualTo(1);
         mvc.perform(post("/api/check-ins").with(authentication(authB)).contentType(MediaType.APPLICATION_JSON).content(INPUT)).andExpect(status().isForbidden());
     }

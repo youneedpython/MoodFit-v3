@@ -51,6 +51,7 @@ export function HistoryRecordList({ items }: HistoryRecordListProps) {
               <dt>날씨</dt>
               <dd>
                 {WEATHER_LABELS[item.weather]} · {item.temperature.toFixed(1)}°C
+                {item.region && <span className="weather-region">{item.region}</span>}
               </dd>
             </div>
           </dl>

@@ -1,0 +1,34 @@
+{
+  "id": "TASK-044",
+  "title": "Check-in Region Record (지역 저장 / Dashboard · History 표시)",
+  "task_file": "docs/tasks/TASK-044_CHECKIN_REGION.md",
+  "allowed_paths": [
+    "backend/",
+    "frontend/src/",
+    "contracts/",
+    "docs/",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "backend/build.gradle",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/verify.sh"], "cwd": "." },
+    { "command": ["bash", "scripts/container-smoke.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}

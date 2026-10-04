@@ -16,7 +16,8 @@
   },
   "weather": {
     "temperature": 19.0,
-    "condition": "RAIN"
+    "condition": "RAIN",
+    "region": null
   },
   "foods": [
     {

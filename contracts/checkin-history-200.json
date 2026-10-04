@@ -16,6 +16,7 @@
       "energyLevel": 74,
       "temperature": 19.0,
       "weather": "RAIN",
+      "region": null,
       "foodNames": [
         "연어 샐러드",
         "소고기 채소 비빔밥",

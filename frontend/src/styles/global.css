@@ -125,3 +125,11 @@ a {
     animation-duration: 0ms !important;
   }
 }
+.weather-region {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}

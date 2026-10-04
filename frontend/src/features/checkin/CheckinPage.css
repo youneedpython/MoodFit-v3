@@ -222,3 +222,6 @@ fieldset.checkin-field {
     width: 100%;
   }
 }
+.checkin-weather-summary {
+  overflow-wrap: anywhere;
+}

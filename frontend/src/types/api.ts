@@ -8,6 +8,7 @@ export type WeatherCondition = "CLEAR" | "CLOUDY" | "RAIN" | "SNOW";
 export type MoodCode = "TIRED" | "ENERGETIC" | "CALM" | "BALANCED";
 
 export type CreateCheckinRequest = {
+  region?: string | null;
   heartRate: number;
   respiratoryRate: number;
   sleepScore: number;
@@ -31,6 +32,7 @@ export type Metrics = {
 };
 
 export type Weather = {
+  region: string | null;
   temperature: number;
   condition: WeatherCondition;
 };
@@ -63,6 +65,7 @@ export type CheckinResponse = {
 };
 
 export type HistoryItem = {
+  region: string | null;
   id: number;
   recordedAt: string;
   mood: Mood;

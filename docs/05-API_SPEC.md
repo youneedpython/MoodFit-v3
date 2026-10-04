@@ -90,6 +90,7 @@ POST /api/check-ins
 | energyLevel | 0 ~ 100 |
 | temperature | -30.0 ~ 50.0, 소수 첫째 자리까지 허용 |
 | weather | 필수 Enum |
+| region | 선택 문자열 / null / 생략 가능. 앞뒤 공백 제거 후 1 ~ 80자, 빈 값은 null, 제어 문자(줄바꿈 포함) 또는 80자 초과는 400 |
 
 Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에 따라 확정되었으며,
 `temperature`는 API에서 소수 첫째 자리까지만 허용한다.
@@ -115,7 +116,8 @@ Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에
   },
   "weather": {
     "temperature": 19.0,
-    "condition": "RAIN"
+    "condition": "RAIN",
+    "region": null
   },
   "foods": [
     {
@@ -185,6 +187,7 @@ Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에
 ```
 
 - `wellnessScore`, `mood`, `summary`, `foods`, `music`은 DEC-014 Rule로 생성한다.
+- 생성 / 최신 응답의 `weather.region`과 이력 항목의 `region`은 저장 당시 지역 이름 또는 null이다. 좌표는 요청에 포함하거나 저장하지 않는다. 지역 없는 기존 요청과 기록을 지원한다.
 - `foods`, `music`은 새 기록에서 각각 5개이며, Mood 기반 3개 다음에 Weather / Temperature Context 기반 2개가 온다. 기존 2개짜리 기록은 그대로 반환한다.
 - 음악의 `videoId`는 선택적 문자열(기존 기록은 null 또는 생략 가능)이며 새 추천에서는 승인된 YouTube 영상 ID 11자를 반환한다. History는 기존 이름 / 제목 목록 형식을 유지한다.
 
@@ -272,6 +275,7 @@ GET /api/check-ins/history?days=7
       "energyLevel": 74,
       "temperature": 19.0,
       "weather": "RAIN",
+      "region": null,
       "foodNames": [
         "연어 샐러드",
         "소고기 채소 비빔밥",

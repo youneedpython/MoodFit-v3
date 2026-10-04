@@ -1452,6 +1452,8 @@ Human Approved (2026-10-04, Task Contract 사전 승인 및 명시 실행 지시
 
 ## DEC-033 TASK-040 날씨 자동 기본 / 지역 표시
 
+변경 이력: 2026-10-04 TASK-044 Human 승인 / DEC-036에 따라 지역 이름만 Backend로 전달하고 기록과 함께 저장한다. 아래 비저장 서술은 TASK-040 승인 당시 기준이며 좌표 비전송 / 비저장은 유지한다.
+
 ### 상태
 
 Human Approved (2026-10-04, Task Contract Gate 사전 승인 및 명시 실행 지시)
@@ -1487,3 +1489,17 @@ Human Approved (2026-10-04, 제공된 Task Contract의 Gate 결정과 명시 Rew
 - App은 필수 HTTPS origin `PublicUrl`과 기본 true인 `GuestLoginEnabled`를 환경 변수로 전달한다. 기존 DB 주입과 Health 설정을 유지한다.
 - Merge 후 Human이 Secret → IAM UPDATE → 현재 실행 digest를 유지한 App UPDATE → 안정화 순서로 적용한다. CD는 현재 revision의 설정을 이어받는다. Secret 교체 후에는 Service 새 배포가 필요하다.
 - 승인된 Claude 세션이 providers / Cookie Secure를 확인하고 Human이 실제 Google / Kakao 로그인을 확인한다. Production 실행 승인은 별도다. 상세 절차는 [22-AUTH.md](22-AUTH.md)를 따른다.
+
+---
+
+## DEC-036 TASK-044 Check-in 지역 기록
+
+Human Approved (2026-10-04, 제공된 Task Contract와 명시 실행 지시)
+
+- Human 지시: "Dashboard, history에 저장할 당시의 지역이 날씨와 같이 표시 되었으면 해."
+- DEC-033의 지역 이름 Backend 비전송 / 비저장을 변경한다. 자동 조회로 얻은 동 단위 지역 문자열만 저장한다. 좌표는 계속 Backend로 보내거나 저장하지 않는다. 새 Dependency는 없다.
+- 생성 요청의 선택 `region`은 문자열 / null / 생략을 허용한다. 앞뒤 공백 제거 후 1 ~ 80자이며 빈 값은 null, 제어 문자(줄바꿈 포함)나 80자 초과는 400이다. 생성 / 최신 `weather.region`과 이력 항목 `region`을 반환한다. 지역 없는 Smoke 요청과 예시는 null을 유지한다.
+- V4에 기본값 없는 nullable `VARCHAR(80)`을 추가한다. 기존 행과 이전 버전 INSERT를 지원하며 사용자별 분리를 유지한다. H2와 MySQL Testcontainers로 검증한다.
+- 자동 조회 뒤 직접 입력으로 수정해도 지역을 유지한다. 처음부터 직접 입력하거나 조회 대체 문구인 현재 위치는 저장하지 않는다. Dashboard / History / 결과 화면에 지역이 있을 때만 날씨와 함께 표시하고 개인정보 안내를 갱신한다.
+
+Executor DONE은 구현 완료이며 Verify / Claude Review / Human Squash Merge를 대신하지 않는다. Merge 후 Staging의 지역 저장과 표시를 확인한다. 상세는 [19-LOCATION-WEATHER.md](19-LOCATION-WEATHER.md)를 따른다.

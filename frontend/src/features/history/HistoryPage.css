@@ -148,6 +148,7 @@
 }
 
 .history-record dd {
+  overflow-wrap: anywhere;
   margin: 0;
   font-variant-numeric: tabular-nums;
 }

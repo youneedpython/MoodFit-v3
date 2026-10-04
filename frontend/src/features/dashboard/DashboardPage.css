@@ -98,6 +98,10 @@
   line-height: 1;
 }
 
+.wellness-hero__weather > span:last-child {
+  min-width: 0;
+}
+
 .wellness-hero__weather-label {
   display: block;
   font-weight: var(--font-weight-bold);

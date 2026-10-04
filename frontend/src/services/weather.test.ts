@@ -19,6 +19,8 @@ describe("weather service", () => {
     expect(parseRegion({ principalSubdivision: 42, locality: " " })).toBe("현재 위치");
     expect(parseRegion(null)).toBe("현재 위치");
     expect(parseRegion({ locality: "가".repeat(100) })).toHaveLength(40);
+    expect(parseRegion({ principalSubdivision: "가".repeat(40), locality: "나".repeat(40) })).toHaveLength(80);
+    expect(parseRegion({ locality: "명\n동" })).toBe("현재 위치");
   });
   it("maps every documented WMO code and rejects every gap", () => {
     const groups = { CLEAR: [0, 1], CLOUDY: [2, 3, 45, 48], RAIN: [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99], SNOW: [71, 73, 75, 77, 85, 86] };

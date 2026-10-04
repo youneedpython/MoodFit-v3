@@ -43,7 +43,7 @@ export function CheckinPage() {
   const submittingRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [autoWeather, setAutoWeather] = useState(readAutoWeather);
-  const [region, setRegion] = useState("현재 위치");
+  const [region, setRegion] = useState<string | null>(null);
   const [weatherState, setWeatherState] = useState({ loading: false, message: "", error: false });
   const weatherEdited = useRef(false);
   const weatherRequest = useRef<AbortController | null>(null);
@@ -69,7 +69,7 @@ export function CheckinPage() {
       if (controller.signal.aborted) return;
       if (!weatherEdited.current && !submittingRef.current) {
         setValues((current) => ({ ...current, temperature: String(result.temperature), weather: result.weather }));
-        setRegion(result.region || "현재 위치");
+        setRegion(result.region && result.region !== "현재 위치" ? result.region : null);
         setErrors((current) => ({ ...current, temperature: undefined, weather: undefined }));
       }
       setWeatherState({ loading: false, message: "현재 위치의 날씨를 가져왔습니다. 직접 입력으로 바꿔 수정할 수 있습니다.", error: false });
@@ -146,7 +146,7 @@ export function CheckinPage() {
       return;
     }
     setErrors({});
-    void submit(validation.request);
+    void submit(region ? { ...validation.request, region } : validation.request);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -157,6 +157,7 @@ export function CheckinPage() {
   function startOver() {
     weatherEdited.current = false;
     setValues(EMPTY_FORM);
+    setRegion(null);
     setErrors({});
     setSubmitState({ status: "editing" });
     if (autoWeather) void getWeather();
@@ -242,13 +243,13 @@ export function CheckinPage() {
                 {weatherState.loading ? "날씨 조회 중..." : autoWeather ? "다시 조회" : "자동으로 가져오기"}
               </Button>
               {autoWeather && <Button type="button" disabled={isSubmitting} onClick={() => setWeatherPreference(false)}>직접 입력</Button>}
-              <p className="checkin-field__hint">위치는 소수 둘째 자리로 반올림해 날씨와 지역 이름 조회에만 사용하며 저장하지 않습니다.</p>
+              <p className="checkin-field__hint">위치(좌표)는 소수 둘째 자리로 반올림해 조회에만 사용하며 저장하지 않습니다. 지역 이름은 기록과 함께 저장됩니다.</p>
               <p className="checkin-field__hint">지역 이름: <a href="https://www.bigdatacloud.com/" target="_blank" rel="noreferrer">BigDataCloud</a></p>
               <p className="checkin-field__hint">날씨 데이터: <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a></p>
               {weatherState.message && <p aria-live="polite" role={weatherState.error ? "alert" : "status"}>{weatherState.message}</p>}
             </div>
             {autoWeather ? <div aria-live="polite" className="checkin-weather-summary">
-              <p>{values.temperature && values.weather ? `${region} · ${WEATHER_OPTIONS.find((option) => option.value === values.weather)?.label} · ${values.temperature}°C` : "날씨 조회 결과를 기다리고 있습니다."}</p>
+              <p>{values.temperature && values.weather ? `${region || "현재 위치"} · ${WEATHER_OPTIONS.find((option) => option.value === values.weather)?.label} · ${values.temperature}°C` : "날씨 조회 결과를 기다리고 있습니다."}</p>
               {errors.temperature && <p role="alert" className="checkin-field__error">{errors.temperature}</p>}
               {errors.weather && <p role="alert" className="checkin-field__error">{errors.weather}</p>}
             </div> : <div className="checkin-group__fields">

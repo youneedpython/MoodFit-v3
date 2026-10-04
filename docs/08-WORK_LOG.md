@@ -3370,3 +3370,23 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 화면 확인(`docs/images/task-042/`): 이 Branch의 Build를 로컬에서 띄우고 인증 API는 가짜 응답으로 대신해 캡처했다. 로그인 화면과 아바타 메뉴를 390 / 768 / 1280px에서 확인했다. 미로그인 상태로 `/history`에 들어가면 `/login`으로 이동하고, "로그인 없이 둘러보기" 뒤 `/`로 이동하며, 아바타 메뉴는 Esc로 닫히고, 로그아웃하면 `/login`으로 돌아간다. 실제 Backend와 연결한 흐름은 Container Smoke(체험 로그인)와 Merge 뒤 Staging Smoke가 검증한다.
 - Merge 뒤 Staging 상태: OAuth 값과 `APP_PUBLIC_URL`이 아직 주입되지 않아 **체험 로그인만** 보인다. Cookie의 `Secure`도 TASK-043 전까지 붙지 않는다(Review F-003). 이 기간에는 공유 체험 계정만 쓸 수 있다.
 - 후속 후보(비차단): 제공자가 설정된 상태의 Context / Redirect Test(F-002, TASK-043에서 실측), 사용자 조건 없는 Repository Method 정리(F-004), 로그인 버튼의 제공자별 모양(지금은 같은 모양의 글자 버튼).
+
+## TASK-044 — 지역 이름 기록 (2026-10-04)
+
+- 승인된 Task 범위에서 선택 region 검증 / V4 nullable 컬럼 / 생성·최신·이력 응답과 세 화면 표시를 구현했다. 좌표는 Backend로 보내거나 저장하지 않는다. 지역 이름에 대한 DEC-033 변경을 DEC-036에 기록했다.
+- H2 / MySQL 공통 API 검증, V3 → V4 Migration / 이전 버전 INSERT, 사용자 분리, 자동 조회 / 직접 입력 / 대체 문구 전송, 표시 / 미표시 / React escaping 테스트를 추가했다. 지역 없는 Smoke 예시는 null을 유지한다.
+- `bash scripts/verify.sh`: npm ci 단계에서 Sandbox의 사용자 npm 캐시 stat EPERM으로 중단했다. Frontend Test / Build와 후속 Backend 단계는 실행되지 않았다.
+- `backend/gradlew.bat test`: Sandbox에서 Gradle wrapper의 잠금 파일 부모 디렉터리를 생성할 수 없어 Test가 시작되지 않았다.
+- `bash scripts/container-smoke.sh`: app.jar가 없어 preflight에서 중단했다. Docker 설정과 daemon 접근도 Access denied였다. Container / 실제 MySQL 동작을 검증한 결과는 없다.
+- 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다. 자체 실행 불가를 코드 검증 PASS로 취급하지 않는다. Dependency / Git / AWS 변경은 하지 않았다.
+- `git diff --check` 통과. 변경 문서의 UTF-8 / 연속 물음표 / U+FFFD 직접 검사, API 명세 JSON과 계약 예시 일치 / region null, Task 표 번호 순서 검사 통과. 실행 테스트 성공을 주장하지 않는다.
+- 앱 실행을 준비하지 못해 390 / 768 / 1280px 화면 캡처를 남기지 못했다. 캡처와 시각 검토, Merge 후 Staging의 지역 저장 / 표시 확인을 후속 작업으로 남긴다. Executor DONE은 구현 완료이며 Task 완료 승인이나 Verification 성공이 아니다.
+
+### TASK-044 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Orchestrator Verify 3개 명령 통과(Container Smoke 포함), Claude Review PASS(1회).
+- 화면 확인(`docs/images/task-044/`): 이 Branch의 Build를 로컬에서 띄우고 API는 계약 예시를 바탕으로 한 가짜 응답(지역 있음 / 없음 / 긴 이름)으로 대신해 390 / 768 / 1280px를 캡처했다.
+  - Dashboard 날씨 카드: 날씨와 기온 아래에 지역이 한 줄로 보인다. 지역이 없으면 지금과 같다(`dashboard-noregion-1280.png`).
+  - History: 각 기록의 날씨 아래에 지역이 보이고, 지역이 없는 기록은 빈 자리 없이 날씨만 보인다.
+  - 긴 지역 이름에서도 세 폭 모두 가로 넘침이 없었다(문서 폭 측정).
+- 실제 Backend와 연결한 저장 → 표시 흐름은 Merge 뒤 Staging에서 확인한다. Review F-002(MySQL Testcontainers Test의 실제 실행 여부)는 Remote CI의 backend Job 기준으로 본다.

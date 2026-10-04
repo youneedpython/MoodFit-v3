@@ -99,7 +99,8 @@ export function parseRegion(body: unknown): string {
   const parts = [record.principalSubdivision, record.locality]
     .filter((part): part is string => typeof part === "string")
     .map((part) => part.trim().slice(0, 40)).filter(Boolean);
-  return [...new Set(parts)].join(" ") || "현재 위치";
+  const name = [...new Set(parts)].join(" ").slice(0, 80);
+  return /[\u0000-\u001f\u007f-\u009f]/.test(name) ? "현재 위치" : name || "현재 위치";
 }
 
 async function fetchRegion(coords: { latitude: number; longitude: number }, signal: AbortSignal): Promise<string> {

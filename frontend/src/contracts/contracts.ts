@@ -27,8 +27,14 @@ type Equals<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B 
 type Expect<T extends true> = T;
 
 /** 새 추천 예시는 videoId가 필수이며, 조회 타입은 이전 기록의 null / 생략도 허용한다. */
-type NewCheckinContract = Omit<CheckinResponse, "music"> & {
+type NewCheckinContract = Omit<CheckinResponse, "music" | "weather"> & {
+  weather: Omit<CheckinResponse["weather"], "region"> & { region: null };
   music: (Omit<CheckinResponse["music"][number], "videoId"> & { videoId: string })[];
+};
+
+/** Smoke examples deliberately use null regions; the API also accepts string regions. */
+type RegionlessHistoryContract = Omit<HistoryResponse, "items"> & {
+  items: (Omit<HistoryResponse["items"][number], "region"> & { region: null })[];
 };
 
 /*
@@ -38,7 +44,7 @@ type NewCheckinContract = Omit<CheckinResponse, "music"> & {
 export type ContractTypeChecks = [
   Expect<Equals<typeof createdJson, Widen<NewCheckinContract>>>,
   Expect<Equals<typeof latestJson, Widen<NewCheckinContract>>>,
-  Expect<Equals<typeof historyJson, Widen<HistoryResponse>>>,
+  Expect<Equals<typeof historyJson, Widen<RegionlessHistoryContract>>>,
   // Error 응답의 fieldErrors는 상황마다 Key가 달라 Key 목록과 값 형식만 비교한다.
   Expect<Equals<keyof typeof notFoundJson, keyof ErrorResponse>>,
   Expect<Equals<keyof typeof validationErrorJson, keyof ErrorResponse>>,
