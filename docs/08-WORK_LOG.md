@@ -3500,3 +3500,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Task 문서에 따르면 Run 2의 전체 Verify는 통과했고, Container Smoke는 tmpfs 추출 실패와 Windows Python 경로 실패 후 Claude 세션의 두 줄 수정으로 Sandbox 밖 exit 0을 확인했다. 이는 이전 실행의 참고 근거이며 이번 Executor가 통합 검증을 실행했다는 뜻은 아니다.
 - Executor 참고 검증: `bash -n scripts/container-smoke.sh`, `bash -n scripts/staging-smoke.sh`, `git diff --check` 통과. 문서만 변경한 이번 Run에서는 전체 Test / Build / Container 실행을 반복하지 않았다. Sandbox 밖 Orchestrator Verify가 판정 기준이며 Executor DONE은 구현 완료만 뜻한다.
 - 한글 문서는 UTF-8 apply_patch로 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. Git 쓰기와 외부 배포는 수행하지 않았다. 화면 캡처와 Merge 후 Staging 날짜별 추천 / Smoke 확인은 기존 후속 작업으로 남는다.
+
+### TASK-048 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- 진행: Run 1은 새 History Test 2건 실패(Test 환경에서 CSS 파일 내용을 읽지 못함), Run 2는 `scripts/container-smoke.sh` 실패(tmpfs의 파일을 `docker cp`로 읽지 못함, Windows 경로 형식)로 멈췄다. Claude 세션이 Smoke Script 두 줄을 고쳐 Sandbox 밖에서 끝까지 통과하는 것을 확인했고, Run 3에서 Verify 4개 명령 통과, Claude Review PASS.
+- 최신 main(TASK-049 포함)을 Merge했다. `docs/07-TASKS.md` 충돌은 양쪽을 모두 남겼다. Decision 번호는 병행 중인 다른 Task와 겹치지 않게 이 Task를 **DEC-040**으로 했다.
+- 화면 확인(`docs/images/task-048/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. History에서 "주간 리포트" / "최근 7일 Wellness Score" / "기록" Card 사이 간격을 측정했고 390 / 768 / 1280px 모두 16px, 16px로 같았다. Dashboard의 새 음식에도 아이콘이 표시된다.
+- 후속 후보(비차단, Review N-01 / N-02): Container Smoke 성공 문구에 실제로 검사하지 않는 "400"이 들어 있다. 몇 곡이 분위기와 맞지 않는 Pool에 들어 있다(선곡 조정).
