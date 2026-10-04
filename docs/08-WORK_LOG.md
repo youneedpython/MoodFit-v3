@@ -3276,3 +3276,9 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 명시 승인된 Run 2 범위에 따라 AppLayout 테스트의 두 역할 조회에서 지원하지 않는 `exact` 옵션을 제거하고 `name: /^MoodFit$/`로 바꿨다. 접근 가능한 이름의 정확한 일치와 Dashboard 내부 이동 검증 의도를 유지한다. app 경로의 다른 테스트에는 같은 표기가 없었다. 구현 코드와 CSS, 다른 Task 상태는 변경하지 않았다.
 - Executor 참고 검증: `bash scripts/verify.sh`는 Frontend 설치 단계에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build는 실행되지 않았으며 통과를 주장하지 않는다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다.
 - 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD와 `git diff --check`를 확인했다. DONE은 Executor 수정 완료이며 Verify / Claude Review / Human 완료 승인을 대신하지 않는다. 새 Human 결정과 Git 작업은 없으며 화면 정렬 캡처 확인은 승인된 Claude 세션의 후속 작업이다.
+
+### TASK-041 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Run 1은 Orchestrator Verify의 타입 검사에서 멈췄다(Test의 `getByRole` 옵션 `exact`). Run 2에서 Test만 고쳤다. Run 2 Verify 통과(Test 123건), Claude Review PASS.
+- 화면 확인(`docs/images/task-041/`): 이 Branch의 Build를 로컬에서 띄워 390 / 768 / 1280px 상단 메뉴를 캡처했다. 1280px에서 로고 그림 / "MoodFit" 글자 / 날짜의 세로 중심이 같은 위치(34px)로 측정됐다.
+- Keyboard로 로고 Link에 focus하면 focus 표시가 보이고(`header-focus-1280.png`), History 화면에서 Enter를 누르면 `/`(Dashboard)로 이동했다. Link의 접근 가능한 이름은 "MoodFit" 하나다.
