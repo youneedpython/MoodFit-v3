@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet } from "react-router";
 import { formatHeaderDate } from "../utils/dateTime";
 import "./AppLayout.css";
 
@@ -17,10 +17,10 @@ export function AppLayout() {
       <header className="app-header">
         <div className="container app-header__inner">
           <div className="app-header__brand">
-            <span className="app-header__identity">
+            <Link className="app-header__identity" to="/">
               <img className="app-header__mark" src="/favicon.svg" alt="" />
               <span className="app-header__logo">MoodFit</span>
-            </span>
+            </Link>
             <span className="app-header__date">{formatHeaderDate(new Date())}</span>
           </div>
           <nav aria-label="주요 메뉴">

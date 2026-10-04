@@ -90,6 +90,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04), 최종 완료 승인 대기 |
 | TASK-039 | Milestone 39 | Staging CD Rollout Wait Fix | DONE | TASK-029, TASK-038 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
 | TASK-040 | Milestone 40 | Weather Auto Default / Region Display | DONE | TASK-035, TASK-037 완료 | Human Gate 사전 승인 및 명시 실행 (2026-10-04), 최종 완료 승인 대기 |
+| TASK-041 | Milestone 41 | Header Logo Link / Alignment (로고 클릭 이동 + 정렬) | DONE | TASK-037 완료 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
 
 ---
 
@@ -1785,6 +1786,18 @@ DONE은 Executor 구현 완료이며 Orchestrator Verify / Claude Review / Remot
 ### 상세 Task Contract
 
 [TASK-040_WEATHER_AUTO_REGION.md](tasks/TASK-040_WEATHER_AUTO_REGION.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
+
+---
+
+## TASK-041 — Header Logo Link / Alignment
+
+- 상태: DONE (Milestone 41), 승인 Contract에 따른 Executor 구현 완료 반영.
+- 로고 그림과 MoodFit 이름을 하나의 react-router Link(`/`)로 연결하고 날짜는 밖에 유지했다. 그림은 빈 alt로 장식 처리하고 링크 이름은 MoodFit 한 번만 읽힌다.
+- 브랜드와 날짜를 세로 가운데 정렬했다. 기존 gradient, 간격 Token, 모바일 메뉴 배치와 전역 focus-ring을 유지했다.
+- 기존 테스트에 루트 링크와 단일 접근 가능한 이름, Check-in / History에서 Dashboard 이동 검증을 추가했다.
+- `bash scripts/verify.sh`는 Sandbox 밖 npm 캐시 접근 EPERM으로 npm ci 단계에서 중단됐다. Test / Build 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- Claude 세션의 390 / 768 / 1280px 캡처 확인, Remote CI / Human Squash Merge가 남아 있다. DONE은 최종 완료 승인이 아니다.
+- Current Task TASK-030 / BLOCKED와 다른 Task 상태를 유지한다. [TASK-041 Contract](tasks/TASK-041_HEADER_LOGO_LINK.md)를 따른다.
 
 ---
 

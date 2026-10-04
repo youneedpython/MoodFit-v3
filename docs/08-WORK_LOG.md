@@ -1,5 +1,14 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-041 — Header Logo Link / Alignment (2026-10-04)
+
+- 승인 Contract에 따라 로고 그림과 MoodFit 이름을 하나의 SPA 홈 링크로 연결했다. 날짜는 링크 밖에 두고 장식 그림의 빈 alt와 gradient를 유지했다.
+- 브랜드의 baseline 정렬을 center로 변경했다. 기존 간격과 모바일 메뉴 배치, 전역 focus-ring / radius Token을 유지했다.
+- AppLayout 테스트에 루트 경로와 단일 접근 가능한 이름, Check-in / History에서 Dashboard로 이동하는 검증을 추가했다.
+- Executor 참고 검증: `bash scripts/verify.sh`는 npm ci 중 Sandbox 밖 npm 캐시 접근 EPERM으로 중단됐다. Test / Build 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- 화면 캡처 경로는 allowed_paths 밖이므로 추가하지 않았다. Claude 세션이 390 / 768 / 1280px 정렬과 키보드 focus를 확인한다.
+- TASK-041 DONE은 Executor 구현 완료 반영이다. Verify / Review / Remote CI / Human Squash Merge 전 최종 완료 승인이 아니다. Git 작업과 다른 Task 상태 변경은 수행하지 않았다.
+
 ## TASK-038 — GitHub OIDC Immutable Subject Trust (2026-10-04)
 
 - Human 사전 승인과 명시 실행 지시에 따라 두 배포 Role과 Trust 예시의 subject를 owner / repository 숫자 ID를 포함한 immutable 형식으로 변경했다. StringEquals의 값 하나, audience와 환경별 분리, wildcard 금지와 기존 권한을 유지했다.
@@ -3289,3 +3298,15 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
   - 위치 권한이 없으면 기온 / 날씨 입력란이 보여 제출할 수 있다.
 - README의 Check-in 입력 화면 이미지(`docs/images/readme/checkin-form.png`)를 새 화면으로 교체했다.
 - 후속 후보(비차단): 자동 모드에서 조회 결과 줄이 안내 문구 아래에 놓인다. 결과를 위로 올리면 더 잘 보인다. 자동 모드에서 값 없이 제출할 때 focus가 갈 대상이 없다(Review INFO-004).
+
+### TASK-041 Run 2 — 로고 Link 테스트 타입 오류 수정 (2026-10-04)
+
+- 명시 승인된 Run 2 범위에 따라 AppLayout 테스트의 두 역할 조회에서 지원하지 않는 `exact` 옵션을 제거하고 `name: /^MoodFit$/`로 바꿨다. 접근 가능한 이름의 정확한 일치와 Dashboard 내부 이동 검증 의도를 유지한다. app 경로의 다른 테스트에는 같은 표기가 없었다. 구현 코드와 CSS, 다른 Task 상태는 변경하지 않았다.
+- Executor 참고 검증: `bash scripts/verify.sh`는 Frontend 설치 단계에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build는 실행되지 않았으며 통과를 주장하지 않는다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD와 `git diff --check`를 확인했다. DONE은 Executor 수정 완료이며 Verify / Claude Review / Human 완료 승인을 대신하지 않는다. 새 Human 결정과 Git 작업은 없으며 화면 정렬 캡처 확인은 승인된 Claude 세션의 후속 작업이다.
+
+### TASK-041 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Run 1은 Orchestrator Verify의 타입 검사에서 멈췄다(Test의 `getByRole` 옵션 `exact`). Run 2에서 Test만 고쳤다. Run 2 Verify 통과(Test 123건), Claude Review PASS.
+- 화면 확인(`docs/images/task-041/`): 이 Branch의 Build를 로컬에서 띄워 390 / 768 / 1280px 상단 메뉴를 캡처했다. 1280px에서 로고 그림 / "MoodFit" 글자 / 날짜의 세로 중심이 같은 위치(34px)로 측정됐다.
+- Keyboard로 로고 Link에 focus하면 focus 표시가 보이고(`header-focus-1280.png`), History 화면에서 Enter를 누르면 `/`(Dashboard)로 이동했다. Link의 접근 가능한 이름은 "MoodFit" 하나다.

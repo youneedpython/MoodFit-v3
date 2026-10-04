@@ -137,3 +137,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 63 | TASK-038 OIDC Immutable Subject | 승인된 immutable Trust / 필수 ID Parameter / 운영 문서 | Executor 구현 완료, IAM 적용과 실환경 확인 대기 |
 | 64 | TASK-039 CD Rollout Wait | 승인된 ECS rollout 추가 대기 / 롤백 거부 / 문서 기록 | Executor 구현 완료, 실제 자동 배포 확인 대기 |
 | 65 | TASK-040 Weather Auto / Region | 자동 기본 / 지역 이름 / 좌표 정밀도 승인 구현 | Executor 구현 완료, Verify / Review / Staging 확인 대기 |
+| 65 | TASK-041 Header Logo Link / Alignment | SPA 홈 링크 / 날짜 정렬 / 회귀 테스트 / 기록 | Executor 구현 완료, 검증과 화면 확인 대기 |
