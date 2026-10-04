@@ -32,7 +32,7 @@ describe("docs/05-API_SPEC.md ↔ contracts/", () => {
     expect(CHECKIN_CREATED.foods).toHaveLength(5);
     expect(CHECKIN_CREATED.music).toHaveLength(5);
     expect(CHECKIN_CREATED.music.map((track) => track.videoId)).toEqual([
-      "OPf0YbXqDm0", "ru0K8uYEZWw", "gdZLi9oWNZg", "hLQl3WQQoQ0", "bx1Bh8ZvH84"
+      "gdZLi9oWNZg", "dvgZkm1xWPE", "JGwWNGJdvx8", "zABLecsR5UE", "BzYnNdJhZQw"
     ]);
     expect(CHECKIN_HISTORY.items[0]!.foodNames).toEqual(CHECKIN_CREATED.foods.map((food) => food.name));
     expect(CHECKIN_HISTORY.items[0]!.musicTitles).toEqual(CHECKIN_CREATED.music.map((track) => track.title));

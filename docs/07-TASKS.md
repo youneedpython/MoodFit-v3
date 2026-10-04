@@ -99,6 +99,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-045 | Milestone 45 | LLM Insight (AI 맞춤 코멘트 + 주간 리포트) | DONE | TASK-042, TASK-044 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-046 | Milestone 46 | LLM Value Injection (Infra) | DONE | TASK-043, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-047 | Milestone 47 | UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기) | DONE | TASK-036, TASK-045 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-048 | Milestone 48 | Recommendation Variety (추천 다양화) + History 여백 | DONE | TASK-036, TASK-042, TASK-047 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-049 | Milestone 49 | LLM Runtime Endpoint / Failure Diagnostics | DONE | TASK-045, TASK-046 | Human 승인 Contract 및 명시 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-050 | Milestone 50 | Skip Staging CD for Docs-only Changes | DONE | TASK-029, TASK-039 | Human Gate C 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 
@@ -1914,6 +1915,16 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 공통 추천 음식 Card에 이름 낱말 기반 장식 Emoji를 추가했다. 현재 규칙의 모든 음식 이름과 기본 아이콘 / 접근성 Test를 추가했고 음악과 추천 규칙은 유지한다.
 - History 기록은 최신순으로 5개씩 표시하며 이전 / 다음, 위치 알림, 제목 focus와 기록 감소 시 페이지 보정을 제공한다. 그래프와 주간 리포트는 전체 기록을 사용한다.
 - Sandbox의 npm 캐시 EPERM으로 자체 Verify가 설치 단계에서 중단되어 Test / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify이며 Claude 세션이 390 / 768 / 1280px 화면 캡처를 확인한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
+
+
+## TASK-048 — Recommendation Variety (추천 다양화) + History 여백
+
+- 상태: DONE (Executor 구현 완료, 최종 완료 승인 대기).
+- Milestone: 48. Dependency: TASK-036 / TASK-042 / TASK-047. Human Approved 2026-10-04 / DEC-040.
+- 음식 기분 8개 / 상황 6개, 음악 기분 13~26곡 / 상황 6~10곡의 Code 상수 Pool과 서울 날짜별 순환 선택을 구현했다. 기분 3개 / 상황 2개와 중복 제거, 기존 판정 / 저장 기록 / API 형식을 유지한다.
+- 계약 예시 / API 문서 / Smoke 검사, 전체 메뉴별 Emoji Test와 History 공통 Card 간격을 동기화했다.
+- 자체 Verify는 npm 캐시 EPERM으로 설치 단계가 중단됐다. Backend 단독 Test는 Gradle Wrapper lock 생성 제한, Container Smoke는 JAR 미생성과 Docker 접근 제한으로 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify이며 통과를 주장하지 않는다.
+- 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다. Human Squash Merge 후 Staging에서 날짜 변화와 Smoke를 확인한다.
 
 ## TASK-049 — LLM Runtime Endpoint / Failure Diagnostics
 

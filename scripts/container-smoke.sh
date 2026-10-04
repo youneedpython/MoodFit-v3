@@ -126,8 +126,8 @@ step 'Unauthenticated 401 and guest login / scoped check-in API'
 docker exec -i "$app" sh <<'SH'
 set -eu
 umask 077
-auth_dir=$(mktemp -d)
-trap 'rm -rf "$auth_dir"' EXIT
+auth_dir=/tmp/moodfit-api-smoke
+mkdir -m 700 "$auth_dir"
 base=http://127.0.0.1:8080
 code=$(curl --silent --output /dev/null --write-out '%{http_code}' "$base/api/check-ins/latest")
 [ "$code" = 401 ]
@@ -147,6 +147,54 @@ curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/check-ins/latest" >
 cmp "$auth_dir/create" "$auth_dir/latest"
 curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/check-ins/history?days=7" > "$auth_dir/history"
 SH
+
+# Copy response bodies only; cookies and authentication headers remain in the container.
+for response in create latest history; do
+  docker exec "$app" cat "/tmp/moodfit-api-smoke/$response" > "$work_dir/$response"
+done
+docker exec "$app" rm -rf /tmp/moodfit-api-smoke
+python - "$(docker_path "$work_dir")" <<'PY'
+import datetime, json, pathlib, sys
+p = pathlib.Path(sys.argv[1])
+def load(name): return json.loads((p / name).read_text(encoding='utf-8'))
+def contract(name): return json.loads(pathlib.Path('contracts/' + name + '.json').read_text(encoding='utf-8'))
+def recommendation(actual, expected):
+    if isinstance(expected, dict):
+        assert isinstance(actual, dict) and actual.keys() == expected.keys()
+        for key, value in expected.items():
+            if key == 'videoId':
+                assert actual[key] is None or (type(actual[key]) is str and len(actual[key]) == 11)
+            else: recommendation(actual[key], value)
+    else:
+        assert type(actual) is type(expected)
+
+def match(actual, expected):
+    if isinstance(expected, dict):
+        assert isinstance(actual, dict) and actual.keys() == expected.keys()
+        for key, value in expected.items():
+            if key == 'id': assert type(actual[key]) is int and actual[key] > 0
+            elif key == 'recordedAt': datetime.datetime.fromisoformat(actual[key].replace('Z', '+00:00'))
+            elif key in ('foods', 'music', 'foodNames', 'musicTitles'):
+                assert isinstance(actual[key], list) and len(actual[key]) == 5
+                for item in actual[key]: recommendation(item, value[0])
+            else: match(actual[key], value)
+    elif isinstance(expected, list):
+        assert isinstance(actual, list) and len(actual) == len(expected)
+        for a, e in zip(actual, expected): match(a, e)
+    else: assert actual == expected
+created = load('create')
+match(created, contract('checkin-create-201'))
+latest = load('latest')
+match(latest, contract('checkin-latest-200'))
+assert latest == created, 'concurrent write or latest mismatch'
+history = load('history')
+sample = contract('checkin-history-200')
+assert history.keys() == sample.keys() and history['days'] == 7
+item = next(i for i in history['items'] if i['id'] == created['id'])
+match(item, sample['items'][0])
+assert item['recordedAt'] == created['recordedAt']
+print('PASS: create/latest/history and 400 contract preserved')
+PY
 
 step 'DB outage: readiness 503 / liveness 200'
 docker stop --time 10 "$db" >/dev/null

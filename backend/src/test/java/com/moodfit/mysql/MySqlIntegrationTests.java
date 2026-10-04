@@ -190,12 +190,12 @@ class MySqlIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.recordedAt").value("2026-09-30T00:00:00Z"))
                 .andExpect(jsonPath("$.weather.temperature").value(19.0))
-                .andExpect(jsonPath("$.foods[0].name").value("연어 샐러드"))
-                .andExpect(jsonPath("$.music[3].title").value("Someone Like You"))
+                .andExpect(jsonPath("$.foods[0].name").value("콩나물 비빔밥"))
+                .andExpect(jsonPath("$.music[3].title").value("어떻게 이별까지 사랑하겠어, 널 사랑하는 거지"))
                 .andExpect(jsonPath("$.music.length()").value(5))
                 .andExpect(jsonPath("$.foods.length()").value(5))
-                .andExpect(jsonPath("$.music[0].videoId").value("OPf0YbXqDm0"))
-                .andExpect(jsonPath("$.music[3].videoId").value("hLQl3WQQoQ0"));
+                .andExpect(jsonPath("$.music[0].videoId").value("JGwWNGJdvx8"))
+                .andExpect(jsonPath("$.music[3].videoId").value("m3DZsBw5bnE"));
 
         mockMvc.perform(get("/api/check-ins/history"))
                 .andExpect(status().isOk())

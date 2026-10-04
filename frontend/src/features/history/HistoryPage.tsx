@@ -18,38 +18,40 @@ export function HistoryPage() {
   return (
     <>
       <PageHeader title="History" description="최근 7일 웰니스 상태 변화를 확인합니다." />
-      <InsightCard weekly />
+      <div className="history">
+        <InsightCard weekly />
 
-      {state.status === "loading" && (
-        <Card>
-          <LoadingState message="최근 기록을 불러오는 중입니다." />
-        </Card>
-      )}
-
-      {state.status === "error" && (
-        <Card>
-          <ErrorState title="History를 불러오지 못했습니다." message={state.message} onRetry={() => void reload()} />
-        </Card>
-      )}
-
-      {state.status === "empty" && (
-        <Card>
-          <EmptyState
-            title="아직 충분한 기록이 없습니다."
-            message="오늘의 상태를 입력해 보세요."
-            action={<ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>}
-          />
-        </Card>
-      )}
-
-      {state.status === "ready" && (
-        <div className="history">
-          <Card title="최근 7일 Wellness Score">
-            <WellnessTrend items={state.items} />
+        {state.status === "loading" && (
+          <Card>
+            <LoadingState message="최근 기록을 불러오는 중입니다." />
           </Card>
-          <HistoryRecordList items={state.items} />
-        </div>
-      )}
+        )}
+
+        {state.status === "error" && (
+          <Card>
+            <ErrorState title="History를 불러오지 못했습니다." message={state.message} onRetry={() => void reload()} />
+          </Card>
+        )}
+
+        {state.status === "empty" && (
+          <Card>
+            <EmptyState
+              title="아직 충분한 기록이 없습니다."
+              message="오늘의 상태를 입력해 보세요."
+              action={<ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>}
+            />
+          </Card>
+        )}
+
+        {state.status === "ready" && (
+          <div className="history">
+            <Card title="최근 7일 Wellness Score">
+              <WellnessTrend items={state.items} />
+            </Card>
+            <HistoryRecordList items={state.items} />
+          </div>
+        )}
+      </div>
     </>
   );
 }

@@ -559,6 +559,7 @@ Music 열의 이름은 `Playlist`를 생략해 표기했다.
 ### 변경 이력
 
 - 2026-10-04 (TASK-036, Human 승인): 추천 음식 / 음악을 각각 5개로 늘렸다(기분 기준 3개 + 날씨 / 상황 기준 2개). 점수와 기분 판정 규칙은 바꾸지 않았다.
+- 2026-10-04 (TASK-048, Human 승인 / DEC-040): 후보 Pool을 늘리고 주입된 Clock의 Asia/Seoul 날짜 epochDay를 기준으로 순환 선택한다. 음식 / 음악 각각 기분 3개 + 상황 2개이며 상황 후보의 중복을 건너뛴다. Score / 기분 / 상황 / 요약 판정과 저장된 추천은 유지한다.
 
 ### 상태
 
@@ -1541,3 +1542,20 @@ Human Approved (2026-10-04, "문서를 github에 push할 때는 cd는 진행되�
 - 직전 코드 배포가 실패한 뒤 문서 Commit이 들어오면 코드 배포를 복구하지 않는다. Human이 수동 배포한다. 운영 규칙과 예시는 [21-STAGING-CD.md](21-STAGING-CD.md)를 따른다.
 
 이 결정은 DEC-032의 자동 배포 조건만 변경하며 Production / Infra 실행 승인을 포함하지 않는다.
+
+---
+
+## DEC-040 TASK-048 추천 다양화와 History 간격
+
+### 결정
+
+- Human Approved 2026-10-04: 기분 / 상황 후보 Pool을 확대하고 서울 날짜에 따라 순환 선택한다. 음식과 음악 각각 기분 Pool은 8개 이상, 상황 Pool은 4개 이상이며 Code 상수로 둔다.
+- 주입된 Clock을 Asia/Seoul로 변환한 날짜의 epochDay를 각 Pool 크기로 나눈 나머지부터 순서대로 기분 3개 / 상황 2개를 고른다. 끝에서 처음으로 돌아가며 상황 쪽 중복을 건너뛴다. 난수 / LLM 선택은 사용하지 않는다.
+- 기존 곡과 TASK-048의 oEmbed 확인 40곡만 사용한다. 확인 날짜는 2026-10-04이며 Executor는 새로운 영상 ID를 만들거나 외부 확인을 수행하지 않는다.
+- Score / 기분 / 상황 / 요약 판정, 음식 5개 / 음악 5개, 응답 형식과 저장된 추천은 유지한다. Migration / Dependency 추가 없음.
+- Smoke는 추천 배열의 개수 / 키 / 타입과 videoId의 11자 문자열 또는 null을 검사한다. 추천 외 값은 기존 계약과 비교한다.
+- History 주간 리포트와 아래 Card에 기존 --space-4 간격을 적용한다. 리포트가 null이면 빈 간격을 남기지 않는다.
+
+### 상태
+
+Human Approved (2026-10-04). Executor 구현 완료는 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.

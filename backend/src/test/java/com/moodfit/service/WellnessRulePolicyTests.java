@@ -19,7 +19,7 @@ import com.moodfit.entity.MusicRecommendationValue;
  */
 class WellnessRulePolicyTests {
 
-    private final WellnessRulePolicy policy = new WellnessRulePolicy();
+    private final WellnessRulePolicy policy = new WellnessRulePolicy(java.time.Clock.fixed(java.time.Instant.EPOCH, java.time.ZoneOffset.UTC));
 
     @ParameterizedTest(name = "{0}")
     @CsvSource(delimiter = '|', textBlock = """

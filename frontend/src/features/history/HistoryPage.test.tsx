@@ -5,6 +5,11 @@ import { CHECKIN_HISTORY } from "../../contracts/contracts";
 import type { HistoryItem } from "../../types/api";
 import { HistoryPage } from "./HistoryPage";
 
+const weekly = vi.hoisted(() => ({ visible: false }));
+vi.mock("../insight/InsightCard", () => ({
+  InsightCard: () => weekly.visible ? <section data-testid="weekly-report">주간 리포트</section> : null,
+}));
+
 /** DEC-024: 공유 계약 파일(contracts/checkin-history-200.json)의 Item 형식을 기본으로 사용한다. */
 const CONTRACT_ITEM = CHECKIN_HISTORY.items[0]!;
 
@@ -58,6 +63,23 @@ function renderPage() {
 }
 
 describe("HistoryPage", () => {
+  it.each([true, false])("uses the same card gap with weekly report visible=%s", async (visible) => {
+    weekly.visible = visible;
+    try {
+      vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse(200, { days: 7, items: ITEMS }))));
+      renderPage();
+      const trend = await screen.findByRole("region", { name: "최근 7일 Wellness Score" });
+      const cards = trend.parentElement!;
+      const group = cards.parentElement!;
+      expect(cards.className).toBe("history");
+      expect(group.className).toBe("history");
+      expect(group.children).toHaveLength(visible ? 2 : 1);
+      expect(group.lastElementChild).toBe(cards);
+      if (visible) expect(group.firstElementChild).toBe(screen.getByTestId("weekly-report"));
+    } finally {
+      weekly.visible = false;
+    }
+  });
   it("requests the last 7 days and shows a loading state first", async () => {
     let resolveFetch: (response: Response) => void = () => undefined;
     const fetchMock = vi.fn((_input: string) => new Promise<Response>((resolve) => (resolveFetch = resolve)));
@@ -107,8 +129,8 @@ describe("HistoryPage", () => {
     expect(within(newest).getByText("76")).toBeTruthy();
     expect(within(newest).getByText("68 bpm")).toBeTruthy();
     expect(within(newest).getByText("비 · 19.0°C")).toBeTruthy();
-    expect(within(newest).getByText("연어 샐러드, 소고기 채소 비빔밥, 통밀 닭고기 샌드위치, 따뜻한 채소 스튜, 버섯 칼국수")).toBeTruthy();
-    expect(within(newest).getByText("Uptown Funk, Can't Stop the Feeling!, Dynamite, Someone Like You, Wonderwall")).toBeTruthy();
+    expect(within(newest).getByText("새우 볶음밥, 불고기 정식, 콩나물 비빔밥, 따뜻한 채소 스튜, 버섯 칼국수")).toBeTruthy();
+    expect(within(newest).getByText("Dynamite, Viva La Vida, Shape of You, Someone You Loved, 밤편지")).toBeTruthy();
     expect(newest.querySelector("time")?.getAttribute("dateTime")).toBe("2026-09-30T09:00:00Z");
 
     expect(within(rows[2]!).getByText("피곤함")).toBeTruthy();

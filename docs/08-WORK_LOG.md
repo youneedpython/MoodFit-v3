@@ -3483,3 +3483,40 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - HEAD와 대조해 기존 배포 Job 본문, Trigger, concurrency 보존 확인 PASS. git diff --check PASS.
 - Contract YAML 구조 검사는 현재 Python의 PyYAML 미설치로 실행하지 못했다(ModuleNotFoundError). 추가 설치하지 않았다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
 - 실제 Workflow / AWS / 배포는 실행하지 않았다. Executor DONE은 Verify / Claude Review / Human Squash Merge 승인이 아니다. Merge 후 문서 전용 자동 실행의 성공 / 배포 생략과 코드 포함 자동 배포, 문서 SHA 수동 배포를 확인한다.
+
+## 2026-10-04 TASK-048 — 추천 다양화 + History 여백
+
+- 승인 Contract와 명시 실행 지시에 따라 음식 / 음악 후보 Pool을 Code 상수로 확대했다. 기존 곡과 oEmbed 확인 40곡만 사용하며 주입된 Clock의 서울 날짜 epochDay로 기분 3개 / 상황 2개를 순환 선택한다. 상황 후보에서 중복을 건너뛰고 기존 판정 / 요약 / 응답 형식 / 저장 기록을 유지한다.
+- 고정 시각 epochDay 20724의 생성 / 최신 / History 계약과 API 예시, 날짜별 추천은 형식만 검사하는 두 Smoke를 동기화했다. Container Smoke는 인증 자료를 복사하지 않고 응답 본문만 호스트에서 검사한다.
+- Backend는 후보 크기 / 승인 메타데이터 전체 집합 / 24조합 × 366일 / 결정성 / 하루 이동 / 중복 / 순환 / 서울 UTC 15시 경계 Test를 추가했다. 기존 판정 경계값 Test는 epochDay 0 고정 Clock으로 유지했다.
+- Frontend는 51개 메뉴 전체의 기대 Emoji를 이름별로 고정했다. 한 글자 낱말의 오인식을 피하고 History의 리포트와 나머지 Card에 동일 .history / --space-4 간격을 적용했다. 리포트가 null이면 빈 간격이 없음을 구조 / CSS Test로 확인하도록 했다.
+- Executor 참고 검증: bash scripts/verify.sh는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Backend 단독 gradlew.bat test는 Sandbox 밖 Gradle Wrapper lock 생성 제한으로 시작하지 못했다. Container Smoke는 JAR 미생성으로 preflight 중단됐고 Docker 접근도 제한됐다. 실제 Test / Build / 통합 성공을 주장하지 않는다. Sandbox 밖 Orchestrator Verify가 판정 기준이다.
+- bash -n으로 두 Smoke 구문 검사, git diff --check를 수행했다. 변경 문서의 연속 물음표 치환 흔적 / U+FFFD와 추천 계약 / 승인 목록 / 아이콘 동기화를 직접 검사한다. 문서는 UTF-8로 작성했다.
+- 보조 검증: 실제 WellnessRulePolicy / 추천 Value Java를 임시 디렉터리에서 javac로 컴파일하고 실행했다(프레임워크 Annotation / 요청 DTO만 Stub). 8,784개 조합의 개수 / 중복 / 결정성 / 하루 이동 / 요약 유지, 고정 시각 계약, 상황 중복 건너뛰기와 서울 날짜 경계가 통과했다. 처음 발견한 Pool 상수 괄호 오류와 예시 계산 스크립트의 마지막 후보 누락을 수정하고 다시 통과했다. 이는 Spring / DB / 전체 JUnit 검증을 대신하지 않는다.
+- Python 보조 검사로 Pool 최소 크기, 승인 제목 / 가수 / ID 62개 전체 집합, 음식 후보와 이름별 아이콘 Test 51개, API JSON 예시 동기화가 일치함을 확인했다. 두 Smoke의 실제 Python 검사 함수를 실행해 추천 내용 변화는 허용하고 개수 / 타입 / 키 / videoId 오류와 추천 외 값 불일치는 거부함을 확인했다. 변경된 모든 텍스트 파일의 UTF-8 / 연속 물음표 / U+FFFD 검사도 통과했다.
+- 화면 캡처는 Frontend 의존성 설치 제한으로 실행하지 못했다. 승인된 Claude 세션 / Human이 실행 가능한 환경에서 390 / 768 / 1280px, 리포트 표시 / 꺼짐을 확인하고 docs/images/task-048/에 캡처와 이 문서의 이미지 링크를 기록한다. Merge 후 Staging 추천 변화 / Smoke 확인이 남는다.
+- Executor 구현 완료를 DONE으로 기록한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지하며 Git 후속 작업은 수행하지 않았다. Verify / Review / Remote CI / Human Squash Merge 대기다.
+
+### TASK-048 Run 2 — History 간격 Test 수정 (2026-10-04)
+
+- Run 1 WIP Commit 이후 clean Working Tree에서 시작했다. 명시 승인된 Run 2 범위에 따라 History Test와 실행 기록만 수정했다.
+- Vitest에서 빈 문자열이 되는 `HistoryPage.css?raw` import와 CSS 문자열 정규식 검사를 제거했다. 리포트 표시 / 미표시 각각에서 두 묶음의 동일 `history` Class, 리포트의 직접 형제 관계, 자식 수와 마지막 요소를 검사해 불필요한 Wrapper가 남지 않는 구조 검증을 유지했다.
+- Executor 참고 검증: `npm.cmd test -- --run src/features/history/HistoryPage.test.tsx`는 설치된 Vitest 실행 파일이 없어 시작하지 못했다. 의존성 설치나 Backend 재검증은 수행하지 않았다. Contract가 허용한 구조 검사만 유지하며 간격 Token과 반응형 CSS 자체는 변경하지 않았다.
+- `git diff --check` 및 변경 문서의 연속 물음표 / U+FFFD 직접 검사를 수행한다. 결정적 검증의 기준은 Sandbox 밖 Orchestrator Verify이며 실행하지 못한 Test를 PASS로 보고하지 않는다.
+- Backend 통과는 Task 문서의 Claude 세션 실행 기록에 근거한 참고 사항이다. Container Smoke와 전체 Verify / Review는 대기이며 Executor DONE은 구현 완료만 뜻한다. Git 후속 작업은 수행하지 않았다.
+
+### TASK-048 Run 3 — Smoke 경로 검토와 기록 (2026-10-04)
+
+- 최초 Working Tree는 clean이었다. 승인된 Run 3 범위에 따라 두 Smoke의 경로 / 정리 / 비출력 흐름을 읽고 문서와 Prompt만 갱신했다. 다른 구현과 Task 상태는 변경하지 않았다.
+- Claude 세션이 수정한 `docker exec` / `cat` 응답 추출과 `python - "$(docker_path "$work_dir")"` 두 줄은 그대로 유지했다. tmpfs 파일을 실행 중 Container에서 읽고 create / latest / history만 호스트 파일에 저장하므로 Cookie / 인증 Header를 복사하거나 로그로 출력하지 않는다. 성공 시 인증 디렉터리를 제거하며 실패 시 EXIT 정리가 Container와 호스트 임시 파일을 제거한다.
+- `docker_path`는 Windows Git Bash에서 cygpath로 호스트 경로를 변환하고 Linux에서는 경로를 그대로 반환한다. Staging은 호스트 curl로 파일을 만들고 MSYS 변환을 끄지 않아 같은 문제가 적용되지 않는다. Staging Script 수정은 필요하지 않았다.
+- Task 문서에 따르면 Run 2의 전체 Verify는 통과했고, Container Smoke는 tmpfs 추출 실패와 Windows Python 경로 실패 후 Claude 세션의 두 줄 수정으로 Sandbox 밖 exit 0을 확인했다. 이는 이전 실행의 참고 근거이며 이번 Executor가 통합 검증을 실행했다는 뜻은 아니다.
+- Executor 참고 검증: `bash -n scripts/container-smoke.sh`, `bash -n scripts/staging-smoke.sh`, `git diff --check` 통과. 문서만 변경한 이번 Run에서는 전체 Test / Build / Container 실행을 반복하지 않았다. Sandbox 밖 Orchestrator Verify가 판정 기준이며 Executor DONE은 구현 완료만 뜻한다.
+- 한글 문서는 UTF-8 apply_patch로 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. Git 쓰기와 외부 배포는 수행하지 않았다. 화면 캡처와 Merge 후 Staging 날짜별 추천 / Smoke 확인은 기존 후속 작업으로 남는다.
+
+### TASK-048 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- 진행: Run 1은 새 History Test 2건 실패(Test 환경에서 CSS 파일 내용을 읽지 못함), Run 2는 `scripts/container-smoke.sh` 실패(tmpfs의 파일을 `docker cp`로 읽지 못함, Windows 경로 형식)로 멈췄다. Claude 세션이 Smoke Script 두 줄을 고쳐 Sandbox 밖에서 끝까지 통과하는 것을 확인했고, Run 3에서 Verify 4개 명령 통과, Claude Review PASS.
+- 최신 main(TASK-049 포함)을 Merge했다. `docs/07-TASKS.md` 충돌은 양쪽을 모두 남겼다. Decision 번호는 병행 중인 다른 Task와 겹치지 않게 이 Task를 **DEC-040**으로 했다.
+- 화면 확인(`docs/images/task-048/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. History에서 "주간 리포트" / "최근 7일 Wellness Score" / "기록" Card 사이 간격을 측정했고 390 / 768 / 1280px 모두 16px, 16px로 같았다. Dashboard의 새 음식에도 아이콘이 표시된다.
+- 후속 후보(비차단, Review N-01 / N-02): Container Smoke 성공 문구에 실제로 검사하지 않는 "400"이 들어 있다. 몇 곡이 분위기와 맞지 않는 Pool에 들어 있다(선곡 조정).

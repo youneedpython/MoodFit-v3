@@ -99,4 +99,17 @@ TASK-042 이후 Smoke는 `/api/check-ins/latest`의 미인증 401을 먼저 확�
 
 Merge 이후 최소 두 번의 Staging 배포에서 Commit / digest / Task revision / Smoke PASS를 기록한다. 같은 SHA 수동 재배포로 immutable Tag 재사용도 확인한다. 실패 경로는 안전한 Mock에서 waiter가 이전 revision을 안정 상태로 반환해도 배포 실패가 되는지, Smoke 실패가 Workflow 실패와 실패 Step Summary로 남는지 확인한다. 실제 실패 주입은 사용자 영향과 DB 호환성을 검토한 뒤 수행한다. Executor Sandbox에서는 Workflow / AWS / GitHub 설정을 실행하지 않았다.
 
-Smoke는 AWS 자격 증명 없이 정적 페이지 / SPA / HTTP redirect / origin 차단 / 합성 Check-in 201 / latest·History 200 / 400 본문 계약을 검사한다. 합성 기록은 남는다. 다른 Check-in 입력과 동시에 실행하면 latest 비교가 실패할 수 있으므로 실환경 확인 중 입력을 중단한다. Smoke Script는 대상 Commit의 contracts를 사용하며 CI 실행에 필요한 변경이 없어 유지했다. IAM 정책의 실환경 수락과 3600초 내 완료 여부는 첫 자동 배포에서 확인한다.
+Smoke는 AWS 자격 증명 없이 정적 페이지 / SPA / HTTP redirect / origin 차단 / 합성 Check-in 201 / latest·History 200 / 400 본문 계약을 검사한다. 합성 기록은 남는다. 다른 Check-in 입력과 동시에 실행하면 latest 비교가 실패할 수 있으므로 실환경 확인 중 입력을 중단한다. Smoke Script는 대상 Commit의 contracts를 사용한다. TASK-048에서는 날짜별 추천에 맞춰 추천만 형식으로 검사하도록 변경했다. IAM 정책의 실환경 수락과 3600초 내 완료 여부는 첫 자동 배포에서 확인한다.
+
+
+### TASK-048 추천 형식 검사
+
+서울 날짜별 추천 순환에 따라 foods / music / History의 foodNames / musicTitles는 5개, 예시와 같은 키와 값 타입을 검사한다. videoId는 11자 문자열 또는 null이다. 추천 외 Score / 기분 / 요약 / 지표 / 날씨 등은 계약과 값까지 비교한다. 요약은 후보에 따라 바뀌지 않는다. 최신 응답은 생성 응답과 같아야 한다. 기존 Cookie / Token 비출력과 임시 파일 제거, 합성 기록 보존을 유지한다. Merge 후 Staging CD Smoke와 서울 날짜가 바뀐 뒤 추천 변화를 확인한다.
+
+### TASK-048 Run 3 — Container 응답 추출과 Windows 경로
+
+Container Smoke의 App `/tmp`는 tmpfs이므로 `docker cp` 대신 `docker exec`의 `cat` 출력을 호스트 임시 응답 파일로 저장한다. create / latest / history 본문만 저장하며 Cookie와 인증 Header 파일은 Container 안에 둔다. 추출 후 인증 임시 디렉터리를 제거하고, 오류 시에도 EXIT 정리가 Container와 호스트 임시 디렉터리를 제거한다. 응답 본문을 로그로 출력하지 않는다.
+
+Container Script는 Linux Container 경로 보존을 위해 MSYS 경로 변환을 끈다. 호스트 Python에 전달하는 임시 디렉터리는 기존 `docker_path`로 변환한다(Windows Git Bash에서는 `cygpath -w`, Linux에서는 원래 경로). Staging Script는 호스트 curl / Python을 사용하며 MSYS 변환을 끄지 않으므로 같은 Container tmpfs 추출이나 명시 경로 변환 수정이 필요하지 않다. Linux CI에서도 두 Script의 임시 경로 처리와 종료 시 제거는 유지된다.
+
+Run 2 전체 Verify 통과와 Run 3의 두 줄 수정 후 Container Smoke exit 0은 Task 문서에 기록된 Claude 세션의 Sandbox 밖 실행 근거다. 이번 Executor는 해당 두 줄을 유지하고 흐름과 구문을 확인했다. 최종 검증과 Review는 Orchestrator 결과를 따른다.

@@ -97,12 +97,12 @@ describe("CheckinPage", () => {
     expect(screen.getByText("76")).toBeTruthy();
     expect(screen.getByText(RESULT.summary)).toBeTruthy();
     expect(screen.getByText("따뜻한 채소 스튜")).toBeTruthy();
-    expect(screen.getByText("Someone Like You")).toBeTruthy();
+    expect(screen.getByText("Someone You Loved")).toBeTruthy();
     expect(screen.getAllByRole("button", { name: / 재생$/ })).toHaveLength(5);
-    expect(screen.queryByTitle("Uptown Funk - Mark Ronson ft. Bruno Mars YouTube 플레이어")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Uptown Funk - Mark Ronson ft. Bruno Mars 재생" }));
-    expect(screen.getByTitle("Uptown Funk - Mark Ronson ft. Bruno Mars YouTube 플레이어").getAttribute("src"))
-      .toBe("https://www.youtube-nocookie.com/embed/OPf0YbXqDm0?autoplay=1");
+    expect(screen.queryByTitle("Dynamite - BTS YouTube 플레이어")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Dynamite - BTS 재생" }));
+    expect(screen.getByTitle("Dynamite - BTS YouTube 플레이어").getAttribute("src"))
+      .toBe("https://www.youtube-nocookie.com/embed/gdZLi9oWNZg?autoplay=1");
     expect(screen.getByRole("link", { name: "Dashboard로 이동" }).getAttribute("href")).toBe("/");
     expect(JSON.parse((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as string)).toMatchObject({
       heartRate: 68,
