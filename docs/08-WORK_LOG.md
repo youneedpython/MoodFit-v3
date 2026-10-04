@@ -3190,3 +3190,16 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Executor 참고 검증: Workflow의 12개 Bash run 블록 구문과 inline Python AST, staging-smoke Bash 구문, git diff --check가 통과했다. 네트워크 없는 Mock으로 Task Definition Image / Tag 변경과 나머지 설정 보존, target revision 정상 상태 수락 / 이전 revision 복귀 거부, Smoke 실패 Summary를 확인했다. 기존 Secret 검사 함수와 승인 literal 목록으로 신규 파일·추가 줄을 검사했고 AGENTS 승인 3절 범위 비교가 통과했다.
 - 참고 검사 도중 PowerShell native 인자 전달로 Python 검사 문자열이 손상돼 첫 구문 검사가 시작 전에 실패했다. UTF-8 stdin으로 수정 후 통과했다. Mock 첫 실행은 inline snippet 추출 개수 가정 오류로 중단됐고 실제 standalone 블록 세 개를 검사하도록 수정 후 통과했다. 제품 검증 실패를 성공으로 바꾸지 않았다.
 - Sandbox Python에 PyYAML이 없어 Contract YAML 검사를 실행하지 못했다. 설치·업데이트하지 않았으며 YAML 판정은 Sandbox 밖 Orchestrator Verify가 기준이다. GitHub Workflow / AWS 변경 / 실제 Smoke / Git handoff는 실행하지 않았다. 최소 두 번의 자동 배포와 실환경 IAM 수락 / 세션 시간 / 안전한 실패 경로 확인은 Merge 이후 기록한다. Orchestrator Verify / Claude PASS / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다.
+
+### TASK-029 Review 결과와 Merge 전 정리 (2026-10-04, Claude 세션 기록)
+
+- Orchestrator Claude Review: PASS(비차단 지적 6건). Draft PR #18.
+- Claude 세션 확인: AWS Action 2개의 고정 Commit SHA가 upstream Tag(`configure-aws-credentials` v4.3.1, `amazon-ecr-login` v2.0.1)와 일치한다. Workflow가 교체하는 Container 이름 `backend`와 `workflow_run` 대상 이름 `CI`가 `app.yaml` / `ci.yml`과 일치한다.
+- Review 지적 반영: DEC-021 변경 이력 한 줄이 구분선 밖에 놓여 있어 DEC-021 "변경 이력" 안으로 옮겼다.
+- GitHub Environment `staging`(main Branch만 허용, 승인자 없음)과 Environment Secret 4개는 Human 승인에 따라 Claude 세션이 `gh`로 등록했다. 값은 Stack 출력에서 읽어 전달했고 출력 / 기록하지 않았다.
+- 남긴 비차단 지적(후속 후보):
+  - `concurrency`가 Workflow 단위라 수동 실행과 자동 실행이 한 줄로 대기한다(의도한 동작). 대기 중인 실행은 최신 1개만 남는다.
+  - CD가 등록한 Task Definition revision에는 요청 Tag `MoodFitEnvironment`만 붙는다. Stack이 붙이던 다른 Tag는 없다.
+  - AWS CLI 오류 출력을 숨겨 실패 원인 파악이 어렵다. 첫 배포가 실패하면 식별값을 가린 진단 출력을 추가한다.
+  - HTML이 아닌 Root 파일(아이콘 등 Hash 없는 파일)에도 1년 immutable cache가 붙는다. 아이콘을 바꿀 때는 파일 이름을 바꾼다(로고 Task에서 다시 다룬다).
+- 실제 검증은 Merge 뒤 첫 자동 배포다. 이 배포로 위치 인식 + 날씨 자동 조회(TASK-035)가 Staging에 올라간다. 결과는 Merge 후 기록한다.

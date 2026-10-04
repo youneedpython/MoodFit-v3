@@ -1063,6 +1063,7 @@ TASK-012 GitHub Actions Bot의 초기 범위를 Gate C Human Review를 통해 �
   - Step Summary에 Task ID / PR 링크 / Head SHA 추가. PR 입력(head ref 등)은 env로만 전달하고 `pull_request_target`는 사용하지 않는다. CI는 AI Review를 실행하거나 재판정하지 않는다.
 - 2026-10-02 (TASK-022 Gate C, Human 승인): 제외 항목이던 **PR Comment 중 PR 상태 Comment를 허용**한다. 주체는 Workflow가 아니라 로컬 Orchestrator(`scripts/orchestrator/pr-gate.mjs`)이며, Human이 로그인한 기존 `gh`로 실패 / 취소 / Timeout 상태를 고정 형식으로 기존 PR에 기록한다(로컬 redacted Audit 보존). Workflow 권한 확대 / 새 Secret / PAT는 없다. Label / Comment / PR Approve는 Gate 또는 완료 승인으로 사용하지 않는다.
 - 2026-10-02 (TASK-022 Gate C, Human 승인): Ruleset `main-protection`의 Required Status Checks(`frontend` / `backend`)에 strict 정책을 적용했다. PR Branch가 최신 main 기준으로 CI를 통과해야 Merge할 수 있다.
+- 2026-10-04 (TASK-029 Gate C, Human 승인, DEC-032): "추가 Action 미사용" 정책은 Staging CD에 한해 AWS 공식 `configure-aws-credentials` / `amazon-ecr-login` 두 개를 Commit SHA로 고정해 쓰는 것을 허용한다. 기존 CI Workflow는 변경하지 않고 CD에도 Step Summary를 사용한다.
 
 ### 상태
 
@@ -1071,8 +1072,6 @@ Human Approved
 ```
 
 ---
-
-2026-10-04 TASK-029 Gate C 사전 승인(DEC-032): 추가 Action 미사용 정책은 Staging CD에 한해 AWS 공식 configure-aws-credentials / amazon-ecr-login 두 개의 Commit SHA 고정 사용을 허용한다. 기존 CI Workflow는 변경하지 않고 CD에도 Step Summary를 사용한다.
 
 ## DEC-022 Frontend 날짜 / 시각 표시 Timezone
 
