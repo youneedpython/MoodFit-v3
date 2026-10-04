@@ -1,5 +1,15 @@
 # 08. MoodFit v3 Work Log
 
+### TASK-051 — AI 코멘트 가독성 (2026-10-04)
+
+- 초기 Working Tree는 clean이었다. Human이 제공한 승인 Contract와 Task 원문 / 필수 Context를 확인하고 allowed_paths 안에서 구현했다. Git 쓰기나 외부 호출은 수행하지 않았다.
+- 코멘트는 한 문장에 한 줄, 리포트는 2 ~ 3개 문단으로 Prompt를 보완했다. 줄바꿈 없는 응답은 문장 끝 부호 뒤 공백에서 나누며 리포트는 두 문장씩 묶는다. 기존 줄바꿈 / 소수점 / 공백 없는 약어를 유지하고 줄 공백과 연속 빈 줄을 정리한 뒤 Unicode 길이 제한을 적용한다.
+- 모델에 보내는 상태 / 날씨는 기존 WellnessRulePolicy와 WEATHER_LABELS의 한국어 이름을 사용한다. 허용 경로 밖의 이름 정의를 변경할 수 없어 InsightData에서 동일 이름을 투영한다. 전송 필드, 개인정보 제외, 저장 / 재사용 / 실패 처리는 유지한다.
+- 결과 화면의 AI 코멘트를 추천 아래와 버튼 위로 옮기고 기존 간격 Token을 적용했다. 본문은 React escaping과 줄바꿈 보존 Class를 유지하며 본문 줄 간격 Token을 사용한다. Dashboard 위치와 저장된 본문은 그대로다.
+- Backend 문장 분리 / 소수점 / 약어 / 기존 줄 정리 / 길이 제한 / 한국어 입력 Test와 Frontend 결과 DOM 순서 / 코멘트와 리포트 줄바꿈 Class Test를 추가했다.
+- Executor 참고 검증: `bash scripts/verify.sh`는 Node Version 확인 뒤 npm 캐시 접근 EPERM으로 설치 단계에서 중단되어 Test / Build를 실행하지 못했다. 재시도나 Sandbox 우회를 하지 않았다. `git diff --check`와 변경 문서의 연속 물음표 / U+FFFD 직접 검사를 수행한다. 검증 판정은 Sandbox 밖 Orchestrator Verify다.
+- Executor DONE은 구현 완료만 뜻한다. Claude 세션의 390 / 768 / 1280px 화면 캡처 확인과 Human Squash Merge 이후 Staging에서 새 코멘트 / 리포트 생성 확인이 남는다. 캡처 저장 경로는 이번 allowed_paths에 없으므로 Executor가 작성하지 않는다. 새로운 Human 결정은 없다.
+
 ## TASK-049 Run 2 — ErrorType Compile 수정 (2026-10-04)
 
 - Run 1의 Optional<ErrorType> 문자열 기본값 Type 불일치를 문자열 변환 후 기본값을 적용하도록 수정했다.
@@ -3520,6 +3530,16 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 최신 main(TASK-049 포함)을 Merge했다. `docs/07-TASKS.md` 충돌은 양쪽을 모두 남겼다. Decision 번호는 병행 중인 다른 Task와 겹치지 않게 이 Task를 **DEC-040**으로 했다.
 - 화면 확인(`docs/images/task-048/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. History에서 "주간 리포트" / "최근 7일 Wellness Score" / "기록" Card 사이 간격을 측정했고 390 / 768 / 1280px 모두 16px, 16px로 같았다. Dashboard의 새 음식에도 아이콘이 표시된다.
 - 후속 후보(비차단, Review N-01 / N-02): Container Smoke 성공 문구에 실제로 검사하지 않는 "400"이 들어 있다. 몇 곡이 분위기와 맞지 않는 Pool에 들어 있다(선곡 조정).
+
+### TASK-051 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Orchestrator Verify 통과(Frontend Test 209건, Build, Backend Test / Build), Claude Review PASS(1회).
+- 화면 확인(`docs/images/task-051/`): 이 Branch의 Build를 로컬에서 띄우고 API는 줄바꿈이 들어간 가짜 응답으로 대신해 390 / 768 / 1280px를 캡처했다.
+  - Check-in 결과 화면: 요약 → 날씨 / 지역 → 추천 → AI 코멘트 → 버튼 순서다(Text 위치로 확인). AI 코멘트가 문장마다 줄이 바뀌어 보인다.
+  - 주간 리포트: 문단 사이 빈 줄이 표시된다.
+  - 세 폭 모두 가로 넘침이 없다.
+- 실제 모델이 줄을 어떻게 나누는지, 한국어 상태 이름으로 영문 Code가 사라지는지는 Merge 뒤 Staging에서 새로 생성해 확인한다.
+- LLM 호출 설정 경과(Staging, Claude 세션이 Human 승인 범위에서 App Stack 설정값을 변경): 호출 주소를 `bedrock-runtime`으로 바꾼 뒤 기본 모델 ID는 400("inference profile을 쓰라")으로 거부됐고, 모델 ID를 global 추론 Profile ID로 바꾸자 생성에 성공했다. 이후 Human 지시로 호출 Region을 서울로 되돌렸다.
 
 ## 2026-10-04 TASK-052 — Music Pool Curation (선곡 조정)
 

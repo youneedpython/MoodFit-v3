@@ -40,11 +40,24 @@ public class InsightData {
     private Map<String, Object> daily(WellnessCheckin row) {
         var input = new LinkedHashMap<String, Object>();
         input.put("score", row.getWellnessScore());
-        input.put("status", row.getMood());
+        // Existing display names from WellnessRulePolicy; keep the persisted state unchanged.
+        input.put("status", switch (row.getMood()) {
+            case "TIRED" -> "피곤함";
+            case "ENERGETIC" -> "활기 있음";
+            case "CALM" -> "차분함";
+            case "BALANCED" -> "균형 있음";
+            default -> throw new IllegalArgumentException("Unknown wellness state");
+        });
         input.put("sleepScore", row.getSleepScore());
         input.put("stressLevel", row.getStressLevel());
         input.put("energyLevel", row.getEnergyLevel());
-        input.put("weather", row.getWeather().name());
+        // Match frontend WEATHER_LABELS without changing the API enum.
+        input.put("weather", switch (row.getWeather()) {
+            case CLEAR -> "맑음";
+            case CLOUDY -> "흐림";
+            case RAIN -> "비";
+            case SNOW -> "눈";
+        });
         input.put("temperature", row.getTemperature());
         return input;
     }
