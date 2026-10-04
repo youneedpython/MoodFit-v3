@@ -3261,3 +3261,31 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Human 요청(2026-10-04)으로 README 화면 이미지 6장(`docs/images/readme/`)을 현재 화면(로고, 추천 5개, 추천 음악 재생 버튼)으로 교체했다. 같은 방식으로 캡처했다.
 - 병행 개발 중이라 미뤄 둔 등록을 정리했다: `docs/07-TASKS.md`에 TASK-037 DONE 행과 절 추가(Milestone 37).
 - 배포 참고: 아이콘 파일은 Hash 없는 이름으로 긴 cache가 붙는다. 로고를 바꿀 때는 파일 이름을 바꾼다.
+
+## 2026-10-04 — TASK-040 날씨 자동 기본 / 지역 표시
+
+- Human 사전 승인과 명시 실행 지시에 따라 TASK-040만 구현했다. 기본 자동 / 기존 false 유지, 자동 요약과 직접 입력 전환, 다시 조회, 결과 값 유지, 실패 후 입력 화면과 권한 거부만 설정 저장을 구현했다.
+- BigDataCloud 지역 이름 요청을 추가하고 두 API에 같은 소수 둘째 자리 좌표를 전송한다. 지역 문자열 타입 / 빈 값 / 중복 / 길이를 검증하며 실패 시 현재 위치로 대체한다. 지역 요청은 시간 제한 / 중단 / 쿠키와 Referrer 제외를 적용한다. 좌표와 지역 이름은 저장 / 로그 / Backend 요청에 포함하지 않는다.
+- 기존 요청 검증과 늦은 응답 보호를 유지하고 모드 / 진행 안내와 요약에 접근성 상태를 제공한다. 기존 Token과 줄바꿈 규칙으로 작은 화면을 지원한다. 새 Dependency / Backend / API 계약 / Infra는 변경하지 않았다.
+- Test는 자동 기본 / false 유지 / 성공 요약 / 지역 실패 / 지역 시간 초과 / 위치 오류 / 날씨 실패 후 제출 / 늦은 응답 / 조회 중 검증을 반영했다. 기존 수동 입력 Test는 저장된 직접 입력 모드를 명시한다.
+- Executor 참고 검증: 개별 Vitest 명령은 설치된 Vitest가 없어 실행하지 못했다. `bash scripts/verify.sh`는 npm ci 단계에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build 전체 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 기준이다.
+- Node.js 24의 TypeScript 실행으로 서비스의 기본 설정, 좌표 반올림 / 범위, 지역 문자열 검증, 두 API 전송 좌표와 개인정보 옵션, 지역 실패 후 날씨 유지, 권한 거부 오류를 네트워크 없는 Mock으로 검증해 통과했다. `git diff --check`와 변경 문서 UTF-8 / 연속 물음표 / U+FFFD 확인을 수행했다.
+- DEC-033, 위치 안내, README, Milestone 40 / TASK-040 DONE 및 Prompt 65 / 색인을 반영했다. DONE은 Executor 구현 완료이며 Verify / Review / Human Merge 승인 전이다. 기존 TASK-030 BLOCKED와 다른 Task 상태는 유지했다. Git 후속 작업은 수행하지 않았다.
+- Contract가 docs/images를 허용하지 않아 화면 캡처는 추가하지 않았다. 승인된 후속 작업으로 390 / 768 / 1280px 화면과 Staging 실제 권한 / 자동 조회 / 지역 표시 / 실패 후 제출을 확인한다. BigDataCloud 조건은 공식 문서에서 확인한 범위만 기록하고 나머지는 확인 필요로 남겼다.
+
+### TASK-040 Run 2 — 날씨 테스트 Response Mock 수정 (2026-10-04)
+
+- 승인된 Run 2 범위에 따라 날씨 서비스 테스트만 수정했다. 두 API 요청마다 새 Response를 생성하도록 mockImplementation을 사용하고, 지역 응답은 빈 객체로 지정해 현재 위치 대체 표시를 명시적으로 검증한다. HTTP / JSON / 응답 형식 실패 사례의 같은 Response 재사용도 제거했다.
+- 좌표와 개인정보 요청 옵션 검증은 호출 순서 대신 URL origin으로 날씨 / 지역 요청을 구분한다. 요청이 정확히 두 번 발생하고 두 origin이 모두 존재하는지도 확인한다. 구현 코드와 Run 1 문서 및 다른 Task 상태는 유지했다.
+- Executor 참고 검증: bash scripts/verify.sh는 npm ci에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build는 시작되지 않았으며 통과를 주장하지 않는다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행했다.
+- 새 Human 결정과 Git 작업은 없다. DONE은 Run 2 수정 완료이며 Verify / Review 성공이나 Human 완료 승인을 대신하지 않는다.
+
+### TASK-040 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- Run 1은 Orchestrator Verify에서 Test 1건 실패로 멈췄다(두 fetch에 같은 Response 객체를 돌려준 mock 문제). Run 1 구현을 WIP로 Commit하고 Run 2에서 Test만 고쳤다. Run 2 Verify 통과(Test 117건), Claude Review PASS.
+- Review가 남긴 화면 확인을 Claude 세션이 수행했다. 이 Branch의 Build를 로컬에서 띄우고 API는 Staging으로 연결해 캡처했다(`docs/images/task-040/`): 자동 모드 390 / 768 / 1280px, 직접 입력 전환, 위치 권한이 없을 때.
+  - 위치 허용: 화면에 들어오면 자동으로 조회해 "서울특별시 명동 · 맑음 · 23°C"처럼 표시한다.
+  - "직접 입력"으로 바꾸면 조회한 기온이 입력란에 그대로 남는다.
+  - 위치 권한이 없으면 기온 / 날씨 입력란이 보여 제출할 수 있다.
+- README의 Check-in 입력 화면 이미지(`docs/images/readme/checkin-form.png`)를 새 화면으로 교체했다.
+- 후속 후보(비차단): 자동 모드에서 조회 결과 줄이 안내 문구 아래에 놓인다. 결과를 위로 올리면 더 잘 보인다. 자동 모드에서 값 없이 제출할 때 focus가 갈 대상이 없다(Review INFO-004).

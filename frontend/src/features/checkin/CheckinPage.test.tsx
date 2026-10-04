@@ -12,6 +12,7 @@ function jsonResponse(status: number, body: unknown) {
 }
 
 function renderPage() {
+  localStorage.setItem("moodfit.autoWeather", "false");
   render(
     <MemoryRouter>
       <CheckinPage />
