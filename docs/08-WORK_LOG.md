@@ -3536,3 +3536,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Python 정적 대조 PASS: 승인 크기, RAIN / BALANCED / COLD / CLEAR 전체 불변, 음식 / 판정 / 선택 규칙 불변, 제목 / 가수 / ID 전체 집합 불변, 기존 곡 순서 보존 / 끝 추가, 목적지 문구, ENERGETIC 계약 앞 5곡과 끝 2곡, Smoke 한 줄 변경.
 - `bash -n scripts/container-smoke.sh`와 `git diff --check` PASS. 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
 - 검증 기준은 Sandbox 밖 Orchestrator Verify다. Executor DONE은 구현 완료이며 Verify / Claude PASS / Human 완료 승인을 대신하지 않는다. Human Squash Merge와 Merge 후 자동 배포 Smoke 확인이 남는다.
+
+### TASK-052 Run 2 — Pool 재확인과 기록 (2026-10-04)
+
+- 최초 Working Tree는 clean이었다. 승인된 Run 2 범위에 따라 Pool과 기존 MusicPoolCurationTests를 다시 읽고 기록만 추가했다. Claude 세션이 고친 마지막 곡 줄의 닫는 괄호 5곳을 유지했으며 코드 / Test / Smoke / Task 상태는 변경하지 않았다.
+- 승인된 7곡의 전체 Pool 소속과 목적지 tag / reason, 10개 Pool 크기, ENERGETIC 앞 5곡 및 끝의 Hype Boy → As It Was 순서, RAIN 9곡 순서를 Node 정적 대조로 확인했다(PASS). TIRED / ENERGETIC / CALM / SNOW / HOT 마지막 곡과 CLOUDY 마지막 양화대교를 직접 확인했다.
+- Task 문서의 Claude 세션 기록에 따르면 괄호 수정 후 Sandbox 밖 `gradlew test bootJar`가 통과했다. 이는 이전 실행의 참고 증거이며 이번 Executor의 Test 실행 결과가 아니다. 기록만 추가하는 Run 2에서는 전체 Test / Build / Container Smoke를 반복하지 않았으며 판정 기준은 Sandbox 밖 Orchestrator Verify다.
+- `git diff --check` PASS. UTF-8 apply_patch로 기록을 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. Executor DONE은 Run 2 작업 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Git 후속 작업은 수행하지 않았다.
