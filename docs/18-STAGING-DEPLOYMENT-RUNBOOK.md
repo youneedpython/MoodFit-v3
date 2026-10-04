@@ -1,6 +1,6 @@
 # 18. 최초 Staging 배포 절차
 
-2026-10-03 TASK-028 A단계. 승인된 비용 기준은 DEC-027, Artifact는 DEC-028, IAM은 DEC-029, DB는 DEC-030 / DEC-031이다. A단계는 준비만 수행하며 TASK-028은 IN_PROGRESS다. 아래 쓰기 명령은 Human만 실행한다. Agent는 moodfit-readonly 조회와 공개 URL Smoke만 수행한다. Production은 생성하지 않는다. PR은 B단계 검증이 끝날 때까지 Merge하지 않는다.
+TASK-028 최초 배포는 2026-10-04 B단계 Staging Smoke PASS로 기록되었다(docs/08). 아래 절차는 최초 생성과 Human 수동 배포 절차다. 승인된 비용 기준은 DEC-027, Artifact는 DEC-028, IAM은 DEC-029, DB는 DEC-030 / DEC-031이다. 아래 쓰기 명령은 Human만 실행한다. Agent는 moodfit-readonly 조회와 공개 URL Smoke만 수행한다. Production은 생성하지 않는다. 이후 Application 자동 배포는 DEC-032와 [21-STAGING-CD.md](21-STAGING-CD.md)를 따른다. AWS 실행과 CD 실환경 검증을 Executor 구현 결과로 대신하지 않는다.
 
 ## 준비와 입력 보호
 
@@ -81,7 +81,7 @@ bash scripts/staging-frontend.sh "$HUMAN_PROFILE"
 
 이미지 Script는 linux/amd64 / VCS_REF OCI label / sha-<full SHA>를 사용한다. 출력 digest를 Human이 App 파일의 BackendImage에 반영한다. URI / 계정은 출력하지 않는다. Frontend는 assets를 먼저 올리고 HTML은 no-cache로 올린다. 삭제 동기화는 하지 않는다. CloudFront 기본 managed cache 정책의 최소 TTL로 HTML이 짧게 남을 수 있으므로 invalidation 완료 후 확인한다. SPA rewrite는 /check-in과 /history에만 적용하며 /api의 상태·본문을 HTML로 바꾸지 않는다.
 
-Agent 확인 (AWS 자격 증명 불필요):
+Agent 확인 (staging-status는 승인된 moodfit-readonly 세션 필요, staging-smoke만 AWS 자격 증명 불필요):
 
 ```bash
 bash scripts/staging-status.sh app

@@ -3180,3 +3180,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 병행 개발 중이라 미뤄 둔 TASK-035 등록을 이 PR에서 정리했다: `docs/07-TASKS.md`에 TASK-035 DONE 행과 절 추가(Milestone 35 자동 Close 대상), Prompt 색인 보완. Prompt 파일 번호 60이 두 Task에서 겹친다(파일 이름은 다르다).
 - TASK-035 Review 비차단 지적(후속 후보): 수동 조회 실패 뒤 늦게 도착한 권한 응답으로 자동 조회가 한 번 시작되는 경로의 Test, 이미 채워진 값이 있을 때 버튼을 다시 누르면 값은 유지되는데 성공 문구가 나오는 점.
 - Staging에는 아직 TASK-035가 배포되지 않았다(배포된 Frontend는 Commit `9f070f0` 기준).
+
+## TASK-029 — Staging Continuous Deployment 구현 (2026-10-04)
+
+- Gate C 사전 승인과 명시 실행 지시에 따라 main push CI 성공 후 Staging 자동 배포와 main 이력 full SHA 수동 재배포 / 롤백 Workflow를 작성했다. OIDC는 Backend Test / bootJar / Image Build 뒤에 취득하며 3600초 세션, 자동 재시도 없음, 단일 concurrency를 적용했다.
+- 기존 immutable SHA Tag 재사용 / digest 형식 검사, 현재 Task Definition의 backend Image 교체와 staging 요청 Tag, ECS target revision 안정화 확인을 구현했다. Circuit Breaker로 이전 revision에 복귀했을 때 waiter 성공을 배포 성공으로 오인하지 않는다. Frontend asset 먼저 / HTML no-cache / 삭제 없음 / invalidation 완료 후 기존 Smoke를 실행한다.
+- Summary는 Commit / digest / revision 번호 / 결과 / 실패 Step만 기록한다. AWS 원문과 식별값은 출력하지 않고 임시 파일을 정리한다. ECR 로그인 Action의 사용자·암호 출력을 Script가 직접 다루지 않는다. AWS 공식 Action 두 개의 Release Commit SHA를 공식 링크로 확인해 고정했다.
+- docs/21에 Environment 설정, Secret 이름과 출처, 실패·부분 배포 대응, DB Migration 롤백 불가, 이전 SHA Frontend 재빌드, App Stack BackendImage drift 처리와 실제 배포 검증 한계를 기록했다. DEC-032와 DEC-021 변경 이력, 관련 배포 문서와 Prompt를 갱신했다. TASK-029 DONE은 Executor 구현 완료 반영이며 Current Task TASK-030 / BLOCKED, Production 생성 승인과 선행 기능 Task 후 READY 조건을 유지했다. TASK-036 / TASK-037은 새로 등록하지 않았다.
+- Executor 참고 검증: Workflow의 12개 Bash run 블록 구문과 inline Python AST, staging-smoke Bash 구문, git diff --check가 통과했다. 네트워크 없는 Mock으로 Task Definition Image / Tag 변경과 나머지 설정 보존, target revision 정상 상태 수락 / 이전 revision 복귀 거부, Smoke 실패 Summary를 확인했다. 기존 Secret 검사 함수와 승인 literal 목록으로 신규 파일·추가 줄을 검사했고 AGENTS 승인 3절 범위 비교가 통과했다.
+- 참고 검사 도중 PowerShell native 인자 전달로 Python 검사 문자열이 손상돼 첫 구문 검사가 시작 전에 실패했다. UTF-8 stdin으로 수정 후 통과했다. Mock 첫 실행은 inline snippet 추출 개수 가정 오류로 중단됐고 실제 standalone 블록 세 개를 검사하도록 수정 후 통과했다. 제품 검증 실패를 성공으로 바꾸지 않았다.
+- Sandbox Python에 PyYAML이 없어 Contract YAML 검사를 실행하지 못했다. 설치·업데이트하지 않았으며 YAML 판정은 Sandbox 밖 Orchestrator Verify가 기준이다. GitHub Workflow / AWS 변경 / 실제 Smoke / Git handoff는 실행하지 않았다. 최소 두 번의 자동 배포와 실환경 IAM 수락 / 세션 시간 / 안전한 실패 경로 확인은 Merge 이후 기록한다. Orchestrator Verify / Claude PASS / Remote CI / Human Squash Merge 전 완료 승인을 주장하지 않는다.
