@@ -2,6 +2,8 @@
 
 2026-10-03 TASK-026 Foundation과 TASK-027 Application 구현. 승인 기준은 DEC-027 / DEC-028 / DEC-029 / DEC-030 / DEC-031과 각 Contract다. Template 작성만 수행했으며 실제 AWS 조회 / Stack / IAM / DNS / 비용 Resource 변경은 수행하지 않았다. 최초 적용은 TASK-028의 별도 Human 비용 승인과 Stack 생성 권한 결정 후 진행한다.
 
+2026-10-04 TASK-028 B단계는 Staging 최초 생성과 Smoke PASS를 docs/08에 기록했다. TASK-029 이후 Application CD는 DEC-032와 [21-STAGING-CD.md](21-STAGING-CD.md)를 따른다. CD는 CloudFormation / IAM 변경을 하지 않고 기존 Service와 Task Definition API만 사용한다. Stack 밖 revision 등록으로 BackendImage Parameter와 실행 Image가 달라지므로 다음 App Stack Change Set 전에 Human이 최신 성공 digest를 로컬 Parameter에 반영하고 실제 실행 digest와 대조한다. 앱 Change Set Role Trust의 Source 조건은 CD에서 검증되지 않는다.
+
 ## Stack과 의존 순서
 
 | Stack | Region | 책임 / 선행 입력 |

@@ -1,0 +1,68 @@
+{
+  "id": "TASK-029",
+  "title": "Staging Continuous Deployment",
+  "task_file": "docs/tasks/TASK-029_STAGING_CD.md",
+  "allowed_paths": [
+    ".github/workflows/deploy-staging.yml",
+    "scripts/staging-smoke.sh",
+    "docs/",
+    "README.md",
+    "prompts/",
+    "AGENTS.md"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    ".github/workflows/ci.yml",
+    ".github/workflows/milestones.yml",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/container-smoke.sh",
+    "scripts/iac-validate.sh",
+    "scripts/staging-changeset.sh",
+    "scripts/staging-image.sh",
+    "scripts/staging-frontend.sh",
+    "scripts/staging-status.sh",
+    "infra/",
+    "frontend/",
+    "backend/",
+    "contracts/",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "agents_sections": [
+    "3"
+  ],
+  "secret_scan_allow": [
+    "id-token: write"
+  ],
+  "verify": [
+    {
+      "command": [
+        "python",
+        "-c",
+        "import yaml,sys; d=yaml.safe_load(open('.github/workflows/deploy-staging.yml',encoding='utf-8')); assert isinstance(d,dict) and 'jobs' in d, 'workflow structure'"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/staging-smoke.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

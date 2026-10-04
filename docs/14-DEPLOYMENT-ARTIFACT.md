@@ -30,7 +30,7 @@ JVM 최대 heap 60% / 초기 heap 20% / OOM 시 종료를 설정했다. 나머�
 - Smoke는 임시 image를 사용하고 종료 시 삭제한다. dirty Working Tree Smoke의 revision은 baseline HEAD이므로 배포 식별자로 사용하지 않는다. 배포 image는 Commit 이후 clean checkout에서 실제 Commit SHA로 만든다.
 - Commit / base digest / image digest / JAR checksum / Verification 결과를 함께 보관한다. latest로 배포하지 않는다.
 - v3.x.y는 DEC-025 Human 승인 Release와 검증된 main Commit에만 연결한다. 동일 digest에 Release alias를 붙이며 Tag push / Release 생성은 별도 Human 확인 대상이다.
-- Frontend dist는 Commit SHA / 파일 checksum manifest로 식별한다. 이전 dist와 Backend digest를 쌍으로 보관해 rollback 시 재빌드하지 않는다. DB migration rollback은 별도다.
+- Frontend dist는 Commit SHA / 파일 checksum manifest로 식별한다. Artifact 승격 시 이전 dist와 Backend digest를 쌍으로 보관한다. TASK-029 Staging 수동 롤백은 DEC-032 승인에 따라 이전 Commit의 Frontend를 재빌드하며 Backend는 기존 immutable digest를 재사용한다. byte-for-byte 동일 dist는 보장하지 않는다. DB migration rollback은 별도다.
 
 ## 4. Frontend / Runtime Configuration
 
