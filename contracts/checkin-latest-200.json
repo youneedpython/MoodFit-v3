@@ -25,23 +25,61 @@
       "reason": "가볍게 에너지를 유지하기 좋은 메뉴입니다."
     },
     {
+      "name": "소고기 채소 비빔밥",
+      "tag": "균형 식사",
+      "reason": "현재 컨디션에 맞춰 천천히 즐기기 좋은 식사입니다."
+    },
+    {
+      "name": "통밀 닭고기 샌드위치",
+      "tag": "일상 메뉴",
+      "reason": "일상 식사로 편하게 선택할 수 있는 메뉴입니다."
+    },
+    {
       "name": "따뜻한 채소 스튜",
       "tag": "따뜻한 메뉴",
       "reason": "비 오는 날씨에 어울리는 따뜻한 메뉴입니다."
+    },
+    {
+      "name": "버섯 칼국수",
+      "tag": "날씨 맞춤",
+      "reason": "오늘의 날씨에 어울리는 식사로 제안합니다."
     }
   ],
   "music": [
     {
-      "title": "Light Motion Playlist",
-      "artist": "MoodFit Curated",
+      "title": "Uptown Funk",
+      "artist": "Mark Ronson ft. Bruno Mars",
       "tag": "가벼운 활력",
-      "reason": "높은 에너지에 어울리는 밝은 흐름입니다."
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
+      "videoId": "OPf0YbXqDm0"
     },
     {
-      "title": "Rainy Indoor Playlist",
-      "artist": "MoodFit Curated",
+      "title": "Can't Stop the Feeling!",
+      "artist": "Justin Timberlake",
+      "tag": "가벼운 활력",
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
+      "videoId": "ru0K8uYEZWw"
+    },
+    {
+      "title": "Dynamite",
+      "artist": "BTS",
+      "tag": "가벼운 활력",
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
+      "videoId": "gdZLi9oWNZg"
+    },
+    {
+      "title": "Someone Like You",
+      "artist": "Adele",
       "tag": "잔잔한 감성",
-      "reason": "비 오는 날의 실내 분위기에 어울립니다."
+      "reason": "비 오는 날의 실내 분위기에 어울립니다.",
+      "videoId": "hLQl3WQQoQ0"
+    },
+    {
+      "title": "Wonderwall",
+      "artist": "Oasis",
+      "tag": "잔잔한 감성",
+      "reason": "비 오는 날의 실내 분위기에 어울립니다.",
+      "videoId": "bx1Bh8ZvH84"
     }
   ]
 }

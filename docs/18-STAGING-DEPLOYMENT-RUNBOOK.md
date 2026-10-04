@@ -1,6 +1,6 @@
 # 18. 최초 Staging 배포 절차
 
-2026-10-03 TASK-028 A단계. 승인된 비용 기준은 DEC-027, Artifact는 DEC-028, IAM은 DEC-029, DB는 DEC-030 / DEC-031이다. A단계는 준비만 수행하며 TASK-028은 IN_PROGRESS다. 아래 쓰기 명령은 Human만 실행한다. Agent는 moodfit-readonly 조회와 공개 URL Smoke만 수행한다. Production은 생성하지 않는다. PR은 B단계 검증이 끝날 때까지 Merge하지 않는다.
+TASK-028 최초 배포는 2026-10-04 B단계 Staging Smoke PASS로 기록되었다(docs/08). 아래 절차는 최초 생성과 Human 수동 배포 절차다. 승인된 비용 기준은 DEC-027, Artifact는 DEC-028, IAM은 DEC-029, DB는 DEC-030 / DEC-031이다. 아래 쓰기 명령은 Human만 실행한다. Agent는 moodfit-readonly 조회와 공개 URL Smoke만 수행한다. Production은 생성하지 않는다. 이후 Application 자동 배포는 DEC-032와 [21-STAGING-CD.md](21-STAGING-CD.md)를 따른다. AWS 실행과 CD 실환경 검증을 Executor 구현 결과로 대신하지 않는다.
 
 ## 준비와 입력 보호
 
@@ -29,6 +29,8 @@ Network AZ 2개 / prefix list / 기존 Hosted Zone / 실제 DNS 위임을 대조
 IAM 예시의 Production 접두 항목은 staging에서 해당 조건 Resource가 생성되지 않도록 Environment를 고정하며 기존 기본값 / 비활성 placeholder를 사용한다. 예정 ECS ARN은 Cluster moodfit-staging, Service와 family moodfit-staging-backend로 구성한다. StagingAppStackArn의 Trust는 ArnEquals이므로 wildcard pattern을 넣지 않는다. 최초 IAM 시점에는 아직 존재하지 않는 해당 Staging Stack의 비활성 예정 ARN을 로컬 입력으로 두어 fail closed를 유지하며 이 Role을 사용하지 않는다. App을 Human 권한으로 생성한 뒤 실제 Stack ARN으로 IAM UPDATE한다. IAM 자동 이름 Role의 자기 참조도 최초 생성 후 실제 출력으로 UPDATE한다. Origin 보호를 위해 설정 조회 권한을 추가하지 않는다.
 
 ## 공통 Change Set 절차
+
+TASK-038 이후 IAM Stack에는 RepositoryOwner / RepositoryName과 함께 RepositoryOwnerId / RepositoryId가 필수다. 두 ID는 숫자만 허용하며 기본값이 없다. `gh api repos/<owner>/<repository>`의 `owner.id` / `id`를 승인된 Claude 세션 또는 Human이 확인해 Git 비추적 로컬 IAM Parameter 파일에만 반영한다. 실제 ID와 응답 원문을 추적 파일이나 Agent 입력에 넣지 않는다. 기존 Stack UPDATE에도 새 Parameter가 필요하다. Human은 Merge 후 IAM Change Set에서 환경별 immutable subject와 기존 권한 보존을 검토하고 실행한다. Production 생성·갱신 승인을 이 절차에서 추론하지 않는다.
 
 Budget은 global 서비스지만 이 절차의 CloudFormation Budget Stack 생성·조회와 Template 검증은 모두 서울(ap-northeast-2)에서 수행한다. `staging-changeset.sh`, `staging-status.sh`, `iac-validate.sh`의 Region 선택이 동일하다. us-east-1은 certificate Stack에만 사용한다. Budget 예시의 Environment=staging 입력은 Budget 이름 moodfit-staging-monthly 구성에 사용하며 그대로 유지한다.
 
@@ -81,7 +83,7 @@ bash scripts/staging-frontend.sh "$HUMAN_PROFILE"
 
 이미지 Script는 linux/amd64 / VCS_REF OCI label / sha-<full SHA>를 사용한다. 출력 digest를 Human이 App 파일의 BackendImage에 반영한다. URI / 계정은 출력하지 않는다. Frontend는 assets를 먼저 올리고 HTML은 no-cache로 올린다. 삭제 동기화는 하지 않는다. CloudFront 기본 managed cache 정책의 최소 TTL로 HTML이 짧게 남을 수 있으므로 invalidation 완료 후 확인한다. SPA rewrite는 /check-in과 /history에만 적용하며 /api의 상태·본문을 HTML로 바꾸지 않는다.
 
-Agent 확인 (AWS 자격 증명 불필요):
+Agent 확인 (staging-status는 승인된 moodfit-readonly 세션 필요, staging-smoke만 AWS 자격 증명 불필요):
 
 ```bash
 bash scripts/staging-status.sh app

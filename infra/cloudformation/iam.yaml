@@ -18,6 +18,12 @@ Parameters:
   RepositoryName:
     Type: "String"
     AllowedPattern: "[A-Za-z0-9_.-]+"
+  RepositoryOwnerId:
+    Type: "String"
+    AllowedPattern: "[0-9]+"
+  RepositoryId:
+    Type: "String"
+    AllowedPattern: "[0-9]+"
   GitHubOidcProviderArn:
     Type: "String"
     Default: ""
@@ -203,7 +209,7 @@ Resources:
               StringEquals:
                 "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 "token.actions.githubusercontent.com:sub":
-                  Fn::Sub: "repo:${RepositoryOwner}/${RepositoryName}:environment:staging"
+                  Fn::Sub: "repo:${RepositoryOwner}@${RepositoryOwnerId}/${RepositoryName}@${RepositoryId}:environment:staging"
       MaxSessionDuration: 3600
       Policies:
         -
@@ -335,7 +341,7 @@ Resources:
               StringEquals:
                 "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 "token.actions.githubusercontent.com:sub":
-                  Fn::Sub: "repo:${RepositoryOwner}/${RepositoryName}:environment:production"
+                  Fn::Sub: "repo:${RepositoryOwner}@${RepositoryOwnerId}/${RepositoryName}@${RepositoryId}:environment:production"
       MaxSessionDuration: 3600
       Policies:
         -

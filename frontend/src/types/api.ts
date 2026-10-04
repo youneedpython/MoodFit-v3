@@ -42,6 +42,7 @@ export type FoodRecommendation = {
 };
 
 export type MusicRecommendation = {
+  videoId?: string | null;
   title: string;
   artist: string;
   tag: string;
@@ -73,9 +74,9 @@ export type HistoryItem = {
   energyLevel: number;
   temperature: number;
   weather: WeatherCondition;
-  /** 추천 음식 이름 (Mood Item, Context Item 순서, DEC-020) */
+  /** 추천 음식 이름 (Mood 3개, Context 2개; 기존 기록은 저장된 순서, DEC-020) */
   foodNames: string[];
-  /** 추천 음악 제목 (Mood Item, Context Item 순서, DEC-020) */
+  /** 추천 음악 제목 (Mood 3개, Context 2개; 기존 기록은 저장된 순서, DEC-020) */
   musicTitles: string[];
 };
 

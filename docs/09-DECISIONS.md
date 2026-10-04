@@ -556,6 +556,10 @@ TASK-006 Unit Test의 기대값으로 사용한다. (heartRate / respiratoryRate
 
 Music 열의 이름은 `Playlist`를 생략해 표기했다.
 
+### 변경 이력
+
+- 2026-10-04 (TASK-036, Human 승인): 추천 음식 / 음악을 각각 5개로 늘렸다(기분 기준 3개 + 날씨 / 상황 기준 2개). 점수와 기분 판정 규칙은 바꾸지 않았다.
+
 ### 상태
 
 ```text
@@ -969,6 +973,10 @@ Core MVP는 단일 사용자 구조를 유지하므로 `user_id`는 추가하지
 - 기존 `.github/workflows/ci.yml`은 변경하지 않는다.
 - H2를 이용한 Persistence Test는 기존 `gradlew test`에 포함한다.
 
+### 변경 이력
+
+- 2026-10-04 (TASK-036, Human 승인): Migration `V2`로 추천 음악에 영상 ID Column(nullable)을 추가했다. 이전 기록은 값이 없다.
+
 ### 상태
 
 ```text
@@ -1063,6 +1071,7 @@ TASK-012 GitHub Actions Bot의 초기 범위를 Gate C Human Review를 통해 �
   - Step Summary에 Task ID / PR 링크 / Head SHA 추가. PR 입력(head ref 등)은 env로만 전달하고 `pull_request_target`는 사용하지 않는다. CI는 AI Review를 실행하거나 재판정하지 않는다.
 - 2026-10-02 (TASK-022 Gate C, Human 승인): 제외 항목이던 **PR Comment 중 PR 상태 Comment를 허용**한다. 주체는 Workflow가 아니라 로컬 Orchestrator(`scripts/orchestrator/pr-gate.mjs`)이며, Human이 로그인한 기존 `gh`로 실패 / 취소 / Timeout 상태를 고정 형식으로 기존 PR에 기록한다(로컬 redacted Audit 보존). Workflow 권한 확대 / 새 Secret / PAT는 없다. Label / Comment / PR Approve는 Gate 또는 완료 승인으로 사용하지 않는다.
 - 2026-10-02 (TASK-022 Gate C, Human 승인): Ruleset `main-protection`의 Required Status Checks(`frontend` / `backend`)에 strict 정책을 적용했다. PR Branch가 최신 main 기준으로 CI를 통과해야 Merge할 수 있다.
+- 2026-10-04 (TASK-029 Gate C, Human 승인, DEC-032): "추가 Action 미사용" 정책은 Staging CD에 한해 AWS 공식 `configure-aws-credentials` / `amazon-ecr-login` 두 개를 Commit SHA로 고정해 쓰는 것을 허용한다. 기존 CI Workflow는 변경하지 않고 CD에도 Step Summary를 사용한다.
 
 ### 상태
 
@@ -1193,6 +1202,10 @@ TASK-017 API 계약 테스트(Frontend / Backend)를 Gate C Human Review를 통�
 - 새로운 Dependency 없음 (`package.json` / `build.gradle` 변경 없음)
 - `ci.yml`, `scripts/verify.ps1`, `scripts/verify.sh` 실행 명령 변경 없음
 - JSON Schema / OpenAPI / Pact / E2E는 도입하지 않는다. (필요 시 별도 Gate C)
+
+### 변경 이력
+
+- 2026-10-04 (TASK-036, Human 승인): API 계약 예시를 추천 5개와 음악 항목의 `videoId`(없으면 null) 형식으로 갱신했다. 계약 Test와 Staging Smoke가 같은 예시를 기준으로 한다.
 
 ### 상태
 
@@ -1361,6 +1374,10 @@ Run 2 Claude PASS 설계안 docs/15-AWS-ACCESS-POLICY.md / infra/iam/ (Commit 1d
 - 일반 Stack CloudFormation service role의 SourceAccount / SourceArn 동작은 TASK-026 적용 시 검증한다. 미지원이면 조건을 제거하지 않고 중단한다.
 - N-003 / N-004 Parameter 이름은 RepositoryArn / AccountId로 통일한다. 전체 inline 정책의 Resource 이름 렌더링과 적용은 TASK-026 / TASK-027 Gate에서 한다.
 
+### 변경 이력
+
+- 2026-10-04 Human 승인 TASK-038: 첫 Staging CD의 OIDC 실패 원인은 이름 형식 Trust와 GitHub immutable subject의 불일치였다. subject를 `repo:${RepositoryOwner}@${RepositoryOwnerId}/${RepositoryName}@${RepositoryId}:environment:staging`으로 변경하며 Production은 끝이 production이다. RepositoryOwnerId / RepositoryId는 숫자만 허용하는 필수 Parameter다. 각 Role의 StringEquals 단일 값 비교, audience, 환경 분리, wildcard 금지와 기존 권한을 유지하며 이름 형식을 함께 허용하지 않는다. 실제 ID는 로컬 비추적 Parameter 파일에만 둔다. Merge 후 Human의 IAM Change Set 적용과 배포 재실행 확인이 필요하며 Production 실행 승인은 포함하지 않는다.
+
 B단계 Human은 Permission Set 2종 / 로컬 Profile을 먼저 구성하되 초기 inline 정책은 sts:GetCallerIdentity만 둔다. 전체 IAM 정책 / OIDC Provider / Role / Environment 생성과 Network / RDS / IAM 최초 구성 권한은 후속 Task Gate에서 정한다. Executor는 실제 AWS CLI / 설정을 사용하지 않고 Preflight / Fake CLI Test를 구현한다. TASK-026 실행 전 Human 구성과 실제 Profile Preflight 확인이 필요하다. 설계 승인은 Resource 생성 / Production 실행 승인이 아니다.
 
 ---
@@ -1402,3 +1419,27 @@ Human Approved (2026-10-03, TASK-027 Contract 사전 승인 및 명시 실행 �
 ### 실행 경계
 
 이번 승인은 Template 작성과 정적 검증만 허용한다. 실제 AWS 생성 / 변경 / 비용 Resource 확대 / Production 실행 권한은 부여하지 않는다. TASK-027 DONE은 PR 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge로 확정한다. TASK-028은 BLOCKED를 유지하고 Human의 비용 승인과 Stack 생성 권한 결정 후 READY로 전환한다. 상세 입력·위험은 [17-AWS-IAC-FOUNDATION.md](17-AWS-IAC-FOUNDATION.md)를 따른다.
+
+
+---
+
+## DEC-032 TASK-029 Staging CD Gate C
+
+### 상태
+
+Human Approved (2026-10-04, Task Contract 사전 승인 및 명시 실행 지시)
+
+### 확정 결정
+
+- 같은 Repository의 CI Workflow가 main push에서 성공한 경우 workflow_run으로 자동 배포한다. 수동 실행은 main Branch에서 main 이력에 포함된 full Commit SHA를 검사해 재배포 / 롤백한다. PR / fork 배포는 금지한다.
+- 최상위 contents read, staging 배포 Job만 OIDC 권한을 갖는다. Backend Test / bootJar / linux/amd64 Image Build 이후 StagingDeployRole 세션 3600초를 취득하며 재시도 / 재취득은 하지 않는다.
+- ECR immutable sha Tag가 있으면 기존 digest를 재사용하고 ImageNotFoundException일 때만 Push한다. ECS는 digest로 고정한다. 현재 Task Definition의 backend Image를 바꾸고 MoodFitEnvironment staging Tag를 붙여 새 revision을 등록한다. 안정화 이후 실제 target revision과 running 2 / pending 0을 확인한다.
+- 동일 Commit Frontend를 Build해 asset 먼저, HTML no-cache로 업로드한다. 삭제 동기화 없이 invalidation 완료 후 기존 staging-smoke를 실행한다. 실패는 Workflow 실패와 실패 Step Summary로 남긴다.
+- staging Environment는 main-only / 승인자 없음 / 관리자 Bypass 비활성이다. Environment 생성과 네 가지 승인 Secret 등록은 Human 승인된 Claude 세션이 수행한다. 실제 값이나 AWS 응답 원문을 공유하지 않는다.
+- 기존 CI와 같은 checkout / setup-node / setup-java 표기 및 AWS 공식 Action 두 개만 허용한다. AWS Action은 확인된 Commit SHA로 고정하며 근거 링크는 docs/21에 기록한다. DEC-021의 추가 Action 미사용 원칙은 이 범위에서 변경한다.
+- 단일 concurrency group / cancel-in-progress false를 사용한다. ECS 배포 실패는 기존 Circuit Breaker를 따르며 Smoke / 정적 배포 실패는 자동 전체 롤백하지 않는다. 수동 이전 SHA 롤백 시 Frontend 재빌드를 허용하며 DB Migration은 되돌리지 않는다.
+- Infra 변경은 CD에서 제외한다. App Stack BackendImage drift는 다음 Human Change Set에서 최신 실행 digest를 넣고 검토한다. IAM / API 권한은 DEC-029 그대로 유지한다.
+
+### 실행 경계
+
+설정·운영·실환경 검증은 [21-STAGING-CD.md](21-STAGING-CD.md)를 따른다. 이 승인은 Production 생성 / 배포나 권한 확대 승인이 아니다. TASK-029 DONE은 Executor 구현 완료 반영이며 실제 배포 두 번 / 롤백 경로는 Merge 이후 확인한다. TASK-030은 Production 생성 승인과 선행 기능 Task 후 READY로 전환하며 현재 BLOCKED다.

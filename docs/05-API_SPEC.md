@@ -124,30 +124,69 @@ Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에
       "reason": "가볍게 에너지를 유지하기 좋은 메뉴입니다."
     },
     {
+      "name": "소고기 채소 비빔밥",
+      "tag": "균형 식사",
+      "reason": "현재 컨디션에 맞춰 천천히 즐기기 좋은 식사입니다."
+    },
+    {
+      "name": "통밀 닭고기 샌드위치",
+      "tag": "일상 메뉴",
+      "reason": "일상 식사로 편하게 선택할 수 있는 메뉴입니다."
+    },
+    {
       "name": "따뜻한 채소 스튜",
       "tag": "따뜻한 메뉴",
       "reason": "비 오는 날씨에 어울리는 따뜻한 메뉴입니다."
+    },
+    {
+      "name": "버섯 칼국수",
+      "tag": "날씨 맞춤",
+      "reason": "오늘의 날씨에 어울리는 식사로 제안합니다."
     }
   ],
   "music": [
     {
-      "title": "Light Motion Playlist",
-      "artist": "MoodFit Curated",
+      "title": "Uptown Funk",
+      "artist": "Mark Ronson ft. Bruno Mars",
       "tag": "가벼운 활력",
-      "reason": "높은 에너지에 어울리는 밝은 흐름입니다."
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
+      "videoId": "OPf0YbXqDm0"
     },
     {
-      "title": "Rainy Indoor Playlist",
-      "artist": "MoodFit Curated",
+      "title": "Can't Stop the Feeling!",
+      "artist": "Justin Timberlake",
+      "tag": "가벼운 활력",
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
+      "videoId": "ru0K8uYEZWw"
+    },
+    {
+      "title": "Dynamite",
+      "artist": "BTS",
+      "tag": "가벼운 활력",
+      "reason": "높은 에너지에 어울리는 밝은 흐름입니다.",
+      "videoId": "gdZLi9oWNZg"
+    },
+    {
+      "title": "Someone Like You",
+      "artist": "Adele",
       "tag": "잔잔한 감성",
-      "reason": "비 오는 날의 실내 분위기에 어울립니다."
+      "reason": "비 오는 날의 실내 분위기에 어울립니다.",
+      "videoId": "hLQl3WQQoQ0"
+    },
+    {
+      "title": "Wonderwall",
+      "artist": "Oasis",
+      "tag": "잔잔한 감성",
+      "reason": "비 오는 날의 실내 분위기에 어울립니다.",
+      "videoId": "bx1Bh8ZvH84"
     }
   ]
 }
 ```
 
 - `wellnessScore`, `mood`, `summary`, `foods`, `music`은 DEC-014 Rule로 생성한다.
-- `foods`, `music`은 각각 항상 2개이며, 첫 번째는 Mood 기반 Item, 두 번째는 Weather / Temperature Context 기반 Item이다.
+- `foods`, `music`은 새 기록에서 각각 5개이며, Mood 기반 3개 다음에 Weather / Temperature Context 기반 2개가 온다. 기존 2개짜리 기록은 그대로 반환한다.
+- 음악의 `videoId`는 선택적 문자열(기존 기록은 null 또는 생략 가능)이며 새 추천에서는 승인된 YouTube 영상 ID 11자를 반환한다. History는 기존 이름 / 제목 목록 형식을 유지한다.
 
 ---
 
@@ -233,8 +272,20 @@ GET /api/check-ins/history?days=7
       "energyLevel": 74,
       "temperature": 19.0,
       "weather": "RAIN",
-      "foodNames": ["연어 샐러드", "따뜻한 채소 스튜"],
-      "musicTitles": ["Light Motion Playlist", "Rainy Indoor Playlist"]
+      "foodNames": [
+        "연어 샐러드",
+        "소고기 채소 비빔밥",
+        "통밀 닭고기 샌드위치",
+        "따뜻한 채소 스튜",
+        "버섯 칼국수"
+      ],
+      "musicTitles": [
+        "Uptown Funk",
+        "Can't Stop the Feeling!",
+        "Dynamite",
+        "Someone Like You",
+        "Wonderwall"
+      ]
     }
   ]
 }
@@ -243,8 +294,8 @@ GET /api/check-ins/history?days=7
 History 화면에 필요한 최소 정보만 반환하는 것을 우선한다.
 추천 이력 요약을 위해 각 항목은 추천 이름만 포함한다. (DEC-020)
 
-- `foodNames`: 추천 음식 이름 목록 (Mood Item, Context Item 순서)
-- `musicTitles`: 추천 음악 제목 목록 (Mood Item, Context Item 순서)
+- `foodNames`: 추천 음식 이름 목록 (Mood 3개, Context 2개 순서; 기존 기록은 저장된 순서)
+- `musicTitles`: 추천 음악 제목 목록 (Mood 3개, Context 2개 순서; 기존 기록은 저장된 순서)
 
 추천의 Tag / 이유 / Artist 등 상세 정보는 최신 조회(`GET /api/check-ins/latest`)에서 제공한다.
 History 응답은 최근 `days × 24시간` Rolling Window를 기준으로 하며,

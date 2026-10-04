@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Badge } from "../../components/Badge/Badge";
 import { Button, ButtonLink } from "../../components/Button/Button";
 import { Card } from "../../components/Card/Card";
+import { RecommendationCards } from "../dashboard/RecommendationCards";
 import type { CheckinResponse } from "../../types/api";
 import { formatDisplayDateTime } from "../../utils/dateTime";
 
@@ -39,26 +40,7 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
       <p className="checkin-result__summary">{result.summary}</p>
 
       <div className="checkin-result__recommendations">
-        <section>
-          <h3>추천 음식</h3>
-          <ul>
-            {result.foods.map((food) => (
-              <li key={food.name}>
-                {food.name} <Badge>{food.tag}</Badge>
-              </li>
-            ))}
-          </ul>
-        </section>
-        <section>
-          <h3>추천 음악</h3>
-          <ul>
-            {result.music.map((track) => (
-              <li key={track.title}>
-                {track.title} <Badge>{track.tag}</Badge>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <RecommendationCards foods={result.foods} music={result.music} />
       </div>
 
       <div className="checkin-result__actions">

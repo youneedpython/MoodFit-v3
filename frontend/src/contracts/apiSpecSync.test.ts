@@ -28,6 +28,15 @@ function jsonExampleAfter(section: string, marker: string): unknown {
 
 /** DEC-024: API 명세 문서의 Response 예시가 계약 파일과 같아야 한다. */
 describe("docs/05-API_SPEC.md ↔ contracts/", () => {
+  it("uses five recommendations in mood-three/context-two order with approved playback IDs", () => {
+    expect(CHECKIN_CREATED.foods).toHaveLength(5);
+    expect(CHECKIN_CREATED.music).toHaveLength(5);
+    expect(CHECKIN_CREATED.music.map((track) => track.videoId)).toEqual([
+      "OPf0YbXqDm0", "ru0K8uYEZWw", "gdZLi9oWNZg", "hLQl3WQQoQ0", "bx1Bh8ZvH84"
+    ]);
+    expect(CHECKIN_HISTORY.items[0]!.foodNames).toEqual(CHECKIN_CREATED.foods.map((food) => food.name));
+    expect(CHECKIN_HISTORY.items[0]!.musicTitles).toEqual(CHECKIN_CREATED.music.map((track) => track.title));
+  });
   it("matches the check-in create response example", () => {
     expect(jsonExampleAfter("4. Check-in 생성", "### Response — 201 Created")).toEqual(CHECKIN_CREATED);
   });

@@ -23,8 +23,8 @@ class WellnessRulePolicy {
                 mood.code(),
                 mood.label(),
                 mood.summarySentence() + " " + context.summarySentence(),
-                List.of(foodForMood(mood), foodForContext(context)),
-                List.of(musicForMood(mood), musicForContext(context)));
+                java.util.stream.Stream.concat(foodsForMood(mood).stream(), foodsForContext(context).stream()).toList(),
+                java.util.stream.Stream.concat(musicForMood(mood).stream(), musicForContext(context).stream()).toList());
     }
 
     String moodLabel(String moodCode) {
@@ -105,58 +105,73 @@ class WellnessRulePolicy {
         };
     }
 
-    private MusicRecommendationValue musicForMood(MoodType mood) {
+    private List<FoodRecommendationValue> foodsForMood(MoodType mood) {
         return switch (mood) {
-            case TIRED -> new MusicRecommendationValue(
-                    "Soft Reset Playlist",
-                    "MoodFit Curated",
-                    "편안한 휴식",
-                    "느린 페이스에 어울리는 분위기입니다.");
-            case ENERGETIC -> new MusicRecommendationValue(
-                    "Light Motion Playlist",
-                    "MoodFit Curated",
-                    "가벼운 활력",
-                    "높은 에너지에 어울리는 밝은 흐름입니다.");
-            case CALM -> new MusicRecommendationValue(
-                    "Calm Focus Playlist",
-                    "MoodFit Curated",
-                    "차분한 분위기",
-                    "차분한 컨디션을 유지하기 좋은 분위기입니다.");
-            case BALANCED -> new MusicRecommendationValue(
-                    "Daily Balance Playlist",
-                    "MoodFit Curated",
-                    "균형 있는 분위기",
-                    "과하지 않은 기본 분위기입니다.");
+            case TIRED -> List.of(foodForMood(mood),
+                    new FoodRecommendationValue("달걀 채소 오트밀", "균형 식사", "현재 컨디션에 맞춰 천천히 즐기기 좋은 식사입니다."),
+                    new FoodRecommendationValue("찐 감자와 달걀", "일상 메뉴", "일상 식사로 편하게 선택할 수 있는 메뉴입니다."));
+            case ENERGETIC -> List.of(foodForMood(mood),
+                    new FoodRecommendationValue("소고기 채소 비빔밥", "균형 식사", "현재 컨디션에 맞춰 천천히 즐기기 좋은 식사입니다."),
+                    new FoodRecommendationValue("통밀 닭고기 샌드위치", "일상 메뉴", "일상 식사로 편하게 선택할 수 있는 메뉴입니다."));
+            case CALM -> List.of(foodForMood(mood),
+                    new FoodRecommendationValue("버섯 메밀국수", "균형 식사", "현재 컨디션에 맞춰 천천히 즐기기 좋은 식사입니다."),
+                    new FoodRecommendationValue("병아리콩 채소 볶음", "일상 메뉴", "일상 식사로 편하게 선택할 수 있는 메뉴입니다."));
+            case BALANCED -> List.of(foodForMood(mood),
+                    new FoodRecommendationValue("참치 채소 김밥", "균형 식사", "현재 컨디션에 맞춰 천천히 즐기기 좋은 식사입니다."),
+                    new FoodRecommendationValue("달걀 토마토 볶음밥", "일상 메뉴", "일상 식사로 편하게 선택할 수 있는 메뉴입니다."));
         };
     }
 
-    private MusicRecommendationValue musicForContext(ContextType context) {
+    private List<FoodRecommendationValue> foodsForContext(ContextType context) {
+        FoodRecommendationValue additional = switch (context) {
+            case COLD -> new FoodRecommendationValue("따뜻한 우동", "날씨 맞춤", "오늘의 날씨에 어울리는 식사로 제안합니다.");
+            case HOT -> new FoodRecommendationValue("오이 냉국과 보리밥", "날씨 맞춤", "오늘의 날씨에 어울리는 식사로 제안합니다.");
+            case RAIN -> new FoodRecommendationValue("버섯 칼국수", "날씨 맞춤", "오늘의 날씨에 어울리는 식사로 제안합니다.");
+            case SNOW -> new FoodRecommendationValue("채소 만둣국", "날씨 맞춤", "오늘의 날씨에 어울리는 식사로 제안합니다.");
+            case CLEAR -> new FoodRecommendationValue("토마토 파스타", "날씨 맞춤", "오늘의 날씨에 어울리는 식사로 제안합니다.");
+            case CLOUDY -> new FoodRecommendationValue("구운 채소 쿠스쿠스", "날씨 맞춤", "오늘의 날씨에 어울리는 식사로 제안합니다.");
+        };
+        return List.of(foodForContext(context), additional);
+    }
+
+    private List<MusicRecommendationValue> musicForMood(MoodType mood) {
+        return switch (mood) {
+            case TIRED -> List.of(
+                    new MusicRecommendationValue("Weightless", "Marconi Union", "편안한 휴식", "느린 페이스에 어울리는 분위기입니다.", "UfcAVejslrU"),
+                    new MusicRecommendationValue("Clair de Lune", "Claude Debussy", "편안한 휴식", "느린 페이스에 어울리는 분위기입니다.", "CvFH_6DNRCY"),
+                    new MusicRecommendationValue("River Flows in You", "Yiruma", "편안한 휴식", "느린 페이스에 어울리는 분위기입니다.", "7maJOI3QMu0"));
+            case ENERGETIC -> List.of(
+                    new MusicRecommendationValue("Uptown Funk", "Mark Ronson ft. Bruno Mars", "가벼운 활력", "높은 에너지에 어울리는 밝은 흐름입니다.", "OPf0YbXqDm0"),
+                    new MusicRecommendationValue("Can't Stop the Feeling!", "Justin Timberlake", "가벼운 활력", "높은 에너지에 어울리는 밝은 흐름입니다.", "ru0K8uYEZWw"),
+                    new MusicRecommendationValue("Dynamite", "BTS", "가벼운 활력", "높은 에너지에 어울리는 밝은 흐름입니다.", "gdZLi9oWNZg"));
+            case CALM -> List.of(
+                    new MusicRecommendationValue("Canon in D Major", "Johann Pachelbel", "차분한 분위기", "차분한 컨디션을 유지하기 좋은 분위기입니다.", "NlprozGcs80"),
+                    new MusicRecommendationValue("Perfect", "Ed Sheeran", "차분한 분위기", "차분한 컨디션을 유지하기 좋은 분위기입니다.", "2Vv-BfVoq4g"),
+                    new MusicRecommendationValue("All of Me", "John Legend", "차분한 분위기", "차분한 컨디션을 유지하기 좋은 분위기입니다.", "450p7goxZqg"));
+            case BALANCED -> List.of(
+                    new MusicRecommendationValue("Counting Stars", "OneRepublic", "균형 있는 분위기", "과하지 않은 기본 분위기입니다.", "hT_nvWreIhg"),
+                    new MusicRecommendationValue("Sugar", "Maroon 5", "균형 있는 분위기", "과하지 않은 기본 분위기입니다.", "09R8_2nJtjg"),
+                    new MusicRecommendationValue("Memories", "Maroon 5", "균형 있는 분위기", "과하지 않은 기본 분위기입니다.", "SlPhMPnQ58k"));
+        };
+    }
+
+    private List<MusicRecommendationValue> musicForContext(ContextType context) {
         return switch (context) {
-            case COLD, SNOW -> new MusicRecommendationValue(
-                    "Warm Evening Playlist",
-                    "MoodFit Curated",
-                    "포근한 분위기",
-                    (context == ContextType.COLD ? "기온이 낮은 날" : "눈 오는 날") + "에 어울리는 따뜻한 분위기입니다.");
-            case HOT -> new MusicRecommendationValue(
-                    "Cool Breeze Playlist",
-                    "MoodFit Curated",
-                    "가벼운 분위기",
-                    "기온이 높은 날에 어울리는 산뜻한 분위기입니다.");
-            case RAIN -> new MusicRecommendationValue(
-                    "Rainy Indoor Playlist",
-                    "MoodFit Curated",
-                    "잔잔한 감성",
-                    "비 오는 날의 실내 분위기에 어울립니다.");
-            case CLEAR -> new MusicRecommendationValue(
-                    "Bright Morning Playlist",
-                    "MoodFit Curated",
-                    "밝은 분위기",
-                    "맑은 날씨에 어울리는 밝은 분위기입니다.");
-            case CLOUDY -> new MusicRecommendationValue(
-                    "Cloudy Focus Playlist",
-                    "MoodFit Curated",
-                    "집중하기 좋은 분위기",
-                    "흐린 날씨에 차분히 집중하기 좋은 분위기입니다.");
+            case COLD, SNOW -> List.of(
+                    new MusicRecommendationValue("Let It Go", "Idina Menzel", "포근한 분위기", "기온이 낮거나 눈 오는 날에 어울리는 따뜻한 분위기입니다.", "L0MK7qz13bU"),
+                    new MusicRecommendationValue("Thinking Out Loud", "Ed Sheeran", "포근한 분위기", "기온이 낮거나 눈 오는 날에 어울리는 따뜻한 분위기입니다.", "lp-EO5I60KA"));
+            case HOT -> List.of(
+                    new MusicRecommendationValue("Despacito", "Luis Fonsi ft. Daddy Yankee", "가벼운 분위기", "기온이 높은 날에 어울리는 산뜻한 분위기입니다.", "kJQP7kiw5Fk"),
+                    new MusicRecommendationValue("Waka Waka (This Time for Africa)", "Shakira", "가벼운 분위기", "기온이 높은 날에 어울리는 산뜻한 분위기입니다.", "pRpeEdMmmQ0"));
+            case RAIN -> List.of(
+                    new MusicRecommendationValue("Someone Like You", "Adele", "잔잔한 감성", "비 오는 날의 실내 분위기에 어울립니다.", "hLQl3WQQoQ0"),
+                    new MusicRecommendationValue("Wonderwall", "Oasis", "잔잔한 감성", "비 오는 날의 실내 분위기에 어울립니다.", "bx1Bh8ZvH84"));
+            case CLEAR -> List.of(
+                    new MusicRecommendationValue("Happy", "Pharrell Williams", "밝은 분위기", "맑은 날씨에 어울리는 밝은 분위기입니다.", "ZbZSe6N_BXs"),
+                    new MusicRecommendationValue("Shake It Off", "Taylor Swift", "밝은 분위기", "맑은 날씨에 어울리는 밝은 분위기입니다.", "nfWlot6h_JM"));
+            case CLOUDY -> List.of(
+                    new MusicRecommendationValue("Paradise", "Coldplay", "집중하기 좋은 분위기", "흐린 날씨에 차분히 집중하기 좋은 분위기입니다.", "1G4isv_Fylg"),
+                    new MusicRecommendationValue("Hymn for the Weekend", "Coldplay", "집중하기 좋은 분위기", "흐린 날씨에 차분히 집중하기 좋은 분위기입니다.", "YykjpeuMNEk"));
         };
     }
 
