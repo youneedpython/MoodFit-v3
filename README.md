@@ -1,5 +1,7 @@
 # MoodFit v3
 
+[개인정보 처리 안내](docs/25-PRIVACY.md) — 처리 정보, 외부 전달, 암호화·보관 기간과 계정 삭제 방법을 안내합니다. 공개 화면은 `/privacy`입니다.
+
 Google / Kakao 소셜 로그인과 "로그인 없이 둘러보기" 체험 계정을 제공합니다. 개인 Check-in은 로그인 사용자별로 분리하며 체험 기록은 모든 방문자가 공유합니다. 이메일이나 프로필 사진은 저장하지 않고 닉네임 첫 글자로 아바타를 표시합니다. 제공자 값이 없는 환경에서는 체험 로그인만 제공하며 실제 OAuth 설정은 TASK-043에서 진행합니다. [로그인 / Session 안내](docs/22-AUTH.md)를 참고하세요.
 
 <img src="frontend/public/favicon.svg" alt="MoodFit 로고" width="64" height="64" />

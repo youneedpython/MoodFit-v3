@@ -3563,3 +3563,23 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 승인된 7곡의 전체 Pool 소속과 목적지 tag / reason, 10개 Pool 크기, ENERGETIC 앞 5곡 및 끝의 Hype Boy → As It Was 순서, RAIN 9곡 순서를 Node 정적 대조로 확인했다(PASS). TIRED / ENERGETIC / CALM / SNOW / HOT 마지막 곡과 CLOUDY 마지막 양화대교를 직접 확인했다.
 - Task 문서의 Claude 세션 기록에 따르면 괄호 수정 후 Sandbox 밖 `gradlew test bootJar`가 통과했다. 이는 이전 실행의 참고 증거이며 이번 Executor의 Test 실행 결과가 아니다. 기록만 추가하는 Run 2에서는 전체 Test / Build / Container Smoke를 반복하지 않았으며 판정 기준은 Sandbox 밖 Orchestrator Verify다.
 - `git diff --check` PASS. UTF-8 apply_patch로 기록을 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. Executor DONE은 Run 2 작업 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Git 후속 작업은 수행하지 않았다.
+
+## 2026-10-04 TASK-054 — Privacy Notice / Account Deletion / SPA Route Fix
+
+- 최초 Working Tree는 clean이었다. Task source / COMMON / 필수 Context와 승인 Decision을 읽고 명시된 Task만 구현했다. 기존 Current Task TASK-030 / BLOCKED 및 다른 Task 상태는 유지하며 TASK-054를 IN_PROGRESS → DONE(Executor 구현 완료)으로 기록했다.
+- 로그인 없이 열리는 `/privacy`를 추가했다. 로그인 상태 조회 실패에도 안내를 읽을 수 있으며 확인된 정보 / 외부 전달·국외 처리 / 암호화 / 보관 기간 / 공유 체험 계정 주의 / 삭제 / GitHub 문의 / 시행일을 한국어로 표시한다. 로그인 화면, 사용자 메뉴, Footer에서 연결한다.
+- 소셜 본인의 추천 / AI 코멘트 / 주간 리포트 / 생성 시도 / 체크인 / 사용자 행을 하나의 Transaction으로 삭제한다. 사용자 행 잠금과 자식 → 부모 삭제를 사용하며 계정의 JDBC 세션도 제거하고 성공 후 현재 Session / Security Context / CSRF Cookie를 정리한다. 체험 사용자 삭제는 고정 오류 403으로 거부한다. Migration / Dependency는 추가하지 않았다.
+- 삭제 Dialog는 취소 기본 초점, Esc, Tab / Shift+Tab 가두기와 초점 복귀를 제공한다. 되돌릴 수 없음과 백업 14일을 안내하고 삭제 성공 후 로그인 화면에 완료 문구를 보여 준다.
+- CloudFront Function은 알려진 네 경로를 한 배열에서 관리하며 Query는 수정하지 않는다. Smoke의 새 경로 / 로그인 오류 Query 검사는 엄격한 실패를 유지한다. Runbook에 Merge 직후 Human Frontend Stack UPDATE를 먼저 적용하는 순서를 기록했다.
+- H2와 MySQL Testcontainers에 같은 삭제 전체 / 다른 사용자 보존 / 체험·미로그인·CSRF / 재로그인 / Rollback 검사를 추가했다. 실제 JDBC 세션 Cookie로 삭제 전후 인증 상태도 검사한다. Frontend에 공개 안내·Link·체험 예외·Dialog·삭제 이동, 계약 예시와 SPA 함수 회귀 Test를 추가했다.
+
+### Verification / 한계
+
+- `bash scripts/verify.sh`: npm ci 단계에서 사용자 캐시 stat EPERM으로 중단. Frontend Test / TypeScript / Build와 Backend Test / Build는 실행되지 않았다.
+- Backend 삭제 대상 Test: Gradle Wrapper가 Sandbox 밖 lock 파일 부모 경로를 만들지 못해 시작하지 못했다. H2 / MySQL 실행 성공을 주장하지 않는다.
+- `bash scripts/container-smoke.sh`: app.jar 미생성으로 preflight 중단. Docker 설정과 daemon 접근도 거부됐다. 통합 검증은 실행되지 않았다.
+- `scripts/iac-validate.sh`는 AWS 조회를 포함하므로 이번 Executor에서 실행하지 않았다. 오프라인 cfn-lint도 설치된 Python에서 import할 수 없었다. 설치 / 로그인 / AWS 호출은 하지 않았다. Sandbox 밖 승인 Profile을 사용하는 Orchestrator Verify가 기준이다.
+- Node 정적 실행 PASS: `/check-in`, `/history`, `/login`, `/privacy`만 index로 변환하고 Query 객체를 보존하며 `/api`, API 하위 경로, 정적 파일, 미지 경로는 유지한다. 새 공유 JSON 계약도 파싱했다.
+- `bash -n scripts/staging-smoke.sh`, `git diff --check` PASS. 변경 문서는 UTF-8 apply_patch로 작성하고 연속 물음표 치환 흔적과 U+FFFD가 없음을 직접 검사했다. 누적 변경 경로가 허용 범위에 있고 추가 내용 / 신규 파일에 자격 증명 할당 패턴이 없다는 정적 검사도 PASS다.
+- Sandbox에 Frontend 의존성과 사용 가능한 브라우저 도구가 없어 390 / 768 / 1280px 실행 화면 캡처를 만들지 못했다. 캡처를 만든 것으로 기록하지 않는다. 후속 화면 확인 때 `docs/images/task-054/`에 저장하고 이 항목에 연결한다.
+- Executor DONE은 구현 완료이며 Orchestrator Verify / Claude PASS / Human 완료 승인을 대신하지 않는다. Git / AWS 후속 작업은 수행하지 않았다. Merge 직후 Human Frontend Stack 갱신과 Staging 직접 접근 / 별도 테스트 소셜 계정 삭제 / 재로그인 확인이 남는다.

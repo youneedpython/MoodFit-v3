@@ -2,6 +2,8 @@
 /// <reference types="node" />
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import deletionJson from "../../../contracts/account-delete-204.json";
+import guestDeletionJson from "../../../contracts/account-delete-guest-403.json";
 import {
   CHECKIN_CREATED,
   CHECKIN_HISTORY,
@@ -28,6 +30,10 @@ function jsonExampleAfter(section: string, marker: string): unknown {
 
 /** DEC-024: API 명세 문서의 Response 예시가 계약 파일과 같아야 한다. */
 describe("docs/05-API_SPEC.md ↔ contracts/", () => {
+  it("matches account deletion success metadata and the guest error", () => {
+    expect(jsonExampleAfter("12. 계정과 기록 삭제", "### Response — 204 No Content")).toEqual(deletionJson);
+    expect(jsonExampleAfter("12. 계정과 기록 삭제", "### 체험 계정 — 403 Forbidden")).toEqual(guestDeletionJson);
+  });
   it("uses five recommendations in mood-three/context-two order with approved playback IDs", () => {
     expect(CHECKIN_CREATED.foods).toHaveLength(5);
     expect(CHECKIN_CREATED.music).toHaveLength(5);

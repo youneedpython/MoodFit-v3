@@ -38,7 +38,8 @@ Resources:
       FunctionCode: |
         function handler(event) {
           var request = event.request;
-          if (request.uri === '/check-in' || request.uri === '/history') {
+          var spaRoutes = ['/check-in', '/history', '/login', '/privacy'];
+          if (spaRoutes.indexOf(request.uri) !== -1) {
             request.uri = '/index.html';
           }
           return request;

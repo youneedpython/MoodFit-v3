@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
+import { DeleteAccountDialog } from "./DeleteAccountDialog";
 import { useAuth } from "./AuthProvider";
 import { request } from "../../services/api";
 import "./auth.css";
@@ -7,6 +9,8 @@ const colors = ["var(--color-accent-blue)", "var(--color-accent-purple)", "var(-
 export function UserMenu() {
   const auth = useAuth();
   const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const closeDialog = useCallback(() => { setDeleting(false); button.current?.focus(); }, []);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -34,7 +38,10 @@ export function UserMenu() {
     {open && <div className="user-menu__popup" id="user-menu-popup" role="menu" aria-label="사용자 메뉴">
       <p>{user.displayName}</p><p>{user.provider === "guest" ? "체험 계정" : user.provider === "google" ? "Google" : "Kakao"}</p>
       <button ref={logoutButton} role="menuitem" disabled={busy} onClick={logout}>로그아웃</button>
+      <Link role="menuitem" to="/privacy">개인정보 처리 안내</Link>
+      {user.provider !== "guest" && <button role="menuitem" onClick={() => { setOpen(false); setDeleting(true); }}>내 데이터 삭제</button>}
       {error && <p role="alert">로그아웃하지 못했습니다. 다시 시도해 주세요.</p>}
     </div>}
+    {deleting && <DeleteAccountDialog onClose={closeDialog} />}
   </div>;
 }

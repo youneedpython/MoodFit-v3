@@ -6,6 +6,7 @@ import { CheckinPage } from "../features/checkin/CheckinPage";
 import { HistoryPage } from "../features/history/HistoryPage";
 import { AuthProvider } from "../features/auth/AuthProvider";
 import { LoginPage } from "../features/auth/LoginPage";
+import { PrivacyPage } from "../features/privacy/PrivacyPage";
 
 /** DEC-011: `/` Dashboard, `/check-in` Daily Check-in, `/history` History */
 export const routes: RouteObject[] = [
@@ -14,6 +15,7 @@ export const routes: RouteObject[] = [
     element: <AuthProvider><AppLayout /></AuthProvider>,
     children: [
       { path: "login", element: <LoginPage /> },
+      { path: "privacy", element: <PrivacyPage /> },
       { index: true, element: <DashboardPage /> },
       { path: "check-in", element: <CheckinPage /> },
       { path: "history", element: <HistoryPage /> },

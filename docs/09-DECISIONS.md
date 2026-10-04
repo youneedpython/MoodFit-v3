@@ -1559,3 +1559,15 @@ Human Approved (2026-10-04, "문서를 github에 push할 때는 cd는 진행되�
 ### 상태
 
 Human Approved (2026-10-04). Executor 구현 완료는 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.
+
+## DEC-041 TASK-054 개인정보 처리 안내 / 계정 삭제 / SPA 경로
+
+Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시).
+
+- 포트폴리오 / 교육용 처리 안내를 `/privacy`에 로그인 없이 공개한다. 법률 검토 문서나 의료 서비스가 아님을 명시하고 TASK-054에서 확인된 처리 정보 / 외부 전달 / global 추론 Profile의 국외 처리 가능성 / 서울 보관 / 전송·저장 암호화 / 기간 / 체험 계정 주의만 설명한다. 문의는 GitHub Issue로 안내한다.
+- 로그인과 CSRF가 필요한 `DELETE /api/auth/account`를 승인한다. 소셜 사용자 본인의 체크인과 추천, AI 코멘트, 리포트, 생성 시도와 계정을 한 Transaction에서 삭제하고 세션을 종료한다. 체험 계정은 고정 ErrorResponse / 403으로 거부한다. 삭제 후 재로그인은 이전 기록 없는 새 사용자다. 백업에는 삭제 전 데이터가 최대 14일 남을 수 있다.
+- 메뉴 확인 Dialog는 취소 기본 초점 / Esc / 초점 가두기를 제공한다. 로그인 화면 / 사용자 메뉴 / 모든 화면 Footer에 안내 Link를 둔다.
+- Frontend CloudFront Function의 경로 배열에 `/login`, `/privacy`를 추가하고 Query / API / 정적 파일 처리는 유지한다. Staging Smoke는 새 경로를 엄격히 검사한다. Merge 직후 Human이 Frontend Stack UPDATE Change Set을 먼저 검토·적용한다.
+- 신규 Dependency / 다른 Template / Workflow 변경은 승인하지 않는다. 구현 승인은 Production 배포나 AWS 실행 승인으로 확대하지 않는다. 구현 완료는 Orchestrator Verify / Claude Review / Human Squash Merge 승인을 대신하지 않는다.
+
+상세 처리 안내와 근거는 [25-PRIVACY.md](25-PRIVACY.md), 실제 적용 순서는 [18-STAGING-DEPLOYMENT-RUNBOOK.md](18-STAGING-DEPLOYMENT-RUNBOOK.md)를 따른다.
