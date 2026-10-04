@@ -3414,3 +3414,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Executor 참고 검증: InsightCard Test 8건 PASS, `git diff --check` PASS. Backend Compile / Test는 Contract에 따라 자체 Gradle 실행을 생략하며 Sandbox 밖 Orchestrator Verify에서 판정한다.
 - F-005: 사용 가능한 Browser 도구와 설치된 Playwright / Puppeteer를 확인했으나 이 실행 환경에서 사용할 수 없었다. 화면 캡처는 수행하지 않았고 이미지 연결을 완료했다고 주장하지 않는다. 승인된 Orchestrator/Human이 Merge 전에 기능 켜짐 상태의 체험 안내 / 생성 결과 / 실패 문구 / 주간 리포트를 390 / 768 / 1280px에서 캡처해 `docs/images/task-045/`에 저장하고 이 Verification 절에 Markdown 이미지로 연결해야 한다. 이는 후속 작업이며 새로운 Human 결정 요청은 아니다.
 - 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사해 해당 흔적이 없음을 확인했다. Rework는 제공된 Finding 범위에 한정하며 Git 작업, 새로운 Dependency, Infra 수정, 실제 Bedrock 호출은 수행하지 않았다.
+
+### TASK-045 Merge 전 확인 (2026-10-04, Claude 세션 기록)
+
+- 진행: Run 1은 구현 전에 정지했다. Executor가 Task 문서의 설계 누락(체험 계정에서 "기능 꺼짐"과 "소셜 로그인 안내"를 응답으로 구분할 수 없음)을 보고했고, Claude 세션이 새 응답에 `enabled`를 추가하도록 문서를 고쳤다. Run 2에서 전체를 구현했다. Review 1회차 CHANGES_REQUIRED(주간 리포트 경로 인증 누락, 줄바꿈 제거, 실패 로그 없음, 재생성 실패 시 기존 리포트 사라짐) → 수정 → 2회차 PASS. Verify 3개 명령 통과.
+- Dependency와 SDK API는 Claude 세션이 Sandbox 밖에서 Gradle 해석과 `javap`로 확인해 Task 문서에 근거로 적었다.
+- 화면 확인(`docs/images/task-045/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 캡처했다. Dashboard의 AI 코멘트와 History의 주간 리포트를 390 / 768 / 1280px에서, 체험 계정 안내 / "AI 코멘트 받기" 버튼 / 생성 실패 문구를 1280px에서 확인했다. 세 폭 모두 가로 넘침이 없다.
+- **실제 Bedrock 호출은 아직 검증되지 않았다.** TASK-046(환경 값 주입, Task Role 권한, 다른 계정의 Role 생성) 뒤 Staging에서 확인한다. 그때까지 Staging에서는 기능이 꺼져 있어 화면에 영역이 나타나지 않는다.
+- 후속 후보(비차단, Review N-003 ~ N-005): Deprecated API 경고 확인, 거절 / 길이 초과 종료의 로그 중복, 한도 환경 값이 숫자가 아닐 때의 기본값 처리.
