@@ -42,19 +42,26 @@ describe("weather service", () => {
   });
   it("sends the same rounded coordinates to both APIs and returns weather with a region fallback", async () => {
     locationMock();
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(body)));
+    const fetchMock = vi.fn().mockImplementation((url: string) => Promise.resolve(new Response(
+      JSON.stringify(new URL(url).origin === "https://api.bigdatacloud.net" ? {} : body)
+    )));
     vi.stubGlobal("fetch", fetchMock);
     expect(await fetchLocalWeather(new AbortController().signal)).toEqual({ temperature: 19.3, weather: "RAIN", region: "현재 위치" });
-    const url = new URL(fetchMock.mock.calls[1][0]);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const weatherCall = fetchMock.mock.calls.find(([url]) => new URL(url).origin === "https://api.open-meteo.com");
+    const regionCall = fetchMock.mock.calls.find(([url]) => new URL(url).origin === "https://api.bigdatacloud.net");
+    expect(weatherCall).toBeDefined();
+    expect(regionCall).toBeDefined();
+    const url = new URL(weatherCall![0]);
     expect(url.origin).toBe("https://api.open-meteo.com");
     expect(url.searchParams.get("latitude")).toBe("37.57");
     expect(url.searchParams.get("longitude")).toBe("126.98");
-    const regionUrl = new URL(fetchMock.mock.calls[0][0]);
+    const regionUrl = new URL(regionCall![0]);
     expect(regionUrl.origin).toBe("https://api.bigdatacloud.net");
     expect(regionUrl.searchParams.get("latitude")).toBe("37.57");
     expect(regionUrl.searchParams.get("longitude")).toBe("126.98");
-    expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: "omit", referrerPolicy: "no-referrer" });
-    expect(fetchMock.mock.calls[1][1]).toMatchObject({ credentials: "omit", referrerPolicy: "no-referrer" });
+    expect(regionCall![1]).toMatchObject({ credentials: "omit", referrerPolicy: "no-referrer" });
+    expect(weatherCall![1]).toMatchObject({ credentials: "omit", referrerPolicy: "no-referrer" });
   });
   it("bounds a stalled region lookup without losing successful weather", async () => {
     vi.useFakeTimers(); locationMock();
@@ -80,7 +87,7 @@ describe("weather service", () => {
   });
   it.each(["http", "network", "json", "shape"])("rejects %s failure", async (kind) => {
     locationMock();
-    vi.stubGlobal("fetch", kind === "network" ? vi.fn().mockRejectedValue(new Error()) : vi.fn().mockResolvedValue(new Response(kind === "json" ? "broken" : JSON.stringify(kind === "shape" ? {} : body), { status: kind === "http" ? 503 : 200 })));
+    vi.stubGlobal("fetch", kind === "network" ? vi.fn().mockRejectedValue(new Error()) : vi.fn().mockImplementation(() => Promise.resolve(new Response(kind === "json" ? "broken" : JSON.stringify(kind === "shape" ? {} : body), { status: kind === "http" ? 503 : 200 }))));
     await expect(fetchLocalWeather(new AbortController().signal)).rejects.toThrow(/직접 입력/);
   });
   it("aborts a weather request at its deadline", async () => {

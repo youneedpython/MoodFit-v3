@@ -3272,3 +3272,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Node.js 24의 TypeScript 실행으로 서비스의 기본 설정, 좌표 반올림 / 범위, 지역 문자열 검증, 두 API 전송 좌표와 개인정보 옵션, 지역 실패 후 날씨 유지, 권한 거부 오류를 네트워크 없는 Mock으로 검증해 통과했다. `git diff --check`와 변경 문서 UTF-8 / 연속 물음표 / U+FFFD 확인을 수행했다.
 - DEC-033, 위치 안내, README, Milestone 40 / TASK-040 DONE 및 Prompt 65 / 색인을 반영했다. DONE은 Executor 구현 완료이며 Verify / Review / Human Merge 승인 전이다. 기존 TASK-030 BLOCKED와 다른 Task 상태는 유지했다. Git 후속 작업은 수행하지 않았다.
 - Contract가 docs/images를 허용하지 않아 화면 캡처는 추가하지 않았다. 승인된 후속 작업으로 390 / 768 / 1280px 화면과 Staging 실제 권한 / 자동 조회 / 지역 표시 / 실패 후 제출을 확인한다. BigDataCloud 조건은 공식 문서에서 확인한 범위만 기록하고 나머지는 확인 필요로 남겼다.
+
+### TASK-040 Run 2 — 날씨 테스트 Response Mock 수정 (2026-10-04)
+
+- 승인된 Run 2 범위에 따라 날씨 서비스 테스트만 수정했다. 두 API 요청마다 새 Response를 생성하도록 mockImplementation을 사용하고, 지역 응답은 빈 객체로 지정해 현재 위치 대체 표시를 명시적으로 검증한다. HTTP / JSON / 응답 형식 실패 사례의 같은 Response 재사용도 제거했다.
+- 좌표와 개인정보 요청 옵션 검증은 호출 순서 대신 URL origin으로 날씨 / 지역 요청을 구분한다. 요청이 정확히 두 번 발생하고 두 origin이 모두 존재하는지도 확인한다. 구현 코드와 Run 1 문서 및 다른 Task 상태는 유지했다.
+- Executor 참고 검증: bash scripts/verify.sh는 npm ci에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build는 시작되지 않았으며 통과를 주장하지 않는다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행했다.
+- 새 Human 결정과 Git 작업은 없다. DONE은 Run 2 수정 완료이며 Verify / Review 성공이나 Human 완료 승인을 대신하지 않는다.
