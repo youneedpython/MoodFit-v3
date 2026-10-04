@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { ACCOUNT_DELETED_FLAG } from "./LoginPage";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { request } from "../../services/api";
@@ -38,8 +39,11 @@ export function DeleteAccountDialog({ onClose, returnFocusRef }: { onClose: () =
     try {
       await request<void>("/auth/account", { method: "DELETE" });
       // Clear authenticated UI immediately; bootstrap may be temporarily unavailable after deletion.
-      navigate("/login?deleted=1", { replace: true });
+      // The auth guard redirects to /login once the state is cleared and may drop a query string,
+      // so the completion notice is carried in sessionStorage instead of the URL.
+      try { sessionStorage.setItem(ACCOUNT_DELETED_FLAG, "1"); } catch { /* storage unavailable */ }
       window.dispatchEvent(new Event("moodfit:unauthenticated"));
+      navigate("/login", { replace: true });
     } catch { setError(true); setBusy(false); }
   }
   return createPortal(<div className="account-dialog-backdrop">

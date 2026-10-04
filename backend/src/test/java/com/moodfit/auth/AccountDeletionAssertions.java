@@ -20,9 +20,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// Existing suites use csrf() against cached filter chains. Start with the real
-// cookie repository and release this context so neither suite inherits test state.
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_AND_AFTER_CLASS)
+// Existing suites use csrf() against cached filter chains. Start from a fresh context so these
+// tests see the real cookie repository; they use the raw cookie flow and leave no test state behind.
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public abstract class AccountDeletionAssertions {
     @Autowired protected MockMvc mvc;
     @Autowired protected JdbcTemplate jdbc;
@@ -56,7 +56,7 @@ public abstract class AccountDeletionAssertions {
     }
     private jakarta.servlet.http.Cookie seed(UserIdentity user) throws Exception {
         mvc.perform(withCookieCsrf(post("/api/check-ins").with(authentication(auth(user)))
-                .contentType(MediaType.APPLICATION_JSON).content(INPUT)).andExpect(status().isCreated());
+                .contentType(MediaType.APPLICATION_JSON).content(INPUT))).andExpect(status().isCreated());
         Long id = jdbc.queryForObject("SELECT id FROM wellness_checkin WHERE user_id = ?", Long.class, user.id());
         jdbc.update("INSERT INTO checkin_insight (checkin_id, body, model_id, generated_at) VALUES (?, 'synthetic', 'test', CURRENT_TIMESTAMP)", id);
         jdbc.update("INSERT INTO weekly_report (user_id, period_start, period_end, body, record_count, model_id, generated_at) VALUES (?, CURRENT_DATE, CURRENT_DATE, 'synthetic', 1, 'test', CURRENT_TIMESTAMP)", user.id());

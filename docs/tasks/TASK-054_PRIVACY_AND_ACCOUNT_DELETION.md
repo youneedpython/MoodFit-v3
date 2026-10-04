@@ -134,6 +134,20 @@ Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1�
   3. `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다.
 - 그 밖의 구현은 바꾸지 않는다.
 
+## Run 3 범위 (2026-10-05, Claude 세션 기록)
+
+Run 2까지의 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 2는 Orchestrator Verify의 Frontend Test에서 멈췄다(Review 전). Executor가 Test를 실행할 수 없어 같은 Test에서 두 번 멈췄으므로, Claude 세션이 Sandbox 밖에서 Test를 돌려 가며 아래를 고쳤다. **이 수정들은 그대로 유지한다.**
+
+1. **삭제 완료 안내가 사라지는 결함(Frontend)**: 삭제 뒤 `/login?deleted=1`로 이동하게 했지만, 로그인 상태가 풀리는 순간 인증 Guard가 `/login`으로 다시 보내면서 Query가 사라져 완료 문구가 보이지 않았다. 완료 표시를 URL 대신 `sessionStorage`의 1회용 값으로 전달하도록 바꿨다(`DeleteAccountDialog.tsx`가 값을 쓰고 `LoginPage.tsx`가 읽은 뒤 지운다. `?deleted`가 있어도 표시한다). 좌표 / 개인 정보는 넣지 않는다.
+2. **Test Helper Compile 오류(Backend)**: `AccountDeletionAssertions.java`의 닫는 괄호 누락 1곳, 존재하지 않는 `DirtiesContext.ClassMode.BEFORE_AND_AFTER_CLASS`를 `BEFORE_CLASS`로 바꿈.
+3. 결과(Sandbox 밖): Frontend Test 215건 통과와 `tsc --noEmit` 통과, `backend`의 `gradlew test bootJar` 통과(Run 1에서 깨졌던 `AuthTests.rawCookieCsrfWorksForSpaGuestAndWrites` 포함). `scripts/container-smoke.sh`와 `scripts/iac-validate.sh`는 아직 실행하지 않았다.
+
+Run 3에서 할 일:
+
+- 위 수정이 Task 설계와 맞는지 읽고 확인한다. 특히 1번: 개인정보 처리 안내 화면 / 문서의 "브라우저 저장" 항목에 이 1회용 값을 추가한다(삭제 완료 표시용, 로그인 화면에서 읽은 직후 지움).
+- `DeleteAccountDialog.tsx`가 `LoginPage.tsx`에서 상수를 import하는 구조가 어색하면 상수를 작은 공용 Module로 옮긴다(동작은 바꾸지 않는다).
+- `docs/08-WORK_LOG.md`와 `prompts/`에 Run 3 기록을 추가한다. 그 밖의 구현은 바꾸지 않는다.
+
 ## Verification
 
 - `bash scripts/verify.sh`
