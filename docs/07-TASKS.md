@@ -85,7 +85,6 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | DONE | TASK-032 완료, DEC-030 사전 승인. 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | Gate C 승인 완료 (DEC-030) |
 | TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | DONE | 사전 승인과 명시 실행에 따른 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | 2026-10-03 형식 / 거부 기준 / 적용 범위 / Resume / 강화 규칙 사전 승인 |
 | TASK-035 | Milestone 35 | Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회) | DONE | Human 지시(2026-10-04), Frontend만 변경, Review PASS | Gate 사전 승인, PR #16 Human Squash Merge로 확정 |
-
 | TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04), 최종 완료 승인 대기 |
 
 ---
