@@ -1,0 +1,42 @@
+{
+  "id": "TASK-043",
+  "title": "OAuth Value Injection (Infra)",
+  "task_file": "docs/tasks/TASK-043_OAUTH_VALUE_INJECTION.md",
+  "allowed_paths": [
+    "infra/cloudformation/app.yaml",
+    "infra/cloudformation/app.parameters.example.json",
+    "infra/cloudformation/iam.yaml",
+    "infra/cloudformation/iam.parameters.example.json",
+    "scripts/iac-validate.sh",
+    "docs/",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "infra/cloudformation/local/",
+    "backend/",
+    "frontend/",
+    "contracts/",
+    ".github/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/staging-changeset.sh",
+    "scripts/staging-smoke.sh",
+    "scripts/container-smoke.sh",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "secret_scan_allow": [
+    "[\"secretsmanager:GetSecretValue\"]"
+  ],
+  "verify": [
+    { "command": ["bash", "scripts/iac-validate.sh"], "cwd": "." },
+    { "command": ["git", "diff", "--check"], "cwd": "." }
+  ],
+  "max_review_cycles": 3
+}
