@@ -42,14 +42,15 @@ MoodFit이 Wellness Score와 Mood를 계산하고, 그날의 상황에 맞는 �
 - Mood와 Wellness Score, 상태 요약 문장
 - 날씨와 기온
 - 5가지 Body Metric
-- 추천 음식 5개, 실제 곡 추천 5개와 추천 이유
+- 음식 Emoji를 곁들인 추천 음식 5개, 실제 곡 추천 5개와 추천 이유
+- 이용 가능한 소셜 계정의 AI 코멘트 자동 생성과 실패 후 수동 재시도
 - 음악 카드에서 바로 듣기와 YouTube에서 열기 (재생 클릭 전에는 외부 Player를 불러오지 않음)
 
 기록이 없으면 Check-in으로 안내하는 Empty State를 보여 줍니다.
 
 ### 3. History / Trend — 최근 7일 흐름
 
-최근 7일의 Wellness Score 변화를 그래프로 보여 주고, 기록별 Mood, 지표, 날씨, 추천 이력을 함께 보여 줍니다.
+최근 7일의 Wellness Score 변화를 그래프로 보여 주고, 기록별 Mood, 지표, 날씨, 추천 이력을 최신순으로 한 페이지에 5개씩 보여 줍니다.
 
 ![History / Trend](docs/images/readme/history.png)
 

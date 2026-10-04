@@ -98,6 +98,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-044 | Milestone 44 | Check-in Region Record (지역 저장 / Dashboard · History 표시) | DONE | TASK-040, TASK-042 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-045 | Milestone 45 | LLM Insight (AI 맞춤 코멘트 + 주간 리포트) | DONE | TASK-042, TASK-044 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-046 | Milestone 46 | LLM Value Injection (Infra) | DONE | TASK-043, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-047 | Milestone 47 | UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기) | DONE | TASK-036, TASK-045 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1903,3 +1904,11 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - Dependency: TASK-043 / TASK-045. DEC-038(A안)에 따른 조건부 ECS 환경 값과 TaskRole의 특정 호출 Role AssumeRole 권한, 다른 계정 Policy 예시와 Human 적용 절차를 구현했다.
 - TASK-045 문서가 없어 [24-LLM-INFRA.md](24-LLM-INFRA.md)에 기록했다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
 - 자체 IaC 검증은 실행 환경의 AWS CLI 부재로 시작 단계에서 중단됐다. 실제 Template 오류 판정이 아니며 Sandbox 밖 Orchestrator Verify가 기준이다. 실제 호출 / 비용 확인은 Merge 후 Human 실행이다.
+
+## TASK-047 — UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기)
+
+- Milestone 47 / DONE: 2026-10-04 승인 Contract와 명시 실행 지시에 따른 Executor 구현 완료다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 최종 완료 승인이 아니다.
+- Dependency: TASK-036 / TASK-045. Dashboard와 결과 화면에서 저장된 코멘트가 없고 기능 및 계정이 이용 가능하면 자동 생성은 진입당 한 번만 한다. 실패 뒤 수동 다시 시도와 진행 표시를 제공한다.
+- 공통 추천 음식 Card에 이름 낱말 기반 장식 Emoji를 추가했다. 현재 규칙의 모든 음식 이름과 기본 아이콘 / 접근성 Test를 추가했고 음악과 추천 규칙은 유지한다.
+- History 기록은 최신순으로 5개씩 표시하며 이전 / 다음, 위치 알림, 제목 focus와 기록 감소 시 페이지 보정을 제공한다. 그래프와 주간 리포트는 전체 기록을 사용한다.
+- Sandbox의 npm 캐시 EPERM으로 자체 Verify가 설치 단계에서 중단되어 Test / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify이며 Claude 세션이 390 / 768 / 1280px 화면 캡처를 확인한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.

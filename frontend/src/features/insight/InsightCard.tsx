@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "../../components/Card/Card";
 import { Button } from "../../components/Button/Button";
 import { ApiError, request } from "../../services/api";
@@ -33,6 +33,7 @@ function InsightContent({ path, weekly, automatic }: { path: string; weekly: boo
   const [response, setResponse] = useState<InsightResponse | WeeklyReportResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const automaticAttempted = useRef(false);
   function failure(cause: unknown) {
     if (cause instanceof ApiError && cause.status === 422) return "최근 7일 기록이 3건 이상 필요합니다.";
     if (cause instanceof ApiError && cause.status === 429) return "오늘의 AI 생성 한도를 모두 사용했습니다. 내일 다시 시도해 주세요.";
@@ -45,7 +46,8 @@ function InsightContent({ path, weekly, automatic }: { path: string; weekly: boo
         let value = await request<InsightResponse | WeeklyReportResponse>(path);
         if (!active) return;
         setResponse(value);
-        if (automatic && value.enabled && value.available && !value.text) {
+        if (automatic && value.enabled && value.available && !value.text && !automaticAttempted.current) {
+          automaticAttempted.current = true;
           setBusy(true);
           value = await request<InsightResponse>(path, { method: "POST" });
           if (!active) return;
@@ -78,8 +80,8 @@ function InsightContent({ path, weekly, automatic }: { path: string; weekly: boo
       {response.text && <p className="insight-card__text">{response.text}</p>}
       {busy && <p role="status">{weekly ? "주간 리포트를 만드는 중입니다." : "AI 코멘트를 만드는 중입니다."}</p>}
       {error && <p role="alert">{error}</p>}
-      {(weekly || !response.text) && <Button variant="secondary" disabled={busy} onClick={() => void generate()}>
-        {weekly ? (response.text ? "주간 리포트 다시 만들기" : "주간 리포트 만들기") : "AI 코멘트 받기"}
+      {(weekly || (!response.text && (!automatic || error))) && <Button variant="secondary" disabled={busy} onClick={() => void generate()}>
+        {weekly ? (response.text ? "주간 리포트 다시 만들기" : "주간 리포트 만들기") : error ? "다시 시도" : "AI 코멘트 받기"}
       </Button>}
       <small>AI가 생성한 참고용 문장이며 의학적 조언이 아닙니다.</small>
     </>}

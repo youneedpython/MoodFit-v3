@@ -47,9 +47,7 @@ export function HistoryPage() {
           <Card title="최근 7일 Wellness Score">
             <WellnessTrend items={state.items} />
           </Card>
-          <Card title="기록">
-            <HistoryRecordList items={state.items} />
-          </Card>
+          <HistoryRecordList items={state.items} />
         </div>
       )}
     </>

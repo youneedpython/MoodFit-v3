@@ -1,4 +1,7 @@
 import { Badge } from "../../components/Badge/Badge";
+import { useEffect, useRef, useState } from "react";
+import { Button } from "../../components/Button/Button";
+import { Card } from "../../components/Card/Card";
 import { WEATHER_LABELS } from "../../constants/weather";
 import type { HistoryItem } from "../../types/api";
 import { formatDisplayDateTimeWithWeekday } from "../../utils/dateTime";
@@ -10,9 +13,22 @@ type HistoryRecordListProps = {
 
 /** 날짜별 Mood, 주요 Metric, 추천 이력 요약. 최신 기록부터 표시한다. */
 export function HistoryRecordList({ items }: HistoryRecordListProps) {
-  const newestFirst = [...items].reverse();
+  const [page, setPage] = useState(1);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const pageCount = Math.max(1, Math.ceil(items.length / 5));
+  const currentPage = Math.min(page, pageCount);
+  useEffect(() => { setPage((previous) => Math.min(previous, pageCount)); }, [pageCount]);
+  const newestFirst = [...items].sort((a, b) => b.recordedAt.localeCompare(a.recordedAt) || b.id - a.id)
+    .slice((currentPage - 1) * 5, currentPage * 5);
+  function movePage(next: number) {
+    setPage(next);
+    heading.current?.focus();
+  }
 
   return (
+    <Card>
+    <header className="card__header"><h2 ref={heading} tabIndex={-1} className="card__title">기록</h2></header>
+    <section aria-label="기록">
     <ol className="history-records">
       {newestFirst.map((item) => (
         <li key={item.id} className="history-record">
@@ -69,5 +85,12 @@ export function HistoryRecordList({ items }: HistoryRecordListProps) {
         </li>
       ))}
     </ol>
+    {pageCount > 1 && <nav aria-label="기록 페이지" className="history-pagination">
+      <Button variant="secondary" disabled={currentPage === 1} onClick={() => movePage(currentPage - 1)}>이전</Button>
+      <span aria-live="polite">{currentPage} / {pageCount}</span>
+      <Button variant="secondary" disabled={currentPage === pageCount} onClick={() => movePage(currentPage + 1)}>다음</Button>
+    </nav>}
+    </section>
+    </Card>
   );
 }

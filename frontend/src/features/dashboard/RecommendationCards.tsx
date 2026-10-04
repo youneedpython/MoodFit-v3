@@ -1,6 +1,7 @@
 import { Badge } from "../../components/Badge/Badge";
 import { useState } from "react";
 import { Card } from "../../components/Card/Card";
+import { foodEmoji } from "./foodEmoji";
 import "./RecommendationCards.css";
 import type { FoodRecommendation, MusicRecommendation } from "../../types/api";
 
@@ -63,7 +64,10 @@ export function RecommendationCards({ foods, music }: RecommendationCardsProps) 
           {foods.map((food) => (
             <li key={food.name} className="recommendation-item">
               <div className="recommendation-item__header">
-                <h3 className="recommendation-item__name">{food.name}</h3>
+                <h3 className="recommendation-item__name recommendation-item__food">
+                  <span className="recommendation-item__emoji" aria-hidden="true">{foodEmoji(food.name)}</span>
+                  <span>{food.name}</span>
+                </h3>
                 <Badge tone="info">{food.tag}</Badge>
               </div>
               <p className="recommendation-item__reason">{food.reason}</p>
