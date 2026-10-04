@@ -31,12 +31,28 @@
     "package-lock.json",
     ".env.local"
   ],
+  "aws_profiles": [
+    "moodfit-readonly"
+  ],
   "secret_scan_allow": [
     "[\"secretsmanager:GetSecretValue\"]"
   ],
   "verify": [
-    { "command": ["bash", "scripts/iac-validate.sh"], "cwd": "." },
-    { "command": ["git", "diff", "--check"], "cwd": "." }
+    {
+      "command": [
+        "bash",
+        "scripts/iac-validate.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
   ],
   "max_review_cycles": 3
 }
