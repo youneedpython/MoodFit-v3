@@ -193,7 +193,7 @@ assert history.keys() == sample.keys() and history['days'] == 7
 item = next(i for i in history['items'] if i['id'] == created['id'])
 match(item, sample['items'][0])
 assert item['recordedAt'] == created['recordedAt']
-print('PASS: create/latest/history and 400 contract preserved')
+print('PASS: create/latest/history contract preserved')
 PY
 
 step 'DB outage: readiness 503 / liveness 200'

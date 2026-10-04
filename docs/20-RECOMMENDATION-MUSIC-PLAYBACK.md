@@ -134,3 +134,15 @@ Claude 세션이 YouTube oEmbed로 영상 존재 / embed 가능 / 제목 일치�
 Backend Test는 후보 크기, 승인된 제목 / 가수 / ID 전체 집합, 24조합 × 366일의 결정성 / 하루 이동 / 중복 없음, 끝에서 처음으로 순환과 상황 중복 건너뛰기, 서울 날짜 경계를 검사한다. DEC-014 판정 경계 Test는 epochDay 0의 고정 Clock으로 기존 기준을 유지한다. Frontend는 Backend 후보 전체 51개 메뉴의 기대 Emoji를 이름별로 고정하고, 짧은 낱말의 부분 일치를 피한다. History는 주간 리포트와 기존 Card를 동일한 .history / --space-4 레이아웃에 두며 꺼진 리포트가 null이면 빈 간격이 없다.
 
 자체 Test / Build는 Sandbox 제약으로 실행되지 않았으며 Orchestrator Verify가 기준이다. 390 / 768 / 1280px 화면 캡처는 실행 가능한 Frontend 환경에서 승인된 Claude 세션 / Human이 확인하고 docs/images/task-048/에 기록한다. Merge 후 Staging에서 날짜별 추천과 Smoke를 확인한다.
+
+### TASK-052 선곡 조정 (2026-10-04 Human 승인)
+
+- Hype Boy: TIRED / CALM / SNOW / CLOUDY에서 빼고 ENERGETIC / HOT 끝에 추가해 밝은 활력에 맞췄다.
+- 양화대교: ENERGETIC / HOT에서 빼고 CALM / CLOUDY 끝에 추가해 차분한 분위기에 맞췄다. BALANCED는 유지한다.
+- Just the Way You Are: ENERGETIC에서 빼고 CALM 끝에 추가해 차분한 흐름에 맞췄다. BALANCED는 유지한다.
+- Hello: TIRED에서 빼고 RAIN에 유지해 비 오는 날의 감성에 집중한다.
+- Someone You Loved: TIRED에서 빼고 RAIN에 유지해 비 오는 날의 감성에 집중한다.
+- 어떻게 이별까지 사랑하겠어, 널 사랑하는 거지: TIRED / CLOUDY에서 빼고 CALM / RAIN에 유지해 차분한 감성에 맞췄다.
+- As It Was: ENERGETIC 끝에 Hype Boy 다음으로 추가해 밝은 흐름을 보완한다. BALANCED / CLOUDY는 유지한다.
+
+곡 제목 / 가수 / videoId는 유지하고 목적지의 기존 tag / reason을 사용한다. 크기는 TIRED 9, ENERGETIC 26, CALM 14, BALANCED 14, COLD 7, SNOW 5, HOT 8, RAIN 9, CLEAR 10, CLOUDY 8이다. ENERGETIC 앞 5곡과 RAIN 전체 순서 / 내용, 음식과 선택 규칙을 유지하므로 epochDay 20724 계약 예시는 바뀌지 않는다. Container Smoke의 성공 문구에서 검사하지 않는 400 표기만 제거했다.
