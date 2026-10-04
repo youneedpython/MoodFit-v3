@@ -3655,3 +3655,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Run 2 지시에 따라 Gradle을 실행하지 않았다. Gradle을 포함하는 verify.sh 및 Container Smoke도 이번 Executor에서는 실행하지 않았다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Smoke 통과는 아직 확인되지 않았다.
 - 이번 변경은 Run 2 기록과 Prompt뿐이다. git diff --check 및 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 검사를 수행한다. 화면 캡처와 Merge 뒤 Staging 확인은 승인된 Claude 세션 / Human의 후속 작업으로 유지한다.
 - Git / AWS 작업은 수행하지 않았다. Executor DONE은 Run 2 재확인과 기록 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다.
+
+### TASK-055 Run 3 — Sandbox 밖 검증 경과 기록 (2026-10-05)
+
+- Run 3 최초 Working Tree는 clean이었다. Task source의 Run 3 범위와 필수 Context, 승인 Decision을 확인하고 WORK_LOG와 Prompt에 기록만 추가했다. 구현과 Test, Task 상태는 변경하지 않았다.
+- Task source에 따르면 Run 2는 scripts/verify.sh를 통과했으나 Container Smoke 사전 점검에서 Docker Desktop 미실행으로 중단됐으며 Review는 아직 수행되지 않았다.
+- Claude 세션은 Docker Desktop을 시작한 뒤 Sandbox 밖 backend gradlew test 통과를 확인했다. MySQL Testcontainers Test가 포함됐고 Skip은 DockerAvailabilityTests 1건뿐이다. bash scripts/container-smoke.sh도 exit 0으로 통과했다고 Task source에 기록되어 있다. 이는 전달받은 이전 실행의 참고 증거이며 이번 Executor가 실행한 결과가 아니다.
+- Run 3 지시에 따라 Gradle과 전체 Verify / Container Smoke를 실행하지 않았다. 판정 기준은 이번 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다.
+- 한글 기록은 UTF-8 apply_patch로 작성했다. Git / AWS 작업은 수행하지 않았다. Executor DONE은 Run 3 기록 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Claude 세션의 화면 확인 / 캡처와 Human Squash Merge, Merge 뒤 Staging에서 평가 후 새 Check-in 추천 변화 확인은 후속 작업으로 유지한다.
