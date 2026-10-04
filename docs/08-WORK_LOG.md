@@ -3593,3 +3593,12 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - `bash scripts/container-smoke.sh`: app.jar 미생성으로 preflight 중단, Docker 설정 / daemon 접근도 거부됐다. `scripts/iac-validate.sh`는 AWS 조회를 포함하므로 이번 Run에서는 실행하지 않았다. AWS 로그인 / 조회 / 변경은 하지 않았다.
 - `bash -n scripts/staging-smoke.sh`와 `git diff --check` PASS. UTF-8 apply_patch로 기록을 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. 포커스 동작만 수정하여 새 화면 캡처는 만들지 않았다.
 - Executor DONE은 Run 2 구현 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Git 후속 작업과 AWS 적용은 수행하지 않았다. 기존 Merge 이후 Frontend Stack 갱신 / Staging 기능 확인 / 화면 캡처 후속 작업은 유지한다.
+
+### TASK-054 Run 3 — 삭제 완료 안내 저장 고지 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인된 Run 3 범위만 수행했다. Claude 세션의 sessionStorage 완료 표시 전달과 Backend Helper 닫는 괄호 / BEFORE_CLASS 수정이 설계에 맞음을 읽고 확인했으며 그대로 유지했다. 다른 기능과 Task 상태는 변경하지 않았다.
+- 개인정보 처리 안내 화면과 문서의 브라우저 저장 항목에 삭제 완료 표시용 일회용 sessionStorage 값, 로그인 화면에서 읽은 직후 삭제, 좌표 / 개인 정보 미포함을 추가했다. 표시 상수를 작은 공용 accountDeletionNotice Module로 이동하고 두 화면에서 참조하게 했다. 저장 / 읽기 / 제거 / Query 호환 동작은 유지했다.
+- Task source에 기록된 Claude 세션의 Sandbox 밖 Frontend Test 215건 / TypeScript 및 Backend test bootJar 통과는 이전 실행의 참고 증거이며 이번 Executor의 실행 결과가 아니다.
+- 이번 `bash scripts/verify.sh`는 npm ci에서 사용자 캐시 stat EPERM으로 중단했다. Frontend Test / TypeScript / Build와 Backend Test / Build는 실행되지 않았다. Container Smoke / IaC 검증은 이번 Run에서 실행하지 않았다. 판정 기준은 Sandbox 밖 Orchestrator Verify다.
+- `bash -n scripts/staging-smoke.sh`와 `git diff --check` PASS. 상수의 저장 / 읽기 / 제거 참조를 정적으로 확인했다. UTF-8 apply_patch로 기록을 작성하고 변경 문서의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사했다. 실행 화면 캡처는 만들지 못했으며 기존 화면 확인 후속 작업은 유지한다.
+- Executor DONE은 Run 3 구현 완료이며 Verify / Review / Human 완료 승인을 대신하지 않는다. Git / AWS 작업을 수행하지 않았다. Human Squash Merge 이후 Frontend Stack을 먼저 갱신하고 Staging 직접 접근 / 삭제 / 재로그인 흐름을 확인한다.

@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { useAuth } from "./AuthProvider";
 import { request } from "../../services/api";
+import { ACCOUNT_DELETED_FLAG } from "./accountDeletionNotice";
 import "./auth.css";
-
-export const ACCOUNT_DELETED_FLAG = "moodfit.accountDeleted";
 
 export function LoginPage() {
   const auth = useAuth();

@@ -13,7 +13,7 @@ export function PrivacyPage() {
         <tr><th scope="row">체크인</th><td>심박수, 호흡수, 수면 점수, 스트레스, 에너지, 기온, 날씨 종류, 자동 조회 지역 이름, 기록 시각과 규칙이 계산한 점수 / 상태 / 추천을 저장해 결과와 이력을 보여 줍니다.</td></tr>
         <tr><th scope="row">AI 문장</th><td>생성된 AI 코멘트, 주간 리포트와 하루 생성 한도 계산을 위한 생성 시도 기록을 저장합니다.</td></tr>
         <tr><th scope="row">로그인 상태</th><td>로그인 유지용 Cookie와 서버 세션을 사용합니다. 세션은 마지막 사용 뒤 7일 유지됩니다.</td></tr>
-        <tr><th scope="row">브라우저 설정</th><td>날씨 자동 조회 사용 여부 한 가지 값을 localStorage에 저장합니다.</td></tr>
+        <tr><th scope="row">브라우저 저장</th><td>날씨 자동 조회 사용 여부 한 가지 값을 localStorage에 저장합니다. 계정 삭제 완료 안내를 표시하기 위한 일회용 값을 sessionStorage에 저장하고 로그인 화면에서 읽은 직후 지웁니다. 이 값에는 좌표나 개인 정보를 넣지 않습니다.</td></tr>
         <tr><th scope="row">접속 기록</th><td>서비스 운영을 위해 IP 주소 등이 포함된 Load Balancer 접속 로그와 Application 로그를 30일 보관합니다.</td></tr>
       </tbody></table>
     </section>

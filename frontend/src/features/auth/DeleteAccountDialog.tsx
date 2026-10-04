@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { ACCOUNT_DELETED_FLAG } from "./LoginPage";
+import { ACCOUNT_DELETED_FLAG } from "./accountDeletionNotice";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { request } from "../../services/api";
