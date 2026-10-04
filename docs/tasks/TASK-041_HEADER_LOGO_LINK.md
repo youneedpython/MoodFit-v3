@@ -28,6 +28,14 @@
 4. 문서: `docs/07-TASKS.md`에 TASK-041 행과 절 추가, DONE(Milestone 41, Task 표가 빈 줄로 끊기지 않게, 번호 순서대로). `docs/08-WORK_LOG.md`, `prompts/`(색인 포함). 다른 Task 상태는 바꾸지 않는다.
 5. 새 Dependency 없음. 로고 Asset, 다른 화면, Backend는 바꾸지 않는다.
 
+## Run 2 범위 (2026-10-04, Claude 세션 기록)
+
+Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1은 Orchestrator Verify의 Frontend Build(`tsc --noEmit`)에서 멈췄다(Review 전). Test 123건은 모두 통과했다.
+
+- 실패: `frontend/src/app/AppLayout.test.tsx` 17행, 38행 — `getByRole(..., { name: ..., exact: true })`의 `exact`는 `ByRoleOptions`에 없는 속성이다(TS2769).
+- Run 2에서 할 일: 두 곳에서 `exact`를 없애고 같은 의도를 타입에 맞게 표현한다(예: `name`에 정확히 일치하는 정규식 `/^MoodFit$/` 사용). 다른 Test 파일에 같은 표기가 있으면 함께 고친다.
+- 구현 코드와 CSS는 바꾸지 않는다. `docs/08-WORK_LOG.md`에 Run 2 기록을 추가한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

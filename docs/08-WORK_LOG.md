@@ -1,5 +1,14 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-041 — Header Logo Link / Alignment (2026-10-04)
+
+- 승인 Contract에 따라 로고 그림과 MoodFit 이름을 하나의 SPA 홈 링크로 연결했다. 날짜는 링크 밖에 두고 장식 그림의 빈 alt와 gradient를 유지했다.
+- 브랜드의 baseline 정렬을 center로 변경했다. 기존 간격과 모바일 메뉴 배치, 전역 focus-ring / radius Token을 유지했다.
+- AppLayout 테스트에 루트 경로와 단일 접근 가능한 이름, Check-in / History에서 Dashboard로 이동하는 검증을 추가했다.
+- Executor 참고 검증: `bash scripts/verify.sh`는 npm ci 중 Sandbox 밖 npm 캐시 접근 EPERM으로 중단됐다. Test / Build 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- 화면 캡처 경로는 allowed_paths 밖이므로 추가하지 않았다. Claude 세션이 390 / 768 / 1280px 정렬과 키보드 focus를 확인한다.
+- TASK-041 DONE은 Executor 구현 완료 반영이다. Verify / Review / Remote CI / Human Squash Merge 전 최종 완료 승인이 아니다. Git 작업과 다른 Task 상태 변경은 수행하지 않았다.
+
 ## TASK-038 — GitHub OIDC Immutable Subject Trust (2026-10-04)
 
 - Human 사전 승인과 명시 실행 지시에 따라 두 배포 Role과 Trust 예시의 subject를 owner / repository 숫자 ID를 포함한 immutable 형식으로 변경했다. StringEquals의 값 하나, audience와 환경별 분리, wildcard 금지와 기존 권한을 유지했다.
