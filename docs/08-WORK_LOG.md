@@ -3093,3 +3093,13 @@ Run 2(`2026-10-03T08-38-20-550Z-97eb0dd0`, main의 안정 Version Orchestrator�
 - Gate 준비 중 Claude 세션이 AWS 공식 문서로 확인한 사실: RDS 관리형 관리자 자격 증명은 값을 기본 7일마다 자동 교체한다. TASK-026 Gate에서 이 점을 확인하지 않고 권장한 것은 Claude 세션의 누락이다. Stack 생성 전에 발견해 DEC-031로 방식을 바꿨다(Stack이 생성하는 자격 증명 Resource, 자동 교체 없음).
 - 허용 문구 4개를 실행 전에 Guard로 미리 시험해 정했다. Codex는 Workspace의 Contract 파일에서 문구를 직접 읽어 그대로 사용했고 Guard 정지 없이 통과했다. 여러 줄 block 형태는 Guard가 줄을 이어서 판정해 차단하므로 한 줄 flow 형태를 썼다(개선 후보: 구분 기호 뒤 값 탐색이 줄바꿈을 넘지 않게 하는 방안을 검토).
 - Review N-001 ~ N-003은 TASK-028 문서에 입력으로 기록했다. TASK-028은 BLOCKED를 유지한다(Human의 비용 승인과 Stack 생성 권한 결정 후 READY).
+
+## 2026-10-04 — TASK-036 추천 5개와 음악 바로 듣기 구현
+
+- 승인된 TASK-036 Contract에 따라 새 추천을 음식·음악 각각 Mood 3개 + Context 2개로 확대했다. 기존 음식 항목과 점수 / Mood / Context / Summary 판정은 유지했다. 음악은 승인된 실제 곡 22개와 정확한 영상 ID만 사용한다.
+- nullable 영상 ID를 Entity / 응답 / Frontend 타입에 추가하고 비파괴적 Flyway V2로 저장한다. V1은 변경하지 않았다. 생성 / 최신 계약과 History 이름·제목 목록 예시, API 문서와 테스트를 동기화했다.
+- Dashboard와 Check-in 결과는 공통 추천 카드를 사용한다. 재생 클릭 후에만 검증된 11자 ID로 nocookie iframe을 생성하고 접근성 이름과 보조 새 탭 링크를 제공한다. ID 없는 이전 기록과 잘못된 ID는 텍스트만 표시한다. 공유 추천 스타일과 기존 반응형 Grid를 사용한다.
+- 테스트: 기존 판정 경계값 회귀를 유지하며 24개 Mood × Context 조합의 추천 개수 / 중복 / 승인된 곡 메타데이터 일치, H2 V1 → V2 기존 기록 보존, MySQL V2 / nullable 열 / 영상 ID 저장·조회 / 이전 2개 기록 최신·History 호환, Frontend 클릭 전·후 iframe / 잘못된 ID / 닫기 / 추천 변경 / 5개 표시를 추가했다.
+- Executor 참고 실행: `bash scripts/verify.sh`는 npm 캐시 접근 EPERM으로 설치 단계에서 중단됐다. Backend 단독 `gradlew.bat test`도 Sandbox 밖 Gradle Wrapper lock 디렉터리를 만들 수 없어 시작하지 못했다. `bash scripts/container-smoke.sh`는 JAR 미생성과 Docker 접근 제한으로 실행되지 못했다. Test / Build / MySQL 통합 성공을 주장하지 않으며 최종 판정은 Sandbox 밖 Orchestrator Verify다.
+- 정적 검토: 계약 / API 문서 예시 일치, 승인 곡 ID 일치, 판정 함수 불변, 누적 허용 경로, UTF-8 / 연속 물음표 / U+FFFD와 `git diff --check`를 확인했다. 초기 임시 Python 실행의 PowerShell stdin 인코딩이 한글 리터럴을 물음표로 바꾼 문제를 발견해 UTF-8 apply_patch 파일로 재생성한 뒤 임시 파일을 삭제했다. 최종 변경에 치환 흔적은 없다.
+- 새 Human 결정은 필요하지 않다. Dependency / scripts / 인프라 / Decision 원본 / Task 상태 / AGENTS와 Git 작업은 변경하지 않았다. Merge 시 Task 등록과 Decision 이력 반영, Staging 재생·촬영과 화면 검토는 승인된 Claude 세션 / Human 후속 작업이다. 화면 캡처 기본 경로는 Contract 허용 경로 밖이라 Executor는 작성하지 않았다. 상세 운영과 Decision 초안은 [추천 음악 안내](20-RECOMMENDATION-MUSIC-PLAYBACK.md)에 기록했다.

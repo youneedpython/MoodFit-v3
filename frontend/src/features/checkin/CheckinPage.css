@@ -175,25 +175,7 @@ fieldset.checkin-field {
 }
 
 .checkin-result__recommendations {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
   margin-top: var(--space-5);
-}
-
-.checkin-result__recommendations h3 {
-  margin-bottom: var(--space-2);
-  font-size: var(--font-size-md);
-  color: var(--color-text-muted);
-}
-
-.checkin-result__recommendations ul {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
 .checkin-result__actions {
@@ -210,8 +192,7 @@ fieldset.checkin-field {
 }
 
 @media (max-width: 560px) {
-  .checkin-group__fields,
-  .checkin-result__recommendations {
+  .checkin-group__fields {
     grid-template-columns: 1fr;
   }
 

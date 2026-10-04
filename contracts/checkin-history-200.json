@@ -18,11 +18,17 @@
       "weather": "RAIN",
       "foodNames": [
         "연어 샐러드",
-        "따뜻한 채소 스튜"
+        "소고기 채소 비빔밥",
+        "통밀 닭고기 샌드위치",
+        "따뜻한 채소 스튜",
+        "버섯 칼국수"
       ],
       "musicTitles": [
-        "Light Motion Playlist",
-        "Rainy Indoor Playlist"
+        "Uptown Funk",
+        "Can't Stop the Feeling!",
+        "Dynamite",
+        "Someone Like You",
+        "Wonderwall"
       ]
     }
   ]

@@ -18,10 +18,22 @@ public class MusicRecommendationValue {
     @Column(nullable = false, length = 300)
     private String reason;
 
+    @Column(name = "video_id", length = 11)
+    private String videoId;
+
+    public String getVideoId() {
+        return videoId;
+    }
+
     protected MusicRecommendationValue() {
     }
 
     public MusicRecommendationValue(String title, String artist, String tag, String reason) {
+        this(title, artist, tag, reason, null);
+    }
+
+    public MusicRecommendationValue(String title, String artist, String tag, String reason, String videoId) {
+        this.videoId = videoId;
         this.title = title;
         this.artist = artist;
         this.tag = tag;

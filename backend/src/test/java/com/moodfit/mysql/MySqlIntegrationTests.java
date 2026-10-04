@@ -78,8 +78,8 @@ class MySqlIntegrationTests {
     void connectsToMySqlAndAppliesFlywayMigration() {
         assertThat(jdbcTemplate.queryForObject("SELECT VERSION()", String.class)).startsWith("8.4.");
         assertThat(jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM flyway_schema_history WHERE version = '1' AND success = 1", Integer.class))
-                .isEqualTo(1);
+                "SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('1', '2') AND success = 1", Integer.class))
+                .isEqualTo(2);
         assertThat(jdbcTemplate.queryForList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()", String.class))
                 .contains("wellness_checkin", "checkin_food_recommendation", "checkin_music_recommendation");
@@ -186,13 +186,36 @@ class MySqlIntegrationTests {
                 .andExpect(jsonPath("$.recordedAt").value("2026-09-30T00:00:00Z"))
                 .andExpect(jsonPath("$.weather.temperature").value(19.0))
                 .andExpect(jsonPath("$.foods[0].name").value("연어 샐러드"))
-                .andExpect(jsonPath("$.music[1].title").value("Rainy Indoor Playlist"));
+                .andExpect(jsonPath("$.music[3].title").value("Someone Like You"))
+                .andExpect(jsonPath("$.music.length()").value(5))
+                .andExpect(jsonPath("$.foods.length()").value(5))
+                .andExpect(jsonPath("$.music[0].videoId").value("OPf0YbXqDm0"))
+                .andExpect(jsonPath("$.music[3].videoId").value("hLQl3WQQoQ0"));
 
         mockMvc.perform(get("/api/check-ins/history"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.items[0].recordedAt").value("2026-09-30T00:00:00Z"))
                 .andExpect(jsonPath("$.items[0].temperature").value(19.0));
+    }
+
+    @Test
+    void preservesLegacyTwoItemRecordsWithNullVideoIdThroughLatestAndHistory() throws Exception {
+        repository.saveAndFlush(sample(Instant.parse("2026-09-30T00:00:00Z"), new BigDecimal("19.0"), "Legacy"));
+        entityManager.clear();
+        mockMvc.perform(get("/api/check-ins/latest"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.foods.length()").value(2))
+                .andExpect(jsonPath("$.music.length()").value(2))
+                .andExpect(jsonPath("$.music[0].title").value("Rainy Indoor Playlist"))
+                .andExpect(jsonPath("$.music[0].videoId").value(org.hamcrest.Matchers.nullValue()));
+        mockMvc.perform(get("/api/check-ins/history"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].musicTitles.length()").value(2))
+                .andExpect(jsonPath("$.items[0].musicTitles[0]").value("Rainy Indoor Playlist"));
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT is_nullable FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'checkin_music_recommendation' AND column_name = 'video_id'", String.class))
+                .isEqualTo("YES");
     }
 
     private WellnessCheckin sample(Instant recordedAt, BigDecimal temperature, String summary) {

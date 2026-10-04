@@ -66,17 +66,17 @@ describe("DashboardPage", () => {
 
     const foods = await screen.findByRole("region", { name: "추천 음식" });
     const foodItems = within(foods).getAllByRole("listitem");
-    expect(foodItems).toHaveLength(2);
+    expect(foodItems).toHaveLength(5);
     expect(within(foodItems[0]!).getByRole("heading", { name: "연어 샐러드" })).toBeTruthy();
     expect(within(foodItems[0]!).getByText("에너지 균형")).toBeTruthy();
-    expect(within(foodItems[1]!).getByText("비 오는 날씨에 어울리는 따뜻한 메뉴입니다.")).toBeTruthy();
+    expect(within(foodItems[3]!).getByText("비 오는 날씨에 어울리는 따뜻한 메뉴입니다.")).toBeTruthy();
 
     const music = screen.getByRole("region", { name: "추천 음악" });
     const musicItems = within(music).getAllByRole("listitem");
-    expect(musicItems).toHaveLength(2);
-    expect(within(musicItems[1]!).getByRole("heading", { name: "Rainy Indoor Playlist" })).toBeTruthy();
-    expect(within(musicItems[1]!).getByText("MoodFit Curated")).toBeTruthy();
-    expect(within(musicItems[1]!).getByText("잔잔한 감성")).toBeTruthy();
+    expect(musicItems).toHaveLength(5);
+    expect(within(musicItems[3]!).getByRole("heading", { name: "Someone Like You" })).toBeTruthy();
+    expect(within(musicItems[3]!).getByText("Adele")).toBeTruthy();
+    expect(within(musicItems[3]!).getByText("잔잔한 감성")).toBeTruthy();
   });
 
   it("treats latest 404 CHECKIN_NOT_FOUND as an empty state with a check-in CTA", async () => {
