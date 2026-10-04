@@ -14,7 +14,7 @@ describe("AppLayout brand", () => {
     expect(logo?.getAttribute("alt")).toBe("");
     expect(within(header).queryByRole("img")).toBeNull();
     expect(within(header).getAllByText("MoodFit")).toHaveLength(1);
-    const homeLink = within(header).getByRole("link", { name: "MoodFit", exact: true });
+    const homeLink = within(header).getByRole("link", { name: /^MoodFit$/ });
     expect(homeLink.getAttribute("href")).toBe("/");
     expect(homeLink.contains(logo)).toBe(true);
     expect(homeLink.querySelector(".app-header__date")).toBeNull();
@@ -35,7 +35,7 @@ describe("AppLayout brand", () => {
     );
 
     expect(screen.queryByRole("heading", { name: "Dashboard page" })).toBeNull();
-    fireEvent.click(screen.getByRole("link", { name: "MoodFit", exact: true }));
+    fireEvent.click(screen.getByRole("link", { name: /^MoodFit$/ }));
     expect(screen.getByRole("heading", { name: "Dashboard page" })).toBeTruthy();
   });
 });

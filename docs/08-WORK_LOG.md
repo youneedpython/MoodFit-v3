@@ -3270,3 +3270,9 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Human 요청(2026-10-04)으로 README 화면 이미지 6장(`docs/images/readme/`)을 현재 화면(로고, 추천 5개, 추천 음악 재생 버튼)으로 교체했다. 같은 방식으로 캡처했다.
 - 병행 개발 중이라 미뤄 둔 등록을 정리했다: `docs/07-TASKS.md`에 TASK-037 DONE 행과 절 추가(Milestone 37).
 - 배포 참고: 아이콘 파일은 Hash 없는 이름으로 긴 cache가 붙는다. 로고를 바꿀 때는 파일 이름을 바꾼다.
+
+### TASK-041 Run 2 — 로고 Link 테스트 타입 오류 수정 (2026-10-04)
+
+- 명시 승인된 Run 2 범위에 따라 AppLayout 테스트의 두 역할 조회에서 지원하지 않는 `exact` 옵션을 제거하고 `name: /^MoodFit$/`로 바꿨다. 접근 가능한 이름의 정확한 일치와 Dashboard 내부 이동 검증 의도를 유지한다. app 경로의 다른 테스트에는 같은 표기가 없었다. 구현 코드와 CSS, 다른 Task 상태는 변경하지 않았다.
+- Executor 참고 검증: `bash scripts/verify.sh`는 Frontend 설치 단계에서 Sandbox 밖 npm cache 접근 EPERM으로 중단됐다. Test / Build는 실행되지 않았으며 통과를 주장하지 않는다. 최종 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD와 `git diff --check`를 확인했다. DONE은 Executor 수정 완료이며 Verify / Claude Review / Human 완료 승인을 대신하지 않는다. 새 Human 결정과 Git 작업은 없으며 화면 정렬 캡처 확인은 승인된 Claude 세션의 후속 작업이다.
