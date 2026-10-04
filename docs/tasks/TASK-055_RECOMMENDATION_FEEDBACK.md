@@ -115,6 +115,13 @@ Run 1 구현은 Branch에 "검토 미완료 WIP"로 Commit되어 있다. Run 1�
 - Claude 세션이 Gradle Daemon을 정리한 뒤 WIP 상태에서 `backend`의 `gradlew test bootJar`를 Sandbox 밖에서 실행했고 통과했다. `scripts/container-smoke.sh`는 아직 실행하지 않았다.
 - Run 2에서 할 일: 구현을 다시 읽어 Task 설계(특히 평가가 없을 때 결과 불변, 체험 계정 차단, Pool에 있는 항목만 저장, 계정 삭제 포함)와 맞는지 확인하고, 고칠 것이 있으면 고친다. `docs/08-WORK_LOG.md`와 `prompts/`에 Run 2 기록을 추가한다. Sandbox에서 Gradle을 실행하려고 시도하지 않는다(Daemon이 남아 다음 검증을 막는다).
 
+## Run 3 범위 (2026-10-05, Claude 세션 기록)
+
+Run 2는 `scripts/verify.sh`를 통과했고 `scripts/container-smoke.sh`의 사전 점검에서 멈췄다. **Docker Desktop이 실행 중이 아니었다**(구현 문제 아님). Review는 아직 없다.
+
+- Claude 세션이 Docker Desktop을 시작한 뒤 Sandbox 밖에서 확인했다: `backend`의 `gradlew test`(MySQL Testcontainers Test 포함, Skip은 `DockerAvailabilityTests` 1건뿐) 통과, `bash scripts/container-smoke.sh` 통과(exit 0).
+- Run 3에서 할 일: 추가 구현 없이 `docs/08-WORK_LOG.md`와 `prompts/`에 Run 3 기록만 남긴다. 구현을 바꾸지 않는다. Sandbox에서 Gradle을 실행하지 않는다.
+
 ## Verification
 
 - `bash scripts/verify.sh`
