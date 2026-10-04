@@ -3261,3 +3261,12 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Human 요청(2026-10-04)으로 README 화면 이미지 6장(`docs/images/readme/`)을 현재 화면(로고, 추천 5개, 추천 음악 재생 버튼)으로 교체했다. 같은 방식으로 캡처했다.
 - 병행 개발 중이라 미뤄 둔 등록을 정리했다: `docs/07-TASKS.md`에 TASK-037 DONE 행과 절 추가(Milestone 37).
 - 배포 참고: 아이콘 파일은 Hash 없는 이름으로 긴 cache가 붙는다. 로고를 바꿀 때는 파일 이름을 바꾼다.
+
+## TASK-042 — Dependency 확인 선행 조건 정지 (2026-10-04)
+
+- Human의 명시 실행 지시와 `docs/tasks/TASK-042_SOCIAL_LOGIN.md`를 확인했다. 초기 `git status --short` 출력은 비어 있었다. 실행 지시는 [Prompt 65](../prompts/65-TASK-042-SOCIAL-LOGIN.md)에 기록했다.
+- Backend는 Spring Boot 4.1.1 / Gradle Wrapper 9.8.0이다. 승인된 새 Security / OAuth2 Client / Session JDBC Dependency의 BOM 해석을 확인하기 전 Wrapper 실행 가능 여부를 확인했다.
+- `backend`에서 `gradlew.bat --version`은 Exit 1로 종료했다. Sandbox 밖 `C:\.gradle\wrapper\dists`의 Wrapper lock 상위 디렉터리를 만들 수 없어 Gradle 자체가 시작되지 않았다. 별도 설치된 `gradle` 명령도 발견하지 못했다. Dependency 해석 / Test / Build는 실행 결과를 얻지 못했다.
+- Task Contract Dependency 절의 "해석할 수 없으면(Sandbox Network 등) 문서에 적고 human_decisions_needed로 보고한다"에 따라 HUMAN_REQUIRED로 정지한다. 단순 Test 실행 제한을 제품 오류로 판정한 것이 아니라, Contract가 별도로 요구한 Dependency 확인 근거가 없는 상태다.
+- 권장안은 Human이 접근 가능한 Gradle 실행 환경과 해당 Boot BOM의 공식 모듈 해석 근거를 제공한 뒤 같은 Task를 재개하는 것이다. 대안은 Human이 Dependency 해석을 Sandbox 밖 Orchestrator로 넘기고 Executor의 선행 해석 조건을 대체하도록 명시 승인하는 것이다. Version 변경이나 CLI 설치 / 업데이트는 수행하지 않았다.
+- 인증 Source / DB Migration / API Contract / Smoke / Task 상태는 변경하지 않았다. 이번 변경은 실행 지시와 정지 근거 기록뿐이며 TASK-042 구현 완료를 주장하지 않는다. Git handoff는 수행하지 않았다.

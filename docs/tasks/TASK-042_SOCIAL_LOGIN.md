@@ -90,7 +90,20 @@
 
 ### Dependency
 
-- Backend: Spring Security, OAuth2 Client, Spring Session JDBC의 **이 Spring Boot Version에 맞는 공식 Starter / Module 이름**을 쓴다. Version은 Boot BOM이 관리한다(직접 지정하지 않는다). Test용 Security 지원도 같은 방식으로 추가한다. 이름을 추측하지 말고 Gradle 해석으로 확인한다. 해석할 수 없으면(Sandbox Network 등) 문서에 적고 `human_decisions_needed`로 보고한다.
+Run 1에서 Executor Sandbox가 Gradle을 실행하지 못해 정지했다. Claude 세션이 Sandbox 밖에서 이 프로젝트와 같은 Plugin 구성(Spring Boot `4.1.1`, dependency-management `1.1.7`, Gradle Wrapper 동일)으로 해석을 확인했다(2026-10-04). 아래 이름은 모두 Version 지정 없이 Boot BOM으로 해석된다.
+
+| 용도 | 좌표 (Version 생략) | 해석 결과 |
+|---|---|---|
+| Spring Security | `org.springframework.boot:spring-boot-starter-security` | 4.1.1 |
+| OAuth2 Client | `org.springframework.boot:spring-boot-starter-security-oauth2-client` | 4.1.1 |
+| Spring Session JDBC | `org.springframework.boot:spring-boot-starter-session-jdbc` | 4.1.1 |
+| Test: Security | `org.springframework.boot:spring-boot-starter-security-test` | 4.1.1 |
+| Test: OAuth2 Client | `org.springframework.boot:spring-boot-starter-security-oauth2-client-test` | 4.1.1 |
+
+- 위 5개를 사용한다(`implementation` 3개, `testImplementation` 2개). 이 표가 Dependency 해석 근거이며, **Executor는 Gradle을 실행하지 않아도 된다.** Compile과 Test는 Sandbox 밖 Orchestrator Verify(`scripts/verify.sh`, `scripts/container-smoke.sh`)가 판정한다.
+- 참고로 `spring-boot-starter-oauth2-client`, `org.springframework.session:spring-session-jdbc`, `org.springframework.security:spring-security-test`도 해석되지만 위 Starter를 쓴다.
+- Boot 4에서 Package / 자동 설정 이름이 이전 Version과 다를 수 있다. Sandbox에서 Compile할 수 없으므로 Gradle Cache(`~/.gradle`)의 Jar나 이미 있는 Source를 읽어 확인할 수 있으면 확인하고, 확인하지 못한 API는 `docs/08-WORK_LOG.md`에 "Verify에서 확인 필요"로 적는다. Verify가 실패하면 다음 Run에서 고친다.
+- 그 밖의 Dependency는 추가하지 않는다.
 
 ### Test
 
