@@ -1799,6 +1799,8 @@ DONE은 Executor 구현 완료이며 Orchestrator Verify / Claude Review / Remot
 - Claude 세션의 390 / 768 / 1280px 캡처 확인, Remote CI / Human Squash Merge가 남아 있다. DONE은 최종 완료 승인이 아니다.
 - Current Task TASK-030 / BLOCKED와 다른 Task 상태를 유지한다. [TASK-041 Contract](tasks/TASK-041_HEADER_LOGO_LINK.md)를 따른다.
 
+---
+
 ## 5. Human Approval 필요 Task
 
 다음 Task는 실행 전 Human Approval 또는 Gate 확인이 필요하다.
