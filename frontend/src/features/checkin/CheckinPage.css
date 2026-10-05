@@ -97,21 +97,43 @@ fieldset.checkin-field {
   grid-column: span 2;
 }
 
-.checkin-weather-tools {
+.checkin-weather-layout {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.checkin-weather-content,
+.checkin-weather-notes {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.checkin-weather-tools,
+.checkin-weather-sources {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
 }
 
-.checkin-weather-tools p { flex-basis: 100%; }
+.checkin-weather-tools .button {
+  max-width: 100%;
+  white-space: normal;
+}
 
 .checkin-weather-summary {
   padding: var(--space-3);
   border-radius: var(--radius-md);
   background: var(--color-bg-elevated);
   overflow-wrap: anywhere;
+}
+
+.checkin-weather-summary > p:first-child {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
 }
 
 .checkin-weather__options {
