@@ -3908,4 +3908,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Sandbox 밖 Orchestrator Verify가 검증 기준이며 Executor DONE은 구현 완료만 의미한다. Claude 세션의 처음 / 결과 / 위치 거부 / API 실패 390 / 768 / 1280px 캡처와 Repository 기록, Remote CI / Human Squash Merge, Merge 뒤 Staging 체험 계정 실제 위치 확인이 남는다.
 - TASK-070 화면 확인과 후속 수정(Claude 세션, `docs/images/task-070/`): Run 2의 Build를 로컬에서 띄우고 API와 날씨 조회는 가짜 응답으로 대신해 처음 상태 / 결과(390 / 768 / 1280px), API 실패, 위치 권한 거부, 오늘 기록이 있는 경우를 캡처했다. 버튼을 누르기 전에는 새 API 요청이 없고, 누르면 `temperature`와 `weather`만 Query로 간다. 위치 거부 때는 API를 부르지 않고 Check-in 안내가 나온다. 오늘 기록이 있으면 영역이 없다. 가로 넘침이 없다.
 - 같은 확인에서 두 가지를 Claude 세션이 직접 고쳤다(Claude Review PASS 이후의 변경이며 Frontend Test 281건 / `tsc --noEmit` / Build로 확인했다). (1) 날씨 추천 Card의 제목이 아래 "마지막 기록"의 추천과 똑같이 "추천 음식 / 추천 음악"이라 구분되지 않아 "오늘 날씨 추천 음식 / 음악"으로 바꿨다(`RecommendationCards`에 제목 Prop 추가, 기본값은 그대로). (2) 평가 안내 문구와 오류 알림이 화면에 두 번 나오던 것(Review N-2)을 날씨 추천 쪽에서 끄도록 했다(`showNotice` Prop). "다시 조회" 버튼은 안내 Card 안으로 옮겼다. Review N-3(기온의 지수 표기 허용)은 범위 검사를 통과한 값만 쓰고 저장하지 않아 그대로 두었다.
+### v3.5.0 Release Note 작성 (2026-10-05, Claude 세션, Human 승인)
+
+- Human이 `v3.5.0` Release를 승인했다("v3.5.0 Release 진행! 승인!"). `docs/releases/v3.5.0.md`를 작성했다. 범위는 `v3.4.0` 이후의 TASK-066 ~ TASK-070이다.
+- Tag `v3.5.0`과 GitHub Release는 TASK-070과 이 PR이 Merge된 뒤 그 Commit에 만든다(DEC-025).
+- TASK-067 Task 문서의 틀린 서술을 바로잡았다. "`main`에 Branch Protection이 없다"고 적었으나 실제로는 Ruleset `main-protection`(Squash만 허용, `frontend` / `backend` 검사 필수, 최신 `main` 반영 필수)이 있다. 건너뛴 Job은 필수 검사에서 통과로 처리되어 설계에는 영향이 없다.
+- `v3.5.0`에 맞춰 README를 갱신했다. Dashboard 절을 "오늘 기록이 있을 때 / 없을 때"로 다시 쓰고, 오늘 기록이 없을 때의 화면 캡처를 더했다. `docs/images/readme/`의 캡처는 TASK-070까지 Merge된 `main`의 Build로 다시 찍었다(API와 날씨 조회는 가짜 응답).
 
