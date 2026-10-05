@@ -108,7 +108,8 @@ describe("privacy and account deletion", () => {
     expect(cancel.disabled).toBe(false);
     expect(submit.disabled).toBe(false);
     expect(dialog.getAttribute("aria-busy")).toBe("false");
-    expect(document.activeElement).toBe(cancel);
+    // 초점은 실패 상태가 그려진 뒤 Effect에서 돌아오므로 기다린다.
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
     if (closeWith === "cancel") fireEvent.click(cancel);
     else fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByRole("dialog")).toBeNull();
