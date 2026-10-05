@@ -171,7 +171,8 @@ Infrastructure는 CloudFormation으로 정의하고, `main`에 Merge되면 GitHu
 - **API**: CloudFront가 `/api` 요청만 Application Load Balancer로 넘기고, 두 가용 영역의 ECS Fargate Task가 처리합니다.
 - **Database**: Private Subnet의 RDS MySQL(Multi-AZ)이며 외부에서 직접 접근할 수 없습니다.
 - **값 관리**: DB 접속 정보와 OAuth 값은 Secrets Manager에 두고 Task가 실행될 때 주입합니다. 저장소에는 넣지 않습니다.
-- **AI**: Amazon Bedrock은 별도 계정의 Role을 임시 자격 증명으로 빌려 호출합니다(그림에는 없음).
+- **AI**: Amazon Bedrock은 별도 계정의 Role을 임시 자격 증명으로 빌려 호출합니다(그림 아래쪽).
+- **로그인**: Google / Kakao OAuth는 Task가 NAT Gateway를 거쳐 호출합니다.
 - **배포**: GitHub Actions가 OIDC 임시 자격 증명으로 Image Push → ECS 교체 → 화면 Upload → Smoke Test를 수행합니다. 저장된 Access Key가 없습니다. 문서만 바뀐 Commit은 배포를 건너뜁니다.
 
 자세한 내용은 [AWS Architecture](docs/13-AWS-ARCHITECTURE.md), [Staging 배포 Runbook](docs/18-STAGING-DEPLOYMENT-RUNBOOK.md), [Staging CD](docs/21-STAGING-CD.md)를 참고합니다.

@@ -3850,4 +3850,5 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 
 - Human 지시("release 출시해")에 따라 `docs/releases/v3.4.0.md`를 작성했다. 범위는 `v3.3.0` 이후의 TASK-064(홈 화면 설치, 앱 설치 버튼)와 TASK-065(모바일 앱 설치 버튼 크기, History 그래프 날짜별 평균 / 확대)이다.
 - Tag `v3.4.0`과 GitHub Release는 이 PR이 Merge된 뒤 그 Commit에 만든다(DEC-025).
+- AWS Architecture 그림(`docs/images/readme/aws-architecture.png`)을 다시 그렸다(Human 지시: "aws architecture에 aws 아이콘도 넣었으면 해", 후속 후보 "Bedrock 경로 추가"). 각 Service에 AWS Architecture Icons를 넣었고, 별도 AWS 계정의 Amazon Bedrock(STS AssumeRole)과 Google / Kakao OAuth 호출 경로를 더했다. Spring Boot Version 표기(4.1)와 Secrets Manager 설명(OAuth 값)을 현재 구성에 맞췄다. Bedrock은 사용한 아이콘 묶음(2021)에 전용 아이콘이 없어 Machine Learning 분류 아이콘을 썼다. 그림에는 계정 ID나 ARN이 없다.
 
