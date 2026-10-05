@@ -1,5 +1,14 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-067 — CI Path Filter (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인 Contract와 필수 Context를 확인하고 TASK-067만 IN_PROGRESS로 등록한 뒤 구현 완료를 DONE으로 반영했다. COMMON.md 9절에 따라 다른 Task와 Current Task는 유지했다.
+- CI에 changes Job을 추가했다. 전체 History / 인증 미보존 Checkout 뒤 PR 공통 조상 또는 main push 범위를 인자 배열의 git diff로 읽고 NUL로 경로를 구분한다. 분류 함수는 경로 규칙의 합집합을 반환하며 알 수 없는 경로나 비교 실패 / 빈 목록은 두 Job 실행을 기본값으로 한다. 자체 검사 실패는 실제 분류 전에 Step을 실패시킨다.
+- SHA는 환경변수로만 전달하고 Summary는 경로의 Markdown / HTML / 줄바꿈을 Escape해 최대 20개와 나머지 개수를 쓴다. 기존 frontend / backend에는 needs / if만 추가했고 기존 Step / 권한 / Action 종류는 유지했다. 배포 Workflow는 수정하지 않았다.
+- Workflow Python 코드의 자체 검사 통과. 같은 코드에 대한 PR / push 범위, 0 SHA / 잘못된 SHA / 지원하지 않는 Event / 빈 diff / diff 실패 / 특수 경로와 20개 제한 등 9개 검사 통과. 원본과 기존 두 Job Step의 일치도 확인했다. Windows Local 검사에서 Python subprocess의 기본 입력 인코딩으로 실패한 뒤 UTF-8을 명시해 통과했고 문서 명령에도 명시했다.
+- Contract YAML 구조 검사 시도는 Local Python의 PyYAML 부재(ModuleNotFoundError)로 실행하지 못했다. 새 Dependency 설치나 Sandbox 우회는 하지 않았다. Sandbox 밖 Orchestrator Verify가 검증 기준이다. git diff --check와 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
+- Executor DONE은 구현 완료이며 Verify / Claude Review / Human 완료 승인이 아니다. 이 PR의 Remote CI에서 changes와 두 Job 실행, Merge 후 문서 전용 / 화면 전용 Job 생략과 배포 관계를 Claude 세션이 확인한다. 승인된 후속 Git 작업과 Human Squash Merge가 남으며 Executor는 Git 작업을 수행하지 않았다.
+
 ## TASK-064 — PWA 설치 (2026-10-05)
 
 - Run 2 (2026-10-05): 최초 Working Tree는 Run 1 구현과 Test 경로 수정이 포함된 clean 상태였다. Task source와 필수 Context를 읽고 React 실행 전 Listener 등록, 초기 / 지연 이벤트 구독, 단일 이벤트 소비와 처리 중 비활성화, 설치 완료 / 독립 창 / 미지원 환경의 숨김, Footer / 메뉴 위치와 기존 44px 터치 영역, iOS / iPadOS 판별 및 안내 창의 초점 / Esc / 바깥 클릭 / 복원, 새 Manifest와 iOS Meta Tag를 설계와 대조했다. 불일치를 발견하지 않아 구현과 통과한 Test 및 Task 상태는 수정하지 않았다. Manifest / HTML Test는 node:fs와 resolve(process.cwd(), ...)를 사용하며 import.meta.url을 사용하지 않는다. Task source의 Sandbox 밖 Frontend Test 260건 / tsc --noEmit / Build 통과, 배포 산출물 및 Claude 세션의 화면 / Chrome Manifest 확인은 전달받은 참고 증거다. 이번 자체 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Sandbox 밖 Orchestrator Verify가 검증 기준이며 Executor DONE은 Run 2 재검토와 기록 완료만 뜻한다. Git 작업은 수행하지 않았고 Human Squash Merge와 Merge 후 Staging 실제 기기 설치 확인은 후속 작업이다.

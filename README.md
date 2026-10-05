@@ -202,7 +202,7 @@ Release와 Version 규칙은 [Releases](https://github.com/youneedpython/MoodFit
 | API 계약 테스트 | Backend 응답, Frontend Type, API 명세 예시가 `contracts/`와 같은지 검증 |
 | Container Smoke Test | 배포용 Image를 띄워 로그인, Check-in, DB 장애 시 동작을 확인 |
 | Local Verification | `scripts/verify.ps1` / `scripts/verify.sh`로 CI와 같은 순서(설치 → Test → Build) 실행 |
-| CI / CD | Push / Pull Request마다 Test·Build, `main` 배포 뒤 Staging Smoke Test |
+| CI / CD | Push / Pull Request마다 바뀐 경로에 따라 필요한 Job만 실행(Test·Build), `main` 배포 뒤 Staging Smoke Test |
 
 ---
 
