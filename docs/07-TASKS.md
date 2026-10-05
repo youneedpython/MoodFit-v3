@@ -115,6 +115,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-061 | Milestone 61 | Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치) | DONE | TASK-058 | Executor 구현 완료, Orchestrator Verify / Review / 화면 확인 / Human Merge 대기 |
 | TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | DONE | TASK-042, TASK-054, TASK-057 | 제공자 버튼 / 공통 Footer 구현 완료, Verify / Review / Human Squash Merge 대기 |
 | TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | DONE | TASK-059, TASK-061 | Executor 구현 완료, 공유 Tile / 컨디션 Slider / 묶음별 열 수 |
+| TASK-064 | Milestone 64 | PWA Install (홈 화면 설치 / 앱 설치 버튼) | DONE | TASK-037, TASK-062 | Human 승인 2026-10-05, Executor 설치 기능 구현 완료 |
 
 ---
 
@@ -2070,3 +2071,11 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 구현: TASK-063만 IN_PROGRESS 후 DONE으로 반영했다. Score / 날씨 마크업과 스타일을 WellnessTiles로 공유하고 결과를 Tile → AI 코멘트 → Body Metrics → 추천 → 버튼 순서로 배치했다. 빈 값을 유지하는 Slider와 숫자 입력 동기화, 신체 리듬 2열 / 컨디션 3열을 적용했다.
 - 검증: 자체 Verify는 npm ci의 캐시 stat EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify이며 DONE은 최종 완료 승인을 대신하지 않는다. 다른 Task와 Current Task 상태는 유지한다.
 - Claude 세션의 390 / 768 / 1280px 입력 / 결과 캡처, Remote CI / Human Squash Merge 및 Merge 후 Staging 확인이 남는다.
+
+## TASK-064 — PWA Install (홈 화면 설치 / 앱 설치 버튼)
+
+- 상태: DONE (Executor 구현 완료), Milestone 64. Dependency: TASK-037 / TASK-062.
+- 승인: Human 2026-10-05 설치만 지원 승인 및 명시 실행 지시, DEC-044. 해당 Task만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 Current Task는 유지한다.
+- 구현: 새 Manifest / iOS Meta Tag, React 실행 전 이벤트 초기화, 공통 Footer / 아바타 메뉴 설치 버튼, 접근 가능한 iOS 안내를 추가했다. Service Worker / Offline / 알림 / Storage 저장은 없다.
+- 검증: 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Test / 타입 검사 / Build는 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- Claude 세션의 390 / 768 / 1280px 캡처와 Chrome Manifest 확인, Human Squash Merge 및 Merge 후 실제 기기 설치 확인이 남는다. DONE은 최종 완료 승인이 아니다.
