@@ -4,6 +4,12 @@ import { describe, expect, it } from "vitest";
 import { AppLayout } from "./AppLayout";
 
 describe("AppLayout brand", () => {
+  it.each(["/", "/login", "/privacy"])("shows the shared footer on %s", (path) => {
+    render(<MemoryRouter initialEntries={[path]}><AppLayout /></MemoryRouter>);
+    const footer = screen.getByRole("contentinfo");
+    expect(footer.textContent).toContain("© MoodFit · 교육용 Product Heuristic이며 의학적 조언이 아닙니다.");
+    expect(within(footer).getByRole("link", { name: "개인정보 처리 안내" }).getAttribute("href")).toBe("/privacy");
+  });
   it("renders the approved logo as decoration beside a single MoodFit name", () => {
     render(<MemoryRouter><AppLayout /></MemoryRouter>);
 

@@ -23,14 +23,38 @@ describe("authentication", () => {
     expect(await screen.findByRole("heading", { name: "MoodFit에 로그인" })).toBeTruthy();
     expect(router.state.location.pathname).toBe("/login");
     expect(screen.getByRole("link", { name: "Google로 로그인" }).getAttribute("href")).toBe("/api/auth/login/google");
-    expect(screen.queryByText("Kakao로 로그인")).toBeNull();
+    expect(screen.queryByText("카카오 로그인")).toBeNull();
     expect(screen.queryByRole("navigation")).toBeNull();
+  });
+  it("keeps provider navigation and decorative logos accessible", async () => {
+    setup("/login", ["google", "kakao"]);
+    for (const [name, provider] of [["Google로 로그인", "google"], ["카카오 로그인", "kakao"]]) {
+      const link = await screen.findByRole("link", { name });
+      expect(link.getAttribute("href")).toBe(`/api/auth/login/${provider}`);
+      const logo = link.querySelector("svg");
+      expect(logo?.getAttribute("aria-hidden")).toBe("true");
+      expect(logo?.getAttribute("focusable")).toBe("false");
+    }
+  });
+  it("disables guest login during the request and reports failure", async () => {
+    const { fetchMock } = setup("/login");
+    const button = await screen.findByRole("button", { name: "로그인 없이 둘러보기" });
+    let finish!: (response: Response) => void;
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => { finish = resolve; }));
+    fireEvent.click(button);
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(button.textContent).toBe("로그인 중…");
+    expect(fetchMock.mock.calls.some(([url]) => url === "/api/auth/guest")).toBe(true);
+    finish(new Response(null, { status: 500 }));
+    expect((await screen.findByRole("alert")).textContent).toBe("로그인하지 못했습니다. 다시 시도해 주세요.");
+    expect((button as HTMLButtonElement).disabled).toBe(false);
   });
   it("uses fixed error text and guest login when providers are absent", async () => {
     setup("/login?error=untrusted-value");
     await screen.findByRole("heading", { name: "MoodFit에 로그인" });
     expect(screen.getByRole("alert").textContent).not.toContain("untrusted-value");
     expect(screen.queryByRole("link", { name: "Google로 로그인" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "카카오 로그인" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "로그인 없이 둘러보기" }));
     expect(await screen.findByRole("heading", { name: "Dashboard" })).toBeTruthy();
   });
