@@ -3793,3 +3793,9 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 
 - 최초 Working Tree는 clean이었다. 승인된 Run 2 범위와 필수 Context를 읽고 공유 WellnessTiles의 마크업 / 스타일, 결과 제목 초점과 기록 시각, Badge / 요약 및 Tile → AI 코멘트 → Body Metrics → 추천 → 버튼 순서, 지역 없는 날씨 표시를 확인했다. 컨디션 세 Slider의 접근성 이름 / 범위 / 양방향 동기화 / 빈 값 유지 / 범위 밖 숫자의 기존 검증, 기존 터치 영역 / 강조 색 / 초점 Token, 신체 리듬 2열 / 컨디션 3열과 반응형 배치도 설계와 일치했다. CheckinWeather Test의 세 조회에 숫자 입력 selector가 적용되어 있어 구현과 통과한 Test, Task 상태는 수정하지 않았다. Task source의 Sandbox 밖 Frontend Test 251건 / tsc --noEmit / Build 통과 및 Claude 세션의 390 / 768 / 1280px 화면 확인은 전달받은 참고 증거이며 이번 Executor 결과가 아니다. 이번 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 재확인과 기록 완료만 뜻한다. Git 작업은 수행하지 않았고 Claude 세션의 화면 캡처 기록, Human Squash Merge와 Merge 후 Staging 확인은 후속 작업으로 유지한다.
 - 화면 확인(Claude 세션, `docs/images/task-063/`): 이 Branch의 Build를 로컬에서 띄우고 API와 날씨 조회는 가짜 응답으로 대신해 Check-in 입력 / 결과를 390 / 768 / 1280px로, 빈 입력 화면과 Dashboard를 1280px로 캡처했다. 결과 화면에 Score Tile과 날씨 Tile이 보이고 순서는 요약과 Tile → AI 코멘트 → Body Metrics → 추천 → 버튼이다. Slider를 40으로 움직이면 숫자 입력칸이 40이 되고 숫자를 86으로 바꾸면 Slider가 86이 된다. 빈 값에서는 숫자 입력칸이 비어 있고 Slider만 가운데에 놓인다. 신체 리듬은 2열, 컨디션은 3열이다. Dashboard 모양은 그대로이고 모든 캡처에서 가로 넘침이 없다. 캡처는 Run 1 구현(WIP Commit) 기준이며 Run 2는 작업 기록만 더했다.
+
+### v3.3.0 Release Note 작성 (2026-10-05, Claude 세션, Human 지시)
+
+- Human이 남은 순서를 "Release Note → 홈 화면 설치(PWA) → 영상 / 정리"로 정했다. 첫 단계로 `docs/releases/v3.3.0.md`를 작성했다.
+- 범위는 v3.2.0(TASK-041) 이후 TASK-042 ~ TASK-063이다: 소셜 로그인과 사용자별 기록, AI 코멘트 / 주간 리포트, 개인별 평소 값과 신체 긴장도, 추천 다양화와 평가, 지역 기록, 화면 다듬기, 배포 보완.
+- Tag와 GitHub Release는 만들지 않았다. `v3.1.0`, `v3.2.0`도 Release Note만 있고 Tag가 없다. 만들지는 Human 결정이다(DEC-025: Tag는 옮기거나 지울 수 없다).
