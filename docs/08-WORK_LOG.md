@@ -1,5 +1,14 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-064 — PWA 설치 (2026-10-05)
+
+- 초기 Working Tree는 clean이었다. 승인 Contract와 필수 Context를 확인하고 TASK-064만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 Current Task는 유지한다.
+- app.webmanifest / iOS Meta Tag, React 실행 전 초기화와 설치 상태 구독 / 단일 이벤트 소비, Footer / 아바타 메뉴 공통 버튼, iOS 안내 / 초점 가두기 / 복원 / Esc / 바깥 클릭을 구현했다. 기존 Footer / 메뉴 Test는 수정하지 않았다.
+- 설치 수락 / 거절 / 재수신 / 지연 이벤트 / 완료 / 독립 창, iOS / iPadOS 안내, 메뉴 순서 / 미지원 환경, node:fs Manifest / HTML 검사를 추가했다. 새 Dependency / 아이콘 / Service Worker / Backend 변경은 없다.
+- 자체 bash scripts/verify.sh는 Node.js 확인 후 npm ci의 캐시 stat EPERM으로 중단됐다. Test / 타입 검사 / Build는 실행하지 못했다. 재시도나 권한 우회는 수행하지 않았다. Sandbox 밖 Orchestrator Verify가 판정 기준이며 Executor DONE은 구현 완료만 뜻한다.
+- git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. 문서는 UTF-8 apply_patch로 작성했다.
+- Claude 세션의 390 / 768 / 1280px Footer / 메뉴 / iOS / 미지원 캡처와 Chrome Manifest 확인, Human Squash Merge 및 Merge 후 Staging 실제 기기 설치 확인이 남는다. 캡처 경로는 허용 범위 밖이므로 Executor는 추가하지 않았다. Git 후속 작업은 수행하지 않았다.
+
 ### TASK-062 — Login Buttons / Footer (2026-10-05)
 
 - 최초 Working Tree는 clean이었다. Task source / 필수 Context와 승인 지시를 확인하고 TASK-062만 IN_PROGRESS로 등록한 뒤 Executor 구현 완료를 DONE으로 기록했다.
@@ -3799,3 +3808,4 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - TASK-057 ~ 063(회원 탈퇴 메뉴, 평가 아이콘, 날씨 영역, History 추천 접기, Dashboard 추천 영역, 로그인 버튼 / Footer, Check-in 결과 / Slider)이 모두 Merge된 `main`의 Build로 `docs/images/readme/`의 캡처 7장을 다시 찍었다. API와 날씨 조회는 가짜 응답으로 대신했다.
 - 이전 README의 History 캡처는 캡처용 가짜 데이터의 순서가 실제 API와 반대여서 그래프가 최신 → 과거로 찍혀 있었다. 실제 API와 같은 순서(오래된 순)로 바로잡아 그래프가 과거 → 현재로 보인다.
 - README 본문에서 바뀐 화면을 설명하는 네 문장(회원 탈퇴, Slider, 평가 아이콘, 추천 이력 접기)을 고쳤다. 코드는 바꾸지 않았다.
+- 화면 확인(Claude 세션, `docs/images/task-064/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. 설치 Event를 흉내 내 Footer와 아바타 메뉴의 "앱 설치"(390 / 768 / 1280px), 로그인 화면, 설치 수락 뒤, 지원하지 않는 환경, iOS 안내 창(390px)을 캡처했다. Chrome의 Manifest 해석 오류는 없었고 설치 조건 검사에서 남은 항목은 검사 환경(시크릿 창)뿐이었다. 실제 기기 설치는 확인하지 못했다.

@@ -3,7 +3,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
 import { createAppRouter } from "./app/router";
+import { initializeInstall } from "./features/install/installStore";
 
+initializeInstall();
 const router = createAppRouter();
 
 createRoot(document.getElementById("root")!).render(

@@ -1594,3 +1594,10 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - V7 기본값 없는 nullable Column으로 평균 / 표본 수 / 긴장도를 기록과 함께 저장한다. 조회 시 평균을 재계산하지 않는다. 생성 / 최신에 baseline, 이력에 tension을 추가한다. 체험 계정은 모든 방문자의 공유 평균임을 화면에 표시한다.
 - AI에는 한국어 긴장도와 심박수 / 호흡수 차이만 추가하며 식별 정보 제외를 유지한다. 처리 안내를 갱신하고 Smoke는 Score / 지표 / 날씨 값 비교와 나머지 형식 검사 및 latest == created를 유지한다.
 - 상세는 [26-PERSONAL-BASELINE.md](26-PERSONAL-BASELINE.md)를 따른다. Executor DONE은 구현 완료이며 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.
+
+## DEC-044 TASK-064 PWA 설치
+
+- Human Approved 2026-10-05: “PWA (화면에 앱 설치 버튼 추가) 승인!” 및 승인 Contract / 명시 실행 지시.
+- 설치만 지원한다. Service Worker / Offline / 푸시 알림은 넣지 않는다. Backend / API / DB / Dependency는 변경하지 않는다.
+- 버튼은 모든 화면 Footer의 개인정보 처리 안내 앞과 아바타 메뉴의 개인정보 처리 안내 / 로그아웃 사이에 둔다. Chromium 설치 이벤트는 Browser 설치 창, iOS / iPadOS는 사용자 요청 시 안내 창으로 처리한다. 미지원 / 설치 완료 / 독립 창에서는 숨긴다.
+- 1년 immutable Cache 때문에 Manifest를 app.webmanifest로 옮기며 기존 아이콘 파일은 유지한다. 상세는 [27-PWA-INSTALL.md](27-PWA-INSTALL.md)를 따른다. 구현 승인은 최종 완료 승인을 대신하지 않는다.

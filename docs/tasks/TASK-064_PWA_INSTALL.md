@@ -113,6 +113,20 @@ MoodFit을 휴대폰 홈 화면이나 PC에 앱처럼 설치해, 주소창 없�
 
 - Sandbox에서 npm Test를 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다.
 
+## Run 2 범위 (검토 중심)
+
+Run 1에서 구현은 끝났고, Orchestrator Verify가 Frontend Test 1건에서 멈췄다(260건 중 259건 통과).
+
+- 실패: `install.test.tsx`의 Manifest / HTML 검사가 `new URL("…", import.meta.url)`로 파일 경로를 만들었는데, Test 환경(jsdom)에서는 `import.meta.url`이 `file:` 주소가 아니어서 `readFileSync`가 거부했다.
+- 조치(Claude 세션, Sandbox 밖): 경로를 `resolve(process.cwd(), "public/app.webmanifest")`, `resolve(process.cwd(), "index.html")`로 바꿨다(Test는 `frontend/`에서 실행된다). 검사 내용과 구현은 그대로다.
+- Sandbox 밖 결과: Frontend Test 260건 통과, `tsc --noEmit` / Build 통과. Build 결과물에 `app.webmanifest`와 `icon-maskable-512.png`가 있고 `site.webmanifest`는 없다.
+- Claude 세션의 화면 확인: 설치 Event가 오면 Footer와 아바타 메뉴에 "앱 설치"가 나타나고, 누르면 `prompt()`가 1회 불린 뒤 버튼이 사라진다. 지원하지 않는 환경에서는 Footer와 메뉴 어디에도 없다. iOS User Agent에서는 안내 창이 열리고 "닫기"로 초점이 가며 Esc로 닫히면 초점이 버튼으로 돌아온다. Chrome의 Manifest 해석 오류는 없고 설치 조건 검사에서 남은 항목은 검사 환경(시크릿 창)뿐이다. 390 / 768 / 1280px 가로 넘침 없음.
+
+이번 Run에서 할 일:
+
+1. 구현이 위 설계와 맞는지 다시 확인하고, 어긋난 곳만 고친다. 통과한 Test를 다시 쓰지 않는다. `import.meta.url`로 파일 경로를 만들지 않는다.
+2. `docs/08-WORK_LOG.md`에 Run 2 경과를 한 단락 더한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

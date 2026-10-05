@@ -11,6 +11,7 @@
 | [07-TASKS](07-TASKS.md) | Task 목록과 상태 (Current Task 기준) |
 | [08-WORK_LOG](08-WORK_LOG.md) | Task별 작업 / 검증 기록 |
 | [09-DECISIONS](09-DECISIONS.md) | 승인된 결정(DEC-xxx), Source of Truth |
+| [27-PWA-INSTALL](27-PWA-INSTALL.md) | 홈 화면 / PC 설치, Browser별 버튼과 Manifest Cache |
 | [10-WELLNESS-RULE-PROPOSAL](10-WELLNESS-RULE-PROPOSAL.md) | Wellness Rule 검토 근거 (DEC-014) |
 | [tasks/](tasks/README.md) | Multi-Agent 자동화 / AWS 배포 Roadmap (TASK-018 ~ TASK-031) |
 | [releases/](releases/) | Release 노트 (DEC-025) |

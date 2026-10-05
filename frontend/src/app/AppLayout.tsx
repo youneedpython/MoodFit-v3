@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { UserMenu } from "../features/auth/UserMenu";
+import { InstallAppButton } from "../features/install/InstallAppButton";
 import { formatHeaderDate } from "../utils/dateTime";
 import "./AppLayout.css";
 
@@ -47,6 +48,7 @@ export function AppLayout() {
       </main>
       <footer className="container app-footer">
         <p>© MoodFit · 교육용 Product Heuristic이며 의학적 조언이 아닙니다.</p>
+        <InstallAppButton />
         <Link to="/privacy">개인정보 처리 안내</Link>
       </footer>
     </div>
