@@ -3836,3 +3836,5 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Test를 보완했다: Footer secondary, 측정 미지원 / 30건 320px 초기 225% / 1.5배 조작 / 범위 비활성화 / 전체 보기 / Label 변화와 마지막 위치 / 3건 기본 배율, 순수 Pinch 함수. 기존 장식 영역 검사는 새 안쪽 영역을 확인한다.
 - 자체 bash scripts/verify.sh는 Node.js 버전 확인 후 npm ci의 캐시 stat EPERM으로 중단됐다. Test / 타입 검사 / Build는 실행하지 못했으며 자동 재시도 / 권한 우회는 하지 않았다. 판정은 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 연속 물음표 / U+FFFD 검사를 수행한다.
 - Claude 세션의 390 / 768 / 1280px 기록 많음 / 적음, 확대 전후 / Footer 캡처가 남는다. 캡처 경로는 allowed_paths 밖이므로 Executor가 추가하지 않았다. Remote CI / Human Squash Merge 이후 실제 휴대폰 Pinch / 밀어 보기를 Human이 확인한다. Executor DONE은 검증 성공 / 최종 완료 승인이 아니다.
+- 화면 확인(Claude 세션, `docs/images/task-065/`): 최종 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. 휴대폰 화면(390px, Touch)을 흉내 낸 Chrome에 두 손가락 터치 입력을 직접 보내 확인했다. 기록 30건(4일)에서 처음에 점 4개와 평균 안내, 벌리면 점 30개와 밀어 보기 안내, 오므리면 다시 점 4개다. 그래프 위 한 손가락 세로 밀기는 화면을 세로로 스크롤한다. 기록 3건이면 버튼과 안내가 없다. Footer의 "앱 설치"는 358 × 44px 전체 너비 버튼이다. 768 / 1280px 포함 가로 넘침이 없다. 실제 기기에서의 Pinch는 확인하지 못했다.
+
