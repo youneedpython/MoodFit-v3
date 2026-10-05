@@ -1,5 +1,14 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-066 — Slider 접근성 / 로그인 버튼 높이 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. Task source와 필수 Context를 확인하고 TASK-066만 IN_PROGRESS로 등록한 뒤 승인된 구현을 DONE으로 반영했다. Executor DONE은 구현 완료이며 검증 성공이나 Human 완료 승인을 대신하지 않는다. 다른 Task와 Current Task는 변경하지 않았다.
+- 컨디션 Slider의 aria-describedby / aria-invalid를 제거하고 숫자 입력칸에는 기존 안내 / 오류 연결을 유지했다. 빈 값에만 aria-valuetext="입력 안 함"을 제공한다. 접근성 이름, 숫자 / Slider 동기화, 빈 값 유지, 검증과 제출은 유지했다.
+- 세 항목의 접근성 속성 / 빈 값과 숫자 전환을 기존 동기화 Test에서 검사하고, 각 항목만 비워 제출할 때 필수 오류 / 숫자 입력칸 초점 / API 호출 차단을 검사하는 회귀 Test를 추가했다. 기존 Slider 제출 Test는 유지했다. 로그인 높이의 jsdom Test는 추가하지 않았다.
+- 로그인 세 버튼의 최소 높이를 52px로 맞추고 border-box를 명시했다. 제공자 버튼의 세로 여백을 0으로 줄여 안쪽 내용이 높이를 더 키우지 않게 했다. 너비 / 색 / Logo / 문구 / 간격 / Hover / Focus와 로그인 흐름은 유지한다. 진행 문구도 같은 높이 규칙을 적용한다.
+- 자체 `bash scripts/verify.sh`는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단됐다. Test / 타입 검사 / Frontend Build / Backend 검증을 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. 판정 기준은 Sandbox 밖 Orchestrator Verify다.
+- `git diff --check`와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. Claude 세션의 로그인 세 버튼 실측과 390 / 1280px 캡처가 남는다. 캡처 경로는 allowed_paths 밖이므로 Executor가 생성하지 않았다. Git 작업은 수행하지 않았으며 Remote CI / Human Squash Merge는 후속 절차다.
+
 ## TASK-064 — PWA 설치 (2026-10-05)
 
 - Run 2 (2026-10-05): 최초 Working Tree는 Run 1 구현과 Test 경로 수정이 포함된 clean 상태였다. Task source와 필수 Context를 읽고 React 실행 전 Listener 등록, 초기 / 지연 이벤트 구독, 단일 이벤트 소비와 처리 중 비활성화, 설치 완료 / 독립 창 / 미지원 환경의 숨김, Footer / 메뉴 위치와 기존 44px 터치 영역, iOS / iPadOS 판별 및 안내 창의 초점 / Esc / 바깥 클릭 / 복원, 새 Manifest와 iOS Meta Tag를 설계와 대조했다. 불일치를 발견하지 않아 구현과 통과한 Test 및 Task 상태는 수정하지 않았다. Manifest / HTML Test는 node:fs와 resolve(process.cwd(), ...)를 사용하며 import.meta.url을 사용하지 않는다. Task source의 Sandbox 밖 Frontend Test 260건 / tsc --noEmit / Build 통과, 배포 산출물 및 Claude 세션의 화면 / Chrome Manifest 확인은 전달받은 참고 증거다. 이번 자체 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Sandbox 밖 Orchestrator Verify가 검증 기준이며 Executor DONE은 Run 2 재검토와 기록 완료만 뜻한다. Git 작업은 수행하지 않았고 Human Squash Merge와 Merge 후 Staging 실제 기기 설치 확인은 후속 작업이다.
