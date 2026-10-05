@@ -7,9 +7,10 @@ import { formatDisplayDateTime } from "../../utils/dateTime";
 
 type WellnessHeroProps = {
   checkin: CheckinResponse;
+  past?: boolean;
 };
 
-export function WellnessHero({ checkin }: WellnessHeroProps) {
+export function WellnessHero({ checkin, past = false }: WellnessHeroProps) {
   const { mood, wellnessScore, summary, weather, recordedAt } = checkin;
 
   return (
@@ -21,10 +22,10 @@ export function WellnessHero({ checkin }: WellnessHeroProps) {
           <span className="wellness-hero__time">{formatDisplayDateTime(recordedAt)} 기록</span>
         </div>
         <h2 id="wellness-hero-title" className="wellness-hero__title">
-          지금 컨디션은 <strong>{mood.label}</strong>
+          {past ? "그날" : "오늘"} 컨디션은 <strong>{mood.label}</strong>
         </h2>
         <p className="wellness-hero__summary">{summary}</p>
-        <ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>
+        {!past && <ButtonLink to="/check-in" variant="secondary">다시 입력하기</ButtonLink>}
       </div>
 
       <WellnessTiles wellnessScore={wellnessScore} weather={weather} />

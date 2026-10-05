@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Card } from "../../components/Card/Card";
+import { Badge } from "../../components/Badge/Badge";
 import { Button } from "../../components/Button/Button";
 import { ApiError, request } from "../../services/api";
 import { useAuth } from "../auth/AuthProvider";
@@ -73,7 +74,7 @@ function InsightContent({ path, weekly, automatic }: { path: string; weekly: boo
     finally { setBusy(false); }
   }
   if (!response?.enabled) return null;
-  return <Card title={weekly ? "주간 리포트" : "AI 코멘트"} className="insight-card">
+  return <Card title={weekly ? "주간 리포트" : "AI 코멘트"} aside={<Badge tone="accent">AI</Badge>} className="insight-card">
     {!response.available ? <p>소셜 로그인 후 이용할 수 있습니다</p> : <>
       <div className="insight-card__body">
       {weekly && "periodStart" in response && response.periodStart && <p className="insight-card__period">

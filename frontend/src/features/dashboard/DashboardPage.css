@@ -3,6 +3,10 @@
   flex-direction: column;
   gap: var(--space-4);
 }
+.dashboard-today-notice p { margin-bottom: var(--space-4); }
+.dashboard-baseline { display: flex; flex-wrap: wrap; gap: var(--space-5); margin-bottom: var(--space-4); }
+.dashboard-baseline dd { margin: 0; }
+.dashboard-last-record > h2 { padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); font-size: var(--font-size-lg); }
 
 /* Wellness Hero */
 .wellness-hero {

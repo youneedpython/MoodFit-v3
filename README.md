@@ -1,5 +1,7 @@
 # MoodFit v3
 
+Dashboard는 서울 날짜 기준 오늘 기록 여부를 구분합니다. 오늘 미입력이면 입력 안내를 먼저 표시하고 저장된 평균과 마지막 기록을 구분하며, 지난 기록의 AI 코멘트는 자동 생성하지 않습니다.
+
 <img src="frontend/public/favicon.svg" alt="MoodFit 로고" width="64" height="64" />
 
 [![CI](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml/badge.svg)](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml)

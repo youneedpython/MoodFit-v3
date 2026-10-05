@@ -1,5 +1,17 @@
 export const MOODFIT_TIME_ZONE = "Asia/Seoul";
 
+/** Calendar-day distance in Seoul, independent of elapsed hours. */
+export function seoulDayDifference(recordedAt: string, now: Date = new Date()) {
+  const day = (date: Date) => {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: MOODFIT_TIME_ZONE, year: "numeric", month: "numeric", day: "numeric"
+    }).formatToParts(date);
+    const value = (type: string) => Number(parts.find((part) => part.type === type)!.value);
+    return Date.UTC(value("year"), value("month") - 1, value("day"));
+  };
+  return Math.max(0, Math.round((day(now) - day(new Date(recordedAt))) / 86400000));
+}
+
 /** Date-only API strings are formatted without interpreting them as UTC instants. */
 export function formatReportPeriod(start: string, end: string, now: Date = new Date()) {
   const parse = (value: string) => {

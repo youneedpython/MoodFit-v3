@@ -1,5 +1,13 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-069 — Dashboard Today State (2026-10-05)
+
+- 승인된 Gate B / Contract 범위에서 오늘 결과, 미입력 안내, 저장된 평균과 마지막 기록 구역을 구현했다. 추천 평가 / 재생과 Empty State를 유지했다.
+- 서울 달력 날짜 함수 및 1분 Interval / 화면 복귀 갱신과 정리, 지난 기록의 자동 생성 차단, 공통 AI Card 강조를 추가했다.
+- 날짜 경계 / 오늘·어제·3일 전 / 평균 유무 / 화면 복귀 / AI POST 여부 / Badge Test를 추가했다.
+- Verification: git diff --check 통과. npm test는 설치된 vitest가 없어 실행하지 못했다. bash scripts/verify.sh는 npm ci에서 Sandbox의 npm cache 접근 EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- Executor DONE은 구현 완료만 뜻한다. Claude 화면 확인(네 상태 × 390 / 768 / 1280px)과 캡처 기록, Remote CI / Human Squash Merge가 남아 있다. 캡처 경로는 allowed_paths 밖이므로 작성하지 않았다.
+
 ## TASK-067 — CI Path Filter (2026-10-05)
 
 - 최초 Working Tree는 clean이었다. 승인 Contract와 필수 Context를 확인하고 TASK-067만 IN_PROGRESS로 등록한 뒤 구현 완료를 DONE으로 반영했다. COMMON.md 9절에 따라 다른 Task와 Current Task는 유지했다.
@@ -3860,4 +3868,3 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Human 지시("release 출시해")에 따라 `docs/releases/v3.4.0.md`를 작성했다. 범위는 `v3.3.0` 이후의 TASK-064(홈 화면 설치, 앱 설치 버튼)와 TASK-065(모바일 앱 설치 버튼 크기, History 그래프 날짜별 평균 / 확대)이다.
 - Tag `v3.4.0`과 GitHub Release는 이 PR이 Merge된 뒤 그 Commit에 만든다(DEC-025).
 - AWS Architecture 그림(`docs/images/readme/aws-architecture.png`)을 다시 그렸다(Human 지시: "aws architecture에 aws 아이콘도 넣었으면 해", 후속 후보 "Bedrock 경로 추가"). 각 Service에 AWS Architecture Icons를 넣었고, 별도 AWS 계정의 Amazon Bedrock(STS AssumeRole)과 Google / Kakao OAuth 호출 경로를 더했다. Spring Boot Version 표기(4.1)와 Secrets Manager 설명(OAuth 값)을 현재 구성에 맞췄다. Bedrock은 사용한 아이콘 묶음(2021)에 전용 아이콘이 없어 Machine Learning 분류 아이콘을 썼다. 그림에는 계정 ID나 ARN이 없다.
-

@@ -61,6 +61,12 @@ Core MVP에서는 `react-router` `8.4.0`을 사용하고 `react-router-dom`은 �
 
 #### B. Wellness Hero
 
+TASK-069: Asia/Seoul 날짜로 오늘 여부를 판단하고 1분마다 및 화면 복귀 때 갱신한다. 오늘 기록은 “오늘 컨디션은 …”과 보조 “다시 입력하기” Link를 표시한다. 오늘 기록이 없으면 h2 “오늘 상태를 아직 입력하지 않았어요”, 경과 일수(하루 전은 “어제”)와 날짜, 강조 “오늘 상태 입력” Link를 먼저 표시한다. 안내에는 기분 / Score / 날씨를 넣지 않는다.
+
+저장된 Baseline이 있으면 h2 “최근 14일 평균” 아래 다섯 평균과 단위, 기록 건수 및 오늘 추정값이 아니라는 안내를 표시한다. 평균을 새로 계산하지 않는다. 이어서 aria-labelledby로 h2 제목을 연결한 “마지막 기록 · N일 전 (기록 시각)” section에 기존 결과를 표시한다. Hero 제목은 “그날 컨디션은 …”이며 입력 Link는 없다. 구역 제목 아래 구분선과 위치로 지난 정보를 구분하고 글자 대비와 Score 색은 유지한다. 기록이 전혀 없으면 기존 Empty State다.
+
+공통 AI 코멘트 / 주간 리포트 Card는 surface-raised 배경, 왼쪽 Blue → Purple 선, 제목 옆 AI Badge와 기존 Card 그림자를 사용한다. 세 화면 및 체험 계정 안내에 동일하게 적용한다.
+
 - 현재 Mood Badge
 - Wellness Score
 - 상태 Headline

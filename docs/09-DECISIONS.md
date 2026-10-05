@@ -1,5 +1,13 @@
 # 09. MoodFit v3 Decisions
 
+## DEC-046 TASK-069 Dashboard 오늘 기록 상태
+
+- Human Approved 2026-10-05, Gate B: 승인된 Contract와 명시 실행 지시.
+- 오늘 기록이 없으면 통계로 오늘 상태를 추정하지 않는다. 오늘 미입력을 먼저 알리고 저장된 평소 값과 지난 기록을 그 이름대로 표시한다.
+- 오늘은 Asia/Seoul 달력 날짜다. 지난 기록의 AI 자동 생성은 막고 수동 생성은 유지한다. 공통 AI Card를 기존 표면색 / 강조 선 / AI Badge로 강조한다.
+- 오늘 날씨 추천과 Backend 변경은 다음 Task 범위다.
+
+
 ## 1. 문서 목적
 
 이 문서는 MoodFit v3 개발 과정에서 Human Review를 통해 승인된
@@ -1603,6 +1611,7 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - 1년 immutable Cache 때문에 Manifest를 app.webmanifest로 옮기며 기존 아이콘 파일은 유지한다. 상세는 [27-PWA-INSTALL.md](27-PWA-INSTALL.md)를 따른다. 구현 승인은 최종 완료 승인을 대신하지 않는다.
 
 ## DEC-045 TASK-067 경로에 따른 CI Job 실행
+
 
 - Human Approved 2026-10-05, Gate C: “'작은 후속 후보' 모두 진행해.” 및 승인된 TASK-067 Contract / 명시 실행 지시.
 - changes Job에서 PR base...head / main push before..head를 비교한다. frontend / backend는 각각 해당 Job, contracts / .github / scripts / harness / Root package.json / package-lock.json / .nvmrc는 두 Job을 실행한다. docs / prompts / infra / Root Markdown은 실행 대상이 아니며 혼합 변경은 합집합으로 판단한다.
