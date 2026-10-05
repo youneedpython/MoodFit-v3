@@ -1,0 +1,50 @@
+{
+  "id": "TASK-062",
+  "title": "Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리)",
+  "task_file": "docs/tasks/TASK-062_LOGIN_BUTTONS_FOOTER.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/",
+    "docs/22-AUTH.md",
+    "docs/03-UX_UI_SPEC.md"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

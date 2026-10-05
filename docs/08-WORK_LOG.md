@@ -3704,6 +3704,36 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 확인 창은 화면 폭 안의 너비, viewport 높이 제한과 내부 스크롤, 버튼 줄바꿈을 적용했다. Claude 세션의 390 / 768 / 1280px 캡처와 실제 화면 확인은 후속 작업이며 allowed_paths 밖 이미지 경로에는 쓰지 않았다.
 - Executor DONE은 구현 완료이며 검증 / Review / Human Squash Merge 승인과 다르다. Git 작업은 수행하지 않았다. Remote CI / Human Squash Merge 이후 Staging 소셜 / 체험 메뉴와 탈퇴 확인 흐름을 확인한다.
 - 화면 확인(Claude 세션, `docs/images/task-057/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 사용자 메뉴와 회원 탈퇴 확인 창을 390 / 768 / 1280px로 캡처했다. 메뉴는 닉네임 / 제공자 → 개인정보 처리 안내 → 로그아웃 → 구분선 → 회원 탈퇴 순서이고, 체험 계정 메뉴에는 회원 탈퇴가 없다. 확인 창의 버튼은 공통 Button 모양이다. 세 폭 모두 가로 넘침이 없다.
+## TASK-058 — Feedback Icons (2026-10-05)
+
+- 승인된 TASK-058 Contract와 Human 명시 실행 지시를 기준으로 추천 영역만 수정했다. 초기 Working Tree는 clean이었다. 계정 영역 / API / 추천 규칙 / Dependency는 변경하지 않았다.
+- 공통 RecommendationCards에서 음식과 음악 이름 줄에 Badge와 평가 묶음을 배치하고 추천 이유 아래 평가 줄을 제거했다. Badge와 묶음은 함께 줄바꿈되며 이름은 긴 낱말도 줄바꿈한다.
+- Inline SVG 엄지 아이콘 두 개를 하나의 알약 테두리와 구분선으로 묶었다. 보이는 글자를 없애고 접근성 이름 / aria-pressed / 항목별 평가 그룹 / title을 제공한다. 눌림은 채움과 강조 색으로 구분하고 기존 Token으로 44 × 44px 터치 영역 / Hover / 초점 표시를 유지한다.
+- 기존 저장 / 교체 / 지우기 / 실패 복구 / 평가 불가 조건 / 안내 / 재생을 유지했다. 이름 줄 자손 / 글자 없음 / SVG 접근성 / 채움 전환 / 저장 중 양쪽 비활성화 Test를 보완했다.
+- Verification: bash scripts/verify.sh는 Node.js 버전 일치 후 npm ci에서 npm 캐시 stat EPERM으로 중단됐다. 설치된 TypeScript / Vitest 실행 파일도 없어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 우회는 하지 않았으며 실제 통과를 주장하지 않는다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- git diff --check 및 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Executor DONE은 구현 완료만 뜻하며 검증 / Review / 최종 완료 승인을 대신하지 않는다.
+- 화면 캡처는 Contract에 따라 Claude 세션이 390 / 768 / 1280px에서 확인한다. 캡처 경로는 Executor allowed_paths 밖이므로 생성하지 않았다. 검증 / Review 후 승인된 Git 후속 작업과 Human Squash Merge, Merge 뒤 Staging 화면 확인이 남는다.
+
+### TASK-058 Run 2 — 기존 구현 재확인 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인 Task source와 필수 Context를 읽고 이름 줄의 Badge / 평가 묶음 배치, 알약 테두리 / 구분선 / Inline SVG, 글자 없는 버튼의 접근성 이름 / title / aria-pressed / 평가 그룹, 채움과 강조 색 전환, 기존 44px 터치 Token / 초점 표시, 평가 불가 조건 및 저장 / 지우기 / 교체 / 실패 복구와 음악 재생 유지 여부를 재확인했다. 수정이 필요한 불일치는 발견하지 않아 구현과 통과한 Test, 다른 Task 상태를 유지했다. Task source의 Run 1 Frontend Test 224건 및 Backend Test / Build 통과와 동시 검증으로 인한 제한 시간 초과, Claude 세션의 390 / 768 / 1280px 화면 확인은 전달받은 참고 증거이며 이번 Executor 실행 결과가 아니다. 이번 bash scripts/verify.sh는 npm ci에서 사용자 캐시 stat EPERM과 node_modules 정리 EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 재확인과 기록 완료만 뜻한다. Git 작업은 수행하지 않았다. Claude 세션의 화면 캡처 기록과 Human Squash Merge, Merge 뒤 Staging 화면 확인은 후속 작업으로 유지한다.
+- 화면 확인(Claude 세션, `docs/images/task-058/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 Dashboard(390 / 768 / 1280px), 체험 계정, Check-in 결과(390px)를 캡처했다. 평가 버튼이 이름 줄 오른쪽의 알약 모양 아이콘 묶음으로 보이고 눌린 쪽은 채워진 강조 색이다. 체험 계정에는 묶음이 없다. 390px에서 이름이 긴 항목은 Badge와 묶음이 다음 줄로 내려가며 가로 넘침은 없다.
+### TASK-059 — Weather Card Layout (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. Task source와 필수 Context, 승인 Decision을 확인하고 TASK-059만 IN_PROGRESS로 등록했다. Check-in 날씨 영역만 구현하고 Executor 완료를 DONE으로 기록했다.
+- 모드 / 상태 / 결과 또는 직접 입력, secondary 버튼, 좌표 안내 / 출처를 DOM 순서대로 세 묶음으로 배치했다. 기존 Token으로 간격과 결과 글자 강조를 적용하고 출처 / 버튼 줄바꿈을 허용했다. 자동 설명 외 문구, 링크, 동작, 오류와 접근성 속성을 유지했다.
+- compareDocumentPosition으로 자동 성공 / 직접 입력 / 위치 실패 순서를 검사하고 모드별 설명, secondary Variant와 aria-live를 검사하는 Test를 추가했다. 기존 날씨 Test는 유지했다.
+- 자체 bash scripts/verify.sh는 npm ci의 캐시 stat EPERM / node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Test / TypeScript / Frontend 및 Backend Build는 실행되지 않았다. 재시도 / 설치 변경 / Sandbox 우회는 하지 않았다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- git diff --check 및 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. UTF-8 apply_patch로 한글을 기록했다. Git 후속 작업은 수행하지 않았다.
+- Claude 세션의 390 / 768 / 1280px 자동 / 직접 입력 / 실패 화면 확인과 캡처가 남는다. 캡처 경로는 이번 allowed_paths 밖이며 앱 설치도 제한되어 Executor에서는 생성하지 않았다. Remote CI / Human Squash Merge 이후 Staging 화면 확인이 남는다. DONE은 구현 완료이며 검증 / Review / Human 완료 승인을 대신하지 않는다.
+- 화면 확인(Claude 세션, `docs/images/task-059/`): 이 Branch의 Build를 로컬에서 띄우고 날씨 / 지역 조회는 가짜 응답으로 대신해 날씨 영역을 자동 / 직접 입력 / 위치 권한 거부 세 경우로 390 / 768 / 1280px에서 캡처했다. 자동 모드는 모드 → 상태 문구 → 조회 결과 → 버튼 → 좌표 안내 → 출처 순서이고, 직접 입력 모드는 조회 결과 자리에 입력칸이 온다. 버튼은 덜 강조되는 모양이다. 모든 경우에 가로 넘침이 없다.
+
+### UI / UX 개선 Task 등록 (2026-10-05, Claude 세션, Human 지시)
+
+- Human이 Staging 화면을 보고 지적한 두 가지(회원 탈퇴 메뉴가 보이지 않음, 추천 평가 버튼이 복잡함)와 Check-in 날씨 영역 배치를 TASK-057 / 058 / 059로 진행했다. UI / UX 수정은 화면(성격)별로 나눠 진행하기로 했다.
+- Human 요청으로 Claude 세션이 Dashboard / Check-in / History / 로그인 화면을 훑어 개선 후보를 뽑았고, Human이 모두 Task로 정리하도록 지시했다. TASK-060(History), TASK-061(Dashboard 추천 영역), TASK-062(로그인 / Footer), TASK-063(Check-in 입력 / 결과)을 READY로 등록했다.
+- 후보 가운데 "History 그래프의 시간 방향"은 Claude 세션의 오인이었다(캡처용 가짜 데이터의 순서가 거꾸로였다). 실제 그래프는 과거 → 현재 순서라 Task에서 뺐다.
+- 이 변경은 Task 문서, Contract, Task 목록만 더한다. 코드는 바꾸지 않았다.
 
 ### TASK-060 — History Record Compact (2026-10-05)
 

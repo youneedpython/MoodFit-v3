@@ -1,0 +1,50 @@
+{
+  "id": "TASK-061",
+  "title": "Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치)",
+  "task_file": "docs/tasks/TASK-061_DASHBOARD_RECOMMENDATION_COMPACT.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/",
+    "docs/20-RECOMMENDATION-MUSIC-PLAYBACK.md",
+    "docs/26-PERSONAL-BASELINE.md"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}
