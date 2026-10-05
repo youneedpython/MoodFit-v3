@@ -31,28 +31,17 @@ Wiki에는 화면 소개보다 **어떻게 만들었고 왜 그렇게 정했는�
 
 ## 사용 영상
 
-그림을 누르면 영상이 열립니다. Staging 환경에서 체험 계정("로그인 없이 둘러보기")으로 녹화했습니다.
+Staging 환경에서 체험 계정("로그인 없이 둘러보기")으로 녹화했습니다.
 
-<table>
-  <tr>
-    <td align="center" width="70%">
-      <a href="https://github.com/youneedpython/MoodFit-v3/releases/download/v3.5.0/04-full-flow-v3.5.0.mp4">
-        <img src="docs/images/readme/video-desktop.png" alt="MoodFit 사용 영상 (PC) 재생" />
-      </a>
-      <br /><b>PC · 1분 24초</b><br />
-      로그인 → Check-in(날씨 자동 조회, Slider) → 결과 → Dashboard(추천 평가, 음악 재생) → History(그래프 확대, 기록 펼치기)
-    </td>
-    <td align="center" width="30%">
-      <a href="https://github.com/youneedpython/MoodFit-v3/releases/download/v3.5.0/05-mobile-v3.5.0.mp4">
-        <img src="docs/images/readme/video-mobile.png" alt="MoodFit 사용 영상 (모바일) 재생" width="220" />
-      </a>
-      <br /><b>모바일 · 1분 21초</b><br />
-      같은 흐름을 390px 화면에서
-    </td>
-  </tr>
-</table>
+**PC (1분 24초)** — 로그인 → Check-in(날씨 자동 조회, Slider) → 결과 → Dashboard(추천 평가, 음악 재생) → History(그래프 확대, 기록 펼치기)
 
-- 영상 파일은 [Release v3.5.0](https://github.com/youneedpython/MoodFit-v3/releases/tag/v3.5.0)에 첨부되어 있습니다.
+https://github.com/user-attachments/assets/46f7aa75-183b-473d-a1ca-481532a89bd1
+
+**모바일 (1분 21초)** — 같은 흐름을 390px 화면에서
+
+https://github.com/user-attachments/assets/3d1aa8af-b188-4b2f-9d87-f436d97abba0
+
+- 재생되지 않으면 [Release v3.5.0](https://github.com/youneedpython/MoodFit-v3/releases/tag/v3.5.0)의 첨부 파일을 내려받아 볼 수 있습니다.
 - AI 코멘트와 주간 리포트는 소셜 로그인이 필요해 이 영상에는 나오지 않습니다.
 
 ---
