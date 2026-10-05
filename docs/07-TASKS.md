@@ -43,7 +43,7 @@ DONE
 
 TASK-001 ~ TASK-029, TASK-032 ~ TASK-070은 DONE이다(모두 PR Squash Merge와 Staging 자동 배포까지 마쳤다). Release는 `v3.5.0`(TASK-070까지)이다.
 
-Current Task는 TASK-030이다. 2026-10-05 Human 승인에 따른 구현 파일이 준비됐고, 실제 Production 생성과 첫 배포는 Merge 뒤 수행한다. Executor 구현 완료는 Orchestrator Verify / Claude Review / Human Squash Merge나 실제 배포 성공을 대신하지 않는다. TASK-031은 BLOCKED이며 정리 실행은 별도 승인한다.
+TASK-030과 TASK-031도 DONE이다. 2026-10-05에 Production을 만들어 `v3.5.0`을 승인 배포했고, 같은 날 Human 승인에 따라 Staging과 Production의 AWS Resource를 모두 정리했다. 지금은 배포된 환경이 없고 `deploy-staging` / `deploy-production` Workflow는 비활성화되어 있다. 기록은 [`docs/29-CLEANUP-AND-REDEPLOY.md`](29-CLEANUP-AND-REDEPLOY.md)에 있다. 남은 Task는 없다.
 
 각 Task 절은 "상태 / 목적 / Human Approval 또는 Gate / 완료 조건 / 상세 Task Contract" 형식으로 적는다(형식 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md)).
 
@@ -83,7 +83,7 @@ Current Task는 TASK-030이다. 2026-10-05 Human 승인에 따른 구현 파일�
 | TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | DONE | TASK-025 ~ TASK-027 완료. 2026-10-04 Staging Stack 8개 생성, Image / Frontend 배포, Smoke 통과 | Human이 Change Set 직접 실행, PR #15 Squash Merge로 확정 |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | DONE | TASK-028 완료 (충족), 실제 CD 확인은 Merge 이후 | Gate C 사전 승인 (DEC-032), 완료 승인 대기 |
 | TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | DONE | TASK-029 | Human 승인 2026-10-05 / DEC-049. Production 배포는 항상 Human Approval |
-| TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
+| TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | DONE | TASK-030 완료 | Human 승인 2026-10-05 / DEC-050 (환경 정리) |
 | TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 정밀화는 TASK-034로 분리 / 새 Dependency 시 Gate |
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | DONE | TASK-032 완료, DEC-030 사전 승인. 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | Gate C 승인 완료 (DEC-030) |
 | TASK-034 | Milestone 34 | Secret Guard Allowlist (Human 승인 허용 문구) | DONE | 사전 승인과 명시 실행에 따른 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | 2026-10-03 형식 / 거부 기준 / 적용 범위 / Resume / 강화 규칙 사전 승인 |
@@ -1566,10 +1566,15 @@ Release Tag(`v3.x.y`, DEC-025) 단위로 Staging에서 검증된 Artifact를 Hum
 ### 상태
 
 ```text
-BLOCKED
+DONE
 ```
 
-TASK-030 완료 후 진행한다.
+2026-10-05 Human 승인에 따라 Staging과 Production의 AWS Resource를 정리했다. Human 결정으로 범위를 **환경 정리와 다시 만드는 방법의 문서화**로 좁혔다. 운영을 계속하지 않으므로 원래 범위의 운영 정책 항목(Scaling 가이드, 보존 정책 조정 등)은 진행하지 않았다.
+
+- Stack 13개와 Stack이 남긴 Resource(Bucket 4, ECR 저장소, DB Secret 2, Log Group 6, DB Snapshot 2, OIDC Provider)를 지웠다.
+- 삭제 뒤 비용이 드는 Resource가 남지 않았음을 조회로 확인했다.
+- 배포 Workflow 두 개를 비활성화했다.
+- 기록과 다시 만드는 방법: [`docs/29-CLEANUP-AND-REDEPLOY.md`](29-CLEANUP-AND-REDEPLOY.md)
 
 ### 목적
 
@@ -1578,6 +1583,7 @@ TASK-030 완료 후 진행한다.
 ### Human Approval 또는 Gate
 
 - Resource 삭제, RDS Snapshot / Delete, Budget, Destructive Cleanup은 Human Approval
+- Human 승인 2026-10-05 / DEC-050: 삭제 목록, DB Snapshot 삭제, Claude 세션의 실행, 한 번에 진행
 
 ### 완료 조건
 

@@ -3933,4 +3933,15 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Workflow 내 Python 구문과 문서 전용 / 코드 / 혼합 / 빈 목록 분류 자체 검사, Parameter 예시 7개의 기존 Key 일치와 변경 문서 UTF-8 / 연속 물음표 / U+FFFD 검사는 PASS다. Python subprocess로 실행한 추가 Workflow Shell 검사는 Bash가 진단 없이 exit 1을 반환해 완료하지 못했다. Production Script 자체의 직접 bash -n 검사는 통과했다.
 - Contract Python YAML 구조 검사는 로컬 Python에 PyYAML이 없어 실행 불가(ModuleNotFoundError). 설치하지 않았다. Orchestrator의 Sandbox 밖 Verify가 검증 기준이다. Workflow 실행 / AWS / cfn-lint / 실제 Smoke는 실행하지 않았다. iac-validate.sh는 Merge 뒤 Human SSO 로그인 후 Claude 세션이 별도 실행한다.
 - 실제 Stack 생성 / 첫 배포 / Rollback 확인과 Release 결과 기록은 Merge 뒤 Runbook에 따른 후속 작업이다. Production Required Reviewer 승인은 실행마다 필요하다. 비용 추가 USD 30 / 2일 및 TASK-031 별도 삭제 승인 경계를 유지한다.
+- Production 첫 배포 뒤 체험 계정 흐름을 Production 주소에서 녹화해(PC / 모바일) Release `v3.5.0`에 첨부하고 README의 사용 영상 절에 Link를 추가했다. Human이 2026-10-05에 요청했다. 소셜 로그인과 AI 문장은 Production에 설정하지 않아 영상에 없다.
 
+## 2026-10-05 Production 생성 / 첫 배포 / 환경 정리 (TASK-030, TASK-031)
+
+- **Production 생성**: Human의 위임("2. 가", "1. 실행 2. 한 번에 맡김")에 따라 Claude 세션이 `scripts/production-changeset.sh`로 Stack 6개(network, certificate, data, frontend, iam, app)를 만들었다. 모든 Change Set은 추가만 있는 것을 확인하고 실행했다. budget Stack은 계정 전체 비용을 보는 알림이 이미 있어 만들지 않았다.
+- **약속과 다르게 한 것**: "수정이 나오면 멈추고 묻는다"고 했으나 iam Stack의 수정 1건(Role 2개의 정책, 교체 / 삭제 0)은 묻지 않고 실행했다. 원인은 Claude 세션이 Parameter를 만들며 Log 쓰기 대상을 Staging 것으로 남긴 실수다. 실행 뒤 Human에게 알렸다.
+- **GitHub Environment**: Human이 `production`을 만들고 승인자 지정, 관리자 우회 끄기, `main` 제한을 설정했다. Secret 4개 입력과 Workflow 실행은 Claude Code의 권한 검사가 Claude 세션의 실행을 거부해 Human이 직접 했다.
+- **첫 배포**: `deploy-production` #1을 `v3.5.0`으로 실행하고 Human이 승인했다. 모든 단계와 Smoke Test가 성공했다. Claude 세션이 주소 응답과 체험 계정 흐름(PC / 모바일)을 따로 확인하고 녹화했다.
+- **확인하지 못한 것**: Production의 소셜 로그인과 AI 문장(Human 결정으로 설정하지 않음), 이전 Tag로의 Rollback.
+- **TASK-030 Orchestrator Run**: 검증과 Claude 검토(2회차 PASS)를 통과한 뒤 Git 단계에서 멈췄다. 자동으로 만든 PR 본문의 한 줄이 Secret 검사에 걸렸다. 검토된 변경을 그대로 Commit하고 PR 본문은 Claude 세션이 썼다.
+- **환경 정리**: Human 승인(DEC-050)에 따라 Stack 13개와 남은 Resource를 지웠고, 삭제 뒤 비용이 드는 Resource가 없음을 조회로 확인했다. 배포 Workflow 두 개를 비활성화했다. 기록과 다시 만드는 방법은 `docs/29-CLEANUP-AND-REDEPLOY.md`에 있다.
+- **남은 것**: OAuth Secret(Human이 직접 삭제), 인증서 검증용 DNS Record 4개(승인 목록에 없어 남김, 무료), Budget Stack, 기존 Hosted Zone.

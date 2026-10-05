@@ -41,6 +41,11 @@ https://github.com/user-attachments/assets/46f7aa75-183b-473d-a1ca-481532a89bd1
 
 https://github.com/user-attachments/assets/3d1aa8af-b188-4b2f-9d87-f436d97abba0
 
+**Production에서 같은 흐름** — 실제 Production 환경(`moodfit.8949db.kr`)에 `v3.5.0`을 승인 배포한 직후 녹화했습니다. DB가 비어 있어 History 그래프는 점이 적습니다.
+
+- [PC 영상 내려받기 (5.0MB)](https://github.com/youneedpython/MoodFit-v3/releases/download/v3.5.0/06-production-desktop-v3.5.0.mp4)
+- [모바일 영상 내려받기 (2.0MB)](https://github.com/youneedpython/MoodFit-v3/releases/download/v3.5.0/07-production-mobile-v3.5.0.mp4)
+
 - 재생되지 않으면 [Release v3.5.0](https://github.com/youneedpython/MoodFit-v3/releases/tag/v3.5.0)의 첨부 파일을 내려받아 볼 수 있습니다.
 - AI 코멘트와 주간 리포트는 소셜 로그인이 필요해 이 영상에는 나오지 않습니다.
 
@@ -207,6 +212,8 @@ Infrastructure는 CloudFormation으로 정의하고, `main`에 Merge되면 GitHu
 - **배포**: GitHub Actions가 OIDC 임시 자격 증명으로 Image Push → ECS 교체 → 화면 Upload → Smoke Test를 수행합니다. 저장된 Access Key가 없습니다. 문서만 바뀐 Commit은 배포를 건너뜁니다.
 
 자세한 내용은 [AWS Architecture](docs/13-AWS-ARCHITECTURE.md), [Staging 배포 Runbook](docs/18-STAGING-DEPLOYMENT-RUNBOOK.md), [Staging CD](docs/21-STAGING-CD.md)를 참고합니다.
+
+> **환경 상태 (2026-10-05)**: Staging과 Production을 모두 만들어 배포와 Smoke Test, 사용 영상 녹화까지 마친 뒤 AWS Resource를 정리했습니다. 지금은 두 주소가 열리지 않습니다. Template과 Runbook이 남아 있어 다시 만들 수 있습니다. 정리한 내용과 다시 만드는 방법은 [환경 정리와 다시 만들기](docs/29-CLEANUP-AND-REDEPLOY.md)에 있습니다.
 
 Production은 Release Tag를 입력한 수동 Workflow와 GitHub `production` Environment의 Human 승인으로 배포합니다. Staging의 검증된 Container Image Digest를 그대로 사용하며, 생성 / 첫 배포 / 이전 Release Rollback은 [Production Runbook](docs/28-PRODUCTION-DEPLOYMENT-RUNBOOK.md)을 따릅니다.
 
