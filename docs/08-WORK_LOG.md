@@ -3913,4 +3913,5 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Human이 `v3.5.0` Release를 승인했다("v3.5.0 Release 진행! 승인!"). `docs/releases/v3.5.0.md`를 작성했다. 범위는 `v3.4.0` 이후의 TASK-066 ~ TASK-070이다.
 - Tag `v3.5.0`과 GitHub Release는 TASK-070과 이 PR이 Merge된 뒤 그 Commit에 만든다(DEC-025).
 - TASK-067 Task 문서의 틀린 서술을 바로잡았다. "`main`에 Branch Protection이 없다"고 적었으나 실제로는 Ruleset `main-protection`(Squash만 허용, `frontend` / `backend` 검사 필수, 최신 `main` 반영 필수)이 있다. 건너뛴 Job은 필수 검사에서 통과로 처리되어 설계에는 영향이 없다.
+- `v3.5.0`에 맞춰 README를 갱신했다. Dashboard 절을 "오늘 기록이 있을 때 / 없을 때"로 다시 쓰고, 오늘 기록이 없을 때의 화면 캡처를 더했다. `docs/images/readme/`의 캡처는 TASK-070까지 Merge된 `main`의 Build로 다시 찍었다(API와 날씨 조회는 가짜 응답).
 
