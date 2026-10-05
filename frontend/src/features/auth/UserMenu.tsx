@@ -15,10 +15,10 @@ export function UserMenu() {
   const [busy, setBusy] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
-  const logoutButton = useRef<HTMLButtonElement>(null);
+  const firstMenuItem = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (!open) return;
-    logoutButton.current?.focus();
+    firstMenuItem.current?.focus();
     const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
     const escape = (event: KeyboardEvent) => { if (event.key === "Escape") { setOpen(false); button.current?.focus(); } };
     document.addEventListener("pointerdown", outside);
@@ -36,10 +36,10 @@ export function UserMenu() {
   return <div className="user-menu" ref={root} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false); }}>
     <button className="user-avatar" ref={button} style={{ backgroundColor: colors[user.id % colors.length] }} aria-label={`${user.displayName} 사용자 메뉴`} aria-expanded={open} aria-haspopup="menu" aria-controls="user-menu-popup" onClick={() => setOpen(!open)}>{Array.from(user.displayName)[0]}</button>
     {open && <div className="user-menu__popup" id="user-menu-popup" role="menu" aria-label="사용자 메뉴">
-      <p>{user.displayName}</p><p>{user.provider === "guest" ? "체험 계정" : user.provider === "google" ? "Google" : "Kakao"}</p>
-      <button ref={logoutButton} role="menuitem" disabled={busy} onClick={logout}>로그아웃</button>
-      <Link role="menuitem" to="/privacy">개인정보 처리 안내</Link>
-      {user.provider !== "guest" && <button role="menuitem" onClick={() => { setOpen(false); setDeleting(true); }}>내 데이터 삭제</button>}
+      <p className="user-menu__name">{user.displayName}</p><p className="user-menu__provider">{user.provider === "guest" ? "체험 계정" : user.provider === "google" ? "Google" : "Kakao"}</p>
+      <Link ref={firstMenuItem} role="menuitem" to="/privacy">개인정보 처리 안내</Link>
+      <button role="menuitem" disabled={busy} onClick={logout}>로그아웃</button>
+      {user.provider !== "guest" && <><hr role="separator" /><button className="user-menu__withdraw" role="menuitem" onClick={() => { setOpen(false); setDeleting(true); }}>회원 탈퇴</button></>}
       {error && <p role="alert">로그아웃하지 못했습니다. 다시 시도해 주세요.</p>}
     </div>}
     {deleting && <DeleteAccountDialog onClose={closeDialog} returnFocusRef={button} />}

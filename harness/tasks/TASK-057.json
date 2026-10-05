@@ -1,0 +1,50 @@
+{
+  "id": "TASK-057",
+  "title": "Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리)",
+  "task_file": "docs/tasks/TASK-057_ACCOUNT_MENU.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/",
+    "docs/22-AUTH.md",
+    "docs/25-PRIVACY.md"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

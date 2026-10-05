@@ -3694,6 +3694,16 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - `docs/images/readme/`의 화면 캡처 6장을 새로 찍고 로그인 화면과 AWS Architecture 그림을 추가했다. 캡처는 `main`(TASK-056 포함) Build를 로컬에서 띄우고 API와 날씨 조회는 가짜 응답으로 대신했다.
 - 문서와 이미지 변경뿐이라 Test는 실행하지 않았다. 코드, 계약, Infrastructure는 바꾸지 않았다.
 
+### TASK-057 — Account Menu (2026-10-05)
+
+- Human 승인 Contract와 명시 실행 지시에 따라 TASK-057만 IN_PROGRESS로 등록하고 구현 완료를 DONE으로 반영했다. 최초 Working Tree는 clean이며 기존 Current Task TASK-030 / BLOCKED와 다른 Task 상태는 유지했다.
+- 소셜 메뉴와 확인 창 / 개인정보 안내의 이름을 “회원 탈퇴”로 맞췄다. 닉네임 / 제공자 → 개인정보 처리 안내 → 로그아웃 → 구분선 → 회원 탈퇴 순서와 첫 항목 초점, 기존 간격 / 위험 색 Token, 44px 이상 터치 영역을 적용했다. 체험 계정에는 탈퇴와 구분선을 숨긴다.
+- 확인 창은 공통 Button의 secondary / primary Variant를 사용한다. React 19 Button에 표준 ref 전달 타입을 추가해 취소 초점을 유지한다. 진행 중 취소 / 실행 버튼을 비활성화하고 Esc 닫기를 차단하며 초점은 Dialog 안에 둔다. 실패하면 버튼과 취소 초점을 복원하고 취소 / Esc로 닫을 수 있다. 삭제 대상과 API / 완료 안내는 유지했다.
+- 메뉴 순서 / 첫 초점 / 새 이름 / 체험 계정, 확인 창 제목 / 초점 가두기 / 요청 1회 / 완료 안내, 진행 중 취소 / Esc 차단과 실패 뒤 두 닫기 경로 Test를 보완했다. jest-dom Matcher / CSS raw import / Dependency 추가는 없다.
+- Verification: `bash scripts/verify.sh`는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Test / tsc --noEmit / Build는 실행하지 못했으며 성공으로 주장하지 않는다. 자동 재시도나 Sandbox 우회는 하지 않았다. Sandbox 밖 Orchestrator Verify가 검증 기준이고 자체 결과는 참고 증거다. `git diff --check` 통과 및 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
+- 확인 창은 화면 폭 안의 너비, viewport 높이 제한과 내부 스크롤, 버튼 줄바꿈을 적용했다. Claude 세션의 390 / 768 / 1280px 캡처와 실제 화면 확인은 후속 작업이며 allowed_paths 밖 이미지 경로에는 쓰지 않았다.
+- Executor DONE은 구현 완료이며 검증 / Review / Human Squash Merge 승인과 다르다. Git 작업은 수행하지 않았다. Remote CI / Human Squash Merge 이후 Staging 소셜 / 체험 메뉴와 탈퇴 확인 흐름을 확인한다.
+- 화면 확인(Claude 세션, `docs/images/task-057/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 사용자 메뉴와 회원 탈퇴 확인 창을 390 / 768 / 1280px로 캡처했다. 메뉴는 닉네임 / 제공자 → 개인정보 처리 안내 → 로그아웃 → 구분선 → 회원 탈퇴 순서이고, 체험 계정 메뉴에는 회원 탈퇴가 없다. 확인 창의 버튼은 공통 Button 모양이다. 세 폭 모두 가로 넘침이 없다.
 ### TASK-059 — Weather Card Layout (2026-10-05)
 
 - 최초 Working Tree는 clean이었다. Task source와 필수 Context, 승인 Decision을 확인하고 TASK-059만 IN_PROGRESS로 등록했다. Check-in 날씨 영역만 구현하고 Executor 완료를 DONE으로 기록했다.
