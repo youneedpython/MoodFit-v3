@@ -27,9 +27,9 @@ function renderPage() {
 function fillValidForm() {
   fireEvent.change(screen.getByLabelText(/심박수/), { target: { value: "68" } });
   fireEvent.change(screen.getByLabelText(/호흡수/), { target: { value: "18" } });
-  fireEvent.change(screen.getByLabelText(/수면 점수/), { target: { value: "86" } });
-  fireEvent.change(screen.getByLabelText(/스트레스 수준/), { target: { value: "31" } });
-  fireEvent.change(screen.getByLabelText(/에너지 수준/), { target: { value: "74" } });
+  fireEvent.change(screen.getByRole("spinbutton", { name: "수면 점수" }), { target: { value: "86" } });
+  fireEvent.change(screen.getByRole("spinbutton", { name: "스트레스 수준" }), { target: { value: "31" } });
+  fireEvent.change(screen.getByRole("spinbutton", { name: "에너지 수준" }), { target: { value: "74" } });
   fireEvent.change(screen.getByLabelText(/기온/), { target: { value: "19.0" } });
   fireEvent.click(screen.getByLabelText("비"));
 }
@@ -39,6 +39,33 @@ function submitButton() {
 }
 
 describe("CheckinPage", () => {
+  it.each([["수면 점수", "sleepScore"], ["스트레스 수준", "stressLevel"], ["에너지 수준", "energyLevel"]])("synchronizes %s without filling empty input", (label, name) => {
+    renderPage();
+    const number = screen.getByRole("spinbutton", { name: label }) as HTMLInputElement;
+    const slider = screen.getByRole("slider", { name: label + " Slider" }) as HTMLInputElement;
+    expect(screen.getAllByRole("slider")).toHaveLength(3);
+    expect([slider.min, slider.max, slider.step]).toEqual(["0", "100", "1"]);
+    expect(slider.value).toBe("50");
+    expect(number.value).toBe("");
+    fireEvent.click(submitButton());
+    expect(document.getElementById(name + "-error")?.textContent).toBe("값을 입력해 주세요.");
+    fireEvent.change(slider, { target: { value: "72" } });
+    expect(number.value).toBe("72");
+    expect(document.getElementById(name + "-error")).toBeNull();
+    fireEvent.change(number, { target: { value: "31" } });
+    expect(slider.value).toBe("31");
+    fireEvent.change(number, { target: { value: "120" } });
+    expect(slider.value).toBe("100");
+    expect(number.value).toBe("120");
+    fireEvent.click(submitButton());
+    expect(document.getElementById(name + "-error")?.textContent).toBe("0 이상 100 이하의 정수로 입력해 주세요.");
+    fireEvent.change(number, { target: { value: "-1" } });
+    expect(slider.value).toBe("0");
+    fireEvent.change(number, { target: { value: "" } });
+    expect(slider.value).toBe("50");
+    expect(number.value).toBe("");
+  });
+
   it("groups inputs and shows range hints for each field", () => {
     renderPage();
 
@@ -72,7 +99,7 @@ describe("CheckinPage", () => {
     fireEvent.click(submitButton());
     expect(document.getElementById("sleepScore-error")).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText(/수면 점수/), { target: { value: "80" } });
+    fireEvent.change(screen.getByRole("spinbutton", { name: "수면 점수" }), { target: { value: "80" } });
 
     expect(document.getElementById("sleepScore-error")).toBeNull();
   });
@@ -84,7 +111,9 @@ describe("CheckinPage", () => {
     renderPage();
     fillValidForm();
 
+    fireEvent.change(screen.getByRole("slider", { name: "수면 점수 Slider" }), { target: { value: "85" } });
     fireEvent.click(submitButton());
+    expect((screen.getByRole("slider", { name: "수면 점수 Slider" }) as HTMLInputElement).disabled).toBe(true);
     fireEvent.click(submitButton());
     fireEvent.submit(submitButton().closest("form")!);
 
@@ -110,6 +139,9 @@ describe("CheckinPage", () => {
     expect(screen.getByRole("link", { name: "Dashboard로 이동" }).getAttribute("href")).toBe("/");
     expect(JSON.parse((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as string)).toMatchObject({
       heartRate: 68,
+      sleepScore: 85,
+      stressLevel: 31,
+      energyLevel: 74,
       temperature: 19,
       weather: "RAIN"
     });

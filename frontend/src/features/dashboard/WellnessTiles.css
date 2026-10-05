@@ -1,0 +1,72 @@
+.wellness-hero__side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.wellness-hero__score,
+.wellness-hero__weather {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.wellness-hero__score {
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.wellness-hero__score-label {
+  flex-basis: 100%;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.wellness-hero__score-value {
+  font-size: 3rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.wellness-hero__score-max {
+  color: var(--color-text-muted);
+}
+
+.wellness-hero__weather-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.wellness-hero__weather > span:last-child {
+  min-width: 0;
+}
+
+.wellness-hero__weather-label {
+  display: block;
+  font-weight: var(--font-weight-bold);
+}
+
+.wellness-hero__temperature {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 860px) {
+  .wellness-hero__side {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .wellness-hero__score,
+  .wellness-hero__weather {
+    flex: 1 1 180px;
+  }
+}

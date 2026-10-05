@@ -3,7 +3,7 @@ import { TensionBadge } from "../dashboard/PersonalBaseline";
 import { BodyMetrics } from "../dashboard/BodyMetrics";
 import { InsightCard } from "../insight/InsightCard";
 import { Badge } from "../../components/Badge/Badge";
-import { WEATHER_LABELS } from "../../constants/weather";
+import { WellnessTiles } from "../dashboard/WellnessTiles";
 import { Button, ButtonLink } from "../../components/Button/Button";
 import { Card } from "../../components/Card/Card";
 import { RecommendationCards } from "../dashboard/RecommendationCards";
@@ -35,23 +35,19 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
         <p className="checkin-result__time">{formatDisplayDateTime(result.recordedAt)} 기록</p>
       </div>
 
-      <div className="checkin-result__score">
-        <Badge tone="accent">{result.mood.label}</Badge>
-        <TensionBadge tension={result.baseline.tension} />
-        <p>
-          <span className="checkin-result__score-label">Wellness Score</span>
-          <span className="checkin-result__score-value">{result.wellnessScore}</span>
-        </p>
+      <div className="checkin-result__overview">
+        <div className="checkin-result__main">
+          <div className="checkin-result__badges">
+            <Badge tone="accent">{result.mood.label}</Badge>
+            <TensionBadge tension={result.baseline.tension} />
+          </div>
+          <p className="checkin-result__summary">{result.summary}</p>
+        </div>
+        <WellnessTiles wellnessScore={result.wellnessScore} weather={result.weather} />
       </div>
 
-      <p className="checkin-result__summary">{result.summary}</p>
-      <BodyMetrics metrics={result.metrics} baseline={result.baseline} />
-      {result.weather.region && <p className="checkin-result__weather">
-        {WEATHER_LABELS[result.weather.condition]} · {result.weather.temperature.toFixed(1)}°C
-        <span className="weather-region">{result.weather.region}</span>
-      </p>}
-
       <InsightCard checkinId={result.id} autoGenerate />
+      <BodyMetrics metrics={result.metrics} baseline={result.baseline} />
 
       <div className="checkin-result__recommendations">
         <RecommendationCards foods={result.foods} music={result.music} feedback={feedback} />
