@@ -38,12 +38,12 @@ TASK-030 — Production Continuous Deployment / Approval / Rollback
 Status:
 
 ```text
-BLOCKED
+READY
 ```
 
-TASK-001 ~ TASK-029, TASK-032 ~ TASK-065는 DONE이다(모두 PR Squash Merge와 Staging 자동 배포까지 마쳤다). Release는 `v3.3.0`(TASK-063까지)이다.
+TASK-001 ~ TASK-029, TASK-032 ~ TASK-070은 DONE이다(모두 PR Squash Merge와 Staging 자동 배포까지 마쳤다). Release는 `v3.5.0`(TASK-070까지)이다.
 
-남은 Task는 TASK-030(실제 Production)과 TASK-031(운영 / 정리)이며 둘 다 BLOCKED다. 2026-10-05 Human이 정한 순서는 "사용 영상 촬영 → TASK-030 → TASK-031"이다. TASK-030은 Production 생성에 대한 Human 승인(구성 / 비용 Gate)이 있어야 READY가 된다.
+남은 Task는 TASK-030(실제 Production)과 TASK-031(운영 / 정리)이다. 2026-10-05 Human이 Production 구성 / 주소 / 비용 상한 / 배포 방식 Gate를 승인해 **TASK-030은 READY**다(승인 내용은 `docs/tasks/TASK-030_PRODUCTION_CD.md`의 "Human 결정 (2026-10-05, …)"). TASK-031은 TASK-030 뒤에 하며 BLOCKED다(삭제는 별도 승인).
 
 각 Task 절은 "상태 / 목적 / Human Approval 또는 Gate / 완료 조건 / 상세 Task Contract" 형식으로 적는다(형식 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md)).
 
@@ -82,7 +82,7 @@ TASK-001 ~ TASK-029, TASK-032 ~ TASK-065는 DONE이다(모두 PR Squash Merge와
 | TASK-027 | Milestone 27 | AWS Application Infrastructure (ECS / ALB / RDS) | DONE | TASK-024, TASK-026 완료 | DEC-031 승인, PR 구현 완료 반영 / Human Squash Merge로 확정 |
 | TASK-028 | Milestone 28 | Staging Deployment / Smoke Test | DONE | TASK-025 ~ TASK-027 완료. 2026-10-04 Staging Stack 8개 생성, Image / Frontend 배포, Smoke 통과 | Human이 Change Set 직접 실행, PR #15 Squash Merge로 확정 |
 | TASK-029 | Milestone 29 | Staging Continuous Deployment | DONE | TASK-028 완료 (충족), 실제 CD 확인은 Merge 이후 | Gate C 사전 승인 (DEC-032), 완료 승인 대기 |
-| TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | BLOCKED | Production 생성 승인과 선행 기능 Task 후 READY | 필요 (Production 항상 Human Approval) |
+| TASK-030 | Milestone 30 | Production Continuous Deployment / Approval / Rollback | READY | TASK-029 | Human 승인 2026-10-05 (구성 / 주소 / 비용 상한 / 배포 방식). Production 배포는 항상 Human Approval |
 | TASK-031 | Milestone 31 | Operations / Cost Guard / Cleanup / Final Hardening | BLOCKED | TASK-030 완료 | 필요 (파괴적 작업) |
 | TASK-032 | Milestone 32 | Orchestrator Improvements (PR 본문 / Secret Guard / 자동 Rework) | DONE | TASK-025 완료. 이번 PR 완료 반영 / Human Squash Merge 대기 | Secret 검사 정밀화는 TASK-034로 분리 / 새 Dependency 시 Gate |
 | TASK-033 | Milestone 33 | MySQL 8.4 Alignment (Local / Testcontainers / CI) | DONE | TASK-032 완료, DEC-030 사전 승인. 이번 PR 구현 완료 반영 / Human Squash Merge 대기 | Gate C 승인 완료 (DEC-030) |
@@ -1535,10 +1535,10 @@ DONE
 ### 상태
 
 ```text
-BLOCKED
+READY
 ```
 
-Production 생성 승인과 선행 기능 Task 후 READY로 전환한다. TASK-029 실환경 검증을 확인하며 현재는 BLOCKED를 유지한다.
+2026-10-05 Human이 Production 생성 Gate(구성, 주소, 비용 상한, 승인 배포 방식, Stack 생성 위임, 빈 DB, 작업 뒤 정리)를 승인해 READY로 전환했다. TASK-029의 Staging 자동 배포는 여러 차례 실제로 동작했다.
 
 ### 목적
 

@@ -8,7 +8,7 @@ Staging에서 검증된 Release를 Production에 배포하되, **Human Approval�
 
 ## 초기 상태 / Dependency
 
-- 초기: `BLOCKED`
+- 초기: `BLOCKED` → **`READY`** (2026-10-05 Human이 Production 생성 Gate를 승인. 아래 "Human 결정" 참고. `docs/07-TASKS.md`도 READY로 맞췄다)
 - TASK-029 Staging CD 안정화
 - Production Architecture / IAM / Environment 승인 완료
 
