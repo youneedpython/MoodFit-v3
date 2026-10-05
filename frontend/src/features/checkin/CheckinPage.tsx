@@ -236,52 +236,60 @@ export function CheckinPage() {
         <Card>
           <fieldset className="checkin-group">
             <legend className="checkin-group__legend">날씨</legend>
-            <p className="checkin-group__description">현재 위치의 기온과 날씨를 입력해 주세요.</p>
-            <div className="checkin-weather-tools">
-              <p>날씨 모드: {autoWeather ? "자동" : "직접 입력"}</p>
-              <Button type="button" disabled={isSubmitting || weatherState.loading} onClick={() => { setWeatherPreference(true); weatherEdited.current = false; void getWeather(); }}>
-                {weatherState.loading ? "날씨 조회 중..." : autoWeather ? "다시 조회" : "자동으로 가져오기"}
-              </Button>
-              {autoWeather && <Button type="button" disabled={isSubmitting} onClick={() => setWeatherPreference(false)}>직접 입력</Button>}
-              <p className="checkin-field__hint">위치(좌표)는 소수 둘째 자리로 반올림해 조회에만 사용하며 저장하지 않습니다. 지역 이름은 기록과 함께 저장됩니다.</p>
-              <p className="checkin-field__hint">지역 이름: <a href="https://www.bigdatacloud.com/" target="_blank" rel="noreferrer">BigDataCloud</a></p>
-              <p className="checkin-field__hint">날씨 데이터: <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a></p>
-              {weatherState.message && <p aria-live="polite" role={weatherState.error ? "alert" : "status"}>{weatherState.message}</p>}
-            </div>
-            {autoWeather ? <div aria-live="polite" className="checkin-weather-summary">
-              <p>{values.temperature && values.weather ? `${region || "현재 위치"} · ${WEATHER_OPTIONS.find((option) => option.value === values.weather)?.label} · ${values.temperature}°C` : "날씨 조회 결과를 기다리고 있습니다."}</p>
-              {errors.temperature && <p role="alert" className="checkin-field__error">{errors.temperature}</p>}
-              {errors.weather && <p role="alert" className="checkin-field__error">{errors.weather}</p>}
-            </div> : <div className="checkin-group__fields">
-              {renderNumberField("temperature")}
-              <fieldset
-                className="checkin-field checkin-weather"
-                aria-describedby={errors.weather ? "weather-error" : undefined}
-              >
-                <legend className="checkin-field__label">날씨 상태</legend>
-                <div className="checkin-weather__options">
-                  {WEATHER_OPTIONS.map((option) => (
-                    <label key={option.value} className="checkin-weather__option">
-                      <input
-                        type="radio"
-                        name="weather"
-                        value={option.value}
-                        checked={values.weather === option.value}
-                        onChange={updateValue("weather")}
-                        disabled={isSubmitting}
-                        aria-invalid={errors.weather ? "true" : "false"}
-                      />
-                      <span>{option.label}</span>
-                    </label>
-                  ))}
+            <p className="checkin-group__description">{autoWeather ? "현재 위치의 날씨를 자동으로 가져옵니다." : "현재 위치의 기온과 날씨를 입력해 주세요."}</p>
+            <div className="checkin-weather-layout">
+              <div className="checkin-weather-content">
+                  <p>날씨 모드: {autoWeather ? "자동" : "직접 입력"}</p>
+                  {weatherState.message && <p aria-live="polite" role={weatherState.error ? "alert" : "status"}>{weatherState.message}</p>}
+                {autoWeather ? <div aria-live="polite" className="checkin-weather-summary">
+                  <p>{values.temperature && values.weather ? `${region || "현재 위치"} · ${WEATHER_OPTIONS.find((option) => option.value === values.weather)?.label} · ${values.temperature}°C` : "날씨 조회 결과를 기다리고 있습니다."}</p>
+                  {errors.temperature && <p role="alert" className="checkin-field__error">{errors.temperature}</p>}
+                  {errors.weather && <p role="alert" className="checkin-field__error">{errors.weather}</p>}
+                </div> : <div className="checkin-group__fields">
+                  {renderNumberField("temperature")}
+                  <fieldset
+                    className="checkin-field checkin-weather"
+                    aria-describedby={errors.weather ? "weather-error" : undefined}
+                  >
+                    <legend className="checkin-field__label">날씨 상태</legend>
+                    <div className="checkin-weather__options">
+                      {WEATHER_OPTIONS.map((option) => (
+                        <label key={option.value} className="checkin-weather__option">
+                          <input
+                            type="radio"
+                            name="weather"
+                            value={option.value}
+                            checked={values.weather === option.value}
+                            onChange={updateValue("weather")}
+                            disabled={isSubmitting}
+                            aria-invalid={errors.weather ? "true" : "false"}
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {errors.weather && (
+                      <p id="weather-error" className="checkin-field__error">
+                        {errors.weather}
+                      </p>
+                    )}
+                  </fieldset>
+                </div>}
+              </div>
+              <div className="checkin-weather-tools">
+                <Button variant="secondary" type="button" disabled={isSubmitting || weatherState.loading} onClick={() => { setWeatherPreference(true); weatherEdited.current = false; void getWeather(); }}>
+                  {weatherState.loading ? "날씨 조회 중..." : autoWeather ? "다시 조회" : "자동으로 가져오기"}
+                </Button>
+                {autoWeather && <Button variant="secondary" type="button" disabled={isSubmitting} onClick={() => setWeatherPreference(false)}>직접 입력</Button>}
+              </div>
+              <div className="checkin-weather-notes">
+                <p className="checkin-field__hint">위치(좌표)는 소수 둘째 자리로 반올림해 조회에만 사용하며 저장하지 않습니다. 지역 이름은 기록과 함께 저장됩니다.</p>
+                <div className="checkin-weather-sources">
+                  <p className="checkin-field__hint">지역 이름: <a href="https://www.bigdatacloud.com/" target="_blank" rel="noreferrer">BigDataCloud</a></p>
+                  <p className="checkin-field__hint">날씨 데이터: <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a></p>
                 </div>
-                {errors.weather && (
-                  <p id="weather-error" className="checkin-field__error">
-                    {errors.weather}
-                  </p>
-                )}
-              </fieldset>
-            </div>}
+              </div>
+            </div>
           </fieldset>
         </Card>
 

@@ -108,6 +108,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-054 | Milestone 54 | Privacy Notice / Account Deletion / SPA Route Fix | DONE | TASK-042, TASK-044, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-055 | Milestone 55 | Recommendation Feedback (추천 피드백) | DONE | TASK-042, TASK-048, TASK-054 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-056 | Milestone 56 | Personal Baseline (개인별 Baseline / 신체 긴장도) | DONE | TASK-042, TASK-045, TASK-048, TASK-055 | Human Approved 2026-10-05, Gate B B안 / 체험 계정 적용, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-059 | Milestone 59 | Weather Card Layout (Check-in 날씨 영역 배치) | DONE | TASK-040, TASK-044 | Human 명시 실행 승인 (2026-10-05), Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -2004,3 +2005,11 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - Dashboard / 결과의 다섯 지표 차이와 긴장도 / 비교 안내, 체험 공유 평균 설명, History Badge, AI 입력 / 개인정보 안내를 확장했다. 두 Smoke는 Score / 지표 / 날씨의 값 비교, Baseline / 기분 / 요약 / 이력 긴장도의 형식 비교와 latest == created를 유지한다.
 - 경계 / 사용자 / 저장 / 계약 / AI / 삭제 / H2 및 MySQL Migration / Frontend Test를 추가했다. 자체 Verify는 npm 캐시 EPERM으로 설치에서 중단됐고 Gradle 잠금 경로 생성 제한으로 Backend Test를 실행하지 못했다. Container Smoke는 app.jar 부재와 Docker 접근 제한으로 미완료다. 구문 / 계약 예시 / Smoke 비교 규칙 / diff / 인코딩을 정적으로 확인했다.
 - 검증 기준은 Sandbox 밖 Orchestrator Verify다. 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 캡처와 Merge 뒤 Staging 소셜 기록 5건 이상 비교 확인이 남는다. [개인별 Baseline](26-PERSONAL-BASELINE.md)을 따른다.
+
+## TASK-059 — Weather Card Layout (Check-in 날씨 영역 배치)
+
+- 상태: DONE (Executor 구현 완료), Milestone 59. Dependency: TASK-040 / TASK-044.
+- 승인: 2026-10-05 Human 명시 실행 지시. TASK-059만 IN_PROGRESS 등록 후 구현 완료를 DONE으로 반영했다. 다른 Task와 Current Task TASK-030 / BLOCKED는 유지한다.
+- 모드 / 상태 / 결과 또는 입력 → 버튼 → 좌표 안내 / 출처 순서로 DOM을 재배치했다. 자동 모드 설명, 기존 secondary 버튼, 결과 글자 강조와 세 묶음 간격을 적용했다. 조회 / 모드 저장 / 제출 / 오류 / 접근성과 기존 문구 / 링크는 유지한다.
+- DOM 순서와 모드별 설명 Test를 추가했다. 자체 Verify는 npm 캐시 / 정리 EPERM으로 설치에서 중단되어 Test / TypeScript / Build를 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- Claude 세션이 390 / 768 / 1280px에서 자동 / 직접 입력 / 실패 화면과 가로 넘침 / 터치 영역을 확인하고 캡처한다. DONE은 Verify / Review / Remote CI / Human Squash Merge 승인이 아니다.

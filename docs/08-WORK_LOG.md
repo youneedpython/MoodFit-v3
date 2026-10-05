@@ -3693,3 +3693,12 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 로그인, 개인별 평소 값 / 신체 긴장도, 추천 평가, AI 코멘트 / 주간 리포트, AWS 배포 절과 API 목록, 기술 스택, 프로젝트 구조를 추가 / 갱신했다.
 - `docs/images/readme/`의 화면 캡처 6장을 새로 찍고 로그인 화면과 AWS Architecture 그림을 추가했다. 캡처는 `main`(TASK-056 포함) Build를 로컬에서 띄우고 API와 날씨 조회는 가짜 응답으로 대신했다.
 - 문서와 이미지 변경뿐이라 Test는 실행하지 않았다. 코드, 계약, Infrastructure는 바꾸지 않았다.
+
+### TASK-059 — Weather Card Layout (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. Task source와 필수 Context, 승인 Decision을 확인하고 TASK-059만 IN_PROGRESS로 등록했다. Check-in 날씨 영역만 구현하고 Executor 완료를 DONE으로 기록했다.
+- 모드 / 상태 / 결과 또는 직접 입력, secondary 버튼, 좌표 안내 / 출처를 DOM 순서대로 세 묶음으로 배치했다. 기존 Token으로 간격과 결과 글자 강조를 적용하고 출처 / 버튼 줄바꿈을 허용했다. 자동 설명 외 문구, 링크, 동작, 오류와 접근성 속성을 유지했다.
+- compareDocumentPosition으로 자동 성공 / 직접 입력 / 위치 실패 순서를 검사하고 모드별 설명, secondary Variant와 aria-live를 검사하는 Test를 추가했다. 기존 날씨 Test는 유지했다.
+- 자체 bash scripts/verify.sh는 npm ci의 캐시 stat EPERM / node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Test / TypeScript / Frontend 및 Backend Build는 실행되지 않았다. 재시도 / 설치 변경 / Sandbox 우회는 하지 않았다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- git diff --check 및 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. UTF-8 apply_patch로 한글을 기록했다. Git 후속 작업은 수행하지 않았다.
+- Claude 세션의 390 / 768 / 1280px 자동 / 직접 입력 / 실패 화면 확인과 캡처가 남는다. 캡처 경로는 이번 allowed_paths 밖이며 앱 설치도 제한되어 Executor에서는 생성하지 않았다. Remote CI / Human Squash Merge 이후 Staging 화면 확인이 남는다. DONE은 구현 완료이며 검증 / Review / Human 완료 승인을 대신하지 않는다.
