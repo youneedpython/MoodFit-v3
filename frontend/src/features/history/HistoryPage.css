@@ -84,6 +84,24 @@
 }
 
 /* Records */
+.history-record__details {
+  margin-top: var(--space-3);
+}
+
+.history-record__details summary {
+  min-height: var(--tap-target-min);
+  box-sizing: border-box;
+  padding: var(--space-3) var(--space-2);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  overflow-wrap: anywhere;
+  list-style-position: inside;
+}
+
+.history-record__details summary:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 .history-records {
   display: flex;
   flex-direction: column;

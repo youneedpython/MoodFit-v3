@@ -111,7 +111,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-057 | Milestone 57 | Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리) | DONE | TASK-054 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-058 | Milestone 58 | Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로) | DONE | TASK-055 | Human 명시 실행 지시 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-059 | Milestone 59 | Weather Card Layout (Check-in 날씨 영역 배치) | DONE | TASK-040, TASK-044 | Human 명시 실행 승인 (2026-10-05), Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-060 | Milestone 60 | History Record Compact (기록 Card 추천 접기 / 주간 리포트 기간 표기) | READY | TASK-045, TASK-048, TASK-056 | Human 승인 2026-10-05 ("위 사항 모두 Task로 정리"), 실행 대기 |
+| TASK-060 | Milestone 60 | History Record Compact | DONE | TASK-045, TASK-048, TASK-056 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-061 | Milestone 61 | Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치) | READY | TASK-058 | Human 승인 2026-10-05 ("위 사항 모두 Task로 정리"), 실행 대기 |
 | TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | DONE | TASK-042, TASK-054, TASK-057 | 제공자 버튼 / 공통 Footer 구현 완료, Verify / Review / Human Squash Merge 대기 |
 | TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | READY | TASK-059, TASK-061 | Human 승인 2026-10-05 ("위 사항 모두 Task로 정리"), 실행 대기 |
@@ -2020,6 +2020,7 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 공통 Button의 secondary / primary Variant를 사용하고 진행 중 취소 / Esc 닫기를 막는다. 초점 가두기와 aria-modal / aria-busy를 유지하고 실패 뒤 취소 기본 초점과 닫기를 복원한다.
 - 메뉴 순서 / 초점 / 체험 계정, 새 이름 / 완료 안내 / 요청 1회, 진행 중 닫기 차단 / 실패 뒤 복원 Test를 보완했다. 자체 Verify는 npm 캐시 stat EPERM으로 설치에서 중단되어 Test / tsc / Build를 실행하지 못했다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
 - 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 화면 캡처와 Merge 후 Staging 메뉴 / 확인 창 확인이 남는다.
+
 ## TASK-058 — Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로)
 
 - 상태: DONE (Executor 구현 완료), Milestone 58. Dependency: TASK-055.
@@ -2028,6 +2029,7 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 접근성 이름 / 그룹 / title과 기존 Toggle / 실패 복구 / 안내 / 음악 재생을 유지하며 DOM 위치와 SVG / 저장 중 비활성화 Test를 보완했다.
 - 자체 Verify는 npm 캐시 접근 EPERM으로 설치 단계에서 중단됐다. Test / 타입 검사 / Build는 실행하지 못했으며 Sandbox 밖 Orchestrator Verify가 기준이다. DONE은 검증 성공이나 최종 완료 승인이 아니다.
 - Claude 세션의 390 / 768 / 1280px 캡처 확인, Remote CI / Human Squash Merge와 Merge 뒤 Staging 화면 확인이 남는다.
+
 ## TASK-059 — Weather Card Layout (Check-in 날씨 영역 배치)
 
 - 상태: DONE (Executor 구현 완료), Milestone 59. Dependency: TASK-040 / TASK-044.
@@ -2036,11 +2038,14 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - DOM 순서와 모드별 설명 Test를 추가했다. 자체 Verify는 npm 캐시 / 정리 EPERM으로 설치에서 중단되어 Test / TypeScript / Build를 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
 - Claude 세션이 390 / 768 / 1280px에서 자동 / 직접 입력 / 실패 화면과 가로 넘침 / 터치 영역을 확인하고 캡처한다. DONE은 Verify / Review / Remote CI / Human Squash Merge 승인이 아니다.
 
-## TASK-060 — History Record Compact (기록 Card 추천 접기 / 주간 리포트 기간 표기)
+## TASK-060 — History Record Compact
 
-- 상태: READY, Milestone 60. Dependency: TASK-045, TASK-048, TASK-056.
-- 승인: 2026-10-05 Human이 Claude 세션의 화면 개선 후보를 모두 Task로 정리하도록 지시했다. Task 문서: `docs/tasks/`, Contract: `harness/tasks/TASK-060.json`.
-- 범위: History 기록 Card의 추천 음식 / 음악 이력을 접어 두고, 주간 리포트 기간을 한국어 날짜로 표시한다. Frontend와 문서만 바꾼다.
+- 상태: DONE (Executor 구현 완료), Milestone 60. Dependency: TASK-045 / TASK-048 / TASK-056.
+- 승인: 2026-10-05 Human 명시 실행 지시와 TASK-060 Contract. TASK-060만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 Current Task TASK-030 / BLOCKED는 유지한다.
+- 추천 이력을 기본 닫힌 details / summary로 감싸 실제 개수와 기존 이름 목록을 제공한다. 기존 터치 영역 / 간격 / 초점 Token을 사용하며 페이지 이동 뒤 새 기록은 접힌 상태로 시작한다.
+- 기간 문자열을 직접 나눠 한국어 월 / 일을 표시하고 올해가 아니거나 해가 걸치면 양쪽 연도를 표시한다. 원본 날짜는 time dateTime으로 유지한다. 단위 / Card / 페이지 이동 회귀 Test를 보완했다.
+- 자체 Verify는 npm 캐시 stat EPERM과 node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Test / tsc / Build는 실행하지 못했으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- DONE은 Executor 구현 완료이며 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 접힘 / 펼침 캡처와 Merge 후 Staging 확인이 남는다.
 
 ## TASK-061 — Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치)
 
