@@ -3921,4 +3921,5 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 영상은 저장소에 넣지 않고 GitHub Release `v3.5.0`에 첨부했다(저장소 용량을 늘리지 않는다). README에 "사용 영상" 절을 만들어 미리 보기 그림을 누르면 영상이 열리게 했다.
 - 영상에 담지 못한 것: AI 코멘트와 주간 리포트(소셜 로그인 필요), "오늘 기록이 없을 때"의 Dashboard와 오늘 날씨 추천(체험 계정에는 배포 Smoke Test가 남긴 오늘 기록이 항상 있다). 녹화하면서 체험 계정에 Check-in 2건과 좋아요 1건이 남았다.
 - README 맨 위에 다시 덧붙어 있던 문단 두 개를 지웠다(같은 내용이 Dashboard 절에 있다). 재발을 막도록 `docs/tasks/COMMON.md`에 "10. `README.md` 고칠 때"를 추가했다.
+- GitHub Wiki를 작성해 올렸다(Human 지시, 11쪽, `v3.5.0` 기준): Home, 서비스 소개, 분석과 추천 규칙, Architecture, 배포와 CI / CD, 보안과 개인정보, Harness 개발 방식, 문제 해결 기록(18건), 주요 결정, Local 실행, Roadmap과 한계. Wiki는 저장소와 별도의 Git 저장소라 PR 없이 직접 올렸다. Production은 "계획 단계"로 적었으므로 만든 뒤 Architecture / 배포 / Roadmap 쪽을 고친다. README 소개 아래와 Harness 절에 Wiki Link를 넣었다.
 

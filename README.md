@@ -23,6 +23,10 @@
 | AI | Claude(Amazon Bedrock)가 쓰는 AI 코멘트와 주간 리포트 |
 | 배포 | AWS(ECS Fargate, RDS, CloudFront) + GitHub Actions CI / CD |
 
+**더 읽기**: [Wiki](https://github.com/youneedpython/MoodFit-v3/wiki) · [사용 영상](#사용-영상) · [Releases](https://github.com/youneedpython/MoodFit-v3/releases)
+
+Wiki에는 화면 소개보다 **어떻게 만들었고 왜 그렇게 정했는지**를 적었습니다: [Architecture](https://github.com/youneedpython/MoodFit-v3/wiki/Architecture), [배포와 CI / CD](https://github.com/youneedpython/MoodFit-v3/wiki/%EB%B0%B0%ED%8F%AC%EC%99%80-CI-CD), [Harness 개발 방식](https://github.com/youneedpython/MoodFit-v3/wiki/Harness-%EA%B0%9C%EB%B0%9C-%EB%B0%A9%EC%8B%9D), [문제 해결 기록](https://github.com/youneedpython/MoodFit-v3/wiki/%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0-%EA%B8%B0%EB%A1%9D), [주요 결정](https://github.com/youneedpython/MoodFit-v3/wiki/%EC%A3%BC%EC%9A%94-%EA%B2%B0%EC%A0%95).
+
 ---
 
 ## 사용 영상
@@ -250,6 +254,8 @@ Release와 Version 규칙은 [Releases](https://github.com/youneedpython/MoodFit
 MoodFit v3는 기능 자체만큼 **AI Coding Agent와 함께 개발하는 과정**을 중요하게 다룬 프로젝트입니다.
 Agent(Codex, Claude)가 코드를 작성하더라도 무엇을, 어떤 순서로, 어떤 기준으로 만들지는
 문서와 규칙(Harness)으로 정하고, 중요한 결정은 사람이 승인합니다.
+
+이 방식이 실제로 무엇을 막아 주었는지와 한계는 Wiki의 [Harness 개발 방식](https://github.com/youneedpython/MoodFit-v3/wiki/Harness-%EA%B0%9C%EB%B0%9C-%EB%B0%A9%EC%8B%9D)에, 개발하면서 만난 문제는 [문제 해결 기록](https://github.com/youneedpython/MoodFit-v3/wiki/%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0-%EA%B8%B0%EB%A1%9D)에 정리했습니다.
 
 ```text
 Specification → Rules → Plan → Human Approval → Task → Implementation → Verification → Work Log
