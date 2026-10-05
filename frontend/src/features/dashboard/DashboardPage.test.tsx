@@ -143,8 +143,14 @@ describe("DashboardPage", () => {
     } else {
       expect(await screen.findByRole("button", { name: "AI 코멘트 받기" })).toBeTruthy();
       expect(screen.getByRole("heading", { name: "오늘 상태를 아직 입력하지 않았어요" })).toBeTruthy();
-      expect(screen.getByText(new RegExp(`마지막 기록은 ${days === 1 ? "어제" : "3일 전"}`))).toBeTruthy();
-      const last = screen.getByRole("region", { name: new RegExp(`^마지막 기록 · ${days}일 전`) });
+      const elapsed = days === 1 ? "어제" : "3일 전";
+      const date = new Date(LATEST.recordedAt);
+      const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric" }).formatToParts(date);
+      const month = parts.find((part) => part.type === "month")!.value;
+      const day = parts.find((part) => part.type === "day")!.value;
+      expect(screen.getByText(`마지막 기록은 ${elapsed}(${month}월 ${day}일)입니다. 오늘 상태를 입력하면 오늘에 맞는 분석과 추천을 볼 수 있습니다.`)).toBeTruthy();
+      const time = date.toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+      const last = screen.getByRole("region", { name: `마지막 기록 · ${elapsed} (${time})` });
       expect(within(last).getByText("76")).toBeTruthy();
       expect(within(last).getByRole("region", { name: "추천 음식" })).toBeTruthy();
       expect(screen.queryByRole("heading", { name: /오늘 컨디션은|지금 컨디션은/ })).toBeNull();

@@ -3884,6 +3884,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - `bash -n scripts/staging-smoke.sh`, `bash -n scripts/container-smoke.sh`, `git diff --check`는 통과했다. 두 Smoke의 내장 Python 구문과 형식 검사도 직접 확인했다(빈 목록 / 여러 평가 허용, enabled false / shared false / 잘못된 종류 거부). 평가 계약의 JSON 키를 확인했고 변경 파일의 UTF-8 / U+FFFD와 변경 문서의 연속 물음표 치환 흔적 검사도 통과했다. Sandbox 밖 Orchestrator Verify가 검증 기준이며 Executor DONE은 구현 완료만 뜻한다.
 - Claude 세션의 390 / 1280px 체험 평가 화면 캡처 / 검토와 Repository 기록, Human Squash Merge 후 Staging에서 공유 평가를 변경 / 삭제하고 다음 Check-in 반영을 확인하는 절차가 남는다. Executor는 실환경 공유 평가를 쓰지 않았다.
 
+### TASK-069 Run 2 — 안내 강조 / 지난 기록 날짜 문구 (2026-10-05)
+
+- clean Working Tree에서 승인된 Run 2 범위와 Context를 확인했다. 미입력 안내에 Wellness Hero와 같은 배경 / 테두리 / 여백을 공유하고 제목은 같은 크기 Token으로 키웠다. 마지막 기록의 Hero 제목은 한 단계 작은 기존 Token으로 줄이며 Mobile에서도 두 제목의 크기 차이를 유지한다. 안내 날짜는 서울 기준 “M월 D일”로 표시하고 하루 전의 안내와 마지막 기록 제목은 모두 “어제”로 표시한다. 기존 오늘 / 어제 / 3일 전 Test에 날짜와 구역 이름 전체 문구 단언을 보완했으며 최신 기록 재시도는 요청 주소별로 세는 기존 수정 그대로다. 서울 날짜 비교 / 화면 복귀와 Interval 정리 / 지난 기록 AI 자동 생성 차단 / 저장된 평균 / 공유 AI Card를 다시 확인했으며 추가 불일치는 발견하지 않았다. TASK-069 행과 절은 COMMON 9절의 위치 / 순서 / Milestone 69 / 승인 근거 / 구현 요약 형식을 따르므로 유지했다. 자체 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build는 실행하지 못했다. 우회와 재시도는 하지 않았다. git diff --check 및 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Contract에 적힌 이전 267건 Test / 타입 검사 / Build와 화면 확인은 Claude 세션의 참고 증거다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 이번 수정 완료만 뜻한다. Git 작업은 수행하지 않았으며 Claude 세션의 수정 후 화면 캡처 기록과 Human Squash Merge가 남는다.
+
 ### v3.4.0 Release Note 작성 (2026-10-05, Claude 세션, Human 지시)
 
 - Human 지시("release 출시해")에 따라 `docs/releases/v3.4.0.md`를 작성했다. 범위는 `v3.3.0` 이후의 TASK-064(홈 화면 설치, 앱 설치 버튼)와 TASK-065(모바일 앱 설치 버튼 크기, History 그래프 날짜별 평균 / 확대)이다.

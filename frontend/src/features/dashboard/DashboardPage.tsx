@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { formatDisplayDateTime, formatTrendDate, seoulDayDifference } from "../../utils/dateTime";
+import { formatDisplayDateTime, formatDisplayDate, seoulDayDifference } from "../../utils/dateTime";
 import { ButtonLink } from "../../components/Button/Button";
 import { InsightCard } from "../insight/InsightCard";
 import { Card } from "../../components/Card/Card";
@@ -65,7 +65,7 @@ export function DashboardPage() {
         <div className="dashboard">
           {days === 0 ? content : <>
             <Card title="오늘 상태를 아직 입력하지 않았어요" className="dashboard-today-notice">
-              <p>마지막 기록은 {days === 1 ? "어제" : `${days}일 전`}({formatTrendDate(state.checkin.recordedAt)})입니다. 오늘 상태를 입력하면 오늘에 맞는 분석과 추천을 볼 수 있습니다.</p>
+              <p>마지막 기록은 {days === 1 ? "어제" : `${days}일 전`}({formatDisplayDate(state.checkin.recordedAt)})입니다. 오늘 상태를 입력하면 오늘에 맞는 분석과 추천을 볼 수 있습니다.</p>
               <ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>
             </Card>
             {state.checkin.baseline.available && state.checkin.baseline.averages && <Card title="최근 14일 평균">
@@ -81,7 +81,7 @@ export function DashboardPage() {
               <p>기록 {state.checkin.baseline.sampleCount}건의 평균입니다. 오늘 상태를 추정한 값이 아닙니다.</p>
             </Card>}
             <section className="dashboard dashboard-last-record" aria-labelledby="last-record-title">
-              <h2 id="last-record-title">마지막 기록 · {days}일 전 ({formatDisplayDateTime(state.checkin.recordedAt)})</h2>
+              <h2 id="last-record-title">마지막 기록 · {days === 1 ? "어제" : `${days}일 전`} ({formatDisplayDateTime(state.checkin.recordedAt)})</h2>
               {content}
             </section>
           </>}

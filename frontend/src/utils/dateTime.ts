@@ -60,6 +60,14 @@ export function formatTrendDate(recordedAt: string) {
   });
 }
 
+export function formatDisplayDate(recordedAt: string) {
+  return new Date(recordedAt).toLocaleDateString("ko-KR", {
+    timeZone: MOODFIT_TIME_ZONE,
+    month: "long",
+    day: "numeric"
+  });
+}
+
 export function formatHeaderDate(date: Date) {
   return date.toLocaleDateString("ko-KR", {
     timeZone: MOODFIT_TIME_ZONE,
