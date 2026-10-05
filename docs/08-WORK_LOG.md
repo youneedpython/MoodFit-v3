@@ -3933,4 +3933,5 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Workflow 내 Python 구문과 문서 전용 / 코드 / 혼합 / 빈 목록 분류 자체 검사, Parameter 예시 7개의 기존 Key 일치와 변경 문서 UTF-8 / 연속 물음표 / U+FFFD 검사는 PASS다. Python subprocess로 실행한 추가 Workflow Shell 검사는 Bash가 진단 없이 exit 1을 반환해 완료하지 못했다. Production Script 자체의 직접 bash -n 검사는 통과했다.
 - Contract Python YAML 구조 검사는 로컬 Python에 PyYAML이 없어 실행 불가(ModuleNotFoundError). 설치하지 않았다. Orchestrator의 Sandbox 밖 Verify가 검증 기준이다. Workflow 실행 / AWS / cfn-lint / 실제 Smoke는 실행하지 않았다. iac-validate.sh는 Merge 뒤 Human SSO 로그인 후 Claude 세션이 별도 실행한다.
 - 실제 Stack 생성 / 첫 배포 / Rollback 확인과 Release 결과 기록은 Merge 뒤 Runbook에 따른 후속 작업이다. Production Required Reviewer 승인은 실행마다 필요하다. 비용 추가 USD 30 / 2일 및 TASK-031 별도 삭제 승인 경계를 유지한다.
+- Production 첫 배포 뒤 체험 계정 흐름을 Production 주소에서 녹화해(PC / 모바일) Release `v3.5.0`에 첨부하고 README의 사용 영상 절에 Link를 추가했다. Human이 2026-10-05에 요청했다. 소셜 로그인과 AI 문장은 Production에 설정하지 않아 영상에 없다.
 

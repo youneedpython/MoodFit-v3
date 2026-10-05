@@ -41,6 +41,11 @@ https://github.com/user-attachments/assets/46f7aa75-183b-473d-a1ca-481532a89bd1
 
 https://github.com/user-attachments/assets/3d1aa8af-b188-4b2f-9d87-f436d97abba0
 
+**Production에서 같은 흐름** — 실제 Production 환경(`moodfit.8949db.kr`)에 `v3.5.0`을 승인 배포한 직후 녹화했습니다. DB가 비어 있어 History 그래프는 점이 적습니다.
+
+- [PC 영상 내려받기 (5.0MB)](https://github.com/youneedpython/MoodFit-v3/releases/download/v3.5.0/06-production-desktop-v3.5.0.mp4)
+- [모바일 영상 내려받기 (2.0MB)](https://github.com/youneedpython/MoodFit-v3/releases/download/v3.5.0/07-production-mobile-v3.5.0.mp4)
+
 - 재생되지 않으면 [Release v3.5.0](https://github.com/youneedpython/MoodFit-v3/releases/tag/v3.5.0)의 첨부 파일을 내려받아 볼 수 있습니다.
 - AI 코멘트와 주간 리포트는 소셜 로그인이 필요해 이 영상에는 나오지 않습니다.
 
