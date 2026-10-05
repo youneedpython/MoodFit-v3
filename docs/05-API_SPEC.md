@@ -472,3 +472,13 @@ PUT 요청([계약](../contracts/recommendation-feedback-put-204.json)):
 kind는 FOOD / MUSIC, rating은 LIKE / DISLIKE / null이다. null이면 해당 평가를 삭제한다. item은 앞뒤 공백 제거 후 1~120자, 제어 문자 없이 현재 해당 종류의 추천 Pool에 존재해야 한다. 음식은 이름, 음악은 videoId를 보낸다. 검증 실패는 400 VALIDATION_ERROR다. 목록은 종류 / 항목 순으로 반환한다.
 
 체험 GET은 `enabled: true`, `shared: true`와 공유 계정에 저장된 목록을 반환한다. 평가가 없는 예시는 `{"enabled":true,"shared":true,"items":[]}`이다([GET 계약](../contracts/recommendation-feedback-guest-200.json)). 소셜 사용자는 `shared: false`이며 Frontend는 shared가 없는 이전 응답도 false로 처리한다. 체험 PUT도 저장 / 변경 / 삭제 성공 시 204다. 사용자 행 잠금과 사용자별 격리를 유지한다. 체험 계정 삭제는 여전히 403이며 방문자는 평가 버튼으로 개별 평가만 변경 / 삭제할 수 있다. 미로그인 GET / 유효 CSRF의 PUT은 401, CSRF 누락 / 불일치 PUT은 403이다. 기존 Session / CSRF 설정을 유지한다.
+
+## 오늘 날씨 추천 — TASK-070 / DEC-048
+
+`GET /api/recommendations/today?temperature=19.0&weather=RAIN`
+
+로그인이 필요하며 미로그인은 401이다. GET이므로 CSRF 값은 요구하지 않는다. temperature / weather는 필수다. 기온은 -30.0 ~ 50.0, 소수 첫째 자리까지이며 날씨는 CLEAR / CLOUDY / RAIN / SNOW다. 누락 / 범위 / 정밀도 / 형식 오류는 400 VALIDATION_ERROR와 해당 필드의 fieldErrors로 응답한다([오류 예시](../contracts/recommendations-today-400.json)).
+
+200 응답은 context와 foods / music이다([성공 예시](../contracts/recommendations-today-200.json)). context는 code / label이며 COLD=추위, HOT=더위, CLEAR=맑음, CLOUDY=흐림, RAIN=비, SNOW=눈이다. 5°C 이하가 COLD, 30°C 이상이 HOT이며 나머지는 입력 날씨다. 음식 / 음악은 기존 Check-in 항목과 같은 형식으로 각각 정확히 2개다. 예시는 형식 계약이며 날짜와 평가에 따른 실제 항목 값은 다를 수 있다.
+
+기분 선택 없이 기존 상황 Pool / 서울 날짜 순환 / 사용자 평가 반영 코드를 쓴다. Check-in은 먼저 고른 기분 항목과 중복을 제외하므로 상황 추천이 다를 수 있으며 기존 규칙은 유지한다. 같은 서울 날짜 / 입력 / 평가이면 같은 결과다. 체험 계정은 공유 평가를 적용한다. DB 쓰기 / Check-in 생성 / Score·기분 계산은 없으며 좌표나 지역 이름은 받지 않는다. 추천 평가 PUT의 기존 Pool 후보 검증은 상황 항목에도 적용된다.

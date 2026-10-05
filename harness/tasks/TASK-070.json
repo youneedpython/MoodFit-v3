@@ -1,0 +1,68 @@
+{
+  "id": "TASK-070",
+  "title": "Today Weather Recommendation (오늘 날씨에 맞는 추천)",
+  "task_file": "docs/tasks/TASK-070_TODAY_WEATHER_RECOMMENDATION.md",
+  "allowed_paths": [
+    "backend/",
+    "frontend/src/",
+    "contracts/",
+    "scripts/staging-smoke.sh",
+    "scripts/container-smoke.sh",
+    "docs/",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "backend/build.gradle",
+    "backend/src/main/resources/db/migration/",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/iac-validate.sh",
+    "scripts/staging-changeset.sh",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/container-smoke.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/staging-smoke.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

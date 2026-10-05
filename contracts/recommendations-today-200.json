@@ -1,0 +1,11 @@
+{
+  "context": { "code": "RAIN", "label": "비" },
+  "foods": [
+    { "name": "따뜻한 채소 스튜", "tag": "따뜻한 메뉴", "reason": "비 오는 날씨에 어울리는 따뜻한 메뉴입니다." },
+    { "name": "버섯 칼국수", "tag": "날씨 맞춤", "reason": "오늘의 날씨에 어울리는 식사로 제안합니다." }
+  ],
+  "music": [
+    { "title": "Someone Like You", "artist": "Adele", "tag": "잔잔한 감성", "reason": "비 오는 날의 실내 분위기에 어울립니다.", "videoId": "hLQl3WQQoQ0" },
+    { "title": "Wonderwall", "artist": "Oasis", "tag": "잔잔한 감성", "reason": "비 오는 날의 실내 분위기에 어울립니다.", "videoId": "bx1Bh8ZvH84" }
+  ]
+}
