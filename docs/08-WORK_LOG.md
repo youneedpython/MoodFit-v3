@@ -3703,3 +3703,7 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Verification: bash scripts/verify.sh는 Node.js 버전 일치 후 npm ci에서 npm 캐시 stat EPERM으로 중단됐다. 설치된 TypeScript / Vitest 실행 파일도 없어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 우회는 하지 않았으며 실제 통과를 주장하지 않는다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
 - git diff --check 및 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Executor DONE은 구현 완료만 뜻하며 검증 / Review / 최종 완료 승인을 대신하지 않는다.
 - 화면 캡처는 Contract에 따라 Claude 세션이 390 / 768 / 1280px에서 확인한다. 캡처 경로는 Executor allowed_paths 밖이므로 생성하지 않았다. 검증 / Review 후 승인된 Git 후속 작업과 Human Squash Merge, Merge 뒤 Staging 화면 확인이 남는다.
+
+### TASK-058 Run 2 — 기존 구현 재확인 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인 Task source와 필수 Context를 읽고 이름 줄의 Badge / 평가 묶음 배치, 알약 테두리 / 구분선 / Inline SVG, 글자 없는 버튼의 접근성 이름 / title / aria-pressed / 평가 그룹, 채움과 강조 색 전환, 기존 44px 터치 Token / 초점 표시, 평가 불가 조건 및 저장 / 지우기 / 교체 / 실패 복구와 음악 재생 유지 여부를 재확인했다. 수정이 필요한 불일치는 발견하지 않아 구현과 통과한 Test, 다른 Task 상태를 유지했다. Task source의 Run 1 Frontend Test 224건 및 Backend Test / Build 통과와 동시 검증으로 인한 제한 시간 초과, Claude 세션의 390 / 768 / 1280px 화면 확인은 전달받은 참고 증거이며 이번 Executor 실행 결과가 아니다. 이번 bash scripts/verify.sh는 npm ci에서 사용자 캐시 stat EPERM과 node_modules 정리 EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 재확인과 기록 완료만 뜻한다. Git 작업은 수행하지 않았다. Claude 세션의 화면 캡처 기록과 Human Squash Merge, Merge 뒤 Staging 화면 확인은 후속 작업으로 유지한다.
