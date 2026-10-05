@@ -27,6 +27,7 @@ describe("trend zoom", () => {
     expect(inner.style.width).toBe("100%");
     const summary = container.querySelector("figcaption")!.textContent;
     expect(container.querySelectorAll('[data-testid="trend-point"]')).toHaveLength(3);
+    expect(container.querySelector('[aria-live="polite"]')!.textContent).toBe("날짜별 평균입니다. 확대하면 기록을 하나씩 볼 수 있습니다.");
     const initialLabels = labelCount();
     const plus = screen.getByRole("button", { name: "그래프 확대" }) as HTMLButtonElement;
     fireEvent.click(plus);

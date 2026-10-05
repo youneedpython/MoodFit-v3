@@ -3819,6 +3819,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 
 ### TASK-065 — 모바일 설치 버튼 / History 확대 (2026-10-05)
 
+#### Run 3 — Touch Events / 최초 평균 안내 재확인
+
+- clean Working Tree에서 승인된 Run 3 범위를 검토했다. 두 손가락의 touchmove에만 preventDefault를 적용하는 비수동 Listener와 해제 처리, 한 손가락 기본 스크롤, Viewport의 기존 간격 Token 여백, 초기 배율 1 / 평균 전환 / 확대 범위 / 요약 유지 및 Footer secondary / 480px 이하 DOM 순서를 확인했다. 구현 불일치는 발견하지 않아 기존 동작과 통과한 Test는 유지하고, 30건 Test의 최초 평균 안내 검사만 추가했다. UX 명세의 Pointer 설명을 승인된 Touch Events 방식으로 맞추고 TASK-065 절을 상태 / 목적 / Human Approval 또는 Gate / 완료 조건 / 상세 Task Contract 순서로 정리했다. 이번 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 재시도나 Sandbox 우회는 하지 않았다. Contract에 적힌 Chrome 조작 확인과 Frontend Test 265건 / 타입 검사 / Build 통과는 Claude 세션의 이전 참고 증거이며 이번 Executor 검증 결과가 아니다. UTF-8 apply_patch로 작성한 변경 문서의 연속 물음표 치환 흔적 / U+FFFD와 git diff --check를 직접 검사한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 구현과 기록 완료만 뜻한다. Git 작업은 수행하지 않았으며 Claude 세션의 화면 캡처와 Merge 후 Human의 실제 기기 확인이 남는다.
+
 #### Run 2 — 날짜별 평균 / 개별 기록 전환
 
 - Human 추가 지시에 따라 초기 배율을 1로 변경했다. 기록 수 × 24가 측정 너비보다 크면 서울 시간대 날짜별 반올림 평균을 표시하고 확대 시 개별 기록으로 전환한다. 첫 확대는 읽기 가능한 배율로 이동하며 축소 / 날짜별 평균 버튼 / Pinch 1.05 경계로 기본 표시로 돌아간다. Pinch의 가운데 위치 보정은 점 개수와 독립적인 너비 좌표를 사용한다. 요약은 항상 전체 기록 기준이며 안내 전환은 aria-live로 알린다. Footer는 그대로 유지했다.

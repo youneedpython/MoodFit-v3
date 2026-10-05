@@ -2083,8 +2083,25 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 
 ## TASK-065 — Mobile Install Button / Trend Zoom
 
-- 상태: DONE (Executor 구현 완료), Milestone 65. Dependency: TASK-064 / TASK-060.
-- 승인: Human 명시 실행 지시 2026-10-05와 TASK-065 Contract. 해당 Task만 IN_PROGRESS 등록 후 DONE 반영. 다른 Task와 Current Task는 유지한다.
-- Footer secondary 버튼 / 모바일 첫 줄 전체 너비와 DOM 순서는 Run 1 그대로 유지한다. Run 2 Human 지시에 따라 History는 배율 1로 시작하며 조밀한 기록은 서울 날짜별 반올림 평균으로 표시한다. 확대하면 개별 기록으로 전환하고 축소 / 날짜별 평균 버튼 / Pinch 1.05 경계로 돌아간다. 전체 기록 요약, 최신 위치 / 가로 스크롤 / Keyboard / 너비 기반 Label과 기존 색 / Variant / Dependency는 유지한다.
-- 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단되어 Test / 타입 검사 / Build는 실행하지 못했다. Sandbox 밖 Orchestrator Verify가 판정 기준이며 DONE은 검증 성공 / Review / 최종 완료 승인이 아니다.
-- Claude 세션의 390 / 768 / 1280px 화면 캡처, Remote CI / Human Squash Merge와 Merge 후 실제 휴대폰 조작 확인이 남는다.
+### 상태
+
+- DONE (Executor 구현 완료), Milestone 65. Dependency: TASK-064 / TASK-060. 다른 Task와 Current Task는 유지한다.
+
+### 목적
+
+- Footer의 앱 설치 버튼을 모바일에서 쉽게 찾고 누르게 하고, 조밀한 History 기록을 날짜별 평균과 확대된 개별 기록으로 볼 수 있게 한다.
+- 기존 secondary 버튼 / 480px 이하 첫 줄 전체 너비와 DOM 순서를 유지한다. 초기 배율 1의 서울 날짜별 반올림 평균, 확대 시 개별 기록 전환, 전체 기록 요약과 Keyboard 접근을 유지한다.
+- Run 3은 두 손가락에만 기본 동작을 막는 Touch Events와 Viewport 안쪽 여백을 확인하고, 최초 평균 안내 Test와 작업 기록을 보완한다.
+
+### Human Approval 또는 Gate
+
+- Human 명시 실행 지시 2026-10-05 및 TASK-065 Contract의 Run 2 / Run 3 범위 승인. 추가 Gate는 없다. DONE은 Verify / Review / 최종 완료 승인이 아니다.
+
+### 완료 조건
+
+- Sandbox 밖 Orchestrator Verify와 Claude Review 통과 후 REVIEW. Claude 세션의 390 / 768 / 1280px 기록 많음 / 적음, 확대 전후 / Footer 캡처 확인이 필요하다.
+- Remote CI 및 Human Squash Merge가 최종 완료 승인이다. Merge 후 실제 휴대폰 Pinch와 밀어 보기는 Human이 확인한다.
+
+### 상세 Task Contract
+
+- [TASK-065 — Mobile Install Button / Trend Zoom](tasks/TASK-065_MOBILE_INSTALL_BUTTON_TREND_ZOOM.md)
