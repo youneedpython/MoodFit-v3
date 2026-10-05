@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest";
 import { StrictMode } from "react";
 import { InsightCard } from "./InsightCard";
+import { formatReportPeriod } from "../../utils/dateTime";
 import type { AuthState } from "../auth/AuthProvider";
 import disabled from "../../../../contracts/insight-disabled-200.json";
 import generated from "../../../../contracts/insight-generated-200.json";
@@ -91,7 +92,10 @@ describe("AI 코멘트와 주간 리포트", () => {
     const body = screen.getByText(weekly.text).parentElement;
     const actions = screen.getByRole("button", { name: "주간 리포트 다시 만들기" }).parentElement;
     expect(body?.className).toBe("insight-card__body");
-    expect(body?.querySelector(".insight-card__period")).toBeTruthy();
+    const period = body?.querySelector(".insight-card__period");
+    const labels = formatReportPeriod(weekly.periodStart, weekly.periodEnd);
+    expect(period?.textContent).toBe(`${labels.start} ~ ${labels.end} · ${weekly.recordCount}건`);
+    expect([...period!.querySelectorAll("time")].map((time) => time.dateTime)).toEqual([weekly.periodStart, weekly.periodEnd]);
     expect(actions?.className).toBe("insight-card__actions");
     expect(body?.nextElementSibling).toBe(actions);
     expect(actions?.nextElementSibling?.tagName).toBe("SMALL");
@@ -109,7 +113,9 @@ describe("AI 코멘트와 주간 리포트", () => {
     fireEvent.click(screen.getByRole("button", { name: "주간 리포트 다시 만들기" }));
     expect(await screen.findByText("지금은 주간 리포트를 만들 수 없습니다")).toBeTruthy();
     expect(screen.getByText(weekly.text)).toBeTruthy();
-    expect(screen.getByText(`${weekly.periodStart} ~ ${weekly.periodEnd} · ${weekly.recordCount}건`)).toBeTruthy();
+    const labels = formatReportPeriod(weekly.periodStart, weekly.periodEnd);
+    expect(screen.getByText(weekly.text).parentElement?.querySelector(".insight-card__period")?.textContent)
+      .toBe(`${labels.start} ~ ${labels.end} · ${weekly.recordCount}건`);
     expect(screen.getByRole("button", { name: "주간 리포트 다시 만들기" })).toBeTruthy();
   });
   it("does not replace a new record with an older pending response", async () => {

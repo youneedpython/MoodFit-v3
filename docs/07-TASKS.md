@@ -109,6 +109,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-055 | Milestone 55 | Recommendation Feedback (추천 피드백) | DONE | TASK-042, TASK-048, TASK-054 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-056 | Milestone 56 | Personal Baseline (개인별 Baseline / 신체 긴장도) | DONE | TASK-042, TASK-045, TASK-048, TASK-055 | Human Approved 2026-10-05, Gate B B안 / 체험 계정 적용, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-057 | Milestone 57 | Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리) | DONE | TASK-054 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-060 | Milestone 60 | History Record Compact | DONE | TASK-045, TASK-048, TASK-056 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -2014,3 +2015,12 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 공통 Button의 secondary / primary Variant를 사용하고 진행 중 취소 / Esc 닫기를 막는다. 초점 가두기와 aria-modal / aria-busy를 유지하고 실패 뒤 취소 기본 초점과 닫기를 복원한다.
 - 메뉴 순서 / 초점 / 체험 계정, 새 이름 / 완료 안내 / 요청 1회, 진행 중 닫기 차단 / 실패 뒤 복원 Test를 보완했다. 자체 Verify는 npm 캐시 stat EPERM으로 설치에서 중단되어 Test / tsc / Build를 실행하지 못했다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
 - 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 화면 캡처와 Merge 후 Staging 메뉴 / 확인 창 확인이 남는다.
+
+## TASK-060 — History Record Compact
+
+- 상태: DONE (Executor 구현 완료), Milestone 60. Dependency: TASK-045 / TASK-048 / TASK-056.
+- 승인: 2026-10-05 Human 명시 실행 지시와 TASK-060 Contract. TASK-060만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 Current Task TASK-030 / BLOCKED는 유지한다.
+- 추천 이력을 기본 닫힌 details / summary로 감싸 실제 개수와 기존 이름 목록을 제공한다. 기존 터치 영역 / 간격 / 초점 Token을 사용하며 페이지 이동 뒤 새 기록은 접힌 상태로 시작한다.
+- 기간 문자열을 직접 나눠 한국어 월 / 일을 표시하고 올해가 아니거나 해가 걸치면 양쪽 연도를 표시한다. 원본 날짜는 time dateTime으로 유지한다. 단위 / Card / 페이지 이동 회귀 Test를 보완했다.
+- 자체 Verify는 npm 캐시 stat EPERM과 node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Test / tsc / Build는 실행하지 못했으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- DONE은 Executor 구현 완료이며 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 접힘 / 펼침 캡처와 Merge 후 Staging 확인이 남는다.

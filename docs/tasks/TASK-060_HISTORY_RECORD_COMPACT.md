@@ -66,6 +66,15 @@ Claude 세션이 화면을 훑어 뽑은 개선 후보를 Human이 모두 승인
 
 - Sandbox에서 npm Test를 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다.
 
+## Run 2 범위 (검토 중심)
+
+Run 1에서 구현은 끝났다. Orchestrator Verify에서 Frontend Test 236건과 Build는 통과했고, Backend Test가 진행되던 중 **제한 시간(10분)을 넘겨** 멈췄다. 개발 PC에서 다른 Java 작업이 함께 돌아 느려진 것으로 구현과 무관하다(이 Task는 Backend를 바꾸지 않는다). 제한 시간을 늘렸다. Run 1의 변경은 WIP Commit으로 이 Branch에 들어 있다.
+
+이번 Run에서 할 일:
+
+1. 구현이 위 설계와 맞는지 다시 확인하고, 어긋난 곳만 고친다. 통과한 Test를 다시 쓰지 않는다.
+2. `docs/08-WORK_LOG.md`에 Run 2 경과를 한 단락 더한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

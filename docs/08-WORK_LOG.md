@@ -3704,3 +3704,12 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 확인 창은 화면 폭 안의 너비, viewport 높이 제한과 내부 스크롤, 버튼 줄바꿈을 적용했다. Claude 세션의 390 / 768 / 1280px 캡처와 실제 화면 확인은 후속 작업이며 allowed_paths 밖 이미지 경로에는 쓰지 않았다.
 - Executor DONE은 구현 완료이며 검증 / Review / Human Squash Merge 승인과 다르다. Git 작업은 수행하지 않았다. Remote CI / Human Squash Merge 이후 Staging 소셜 / 체험 메뉴와 탈퇴 확인 흐름을 확인한다.
 - 화면 확인(Claude 세션, `docs/images/task-057/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 사용자 메뉴와 회원 탈퇴 확인 창을 390 / 768 / 1280px로 캡처했다. 메뉴는 닉네임 / 제공자 → 개인정보 처리 안내 → 로그아웃 → 구분선 → 회원 탈퇴 순서이고, 체험 계정 메뉴에는 회원 탈퇴가 없다. 확인 창의 버튼은 공통 Button 모양이다. 세 폭 모두 가로 넘침이 없다.
+
+### TASK-060 — History Record Compact (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. Task source / 공통 규칙과 프로젝트 필수 Context를 읽고 Human 승인 H2 / H3만 구현했다. TASK-060만 IN_PROGRESS 등록 후 Executor 구현 완료를 DONE으로 반영했다.
+- 추천 dl을 기본 닫힌 details로 감싸 실제 음식 / 음악 개수를 summary에 표시한다. 빈 쪽의 개수는 생략하고 둘 다 없으면 details를 숨긴다. 기존 이름 목록과 머리 줄 / 지표 / Pagination / 그래프는 유지했다. 기본 Browser 동작과 기존 44px 터치 영역 / 초점 / 간격 Token을 사용했다.
+- 기간 날짜를 문자열로 나누는 변환 함수와 원본 time dateTime을 추가했다. 서울 기준 현재 연도를 인자로 고정할 수 있고 올해가 아니거나 서로 다른 해이면 양쪽 연도를 표시한다. 잘못된 형식 / 달력 날짜는 원문을 유지한다.
+- 추천 개수 / 빈 목록 / 기본 닫힘 / 페이지 복귀, 같은 해 / 과거 해 / 해 경계 / 잘못된 기간, Card 기간 / 건수 / 원본 time 회귀 Test를 보완했다. jest-dom Matcher / CSS raw import / Dependency 추가는 없다.
+- Verification: bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci에서 중단됐다. Test / tsc --noEmit / Build는 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
+- UTF-8 apply_patch로 문서를 작성했다. Git 작업은 수행하지 않았다. Executor DONE은 Verify / Review / Human 완료 승인이 아니다. Claude 세션의 390 / 768 / 1280px 접힘 / 펼침 캡처와 Merge 후 Staging 확인은 후속 작업이며 allowed_paths 밖 이미지 경로에는 쓰지 않았다.

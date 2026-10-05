@@ -146,6 +146,7 @@ Trend는 CSS 또는 SVG 기반의 단순한 Component로 시작한다.
 - 날짜별 Mood
 - 심박수 / 호흡수 / 수면 / 스트레스 / 에너지 중 주요 Metric 요약
 - 추천 이력 요약
+- 기록 Card의 추천 음식 / 음악 이력은 기본으로 접고, 실제 개수가 적힌 summary를 누르면 기존 이름 목록을 펼친다.
 
 ### Empty State
 

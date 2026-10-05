@@ -74,6 +74,11 @@ export function HistoryRecordList({ items }: HistoryRecordListProps) {
             </div>
           </dl>
 
+          {(item.foodNames.length > 0 || item.musicTitles.length > 0) && <details className="history-record__details">
+            <summary>
+              {[item.foodNames.length > 0 ? `추천 음식 ${item.foodNames.length}개` : "",
+                item.musicTitles.length > 0 ? `음악 ${item.musicTitles.length}곡` : ""].filter(Boolean).join(" · ")} 보기
+            </summary>
           <dl className="history-record__recommendations">
             <div>
               <dt>추천 음식</dt>
@@ -84,6 +89,7 @@ export function HistoryRecordList({ items }: HistoryRecordListProps) {
               <dd>{item.musicTitles.join(", ")}</dd>
             </div>
           </dl>
+          </details>}
         </li>
       ))}
     </ol>

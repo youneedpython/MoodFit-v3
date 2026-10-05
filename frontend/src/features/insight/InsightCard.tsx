@@ -4,6 +4,7 @@ import { Button } from "../../components/Button/Button";
 import { ApiError, request } from "../../services/api";
 import { useAuth } from "../auth/AuthProvider";
 import "./InsightCard.css";
+import { formatReportPeriod } from "../../utils/dateTime";
 
 export interface InsightResponse {
   enabled: boolean;
@@ -76,7 +77,9 @@ function InsightContent({ path, weekly, automatic }: { path: string; weekly: boo
     {!response.available ? <p>소셜 로그인 후 이용할 수 있습니다</p> : <>
       <div className="insight-card__body">
       {weekly && "periodStart" in response && response.periodStart && <p className="insight-card__period">
-        {response.periodStart} ~ {response.periodEnd} · {response.recordCount}건
+        <time dateTime={response.periodStart}>{formatReportPeriod(response.periodStart, response.periodEnd ?? "").start}</time>
+        {" ~ "}<time dateTime={response.periodEnd ?? undefined}>{formatReportPeriod(response.periodStart, response.periodEnd ?? "").end}</time>
+        {" · "}{response.recordCount}건
       </p>}
       {response.text && <p className="insight-card__text">{response.text}</p>}
       {busy && <p role="status">{weekly ? "주간 리포트를 만드는 중입니다." : "AI 코멘트를 만드는 중입니다."}</p>}

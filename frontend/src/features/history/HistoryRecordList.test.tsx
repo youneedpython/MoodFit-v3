@@ -9,6 +9,28 @@ const items = Array.from({ length: 11 }, (_, index) => ({
 }));
 
 describe("기록 페이지", () => {
+  it.each([
+    [["음식"], ["노래"], "추천 음식 1개 · 음악 1곡 보기"],
+    [["음식"], [], "추천 음식 1개 보기"],
+    [[], ["노래"], "음악 1곡 보기"],
+    [[], [], null],
+  ] as [string[], string[], string | null][])("추천 개수와 닫힌 이력을 표시한다", (foodNames, musicTitles, label) => {
+    const view = render(<HistoryRecordList items={[{ ...items[0]!, foodNames, musicTitles }]} />);
+    const details = view.container.querySelector("details");
+    if (!label) { expect(details).toBeNull(); return; }
+    expect(details?.hasAttribute("open")).toBe(false);
+    expect(details?.querySelector("summary")?.textContent?.trim()).toBe(label);
+    expect(details?.querySelector("dl")?.textContent).toContain(foodNames.join(", "));
+    expect(details?.querySelector("dl")?.textContent).toContain(musicTitles.join(", "));
+  });
+  it("페이지 이동과 복귀 뒤 추천 이력이 접힌 상태로 시작한다", () => {
+    const view = render(<HistoryRecordList items={items} />);
+    view.container.querySelector("details")!.open = true;
+    fireEvent.click(screen.getByRole("button", { name: "다음" }));
+    expect([...view.container.querySelectorAll("details")].every((detail) => !detail.open)).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "이전" }));
+    expect([...view.container.querySelectorAll("details")].every((detail) => !detail.open)).toBe(true);
+  });
   it.each([0, 1, 5])("%i개는 이동 UI 없이 표시한다", (count) => {
     render(<HistoryRecordList items={items.slice(0, count)} />);
     expect(screen.queryByRole("navigation", { name: "기록 페이지" })).toBeNull();
