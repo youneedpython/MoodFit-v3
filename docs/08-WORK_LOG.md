@@ -3686,3 +3686,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 
 - 최초 Working Tree는 clean이었다. 승인 Task source와 필수 Context, DEC-043을 읽고 최근 14일 / 5건 / 사용자 분리 / 현재 기록 제외, 비율 경계, 평균 snapshot과 HIGH 전용 기분 / 추천 / 요약 조정을 재확인했다. Score 공식, Baseline 부족 시 기존 결과, AI 식별 정보 제외, 화면 / 개인정보 안내와 두 Smoke의 값·형식 비교 구분에 수정이 필요한 불일치는 발견하지 않았다. Claude 세션이 수정한 Frontend Test의 toBeTruthy / textContent 검사를 유지하고 구현과 통과한 Test, Task 상태는 변경하지 않았다. Task source의 Sandbox 밖 Frontend 223건 / tsc / Build, Backend Test(건너뜀 DockerAvailabilityTests 1건), Container Smoke 통과는 전달받은 참고 증거이며 이번 Executor 결과가 아니다. 이번 bash scripts/verify.sh는 npm 캐시 stat EPERM과 node_modules 정리 EPERM으로 설치 단계에서 중단되어 Test / Build를 실행하지 못했다. bash scripts/container-smoke.sh는 app.jar 부재로 preflight에서 중단됐고 Docker 설정 / daemon 접근도 제한됐다. 자동 재시도나 Sandbox 우회는 하지 않았다. bash -n scripts/staging-smoke.sh는 통과했다. git diff --check와 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 재확인과 기록 완료만 뜻한다. Git / AWS 작업은 수행하지 않았다. 화면 캡처와 Merge 뒤 Staging 소셜 기록 5건 이상 비교 확인은 Claude 세션 / Human 후속 작업으로 유지한다.
 - 화면 확인(Claude 세션, `docs/images/task-056/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 Dashboard / Check-in 결과 / History를 390 / 768 / 1280px로 캡처했다. 긴장도 Badge(높음 / 보통 / 안정), 다섯 지표의 "평소 대비" 차이, 비교 안내 문구가 보이고, 기록이 5건 미만이면 Badge 없이 안내 문구만 보인다. 체험 계정에는 평소 값과 함께 공유 평균 안내가 붙는다. History는 기록마다 그때의 Badge를 보이고 이전 기록에는 Badge가 없다. 세 폭 모두 가로 넘침이 없다. 실제 Staging 흐름은 Merge 뒤 확인한다.
+
+### README 정리 (2026-10-05, Claude 세션, Human 지시)
+
+- Human 지시("Readme.md 파일도 수정해")에 따라 README를 현재 기능 기준으로 다시 썼다. Task마다 맨 위에 덧붙던 문단을 기능별 절로 옮기고, 지금과 맞지 않는 설명(추천 2개, 외부 AI / API 없음, 이후 Task 예고)을 고쳤다.
+- 로그인, 개인별 평소 값 / 신체 긴장도, 추천 평가, AI 코멘트 / 주간 리포트, AWS 배포 절과 API 목록, 기술 스택, 프로젝트 구조를 추가 / 갱신했다.
+- `docs/images/readme/`의 화면 캡처 6장을 새로 찍고 로그인 화면과 AWS Architecture 그림을 추가했다. 캡처는 `main`(TASK-056 포함) Build를 로컬에서 띄우고 API와 날씨 조회는 가짜 응답으로 대신했다.
+- 문서와 이미지 변경뿐이라 Test는 실행하지 않았다. 코드, 계약, Infrastructure는 바꾸지 않았다.
