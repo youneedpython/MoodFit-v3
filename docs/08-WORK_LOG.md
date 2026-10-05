@@ -2,6 +2,8 @@
 
 ## TASK-064 — PWA 설치 (2026-10-05)
 
+- Run 2 (2026-10-05): 최초 Working Tree는 Run 1 구현과 Test 경로 수정이 포함된 clean 상태였다. Task source와 필수 Context를 읽고 React 실행 전 Listener 등록, 초기 / 지연 이벤트 구독, 단일 이벤트 소비와 처리 중 비활성화, 설치 완료 / 독립 창 / 미지원 환경의 숨김, Footer / 메뉴 위치와 기존 44px 터치 영역, iOS / iPadOS 판별 및 안내 창의 초점 / Esc / 바깥 클릭 / 복원, 새 Manifest와 iOS Meta Tag를 설계와 대조했다. 불일치를 발견하지 않아 구현과 통과한 Test 및 Task 상태는 수정하지 않았다. Manifest / HTML Test는 node:fs와 resolve(process.cwd(), ...)를 사용하며 import.meta.url을 사용하지 않는다. Task source의 Sandbox 밖 Frontend Test 260건 / tsc --noEmit / Build 통과, 배포 산출물 및 Claude 세션의 화면 / Chrome Manifest 확인은 전달받은 참고 증거다. 이번 자체 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Sandbox 밖 Orchestrator Verify가 검증 기준이며 Executor DONE은 Run 2 재검토와 기록 완료만 뜻한다. Git 작업은 수행하지 않았고 Human Squash Merge와 Merge 후 Staging 실제 기기 설치 확인은 후속 작업이다.
+
 - 초기 Working Tree는 clean이었다. 승인 Contract와 필수 Context를 확인하고 TASK-064만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 Current Task는 유지한다.
 - app.webmanifest / iOS Meta Tag, React 실행 전 초기화와 설치 상태 구독 / 단일 이벤트 소비, Footer / 아바타 메뉴 공통 버튼, iOS 안내 / 초점 가두기 / 복원 / Esc / 바깥 클릭을 구현했다. 기존 Footer / 메뉴 Test는 수정하지 않았다.
 - 설치 수락 / 거절 / 재수신 / 지연 이벤트 / 완료 / 독립 창, iOS / iPadOS 안내, 메뉴 순서 / 미지원 환경, node:fs Manifest / HTML 검사를 추가했다. 새 Dependency / 아이콘 / Service Worker / Backend 변경은 없다.
