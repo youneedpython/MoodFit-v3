@@ -35,6 +35,31 @@ TASK-029의 2026-10-04 Gate C 사전 승인과 명시 실행 지시를 DEC-032�
 
 ## 실행 조건과 순서
 
+### CI 경로 분류 (TASK-067 / DEC-045)
+
+CI의 `changes` Job은 PR base...head 또는 main push before..head를 비교한다. Frontend / Backend 경로는 해당 Job만, contracts / .github / scripts / harness와 Root package.json / package-lock.json / .nvmrc는 두 Job을 실행한다. docs / prompts / infra와 Root Markdown만 바뀌면 두 Job을 건너뛴다. 여러 경로는 실행 여부의 합집합이며 알 수 없는 경로, 잘못된 SHA, git diff 실패나 빈 목록은 두 Job을 실행한다. 자체 검사 실패는 changes Job을 실패시킨다.
+
+건너뛴 Job은 실패로 취급되지 않는다. changes가 성공하고 실행 대상 Job이 모두 성공하면 CI 결론은 success이므로 기존 배포 시작 조건에 영향이 없다. 배포 여부는 여전히 배포 Workflow의 classify가 정한다. 화면 전용 변경에서 CI Backend Job을 건너뛰어도 배포는 Backend Test / Image Build를 수행한다.
+
+Local 자체 검사는 Repository Root에서 다음 명령으로 수행한다. Workflow의 같은 Python 코드를 읽어 `python3 -`로 실행하되 자체 검사 직후 종료하므로 Git 비교나 Actions Output 기록은 하지 않는다. YAML Library나 새 Dependency는 필요 없다.
+
+```bash
+python3 - <<'PY'
+import os
+import subprocess
+from pathlib import Path
+
+workflow = Path('.github/workflows/ci.yml').read_text(encoding='utf-8')
+start = "          python3 - <<'PY'\n"
+body = workflow.split(start, 1)[1].split('\n          PY', 1)[0]
+code = '\n'.join(line[10:] for line in body.splitlines()) + '\n'
+subprocess.run(['python3', '-'], input=code, text=True, encoding='utf-8', check=True,
+               env={**os.environ, 'CI_PATH_FILTER_SELF_TEST_ONLY': '1'})
+PY
+```
+
+### 배포 실행
+
 `deploy-staging.yml`은 같은 Repository의 `CI`가 main push에서 성공한 경우만 자동 실행한다. Workflow 경로도 `ci.yml`인지 검사한다. PR / fork 실행은 배포하지 않는다. 수동 실행은 Workflow Branch를 main으로 선택하고 `commit_sha`에 main 이력에 포함된 full 40자리 SHA를 넣는다. 형식과 main ancestry를 AWS 세션 취득 전에 검사한다. Checkout은 전체 main 이력을 읽은 뒤 해당 Commit으로 이동하며 Git 인증을 보존하지 않는다.
 
 전체 실행은 하나의 `moodfit-staging-deployment` concurrency group을 사용하고 진행 중 실행을 취소하지 않는다. GitHub concurrency는 무제한 FIFO가 아니므로 여러 대기 실행이 있으면 중간 Commit 배포가 생략될 수 있다. 오래 걸린 CI가 나중에 끝나면 이전 main Commit이 배포될 수도 있으므로 Summary Commit을 확인한다.
