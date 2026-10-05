@@ -3915,6 +3915,14 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - TASK-067 Task 문서의 틀린 서술을 바로잡았다. "`main`에 Branch Protection이 없다"고 적었으나 실제로는 Ruleset `main-protection`(Squash만 허용, `frontend` / `backend` 검사 필수, 최신 `main` 반영 필수)이 있다. 건너뛴 Job은 필수 검사에서 통과로 처리되어 설계에는 영향이 없다.
 - `v3.5.0`에 맞춰 README를 갱신했다. Dashboard 절을 "오늘 기록이 있을 때 / 없을 때"로 다시 쓰고, 오늘 기록이 없을 때의 화면 캡처를 더했다. `docs/images/readme/`의 캡처는 TASK-070까지 Merge된 `main`의 Build로 다시 찍었다(API와 날씨 조회는 가짜 응답).
 
+### 사용 영상과 README 영상 절 (2026-10-05, Claude 세션, Human 지시)
+
+- Human 지시("영상: A", "영상 촬영: 네가 찍어", "영상도 github repo의 main page에 링크 설정")에 따라 `v3.5.0` 화면의 사용 영상 두 개를 녹화했다. Staging에서 체험 계정으로 Playwright가 실제 화면을 조작한 녹화다: PC(1280 × 800, 1분 24초)와 모바일(390 × 780, 1분 21초). 흐름은 로그인 → Check-in(날씨 자동 조회, Slider) → 결과 → Dashboard(추천 평가, 음악 재생) → History(그래프 확대, 기록 펼치기, 페이지 넘김)이다.
+- 영상은 저장소에 넣지 않고 GitHub Release `v3.5.0`에 첨부했다(저장소 용량을 늘리지 않는다). README에 "사용 영상" 절을 만들어 미리 보기 그림을 누르면 영상이 열리게 했다.
+- 영상에 담지 못한 것: AI 코멘트와 주간 리포트(소셜 로그인 필요), "오늘 기록이 없을 때"의 Dashboard와 오늘 날씨 추천(체험 계정에는 배포 Smoke Test가 남긴 오늘 기록이 항상 있다). 녹화하면서 체험 계정에 Check-in 2건과 좋아요 1건이 남았다.
+- README 맨 위에 다시 덧붙어 있던 문단 두 개를 지웠다(같은 내용이 Dashboard 절에 있다). 재발을 막도록 `docs/tasks/COMMON.md`에 "10. `README.md` 고칠 때"를 추가했다.
+- GitHub Wiki를 작성해 올렸다(Human 지시, 11쪽, `v3.5.0` 기준): Home, 서비스 소개, 분석과 추천 규칙, Architecture, 배포와 CI / CD, 보안과 개인정보, Harness 개발 방식, 문제 해결 기록(18건), 주요 결정, Local 실행, Roadmap과 한계. Wiki는 저장소와 별도의 Git 저장소라 PR 없이 직접 올렸다. Production은 "계획 단계"로 적었으므로 만든 뒤 Architecture / 배포 / Roadmap 쪽을 고친다. README 소개 아래와 Harness 절에 Wiki Link를 넣었다.
+- README의 사용 영상을 그림 + Link에서 **바로 재생되는 방식**으로 바꿨다. GitHub는 웹 편집 화면에 끌어다 놓아 생긴 `user-attachments` 주소만 재생기로 보여 주므로, Human이 Release 편집 화면에 영상 두 개를 올려 주소를 만들었고 Claude 세션이 그 주소를 README에 넣었다. 주소와 Local 파일의 크기를 대조해 PC / 모바일을 구분했다. 미리 보기 그림(`video-desktop.png`, `video-mobile.png`)은 더 쓰지 않아 지웠다.
 ## TASK-030 Executor 구현 기록 (2026-10-05)
 
 - 초기 Working Tree는 clean이었다. TASK-030 READY와 Human 승인 Contract를 확인하고 구현 중 IN_PROGRESS로 전환했다. 최종 DONE은 Executor 파일 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 및 실제 Production 배포 완료를 주장하지 않는다.

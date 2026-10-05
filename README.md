@@ -1,9 +1,5 @@
 # MoodFit v3
 
-Dashboard는 서울 날짜 기준 오늘 기록 여부를 구분합니다. 오늘 미입력이면 입력 안내를 먼저 표시하고 저장된 평균과 마지막 기록을 구분하며, 지난 기록의 AI 코멘트는 자동 생성하지 않습니다.
-
-오늘 기록이 없으면 “오늘 날씨로 추천 받기”를 눌러 음식 2개와 음악 2곡을 볼 수 있습니다. 버튼을 누를 때만 위치를 조회하며 날씨와 추천은 저장하지 않습니다. 오늘 상태를 입력하면 기분까지 반영한 추천을 볼 수 있습니다.
-
 <img src="frontend/public/favicon.svg" alt="MoodFit 로고" width="64" height="64" />
 
 [![CI](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml/badge.svg)](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml)
@@ -26,6 +22,27 @@ Dashboard는 서울 날짜 기준 오늘 기록 여부를 구분합니다. 오�
 | 추천 | 음식 5개 + 음악 5곡(YouTube 재생), 좋아요 / 별로예요 반영 |
 | AI | Claude(Amazon Bedrock)가 쓰는 AI 코멘트와 주간 리포트 |
 | 배포 | AWS(ECS Fargate, RDS, CloudFront) + GitHub Actions CI / CD |
+
+**더 읽기**: [Wiki](https://github.com/youneedpython/MoodFit-v3/wiki) · [사용 영상](#사용-영상) · [Releases](https://github.com/youneedpython/MoodFit-v3/releases)
+
+Wiki에는 화면 소개보다 **어떻게 만들었고 왜 그렇게 정했는지**를 적었습니다: [Architecture](https://github.com/youneedpython/MoodFit-v3/wiki/Architecture), [배포와 CI / CD](https://github.com/youneedpython/MoodFit-v3/wiki/%EB%B0%B0%ED%8F%AC%EC%99%80-CI-CD), [Harness 개발 방식](https://github.com/youneedpython/MoodFit-v3/wiki/Harness-%EA%B0%9C%EB%B0%9C-%EB%B0%A9%EC%8B%9D), [문제 해결 기록](https://github.com/youneedpython/MoodFit-v3/wiki/%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0-%EA%B8%B0%EB%A1%9D), [주요 결정](https://github.com/youneedpython/MoodFit-v3/wiki/%EC%A3%BC%EC%9A%94-%EA%B2%B0%EC%A0%95).
+
+---
+
+## 사용 영상
+
+Staging 환경에서 체험 계정("로그인 없이 둘러보기")으로 녹화했습니다.
+
+**PC (1분 24초)** — 로그인 → Check-in(날씨 자동 조회, Slider) → 결과 → Dashboard(추천 평가, 음악 재생) → History(그래프 확대, 기록 펼치기)
+
+https://github.com/user-attachments/assets/46f7aa75-183b-473d-a1ca-481532a89bd1
+
+**모바일 (1분 21초)** — 같은 흐름을 390px 화면에서
+
+https://github.com/user-attachments/assets/3d1aa8af-b188-4b2f-9d87-f436d97abba0
+
+- 재생되지 않으면 [Release v3.5.0](https://github.com/youneedpython/MoodFit-v3/releases/tag/v3.5.0)의 첨부 파일을 내려받아 볼 수 있습니다.
+- AI 코멘트와 주간 리포트는 소셜 로그인이 필요해 이 영상에는 나오지 않습니다.
 
 ---
 
@@ -228,6 +245,8 @@ Release와 Version 규칙은 [Releases](https://github.com/youneedpython/MoodFit
 MoodFit v3는 기능 자체만큼 **AI Coding Agent와 함께 개발하는 과정**을 중요하게 다룬 프로젝트입니다.
 Agent(Codex, Claude)가 코드를 작성하더라도 무엇을, 어떤 순서로, 어떤 기준으로 만들지는
 문서와 규칙(Harness)으로 정하고, 중요한 결정은 사람이 승인합니다.
+
+이 방식이 실제로 무엇을 막아 주었는지와 한계는 Wiki의 [Harness 개발 방식](https://github.com/youneedpython/MoodFit-v3/wiki/Harness-%EA%B0%9C%EB%B0%9C-%EB%B0%A9%EC%8B%9D)에, 개발하면서 만난 문제는 [문제 해결 기록](https://github.com/youneedpython/MoodFit-v3/wiki/%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0-%EA%B8%B0%EB%A1%9D)에 정리했습니다.
 
 ```text
 Specification → Rules → Plan → Human Approval → Task → Implementation → Verification → Work Log
