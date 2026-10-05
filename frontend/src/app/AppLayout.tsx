@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { UserMenu } from "../features/auth/UserMenu";
 import { InstallAppButton } from "../features/install/InstallAppButton";
@@ -11,6 +12,15 @@ const NAV_ITEMS = [
 ];
 
 export function AppLayout() {
+  const [narrow, setNarrow] = useState(() => window.matchMedia?.("(max-width: 480px)").matches ?? false);
+  useEffect(() => {
+    const query = window.matchMedia?.("(max-width: 480px)");
+    if (!query) return;
+    const update = () => setNarrow(query.matches);
+    update();
+    query.addEventListener?.("change", update);
+    return () => query.removeEventListener?.("change", update);
+  }, []);
   const login = ["/login", "/privacy"].includes(useLocation().pathname);
   return (
     <div className="app-layout">
@@ -47,8 +57,9 @@ export function AppLayout() {
         <Outlet />
       </main>
       <footer className="container app-footer">
+        {narrow && <InstallAppButton />}
         <p>© MoodFit · 교육용 Product Heuristic이며 의학적 조언이 아닙니다.</p>
-        <InstallAppButton />
+        {!narrow && <InstallAppButton />}
         <Link to="/privacy">개인정보 처리 안내</Link>
       </footer>
     </div>

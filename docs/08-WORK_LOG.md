@@ -3816,3 +3816,12 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 범위는 v3.2.0(TASK-041) 이후 TASK-042 ~ TASK-063이다: 소셜 로그인과 사용자별 기록, AI 코멘트 / 주간 리포트, 개인별 평소 값과 신체 긴장도, 추천 다양화와 평가, 지역 기록, 화면 다듬기, 배포 보완.
 - Tag와 GitHub Release는 만들지 않았다. `v3.1.0`, `v3.2.0`도 Release Note만 있고 Tag가 없다. 만들지는 Human 결정이다(DEC-025: Tag는 옮기거나 지울 수 없다).
 - 화면 확인(Claude 세션, `docs/images/task-064/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. 설치 Event를 흉내 내 Footer와 아바타 메뉴의 "앱 설치"(390 / 768 / 1280px), 로그인 화면, 설치 수락 뒤, 지원하지 않는 환경, iOS 안내 창(390px)을 캡처했다. Chrome의 Manifest 해석 오류는 없었고 설치 조건 검사에서 남은 항목은 검사 환경(시크릿 창)뿐이었다. 실제 기기 설치는 확인하지 못했다.
+
+### TASK-065 — 모바일 설치 버튼 / History 확대 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인된 Contract와 필수 Context를 확인하고 TASK-065만 IN_PROGRESS 등록 후 구현 완료를 DONE으로 반영했다. Git 작업은 수행하지 않았다.
+- Footer 앱 설치는 기존 secondary 버튼, 본문 크기 / 44px 이상 높이로 변경했다. 480px 이하에서는 첫 줄 전체 너비, 고지 문구 / 안내는 아래이며 matchMedia 변경에 맞춰 DOM 순서도 갱신한다. 메뉴 / iOS 안내 / 설치 동작은 유지한다.
+- History는 고정 Y축 옆 가로 Viewport와 ResizeObserver 측정, 24px 기준 초기 확대 / 48px 기준 최대 확대, 초기 최신 기록 위치, 수동 배율 유지 / 범위 보정, 두 Pointer 거리 비율과 가운데 위치 기준 Pinch를 제공한다. 기본 가로 / 세로 스크롤과 Keyboard, 44px 확대 버튼 및 밀어 보기 안내, 너비에 따른 Label / 마지막 Label을 추가했다. 점 하나당 기록 하나, 선 / 점 Style, 글자 요약을 유지한다.
+- Test를 보완했다: Footer secondary, 측정 미지원 / 30건 320px 초기 225% / 1.5배 조작 / 범위 비활성화 / 전체 보기 / Label 변화와 마지막 위치 / 3건 기본 배율, 순수 Pinch 함수. 기존 장식 영역 검사는 새 안쪽 영역을 확인한다.
+- 자체 bash scripts/verify.sh는 Node.js 버전 확인 후 npm ci의 캐시 stat EPERM으로 중단됐다. Test / 타입 검사 / Build는 실행하지 못했으며 자동 재시도 / 권한 우회는 하지 않았다. 판정은 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 연속 물음표 / U+FFFD 검사를 수행한다.
+- Claude 세션의 390 / 768 / 1280px 기록 많음 / 적음, 확대 전후 / Footer 캡처가 남는다. 캡처 경로는 allowed_paths 밖이므로 Executor가 추가하지 않았다. Remote CI / Human Squash Merge 이후 실제 휴대폰 Pinch / 밀어 보기를 Human이 확인한다. Executor DONE은 검증 성공 / 최종 완료 승인이 아니다.

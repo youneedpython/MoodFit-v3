@@ -16,7 +16,7 @@ export function InstallAppButton({ menu = false, onPrompt }: { menu?: boolean; o
   }
   return <>
     {menu ? <button ref={trigger} role="menuitem" disabled={busy} onClick={install}>앱 설치</button> :
-      <Button ref={trigger} variant="ghost" disabled={busy} onClick={install}>앱 설치</Button>}
+      <Button ref={trigger} className="app-footer__install" variant="secondary" disabled={busy} onClick={install}>앱 설치</Button>}
     {open && <InstallInstructions onClose={close} returnFocus={() => trigger.current?.focus()} />}
   </>;
 }

@@ -100,7 +100,7 @@ describe("HistoryPage", () => {
     renderPage();
 
     const trend = await screen.findByRole("region", { name: "최근 7일 Wellness Score" });
-    expect(trend.querySelector(".wellness-trend__plot")?.getAttribute("aria-hidden")).toBe("true");
+    expect(trend.querySelector(".wellness-trend__inner")?.getAttribute("aria-hidden")).toBe("true");
     expect(trend.querySelector("svg")).toBeTruthy();
     expect(within(trend).getAllByTestId("trend-point")).toHaveLength(3);
     expect(trend.querySelector("polyline")?.getAttribute("points")?.split(" ")).toHaveLength(3);
