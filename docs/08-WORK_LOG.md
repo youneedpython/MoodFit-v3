@@ -3734,6 +3734,11 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Human 요청으로 Claude 세션이 Dashboard / Check-in / History / 로그인 화면을 훑어 개선 후보를 뽑았고, Human이 모두 Task로 정리하도록 지시했다. TASK-060(History), TASK-061(Dashboard 추천 영역), TASK-062(로그인 / Footer), TASK-063(Check-in 입력 / 결과)을 READY로 등록했다.
 - 후보 가운데 "History 그래프의 시간 방향"은 Claude 세션의 오인이었다(캡처용 가짜 데이터의 순서가 거꾸로였다). 실제 그래프는 과거 → 현재 순서라 Task에서 뺐다.
 - 이 변경은 Task 문서, Contract, Task 목록만 더한다. 코드는 바꾸지 않았다.
+### TASK-057 후속 — 불안정한 Test 안정화 (2026-10-05, Claude 세션)
+
+- TASK-060 Orchestrator Verify에서 `privacy.test.tsx`의 "blocks closing while pending and permits cancel after failure"가 한 번 실패했다. 같은 Test는 그 전 두 번의 Verify와 Remote CI에서는 통과했다.
+- 원인: 탈퇴 실패 뒤 "취소"로 초점을 돌려놓는 동작은 실패 상태가 그려진 뒤 Effect에서 일어나는데, Test는 실패 문구가 보이자마자 초점을 바로 검사했다. 실행 시점에 따라 Effect보다 먼저 검사할 수 있었다.
+- 조치: 초점 검사를 `waitFor`로 감쌌다. 검사 내용과 구현은 바꾸지 않았다. 같은 Test 파일을 20회 반복 실행해 모두 통과했다.
 
 ### TASK-060 — History Record Compact (2026-10-05)
 
