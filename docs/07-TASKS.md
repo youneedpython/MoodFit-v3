@@ -41,8 +41,11 @@ Status:
 BLOCKED
 ```
 
-TASK-001 ~ TASK-028, TASK-032 ~ TASK-034는 DONE이다. TASK-028은 2026-10-04 Staging 최초 배포와 Smoke 검증을 마쳤으며 완료는 PR #15의 Human Squash Merge로 확정한다.
-TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE으로 반영했다. 실제 자동 배포 두 번과 롤백 경로 확인은 Merge 이후이며 최종 완료 승인은 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge로 확정한다. TASK-030은 Production 생성 승인과 선행 기능 Task 후 READY이며 현재 BLOCKED다. TASK-035(위치 인식 + 날씨 자동 조회)는 PR #16 Human Squash Merge(2026-10-04)로 DONE이다. 계획한 순서(TASK-029 뒤)보다 먼저 Merge되었고 Frontend만 바뀌어 다른 Task에 영향은 없다. Staging에는 아직 배포되지 않았으며 TASK-029의 CD 또는 수동 Frontend 배포로 반영한다. TASK-036(추천 5개 / 음악 재생)은 별도 Branch에서 개발 중이다.
+TASK-001 ~ TASK-029, TASK-032 ~ TASK-064는 DONE이다(모두 PR Squash Merge와 Staging 자동 배포까지 마쳤다). Release는 `v3.3.0`(TASK-063까지)이다.
+
+남은 Task는 TASK-030(실제 Production)과 TASK-031(운영 / 정리)이며 둘 다 BLOCKED다. 2026-10-05 Human이 정한 순서는 "사용 영상 촬영 → TASK-030 → TASK-031"이다. TASK-030은 Production 생성에 대한 Human 승인(구성 / 비용 Gate)이 있어야 READY가 된다.
+
+각 Task 절은 "상태 / 목적 / Human Approval 또는 Gate / 완료 조건 / 상세 Task Contract" 형식으로 적는다(형식 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md)).
 
 ---
 
@@ -50,8 +53,6 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 
 | Task | Milestone | 작업 | 상태 | Dependency | Human Approval |
 |---|---|---|---|---|---|
-| TASK-042 | Milestone 42 | Social Login / Guest / User Scoped Data | DONE | TASK-029, TASK-036, TASK-039 | Human Approved 2026-10-04; Executor 구현 완료, Verify / Review / Merge 대기 |
-| TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | DONE | TASK-042 Merge / Staging 체험 로그인 확인 | Executor 구현 완료, Verify / Review / Human Merge 및 실제 적용은 후속 확인 |
 | TASK-001 | Milestone 1 | Project Bootstrap | DONE | docs/06-PLAN.md Human Approved, Gate A Human Approved, DEC-015 Human Approved, DEC-016 Human Approved, Spring Boot Version Re-review Human Approved | 승인 완료 |
 | TASK-002 | Milestone 2 | Initial Local Verification Harness | DONE | TASK-001 완료 (충족), Human Approval 완료, Human Review 보완 완료 | 승인 완료 |
 | TASK-003 | Milestone 3 | Initial GitHub Actions CI | DONE | TASK-002 완료 (충족), Local Verification 성공 (충족), DEC-017 Human Approved | Gate C 승인 완료 |
@@ -89,33 +90,33 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-035 | Milestone 35 | Location / Weather Auto Fill (위치 인식 + 날씨 자동 조회) | DONE | Human 지시(2026-10-04), Frontend만 변경, Review PASS | Gate 사전 승인, PR #16 Human Squash Merge로 확정 |
 | TASK-036 | Milestone 36 | Recommendation Five / Music Playback (추천 5개 + 추천 음악 바로 듣기) | DONE | Human 지시(2026-10-04), TASK-035 완료, Review PASS | Gate 사전 승인, PR #17 Human Squash Merge로 확정 |
 | TASK-037 | Milestone 37 | Logo / Favicon (로고 / 파비콘) | DONE | Human 지시와 시안 A 선택(2026-10-04), Review PASS | PR #19 Human Squash Merge로 확정 |
-| TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04), 최종 완료 승인 대기 |
-| TASK-039 | Milestone 39 | Staging CD Rollout Wait Fix | DONE | TASK-029, TASK-038 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
-| TASK-040 | Milestone 40 | Weather Auto Default / Region Display | DONE | TASK-035, TASK-037 완료 | Human Gate 사전 승인 및 명시 실행 (2026-10-04), 최종 완료 승인 대기 |
-| TASK-041 | Milestone 41 | Header Logo Link / Alignment (로고 클릭 이동 + 정렬) | DONE | TASK-037 완료 | Human 명시 실행 승인 (2026-10-04), 최종 완료 승인 대기 |
-| TASK-042 | Milestone 42 | Social Login / Guest / User Scoped Data | DONE | TASK-029, TASK-036, TASK-039 | Human Approved 2026-10-04; Executor 구현 완료, Verify / Review / Merge 대기 |
-| TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | READY | TASK-042 구현 후 실환경 확인 | TASK-042 후속 등록, 실제 값 / AWS 실행은 후속 Contract와 Gate에 따름 |
-| TASK-044 | Milestone 44 | Check-in Region Record (지역 저장 / Dashboard · History 표시) | DONE | TASK-040, TASK-042 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-045 | Milestone 45 | LLM Insight (AI 맞춤 코멘트 + 주간 리포트) | DONE | TASK-042, TASK-044 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-046 | Milestone 46 | LLM Value Injection (Infra) | DONE | TASK-043, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-047 | Milestone 47 | UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기) | DONE | TASK-036, TASK-045 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-048 | Milestone 48 | Recommendation Variety (추천 다양화) + History 여백 | DONE | TASK-036, TASK-042, TASK-047 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-049 | Milestone 49 | LLM Runtime Endpoint / Failure Diagnostics | DONE | TASK-045, TASK-046 | Human 승인 Contract 및 명시 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-050 | Milestone 50 | Skip Staging CD for Docs-only Changes | DONE | TASK-029, TASK-039 | Human Gate C 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-051 | Milestone 51 | AI Comment Readability | DONE | TASK-045, TASK-047, TASK-049 | Human 실행 지시 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-052 | Milestone 52 | Music Pool Curation (선곡 조정) | DONE | TASK-048 | Human 선곡 이동 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-053 | Milestone 53 | AI Card Layout (AI 코멘트 위치 / 주간 리포트 버튼 간격) | DONE | TASK-051 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-054 | Milestone 54 | Privacy Notice / Account Deletion / SPA Route Fix | DONE | TASK-042, TASK-044, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-055 | Milestone 55 | Recommendation Feedback (추천 피드백) | DONE | TASK-042, TASK-048, TASK-054 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-056 | Milestone 56 | Personal Baseline (개인별 Baseline / 신체 긴장도) | DONE | TASK-042, TASK-045, TASK-048, TASK-055 | Human Approved 2026-10-05, Gate B B안 / 체험 계정 적용, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-057 | Milestone 57 | Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리) | DONE | TASK-054 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-058 | Milestone 58 | Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로) | DONE | TASK-055 | Human 명시 실행 지시 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-059 | Milestone 59 | Weather Card Layout (Check-in 날씨 영역 배치) | DONE | TASK-040, TASK-044 | Human 명시 실행 승인 (2026-10-05), Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-060 | Milestone 60 | History Record Compact | DONE | TASK-045, TASK-048, TASK-056 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-061 | Milestone 61 | Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치) | DONE | TASK-058 | Executor 구현 완료, Orchestrator Verify / Review / 화면 확인 / Human Merge 대기 |
-| TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | DONE | TASK-042, TASK-054, TASK-057 | 제공자 버튼 / 공통 Footer 구현 완료, Verify / Review / Human Squash Merge 대기 |
-| TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | DONE | TASK-059, TASK-061 | Executor 구현 완료, 공유 Tile / 컨디션 Slider / 묶음별 열 수 |
-| TASK-064 | Milestone 64 | PWA Install (홈 화면 설치 / 앱 설치 버튼) | DONE | TASK-037, TASK-062 | Human 승인 2026-10-05, Executor 설치 기능 구현 완료 |
+| TASK-038 | Milestone 38 | GitHub OIDC Immutable Subject Trust | DONE | TASK-029 Merge (PR #18), Executor 구현 완료 반영 | Human 사전 승인 (2026-10-04) |
+| TASK-039 | Milestone 39 | Staging CD Rollout Wait Fix | DONE | TASK-029, TASK-038 | Human 명시 실행 승인 (2026-10-04) |
+| TASK-040 | Milestone 40 | Weather Auto Default / Region Display | DONE | TASK-035, TASK-037 완료 | Human Gate 사전 승인 및 명시 실행 (2026-10-04) |
+| TASK-041 | Milestone 41 | Header Logo Link / Alignment (로고 클릭 이동 + 정렬) | DONE | TASK-037 완료 | Human 명시 실행 승인 (2026-10-04) |
+| TASK-042 | Milestone 42 | Social Login / Guest / User Scoped Data | DONE | TASK-029, TASK-036, TASK-039 | Human Approved 2026-10-04 |
+| TASK-043 | Milestone 43 | Infra: OAuth 값 주입 — App / IAM Stack | DONE | TASK-042 Merge / Staging 체험 로그인 확인 | Human 결정 2026-10-04 |
+| TASK-044 | Milestone 44 | Check-in Region Record (지역 저장 / Dashboard · History 표시) | DONE | TASK-040, TASK-042 | Human Approved 2026-10-04 |
+| TASK-045 | Milestone 45 | LLM Insight (AI 맞춤 코멘트 + 주간 리포트) | DONE | TASK-042, TASK-044 | Human Approved 2026-10-04 |
+| TASK-046 | Milestone 46 | LLM Value Injection (Infra) | DONE | TASK-043, TASK-045 | Human Approved 2026-10-04 |
+| TASK-047 | Milestone 47 | UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기) | DONE | TASK-036, TASK-045 | Human 명시 실행 승인 (2026-10-04) |
+| TASK-048 | Milestone 48 | Recommendation Variety (추천 다양화) + History 여백 | DONE | TASK-036, TASK-042, TASK-047 | Human Approved 2026-10-04 |
+| TASK-049 | Milestone 49 | LLM Runtime Endpoint / Failure Diagnostics | DONE | TASK-045, TASK-046 | Human 승인 Contract 및 명시 실행 지시 (2026-10-04) |
+| TASK-050 | Milestone 50 | Skip Staging CD for Docs-only Changes | DONE | TASK-029, TASK-039 | Human Gate C 승인 (2026-10-04) |
+| TASK-051 | Milestone 51 | AI Comment Readability | DONE | TASK-045, TASK-047, TASK-049 | Human 실행 지시 (2026-10-04) |
+| TASK-052 | Milestone 52 | Music Pool Curation (선곡 조정) | DONE | TASK-048 | Human 선곡 이동 승인 (2026-10-04) |
+| TASK-053 | Milestone 53 | AI Card Layout (AI 코멘트 위치 / 주간 리포트 버튼 간격) | DONE | TASK-051 | Human 명시 실행 승인 (2026-10-04) |
+| TASK-054 | Milestone 54 | Privacy Notice / Account Deletion / SPA Route Fix | DONE | TASK-042, TASK-044, TASK-045 | Human Approved 2026-10-04 |
+| TASK-055 | Milestone 55 | Recommendation Feedback (추천 피드백) | DONE | TASK-042, TASK-048, TASK-054 | Human Approved 2026-10-04 |
+| TASK-056 | Milestone 56 | Personal Baseline (개인별 Baseline / 신체 긴장도) | DONE | TASK-042, TASK-045, TASK-048, TASK-055 | Human Approved 2026-10-05, Gate B B안 / 체험 계정 적용 |
+| TASK-057 | Milestone 57 | Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리) | DONE | TASK-054 | Human 명시 실행 승인 2026-10-05 |
+| TASK-058 | Milestone 58 | Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로) | DONE | TASK-055 | Human 명시 실행 지시 2026-10-05 |
+| TASK-059 | Milestone 59 | Weather Card Layout (Check-in 날씨 영역 배치) | DONE | TASK-040, TASK-044 | Human 명시 실행 승인 (2026-10-05) |
+| TASK-060 | Milestone 60 | History Record Compact | DONE | TASK-045, TASK-048, TASK-056 | Human 명시 실행 승인 2026-10-05 |
+| TASK-061 | Milestone 61 | Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치) | DONE | TASK-058 | Human 지시 2026-10-05 |
+| TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | DONE | TASK-042, TASK-054, TASK-057 | Human 지시 2026-10-05 |
+| TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | DONE | TASK-059, TASK-061 | Human 지시 2026-10-05 |
+| TASK-064 | Milestone 64 | PWA Install (홈 화면 설치 / 앱 설치 버튼) | DONE | TASK-037, TASK-062 | Human 승인 2026-10-05 |
 
 ---
 
@@ -1756,19 +1757,29 @@ DONE
 DONE
 ```
 
-### Dependency / 승인
+Milestone 38. 선행: TASK-029 Merge (PR #18), Executor 구현 완료 반영. Orchestrator Verify와 Claude Review를 통과했고 PR #20 Human Squash Merge로 완료했다.
 
-TASK-029 Merge(PR #18), 2026-10-04 Human 사전 승인과 명시 실행 지시에 따라 수행한다. Milestone 38이다.
+- TASK-029 Merge(PR #18), 2026-10-04 Human 사전 승인과 명시 실행 지시에 따라 수행한다. Milestone 38이다.
+- 두 배포 Role의 subject를 owner / repository 숫자 ID가 포함된 immutable 형식으로 변경한다. 숫자 전용 필수 Parameter 두 개와 예시 Placeholder를 추가하고 Trust 예시 / 운영 문서 / DEC-029 이력을 맞춘다. StringEquals 단일 값, audience, 환경 분리와 기존 권한은 유지한다. 실제 ID와 AWS 실행은 포함하지 않는다.
+- Merge 후 Human이 IAM Stack Change Set을 적용하고 실패한 배포를 재실행해 OIDC 통과를 확인한다.
 
-### 구현 / 완료 경계
+### 목적
 
-두 배포 Role의 subject를 owner / repository 숫자 ID가 포함된 immutable 형식으로 변경한다. 숫자 전용 필수 Parameter 두 개와 예시 Placeholder를 추가하고 Trust 예시 / 운영 문서 / DEC-029 이력을 맞춘다. StringEquals 단일 값, audience, 환경 분리와 기존 권한은 유지한다. 실제 ID와 AWS 실행은 포함하지 않는다.
+Staging 자동 배포(TASK-029)의 첫 실행이 OIDC 단계에서 실패했다. 배포 Role의 신뢰 조건을 GitHub가 실제로 발급하는 subject 형식에 맞춘다.
 
-DONE은 Executor 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인을 뜻하지 않는다. Merge 후 Human이 IAM Stack Change Set을 적용하고 실패한 배포를 재실행해 OIDC 통과를 확인한다. TASK-030 / Current Task는 BLOCKED를 유지한다.
+### Human Approval 또는 Gate
+
+- Human 사전 승인 (2026-10-04)
+- 근거와 세부 결정은 Task 문서의 "Human 결정 (2026-10-04) / 실행 기준" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 후 Human이 IAM Stack Change Set을 실행하고, 실패한 배포를 다시 실행해 OIDC 단계 통과를 확인한다.
+- PR #20 Squash Merge와 Staging 자동 배포 확인
 
 ### 상세 Task Contract
 
-[`TASK-038_OIDC_IMMUTABLE_SUBJECT.md`](tasks/TASK-038_OIDC_IMMUTABLE_SUBJECT.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
+[`docs/tasks/TASK-038_OIDC_IMMUTABLE_SUBJECT.md`](tasks/TASK-038_OIDC_IMMUTABLE_SUBJECT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 
@@ -1780,19 +1791,27 @@ DONE은 Executor 구현 완료 반영이며 Orchestrator Verify / Claude Review 
 DONE
 ```
 
-### Dependency / 승인
+Milestone 39. 선행: TASK-029, TASK-038. Orchestrator Verify와 Claude Review를 통과했고 PR #21 Human Squash Merge로 완료했다.
 
-TASK-029, TASK-038과 2026-10-04 Human의 "CD 에러 해결" 명시 실행 지시에 따른다. Milestone 39다.
+- services-stable 이후 DescribeServices를 15초 간격으로 최대 10분 조회한다. 목표 Task Definition과 단일 목표 Deployment, COMPLETED, desired 2 / running 2 / pending 0을 모두 만족해야 성공한다. Service가 이전 revision으로 복귀하거나 목표 Deployment가 FAILED면 즉시 실패한다. 나머지 상태는 제한 시간 안에서 기다리며 실패 이유에는 식별값이나 AWS 원문을 포함하지 않는다.
+- Merge 후 Frontend 배포와 Smoke까지 자동 배포가 통과하는지 확인한다.
 
-### 구현 / 완료 경계
+### 목적
 
-services-stable 이후 DescribeServices를 15초 간격으로 최대 10분 조회한다. 목표 Task Definition과 단일 목표 Deployment, COMPLETED, desired 2 / running 2 / pending 0을 모두 만족해야 성공한다. Service가 이전 revision으로 복귀하거나 목표 Deployment가 FAILED면 즉시 실패한다. 나머지 상태는 제한 시간 안에서 기다리며 실패 이유에는 식별값이나 AWS 원문을 포함하지 않는다.
+Staging 자동 배포가 ECS 배포는 성공했는데도 "Wait for ECS and reject circuit breaker rollback" Step에서 실패한다. 판정 방식을 고친다.
 
-DONE은 Executor 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 완료 승인이 아니다. Merge 후 Frontend 배포와 Smoke까지 자동 배포가 통과하는지 확인한다. TASK-030 / Current Task는 BLOCKED를 유지한다.
+### Human Approval 또는 Gate
+
+- Human 명시 실행 승인 (2026-10-04)
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 뒤 자동 배포가 끝까지 통과하는지 확인한다.
+- PR #21 Squash Merge와 Staging 자동 배포 확인
 
 ### 상세 Task Contract
 
-[`TASK-039_CD_ROLLOUT_WAIT.md`](tasks/TASK-039_CD_ROLLOUT_WAIT.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
+[`docs/tasks/TASK-039_CD_ROLLOUT_WAIT.md`](tasks/TASK-039_CD_ROLLOUT_WAIT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 
@@ -1804,25 +1823,837 @@ DONE은 Executor 구현 완료 반영이며 Orchestrator Verify / Claude Review 
 DONE
 ```
 
-2026-10-04 사전 승인 Contract와 명시 실행 지시에 따라 Milestone 40의 Executor 구현 완료를 반영했다. 저장값이 없으면 자동으로 조회하고 지역 · 날씨 · 기온을 요약한다. 직접 입력으로 전환할 수 있으며 실패 시 입력을 제공한다. BigDataCloud 지역 이름 조회와 두 API의 소수 둘째 자리 좌표 처리, 개인정보 비저장 정책은 DEC-033을 따른다.
+Milestone 40. 선행: TASK-035, TASK-037 완료. Orchestrator Verify와 Claude Review를 통과했고 PR #22 Human Squash Merge로 완료했다.
 
-DONE은 Executor 구현 완료이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 최종 완료 승인이 아니다. TASK-030 / Current Task의 BLOCKED와 다른 Task 상태는 유지한다. Merge 후 Staging에서 자동 조회 / 지역 표시 / 실패 후 제출과 화면 배치를 확인한다.
+- 2026-10-04 사전 승인 Contract와 명시 실행 지시에 따라 Milestone 40의 Executor 구현 완료를 반영했다. 저장값이 없으면 자동으로 조회하고 지역 · 날씨 · 기온을 요약한다. 직접 입력으로 전환할 수 있으며 실패 시 입력을 제공한다. BigDataCloud 지역 이름 조회와 두 API의 소수 둘째 자리 좌표 처리, 개인정보 비저장 정책은 DEC-033을 따른다.
+- Merge 후 Staging에서 자동 조회 / 지역 표시 / 실패 후 제출과 화면 배치를 확인한다.
+
+### 목적
+
+Check-in 화면의 날씨를 **자동 조회가 기본**이 되게 하고, 조회한 **지역 이름**을 날씨와 함께 보여 준다. 사용자가 원하면 직접 입력으로 바꿀 수 있다. 기온 정확도를 높인다.
+
+### Human Approval 또는 Gate
+
+- Human Gate 사전 승인 및 명시 실행 (2026-10-04)
+- 근거와 세부 결정은 Task 문서의 "Human 결정 (2026-10-04, Gate 사전 승인)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 후 Staging에서 자동 조회와 지역 표시를 확인한다.
+- PR #22 Squash Merge와 Staging 자동 배포 확인
 
 ### 상세 Task Contract
 
-[TASK-040_WEATHER_AUTO_REGION.md](tasks/TASK-040_WEATHER_AUTO_REGION.md)와 [공통 규칙](tasks/COMMON.md)을 따른다.
+[`docs/tasks/TASK-040_WEATHER_AUTO_REGION.md`](tasks/TASK-040_WEATHER_AUTO_REGION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 
 ## TASK-041 — Header Logo Link / Alignment
 
-- 상태: DONE (Milestone 41), 승인 Contract에 따른 Executor 구현 완료 반영.
+### 상태
+
+```text
+DONE
+```
+
+Milestone 41. 선행: TASK-037 완료. Orchestrator Verify와 Claude Review를 통과했고 PR #23 Human Squash Merge로 완료했다.
+
 - 로고 그림과 MoodFit 이름을 하나의 react-router Link(`/`)로 연결하고 날짜는 밖에 유지했다. 그림은 빈 alt로 장식 처리하고 링크 이름은 MoodFit 한 번만 읽힌다.
 - 브랜드와 날짜를 세로 가운데 정렬했다. 기존 gradient, 간격 Token, 모바일 메뉴 배치와 전역 focus-ring을 유지했다.
 - 기존 테스트에 루트 링크와 단일 접근 가능한 이름, Check-in / History에서 Dashboard 이동 검증을 추가했다.
-- `bash scripts/verify.sh`는 Sandbox 밖 npm 캐시 접근 EPERM으로 npm ci 단계에서 중단됐다. Test / Build 성공을 주장하지 않으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다.
-- Claude 세션의 390 / 768 / 1280px 캡처 확인, Remote CI / Human Squash Merge가 남아 있다. DONE은 최종 완료 승인이 아니다.
-- Current Task TASK-030 / BLOCKED와 다른 Task 상태를 유지한다. [TASK-041 Contract](tasks/TASK-041_HEADER_LOGO_LINK.md)를 따른다.
+
+### 목적
+
+상단 메뉴의 로고를 누르면 첫 화면(Dashboard, `/`)으로 이동하게 하고, 로고와 날짜 글자의 세로 위치를 맞춘다.
+
+### Human Approval 또는 Gate
+
+- Human 명시 실행 승인 (2026-10-04)
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처로 정렬을 확인한다.
+- PR #23 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-041_HEADER_LOGO_LINK.md`](tasks/TASK-041_HEADER_LOGO_LINK.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-042 — Social Login / Guest / User Scoped Data
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 42. 선행: TASK-029, TASK-036, TASK-039. Orchestrator Verify와 Claude Review를 통과했고 PR #24 Human Squash Merge로 완료했다.
+
+- Backend: 승인 Dependency 5개, Java 제공자 등록, JDBC Session / CSRF / JSON 오류, V3 사용자 / Session Migration, 사용자별 저장 / 최신 / 이력.
+- Frontend: 로그인 화면, 미인증 / 401 이동, Cookie / CSRF 요청, 아바타 메뉴. 로고 / 날짜 영역은 유지한다.
+- Smoke / 계약 / 인증 운영 문서를 갱신했다. Frontend 126 Test와 Build, 두 Smoke Script 구문 검사, Diff 공백 검사를 수행했다.
+- 실서비스 Google / Kakao 로그인은 TASK-043 이후 확인한다.
+
+### 목적
+
+사용자를 구분한다. Google / Kakao 소셜 로그인과 "로그인 없이 둘러보기"(체험 계정)를 추가하고, Check-in 기록을 사용자별로 분리한다. 상단 메뉴에 사용자 아바타와 메뉴를 둔다.
+
+### Human Approval 또는 Gate
+
+- Human Approved 2026-10-04
+- 근거와 세부 결정은 Task 문서의 "Human 결정 (2026-10-04, Gate 10개 항목 승인)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 후 Staging 자동 배포에서 체험 로그인 Smoke가 통과하는지 확인한다. Google / Kakao 로그인은 TASK-043 뒤에 확인한다.
+- PR #24 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-042_SOCIAL_LOGIN.md`](tasks/TASK-042_SOCIAL_LOGIN.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-043 — Infra: OAuth 값 주입 — App / IAM Stack
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 43. 선행: TASK-042 Merge / Staging 체험 로그인 확인. Orchestrator Verify와 Claude Review를 통과했고 PR #26 Human Squash Merge로 완료했다.
+
+- 구현: 조건부 OAuth 주입과 ExecutionRole 권한, 필수 공개 HTTPS 주소, 체험 로그인 Parameter 및 배포 문서. 실제 적용은 Merge 후 Human이 수행한다.
+- 범위: Secrets Manager / ECS 환경 변수 주입, 환경별 공개 주소 및 제공자 Callback 등록, Google / Kakao 실제 로그인 확인.
+- Production 승인과 IAM / Infra 변경 Gate를 유지한다. 실제 값은 Repository / Prompt / Log에 기록하지 않는다.
+
+### 목적
+
+TASK-042가 만든 소셜 로그인에 Google / Kakao OAuth 값과 공개 주소를 주입한다. Secrets Manager의 값을 ECS Task가 환경 변수로 받게 한다.
+
+### Human Approval 또는 Gate
+
+- Human 결정 2026-10-04
+- 근거와 세부 결정은 Task 문서의 "Human 결정 / 확인된 사실 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 후 Human이 Secret을 만들고 IAM / App Stack을 갱신한다. Claude 세션이 `providers`와 Cookie `Secure`를 확인하고, Human이 실제 Google / Kakao 로그인을 확인한다.
+- PR #26 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-043_OAUTH_VALUE_INJECTION.md`](tasks/TASK-043_OAUTH_VALUE_INJECTION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-044 — Check-in Region Record (지역 저장 / Dashboard · History 표시)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 44. 선행: TASK-040, TASK-042. Orchestrator Verify와 Claude Review를 통과했고 PR #25 Human Squash Merge로 완료했다.
+
+- Backend: 선택 region 검증 / V4 nullable 컬럼 / 생성·최신·이력 반환, H2 / MySQL 저장·Migration / 사용자 분리 테스트.
+- Frontend: 자동 조회된 이름만 전송하고 직접 입력 수정 시 유지한다. 대체 문구는 보내지 않으며 Dashboard / History / 결과에 지역이 있을 때만 표시한다.
+- API 예시의 region은 null로 유지하며 개인정보 안내 / 승인 Decision / Prompt / README를 갱신했다. 자체 실행은 npm 캐시 / Gradle 잠금 / Docker 권한 제약으로 제한되었다. 상세 증거는 WORK_LOG를 따른다.
+- Merge 후 Staging에서 저장 → Dashboard / History 표시와 지역 없는 기존 기록을 확인한다. 390 / 768 / 1280px 캡처 / 시각 검토를 남긴다.
+
+### 목적
+
+Check-in을 저장할 때의 지역 이름을 함께 저장하고, Dashboard와 History에서 날씨와 함께 보여 준다.
+
+### Human Approval 또는 Gate
+
+- Human Approved 2026-10-04
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 후 Staging에서 Check-in → Dashboard / History의 지역 표시를 확인한다.
+- PR #25 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-044_CHECKIN_REGION.md`](tasks/TASK-044_CHECKIN_REGION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-045 — LLM Insight (AI 맞춤 코멘트 + 주간 리포트)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 45. 선행: TASK-042, TASK-044. Orchestrator Verify와 Claude Review를 통과했고 PR #27 Human Squash Merge로 완료했다.
+
+- Backend: 꺼짐 기본값 / 지연 Client / V5 / 저장·재사용 / 소유권 / 소셜 사용자 / DB 시도 한도 / 주간 리포트 / 실패 fallback과 Test.
+- Frontend: 결과 자동 생성, Dashboard 조회와 버튼, History 주간 리포트, 꺼짐 숨김 / 체험 안내 / 진행·실패·한도·기록 부족 안내.
+- 실제 Bedrock 호출은 TASK-046 뒤 Staging에서 확인한다.
+
+### 목적
+
+Check-in 결과를 사람이 읽기 쉬운 **AI 맞춤 코멘트**로 풀어 주고, 최근 7일 기록으로 **주간 리포트**를 만든다. LLM은 Amazon Bedrock의 Claude를 쓴다.
+
+### Human Approval 또는 Gate
+
+- Human Approved 2026-10-04
+- 근거와 세부 결정은 Task 문서의 "Human 결정 (2026-10-04, Gate 10개 항목 + 후속 결정)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. 실제 Bedrock 호출은 TASK-046(환경 값 주입, 다른 계정의 Role 생성) 뒤 Staging에서 확인한다.
+- PR #27 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-045_LLM_INSIGHT.md`](tasks/TASK-045_LLM_INSIGHT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-046 — LLM Value Injection (Infra)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 46. 선행: TASK-043, TASK-045. Orchestrator Verify와 Claude Review를 통과했고 PR #28 Human Squash Merge로 완료했다.
+
+- TASK-045 문서가 없어 [24-LLM-INFRA.md](24-LLM-INFRA.md)에 기록했다.
+- 자체 IaC 검증은 실행 환경의 AWS CLI 부재로 시작 단계에서 중단됐다. 실제 호출 / 비용 확인은 Merge 후 Human 실행이다.
+
+### 목적
+
+TASK-045가 만든 AI 코멘트 / 주간 리포트 기능을 켤 수 있게 한다. ECS Task에 LLM 환경 값을 주입하고, Task Role이 다른 AWS 계정의 Bedrock 호출 전용 Role을 빌릴(AssumeRole) 수 있게 한다.
+
+### Human Approval 또는 Gate
+
+- Human Approved 2026-10-04
+- 근거와 세부 결정은 Task 문서의 "Human 결정 / 확인된 사실 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 후 Human이 다른 계정에 Role을 만들고 IAM / App Stack을 갱신한다. Staging에서 실제 AI 코멘트 생성을 확인한다.
+- PR #28 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-046_LLM_VALUE_INJECTION.md`](tasks/TASK-046_LLM_VALUE_INJECTION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-047 — UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 47. 선행: TASK-036, TASK-045. Orchestrator Verify와 Claude Review를 통과했고 PR #30 Human Squash Merge로 완료했다.
+
+- 공통 추천 음식 Card에 이름 낱말 기반 장식 Emoji를 추가했다. 현재 규칙의 모든 음식 이름과 기본 아이콘 / 접근성 Test를 추가했고 음악과 추천 규칙은 유지한다.
+- History 기록은 최신순으로 5개씩 표시하며 이전 / 다음, 위치 알림, 제목 focus와 기록 감소 시 페이지 보정을 제공한다. 그래프와 주간 리포트는 전체 기록을 사용한다.
+
+### 목적
+
+Human이 Staging 화면을 보고 요청한 화면 보완 3가지를 반영한다. Frontend만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 명시 실행 승인 (2026-10-04)
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처로 확인한다.
+- PR #30 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-047_UI_POLISH.md`](tasks/TASK-047_UI_POLISH.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-048 — Recommendation Variety (추천 다양화) + History 여백
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 48. 선행: TASK-036, TASK-042, TASK-047. Orchestrator Verify와 Claude Review를 통과했고 PR #33 Human Squash Merge로 완료했다.
+
+- Milestone: 48. Dependency: TASK-036 / TASK-042 / TASK-047. Human Approved 2026-10-04 / DEC-040.
+- 음식 기분 8개 / 상황 6개, 음악 기분 13~26곡 / 상황 6~10곡의 Code 상수 Pool과 서울 날짜별 순환 선택을 구현했다. 기분 3개 / 상황 2개와 중복 제거, 기존 판정 / 저장 기록 / API 형식을 유지한다.
+- 계약 예시 / API 문서 / Smoke 검사, 전체 메뉴별 Emoji Test와 History 공통 Card 간격을 동기화했다.
+- Human Squash Merge 후 Staging에서 날짜 변화와 Smoke를 확인한다.
+
+### 목적
+
+추천 음식과 추천 음악이 기분 / 날씨가 같으면 매번 같은 5개로 나온다. 후보를 늘리고 날짜에 따라 돌아가며 고르게 해서 다양하게 만든다. 함께 History 화면의 Card 간격을 고친다.
+
+### Human Approval 또는 Gate
+
+- Human Approved 2026-10-04
+- 근거와 세부 결정은 Task 문서의 "Human 결정 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 후 Staging에서 추천이 날짜에 따라 달라지는지와 Smoke 통과를 확인한다.
+- PR #33 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-048_RECOMMENDATION_VARIETY.md`](tasks/TASK-048_RECOMMENDATION_VARIETY.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-049 — LLM Runtime Endpoint / Failure Diagnostics
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 49. 선행: TASK-045, TASK-046. Orchestrator Verify와 Claude Review를 통과했고 PR #31 Human Squash Merge로 완료했다.
+
+- 기본 runtime / 선택 mantle Backend, 동일 요청 설정, 마스킹된 HTTP 오류 진단과 거절 / 길이 초과 단일 로그를 구현했다. InvokeModel 권한 예시와 운영 문서를 갱신했다.
+- 선택 Logic / 오류 문장 정리 / 실패 로그 Test를 추가했다. 실제 Bedrock 호출은 수행하지 않았다.
+- Merge / 자동 배포 후 Human이 다른 계정 호출 Role의 권한을 추가하고 Staging 실제 생성을 확인한다. 400이 추론 Profile을 요구하면 정확한 ID를 확인해 LlmModelId와 App Stack을 갱신한다.
+
+### 목적
+
+Staging에서 AI 코멘트 생성이 404로 실패한다. Bedrock 호출 경로를 실제로 동작이 확인된 쪽으로 바꾸고, 실패 원인을 로그로 구분할 수 있게 한다.
+
+### Human Approval 또는 Gate
+
+- Human 승인 Contract 및 명시 실행 지시 (2026-10-04)
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge → 자동 배포 뒤, Human이 다른 계정 Role에 권한을 추가하고 Staging에서 실제 생성을 확인한다. 실패하면 로그의 오류 문장으로 다음 조치를 정한다.
+- PR #31 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-049_LLM_RUNTIME_ENDPOINT.md`](tasks/TASK-049_LLM_RUNTIME_ENDPOINT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-050 — Skip Staging CD for Docs-only Changes
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 50. 선행: TASK-029, TASK-039. Orchestrator Verify와 Claude Review를 통과했고 PR #32 Human Squash Merge로 완료했다.
+
+- 자동 실행에 읽기 전용 판정 Job을 추가했다. 문서 전용이면 배포 Job을 생략하며 수동 실행 / 판정 실패 / 파일 0개는 배포한다. CI와 기존 배포 Step은 유지한다.
+- Merge 후 문서 전용 / 코드 포함 자동 실행 및 수동 실행을 확인한다.
+
+### 목적
+
+문서만 바뀐 Commit이 `main`에 들어왔을 때는 Staging 자동 배포(CD)를 실행하지 않는다. 지금은 문서 PR을 Merge해도 Backend / Frontend를 다시 Build하고 배포한다.
+
+### Human Approval 또는 Gate
+
+- Human Gate C 승인 (2026-10-04)
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 뒤 문서만 바꾼 Commit과 Code를 바꾼 Commit에서 각각 기대대로 동작하는지 확인한다.
+- PR #32 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-050_CD_SKIP_DOCS_ONLY.md`](tasks/TASK-050_CD_SKIP_DOCS_ONLY.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-051 — AI Comment Readability
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 51. 선행: TASK-045, TASK-047, TASK-049. Orchestrator Verify와 Claude Review를 통과했고 PR #34 Human Squash Merge로 완료했다.
+
+- 코멘트의 문장별 줄바꿈과 주간 리포트 문단 Prompt, 줄바꿈 없는 응답의 결정적 보정과 기존 줄 정리를 구현했다. 길이 제한과 저장 / 실패 처리를 유지한다.
+- 상태 / 날씨는 기존 한국어 표시 이름으로 모델에 보내며 개인정보 제외와 입력 범위를 유지한다. 결과 화면은 날씨 / 지역 → 추천 → AI 코멘트 → 버튼 순서와 기존 간격 Token을 적용한다. Dashboard 위치는 유지한다.
+- Backend 문장 / 소수점 / 약어 / 기존 줄 / 길이 제한과 입력 투영 Test, Frontend DOM 순서 / 줄바꿈 본문 Class Test를 추가했다.
+
+### 목적
+
+Staging에서 AI 코멘트와 주간 리포트가 실제로 생성되기 시작했다. Human이 화면을 보고 요청한 가독성 보완을 반영한다.
+
+### Human Approval 또는 Gate
+
+- Human 실행 지시 (2026-10-04)
+- 근거와 세부 결정은 Task 문서의 "Human 지시와 확인된 사실 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 화면 캡처로 확인하고, Merge 뒤 Staging에서 새로 생성한 코멘트로 확인한다.
+- PR #34 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-051_AI_COMMENT_READABILITY.md`](tasks/TASK-051_AI_COMMENT_READABILITY.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-052 — Music Pool Curation (선곡 조정)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 52. 선행: TASK-048. Orchestrator Verify와 Claude Review를 통과했고 PR #35 Human Squash Merge로 완료했다.
+
+- ENERGETIC 26곡과 앞 5곡, RAIN 9곡 / 순서, 음식 Pool / 판정 / 선택 규칙 / 계약 예시를 유지했다. 이동 / 크기 / 계약 위치 회귀 Test를 별도 추가했고 기존 Matrix / 계약 Test는 수정하지 않았다.
+- Container Smoke 성공 문구 한 줄에서 실제 검사하지 않는 400 표기를 제거했다.
+- 정적 Pool 대조 / Smoke 구문 / diff 검사는 통과했다.
+
+### 목적
+
+추천 음악 후보 가운데 분위기와 맞지 않는 묶음(Pool)에 들어간 곡을 옮긴다.
+
+### Human Approval 또는 Gate
+
+- Human 선곡 이동 승인 (2026-10-04)
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 후 자동 배포의 Smoke 통과를 확인한다.
+- PR #35 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-052_MUSIC_POOL_CURATION.md`](tasks/TASK-052_MUSIC_POOL_CURATION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-053 — AI Card Layout
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 53. 선행: TASK-051. Orchestrator Verify와 Claude Review를 통과했고 PR #36 Human Squash Merge로 완료했다.
+
+- 결과 화면을 요약 → 날씨 / 지역 → AI 코멘트 → 추천 음식 / 음악 → 버튼 순서로 수정했다. 기존 구역 간격과 기능 꺼짐 시 빈 Wrapper 없는 구조를 유지한다.
+- AI 본문 / 버튼 구역에 --space-4, 기간 줄 / 본문에 --space-2와 기존 보조 색 / 작은 글자 Token을 적용했다. DOM 순서와 리포트 / 재시도 구조 Test를 보완했다.
+
+### 목적
+
+Human이 Staging 화면을 보고 지적한 AI 영역의 배치 두 가지를 고친다. Frontend만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 명시 실행 승인 (2026-10-04)
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처와 간격 측정으로 확인한다.
+- PR #36 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-053_AI_CARD_LAYOUT.md`](tasks/TASK-053_AI_CARD_LAYOUT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-054 — Privacy Notice / Account Deletion / SPA Route Fix
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 54. 선행: TASK-042, TASK-044, TASK-045. Orchestrator Verify와 Claude Review를 통과했고 PR #37 Human Squash Merge로 완료했다.
+
+- 공개 `/privacy`에 확인된 처리 사실 / 목적 / 외부 전달·국외 처리 / 암호화 / 보관 기간 / 체험 계정 / 삭제 / 문의를 안내한다. 로그인 화면 / 사용자 메뉴 / Footer에서 연결한다.
+- 로그인·CSRF가 필요한 계정 삭제 API와 취소 기본 초점 / Esc / 초점 가두기 Dialog를 구현했다. 소셜 본인 데이터 전체를 Transaction으로 삭제하며 계정 세션을 종료한다. 공유 계정은 고정 오류 403으로 거부한다.
+- CloudFront의 알려진 경로 배열과 Staging Smoke에 `/login`, `/privacy` 및 로그인 오류 Query 검사를 추가했다. Human이 Merge 직후 Frontend Stack을 먼저 갱신해야 한다.
+- H2 / MySQL Testcontainers 공통 삭제·보존·Rollback·재로그인·권한 Test와 Frontend / API 계약 / SPA 함수 Test를 추가했다.
+- 화면 캡처와 Human Frontend Stack 적용 / Staging 실제 삭제 흐름 확인은 후속 작업이다.
+
+### 목적
+
+실제 로그인을 받고 건강 관련 수치를 저장하는 서비스가 됐다. Production 공개 전에 (1) 개인정보 처리 안내 화면, (2) 사용자가 자기 계정과 기록을 지우는 기능, (3) 직접 주소로 들어오면 열리지 않는 화면 경로를 고친다.
+
+### Human Approval 또는 Gate
+
+- Human Approved 2026-10-04
+- 근거와 세부 결정은 Task 문서의 "Human 지시와 전제 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Merge 직후 Human이 Frontend Stack Change Set을 적용하고, Staging에서 `/login` / `/privacy` 직접 접근과 삭제 흐름을 확인한다.
+- PR #37 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-054_PRIVACY_AND_ACCOUNT_DELETION.md`](tasks/TASK-054_PRIVACY_AND_ACCOUNT_DELETION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-055 — Recommendation Feedback (추천 피드백)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 55. 선행: TASK-042, TASK-048, TASK-054. Orchestrator Verify와 Claude Review를 통과했고 PR #38 Human Squash Merge로 완료했다.
+
+- V6 항목별 평가 / 본인 GET·PUT / Pool 검증 / 체험 제한 / 사용자 행 잠금, 다음 Check-in의 결정적 DISLIKE 회피·보충 / LIKE 하나 우선과 중복 방지를 구현했다.
+- Dashboard / 결과 공통 버튼에 낙관적 갱신과 실패 복구, 항목 이름 / aria-pressed, 기존 Token의 줄바꿈 배치를 적용했다. 개인정보 안내와 계정 삭제를 확장했다.
+- H2 / MySQL 공통 API·삭제 Test, 추천 순환 / 결정성 Test, 공유 계약과 Frontend Toggle·실패·체험·이전 곡 Test를 추가했다. 정적 검사와 diff 검사를 수행했으며 상세는 WORK_LOG를 따른다.
+
+### 목적
+
+사용자가 추천 음식 / 음악에 "좋아요 / 별로예요"를 남기고, 그 평가가 **다음 추천에 반영**되게 한다(Human이 제시한 개선 항목 3번 "추천 피드백 루프").
+
+### Human Approval 또는 Gate
+
+- Human Approved 2026-10-04
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-04)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 화면 캡처로 확인하고, Merge 뒤 Staging에서 평가 → 새 Check-in의 추천 변화를 확인한다.
+- PR #38 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-055_RECOMMENDATION_FEEDBACK.md`](tasks/TASK-055_RECOMMENDATION_FEEDBACK.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-056 — Personal Baseline (개인별 Baseline / 신체 긴장도)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 56. 선행: TASK-042, TASK-045, TASK-048, TASK-055. Orchestrator Verify와 Claude Review를 통과했고 PR #39 Human Squash Merge로 완료했다.
+
+- 본인 최근 14일 이전 기록 5건 이상 평균 / 차이 / 신체 긴장도, V7 nullable snapshot 저장과 생성 / 최신 baseline / 이력 tension을 구현했다. Score 공식은 유지하며 HIGH일 때만 승인된 기분 / 추천 Pool / 요약 조정을 적용한다.
+- Dashboard / 결과의 다섯 지표 차이와 긴장도 / 비교 안내, 체험 공유 평균 설명, History Badge, AI 입력 / 개인정보 안내를 확장했다. 두 Smoke는 Score / 지표 / 날씨의 값 비교, Baseline / 기분 / 요약 / 이력 긴장도의 형식 비교와 latest == created를 유지한다.
+- 경계 / 사용자 / 저장 / 계약 / AI / 삭제 / H2 및 MySQL Migration / Frontend Test를 추가했다.
+- [개인별 Baseline](26-PERSONAL-BASELINE.md)을 따른다.
+
+### 목적
+
+같은 심박수 / 호흡수라도 사람마다 의미가 다르다. 본인의 평소 값(Baseline)과 비교해 **신체 긴장도**를 판정하고, 기분 판정과 추천에 반영한다(Human이 제시한 개선 항목 2번 "개인별 Baseline").
+
+### Human Approval 또는 Gate
+
+- Human Approved 2026-10-05, Gate B B안 / 체험 계정 적용
+- 근거와 세부 결정은 Task 문서의 "Human 결정 (2026-10-05, Gate B — 판정 규칙 변경)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 화면 캡처로 확인하고, Merge 뒤 Staging에서 소셜 계정으로 기록을 5건 넘게 쌓아 긴장도 표시를 확인한다.
+- PR #39 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-056_PERSONAL_BASELINE.md`](tasks/TASK-056_PERSONAL_BASELINE.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-057 — Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 57. 선행: TASK-054. Orchestrator Verify와 Claude Review를 통과했고 PR #41 Human Squash Merge로 완료했다. 불안정한 Test 1건은 PR #45로 안정화했다.
+
+- 메뉴와 확인 창 / 개인정보 안내의 이름을 회원 탈퇴로 맞췄다. 개인정보 처리 안내 → 로그아웃 → 구분선 → 회원 탈퇴 순서, 첫 항목 초점과 기존 위험 색 / 간격 Token / 44px 터치 영역을 적용했다. 체험 계정에는 탈퇴와 구분선을 숨긴다.
+- 공통 Button의 secondary / primary Variant를 사용하고 진행 중 취소 / Esc 닫기를 막는다. 초점 가두기와 aria-modal / aria-busy를 유지하고 실패 뒤 취소 기본 초점과 닫기를 복원한다.
+- 메뉴 순서 / 초점 / 체험 계정, 새 이름 / 완료 안내 / 요청 1회, 진행 중 닫기 차단 / 실패 뒤 복원 Test를 보완했다.
+
+### 목적
+
+Human이 Staging에서 소셜 계정으로 로그인한 뒤 "탈퇴 메뉴가 없다(안 보인다)"고 지적했다. 기능은 TASK-054에서 "내 데이터 삭제"라는 이름으로 들어가 있지만, 사용자가 찾는 말("탈퇴")과 달라 찾지 못했다. 메뉴 이름을 고치고, 같은 영역(사용자 메뉴와 확인 창)의 미뤄 둔 UI 문제를 함께 정리한다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 명시 실행 승인 2026-10-05
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-05)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처로 확인한다.
+- PR #41 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-057_ACCOUNT_MENU.md`](tasks/TASK-057_ACCOUNT_MENU.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-058 — Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 58. 선행: TASK-055. Orchestrator Verify와 Claude Review를 통과했고 PR #42 Human Squash Merge로 완료했다.
+
+- Dashboard / 결과 공통 추천의 이름 줄 오른쪽에 Badge와 평가 묶음을 배치했다. 글자 없는 Inline SVG, 알약 테두리 / 구분선, 눌림 시 채움과 강조 색, 기존 44px 터치 / 초점 Token을 적용했다.
+- 접근성 이름 / 그룹 / title과 기존 Toggle / 실패 복구 / 안내 / 음악 재생을 유지하며 DOM 위치와 SVG / 저장 중 비활성화 Test를 보완했다.
+
+### 목적
+
+추천 항목마다 "좋아요" / "별로예요" 글자 버튼이 한 줄씩 차지해 화면이 복잡해 보인다. 평가 버튼을 항목 이름 줄로 옮기고 아이콘만 보이게 해 추천 목록을 가볍게 만든다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 명시 실행 지시 2026-10-05
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-05)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처로 확인한다.
+- PR #42 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-058_FEEDBACK_ICONS.md`](tasks/TASK-058_FEEDBACK_ICONS.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-059 — Weather Card Layout (Check-in 날씨 영역 배치)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 59. 선행: TASK-040, TASK-044. Orchestrator Verify와 Claude Review를 통과했고 PR #43 Human Squash Merge로 완료했다.
+
+- 모드 / 상태 / 결과 또는 입력 → 버튼 → 좌표 안내 / 출처 순서로 DOM을 재배치했다. 자동 모드 설명, 기존 secondary 버튼, 결과 글자 강조와 세 묶음 간격을 적용했다. 조회 / 모드 저장 / 제출 / 오류 / 접근성과 기존 문구 / 링크는 유지한다.
+- DOM 순서와 모드별 설명 Test를 추가했다.
+- Claude 세션이 390 / 768 / 1280px에서 자동 / 직접 입력 / 실패 화면과 가로 넘침 / 터치 영역을 확인하고 캡처한다.
+
+### 목적
+
+Check-in 화면의 "날씨" 영역은 버튼, 안내, 출처, 조회 결과가 섞여 있어 정작 중요한 조회 결과가 맨 아래에 있다. Human이 정한 순서대로 배치를 바꿔 읽기 쉽게 한다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 명시 실행 승인 (2026-10-05)
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-05)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처(자동 / 직접 입력 / 실패)로 확인한다.
+- PR #43 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-059_WEATHER_CARD_LAYOUT.md`](tasks/TASK-059_WEATHER_CARD_LAYOUT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-060 — History Record Compact
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 60. 선행: TASK-045, TASK-048, TASK-056. Orchestrator Verify와 Claude Review를 통과했고 Human 위임에 따라 Claude 세션이 Squash Merge해 완료했다(PR #46).
+
+- 추천 이력을 기본 닫힌 details / summary로 감싸 실제 개수와 기존 이름 목록을 제공한다. 기존 터치 영역 / 간격 / 초점 Token을 사용하며 페이지 이동 뒤 새 기록은 접힌 상태로 시작한다.
+- 기간 문자열을 직접 나눠 한국어 월 / 일을 표시하고 올해가 아니거나 해가 걸치면 양쪽 연도를 표시한다. 원본 날짜는 time dateTime으로 유지한다. 단위 / Card / 페이지 이동 회귀 Test를 보완했다.
+
+### 목적
+
+History의 기록 Card는 기록마다 추천 음식 5개와 음악 5곡 이름을 모두 펼쳐 보여서, 모바일에서 한 페이지(5건)가 매우 길다. 추천 이력을 접어 두고, 주간 리포트의 기간 표기를 다른 날짜와 같은 형식으로 맞춘다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 명시 실행 승인 2026-10-05
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-05)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처(접힘 / 펼침)로 확인한다.
+- PR #46 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-060_HISTORY_RECORD_COMPACT.md`](tasks/TASK-060_HISTORY_RECORD_COMPACT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-061 — Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 61. 선행: TASK-058. Orchestrator Verify와 Claude Review를 통과했고 Human 위임에 따라 Claude 세션이 Squash Merge해 완료했다(PR #48).
+
+- 범위: 음악의 "바로 듣기"를 이름 줄의 재생 아이콘으로 옮기고 "YouTube에서 열기"를 가수 줄로 옮긴다. 평소 값 비교 안내 문구를 Body Metrics Card로 옮기고, 좁은 화면의 이름 줄 모양을 통일한다. Frontend와 문서만 바꾼다.
+- 구현: 제목 왼쪽 재생 / 닫기 아이콘, 가수 줄 보조 Link, 지표 아래 비교 안내를 적용했다. 768px 미만은 이름 / 평가 첫 줄과 Badge 둘째 줄로 통일한다. 기존 Token과 평가 동작을 유지한다.
+
+### 목적
+
+추천 음악마다 "바로 듣기" 버튼과 "YouTube에서 열기" Link가 한 줄씩 반복되어 추천 영역이 복잡하고, 음식 Card보다 음악 Card가 훨씬 길어 음식 쪽에 빈 공간이 남는다. 재생 동작을 이름 줄로 올려 간결하게 하고, 평소 값 비교 안내 문구를 지표 Card로 옮긴다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 지시 2026-10-05
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-05)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처(재생 전 / 재생 중)로 확인한다.
+- PR #48 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-061_DASHBOARD_RECOMMENDATION_COMPACT.md`](tasks/TASK-061_DASHBOARD_RECOMMENDATION_COMPACT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-062 — Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 62. 선행: TASK-042, TASK-054, TASK-057. Orchestrator Verify와 Claude Review를 통과했고 Human 위임에 따라 Claude 세션이 Squash Merge해 완료했다(PR #47).
+
+- 범위: Google / Kakao 로그인을 제공자 Logo와 색이 있는 버튼으로 바꾸고, 화면 아래 Footer를 정리한다. Frontend와 문서만 바꾼다.
+- 구현: 장식용 Inline SVG와 제공자 색, 48px 이상 Link 버튼, secondary 체험 버튼과 안내 문단 간격을 적용했다. 공통 Footer에 고지 / 개인정보 Link와 구분선, 반응형 줄바꿈 및 화면 하단 Flex 배치를 적용했다.
+
+### 목적
+
+로그인 화면의 Google / Kakao 로그인이 밑줄 친 글자로 보여 버튼처럼 보이지 않는다. 제공자를 알아볼 수 있는 버튼으로 바꾸고, 모든 화면 맨 아래에 Link 하나만 떠 있는 Footer를 정리한다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 지시 2026-10-05
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-05)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처(로그인, 체험만 있는 로그인, Footer)로 확인한다.
+- PR #47 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-062_LOGIN_BUTTONS_FOOTER.md`](tasks/TASK-062_LOGIN_BUTTONS_FOOTER.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-063 — Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 63. 선행: TASK-059, TASK-061. Orchestrator Verify와 Claude Review를 통과했고 Human 위임에 따라 Claude 세션이 Squash Merge해 완료했다(PR #49).
+
+- 범위: Check-in 결과 화면의 Score와 날씨를 Dashboard와 같은 Tile로 보여 주고, 수면 / 스트레스 / 에너지 입력에 Slider를 더한다. Frontend와 문서만 바꾼다.
+- 구현: Score / 날씨 마크업과 스타일을 WellnessTiles로 공유하고 결과를 Tile → AI 코멘트 → Body Metrics → 추천 → 버튼 순서로 배치했다. 빈 값을 유지하는 Slider와 숫자 입력 동기화, 신체 리듬 2열 / 컨디션 3열을 적용했다.
+
+### 목적
+
+Check-in 결과 화면은 Dashboard와 같은 정보(Score, 날씨)를 다르게, 덜 눈에 띄게 보여 준다. 입력 화면은 0 ~ 100 값을 숫자로만 넣어야 해서 모바일에서 번거롭다. 결과 화면의 표현을 Dashboard와 맞추고, 컨디션 입력에 Slider를 더한다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 지시 2026-10-05
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-05)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처(입력 / 결과)로 확인한다.
+- PR #49 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-063_CHECKIN_FORM_RESULT.md`](tasks/TASK-063_CHECKIN_FORM_RESULT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-064 — PWA Install (홈 화면 설치 / 앱 설치 버튼)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 64. 선행: TASK-037, TASK-062. Orchestrator Verify와 Claude Review를 통과했고 PR #52 Human Squash Merge로 완료했다.
+
+- 구현: 새 Manifest / iOS Meta Tag, React 실행 전 이벤트 초기화, 공통 Footer / 아바타 메뉴 설치 버튼, 접근 가능한 iOS 안내를 추가했다. Service Worker / Offline / 알림 / Storage 저장은 없다.
+
+### 목적
+
+MoodFit을 휴대폰 홈 화면이나 PC에 앱처럼 설치해, 주소창 없는 독립 창으로 열 수 있게 한다. 화면에 "앱 설치" 버튼을 두어 사용자가 Browser 메뉴를 찾지 않아도 설치할 수 있게 한다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 승인 2026-10-05
+- 근거와 세부 결정은 Task 문서의 "Human 결정 (2026-10-05)" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 390 / 768 / 1280px 캡처(버튼이 보이는 Footer / 아바타 메뉴, iOS 안내 창, 지원하지 않는 환경)로 확인하고, Chrome에서 Manifest가 설치 조건을 만족하는지 확인한다. 실제 기기 설치는 Merge 뒤 Staging에서 Human이 확인한다.
+- PR #52 Squash Merge와 Staging 자동 배포 확인
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-064_PWA_INSTALL.md`](tasks/TASK-064_PWA_INSTALL.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 
@@ -1878,204 +2709,3 @@ DEC-014 Wellness Analysis Rule은 TASK-005 Gate B Human Review에서 Human Appro
 DEC-015 기술 Version은 Gate A와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-016 Bootstrap Dependency Set은 Gate C와 Spring Boot Version Re-review에서 Human Approved 되었으므로 Pending Decision이 아니다.
 DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서 Human Approved 되었으므로 Pending Decision이 아니다.
-
----
-
-## TASK-042 — Social Login / Guest / User Scoped Data
-
-- Milestone 42 / DONE: 승인 Contract와 F-001 ~ F-007에 따른 Executor 구현 완료 반영이다. Orchestrator Verify / Claude PASS / Human Squash Merge를 대신하지 않는다.
-- Dependency: TASK-029 / TASK-036 / TASK-039. Human 승인: 2026-10-04 제공된 Task Contract의 Gate 결정과 명시 Rework 실행 지시.
-- Backend: 승인 Dependency 5개, Java 제공자 등록, JDBC Session / CSRF / JSON 오류, V3 사용자 / Session Migration, 사용자별 저장 / 최신 / 이력.
-- Frontend: 로그인 화면, 미인증 / 401 이동, Cookie / CSRF 요청, 아바타 메뉴. 로고 / 날짜 영역은 유지한다.
-- Smoke / 계약 / 인증 운영 문서를 갱신했다. Frontend 126 Test와 Build, 두 Smoke Script 구문 검사, Diff 공백 검사를 수행했다. Backend Compile / H2 / MySQL / Container 검증은 Sandbox 밖 Orchestrator가 판정한다.
-- 실서비스 Google / Kakao 로그인은 TASK-043 이후 확인한다. 다른 Task 상태와 기존 Current Task는 변경하지 않았다.
-
-## TASK-043 — Infra: OAuth 값 주입 — App / IAM Stack
-
-- Milestone 43 / DONE: 승인 Contract와 명시 실행 지시에 따른 Executor 구현 완료다. Verify / Review / Human Squash Merge 전 최종 완료 승인이 아니다.
-- Dependency: TASK-042 Merge(PR #24), Staging 체험 로그인 확인. Human Approved 2026-10-04 / DEC-035.
-- 구현: 조건부 OAuth 주입과 ExecutionRole 권한, 필수 공개 HTTPS 주소, 체험 로그인 Parameter 및 배포 문서. 실제 적용은 Merge 후 Human이 수행한다. 다른 Task 상태와 Current Task는 유지한다.
-- 범위: Secrets Manager / ECS 환경 변수 주입, 환경별 공개 주소 및 제공자 Callback 등록, Google / Kakao 실제 로그인 확인.
-- Production 승인과 IAM / Infra 변경 Gate를 유지한다. 실제 값은 Repository / Prompt / Log에 기록하지 않는다.
-
-## TASK-044 — Check-in Region Record (지역 저장 / Dashboard · History 표시)
-
-- Milestone 44 / DONE: 2026-10-04 Human 승인 Contract와 명시 실행 지시에 따른 Executor 구현 완료 반영이다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않는다.
-- Dependency: TASK-040 / TASK-042. DEC-036는 지역 이름 저장만 승인하며 좌표 비전송 / 비저장과 사용자별 분리를 유지한다.
-- Backend: 선택 region 검증 / V4 nullable 컬럼 / 생성·최신·이력 반환, H2 / MySQL 저장·Migration / 사용자 분리 테스트.
-- Frontend: 자동 조회된 이름만 전송하고 직접 입력 수정 시 유지한다. 대체 문구는 보내지 않으며 Dashboard / History / 결과에 지역이 있을 때만 표시한다.
-- API 예시의 region은 null로 유지하며 개인정보 안내 / 승인 Decision / Prompt / README를 갱신했다. 자체 실행은 npm 캐시 / Gradle 잠금 / Docker 권한 제약으로 제한되었다. 상세 증거는 WORK_LOG를 따른다.
-- Merge 후 Staging에서 저장 → Dashboard / History 표시와 지역 없는 기존 기록을 확인한다. 390 / 768 / 1280px 캡처 / 시각 검토를 남긴다. 다른 Task 상태와 TASK-030 / BLOCKED는 유지한다.
-
-## TASK-045 — LLM Insight (AI 맞춤 코멘트 + 주간 리포트)
-
-- Milestone 45 / DONE: Human Approved 2026-10-04 Contract와 Run 2 실행 지시의 Executor 구현 완료다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않는다.
-- Dependency: TASK-042 / TASK-044. 생성 대상, 전송 자료, 비용 한도 및 AssumeRole 계정 구조는 DEC-037을 따른다.
-- Backend: 꺼짐 기본값 / 지연 Client / V5 / 저장·재사용 / 소유권 / 소셜 사용자 / DB 시도 한도 / 주간 리포트 / 실패 fallback과 Test.
-- Frontend: 결과 자동 생성, Dashboard 조회와 버튼, History 주간 리포트, 꺼짐 숨김 / 체험 안내 / 진행·실패·한도·기록 부족 안내.
-- Sandbox의 npm 캐시 접근과 Docker 권한 / app.jar 부재로 자체 실행 검증과 캡처가 제한됐다. 검증 기준은 Orchestrator이며 실행 성공을 주장하지 않는다. 실제 Bedrock 호출은 TASK-046 뒤 Staging에서 확인한다.
-
-## TASK-046 — LLM Value Injection (Infra)
-
-- Milestone 46 / DONE: 2026-10-04 승인 Contract와 명시 실행 지시에 따른 Executor 구현 완료다. Verify / Claude Review / Human Squash Merge를 대신하지 않는다.
-- Dependency: TASK-043 / TASK-045. DEC-038(A안)에 따른 조건부 ECS 환경 값과 TaskRole의 특정 호출 Role AssumeRole 권한, 다른 계정 Policy 예시와 Human 적용 절차를 구현했다.
-- TASK-045 문서가 없어 [24-LLM-INFRA.md](24-LLM-INFRA.md)에 기록했다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
-- 자체 IaC 검증은 실행 환경의 AWS CLI 부재로 시작 단계에서 중단됐다. 실제 Template 오류 판정이 아니며 Sandbox 밖 Orchestrator Verify가 기준이다. 실제 호출 / 비용 확인은 Merge 후 Human 실행이다.
-
-## TASK-047 — UI Polish (AI 코멘트 자동 생성 / 음식 아이콘 / History 페이지 나누기)
-
-- Milestone 47 / DONE: 2026-10-04 승인 Contract와 명시 실행 지시에 따른 Executor 구현 완료다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 전 최종 완료 승인이 아니다.
-- Dependency: TASK-036 / TASK-045. Dashboard와 결과 화면에서 저장된 코멘트가 없고 기능 및 계정이 이용 가능하면 자동 생성은 진입당 한 번만 한다. 실패 뒤 수동 다시 시도와 진행 표시를 제공한다.
-- 공통 추천 음식 Card에 이름 낱말 기반 장식 Emoji를 추가했다. 현재 규칙의 모든 음식 이름과 기본 아이콘 / 접근성 Test를 추가했고 음악과 추천 규칙은 유지한다.
-- History 기록은 최신순으로 5개씩 표시하며 이전 / 다음, 위치 알림, 제목 focus와 기록 감소 시 페이지 보정을 제공한다. 그래프와 주간 리포트는 전체 기록을 사용한다.
-- Sandbox의 npm 캐시 EPERM으로 자체 Verify가 설치 단계에서 중단되어 Test / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify이며 Claude 세션이 390 / 768 / 1280px 화면 캡처를 확인한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
-
-
-## TASK-048 — Recommendation Variety (추천 다양화) + History 여백
-
-- 상태: DONE (Executor 구현 완료, 최종 완료 승인 대기).
-- Milestone: 48. Dependency: TASK-036 / TASK-042 / TASK-047. Human Approved 2026-10-04 / DEC-040.
-- 음식 기분 8개 / 상황 6개, 음악 기분 13~26곡 / 상황 6~10곡의 Code 상수 Pool과 서울 날짜별 순환 선택을 구현했다. 기분 3개 / 상황 2개와 중복 제거, 기존 판정 / 저장 기록 / API 형식을 유지한다.
-- 계약 예시 / API 문서 / Smoke 검사, 전체 메뉴별 Emoji Test와 History 공통 Card 간격을 동기화했다.
-- 자체 Verify는 npm 캐시 EPERM으로 설치 단계가 중단됐다. Backend 단독 Test는 Gradle Wrapper lock 생성 제한, Container Smoke는 JAR 미생성과 Docker 접근 제한으로 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify이며 통과를 주장하지 않는다.
-- 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다. Human Squash Merge 후 Staging에서 날짜 변화와 Smoke를 확인한다.
-
-## TASK-049 — LLM Runtime Endpoint / Failure Diagnostics
-
-- 상태: DONE (Executor 구현 완료), Milestone 49.
-- 승인: 2026-10-04 Human 승인 Contract 및 명시 실행 지시. Dependency는 TASK-045 / TASK-046이다.
-- 기본 runtime / 선택 mantle Backend, 동일 요청 설정, 마스킹된 HTTP 오류 진단과 거절 / 길이 초과 단일 로그를 구현했다. InvokeModel 권한 예시와 운영 문서를 갱신했다.
-- 선택 Logic / 오류 문장 정리 / 실패 로그 Test를 추가했다. 실제 Bedrock 호출은 수행하지 않았다.
-- Sandbox 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge가 최종 기준이며 DONE은 이를 대신하지 않는다.
-- Merge / 자동 배포 후 Human이 다른 계정 호출 Role의 권한을 추가하고 Staging 실제 생성을 확인한다. 400이 추론 Profile을 요구하면 정확한 ID를 확인해 LlmModelId와 App Stack을 갱신한다. 다른 Task 상태와 Current Task는 유지한다.
-
-## TASK-050 — Skip Staging CD for Docs-only Changes
-
-- 상태: DONE (Executor 구현 완료), Milestone 50.
-- 승인: 2026-10-04 Human 직접 지시와 승인 Contract, Gate C / DEC-039. Dependency는 TASK-029 / TASK-039다.
-- 자동 실행에 읽기 전용 판정 Job을 추가했다. 문서 전용이면 배포 Job을 생략하며 수동 실행 / 판정 실패 / 파일 0개는 배포한다. CI와 기존 배포 Step은 유지한다.
-- 자체 참고 검증: 판정 Script 8개 분기 및 기존 배포 본문 / Trigger / concurrency 보존 확인, git diff --check 통과. 현재 Python에 PyYAML이 없어 Contract YAML 구조 검사는 실행하지 못했다. 설치하지 않았으며 Sandbox 밖 Orchestrator Verify가 기준이다.
-- DONE은 Verify / Claude Review / Remote CI / Human Squash Merge를 대신하지 않는다. Merge 후 문서 전용 / 코드 포함 자동 실행 및 수동 실행을 확인한다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
-
-## TASK-051 — AI Comment Readability
-
-- 상태: DONE (Executor 구현 완료), Milestone 51.
-- 승인: 2026-10-04 Human 명시 실행 지시와 [TASK-051 Contract](tasks/TASK-051_AI_COMMENT_READABILITY.md).
-- 코멘트의 문장별 줄바꿈과 주간 리포트 문단 Prompt, 줄바꿈 없는 응답의 결정적 보정과 기존 줄 정리를 구현했다. 길이 제한과 저장 / 실패 처리를 유지한다.
-- 상태 / 날씨는 기존 한국어 표시 이름으로 모델에 보내며 개인정보 제외와 입력 범위를 유지한다. 결과 화면은 날씨 / 지역 → 추천 → AI 코멘트 → 버튼 순서와 기존 간격 Token을 적용한다. Dashboard 위치는 유지한다.
-- Backend 문장 / 소수점 / 약어 / 기존 줄 / 길이 제한과 입력 투영 Test, Frontend DOM 순서 / 줄바꿈 본문 Class Test를 추가했다.
-- Executor 자체 Verify는 npm 캐시 접근 EPERM으로 설치 단계에서 중단됐다. Sandbox 밖 Orchestrator Verify가 기준이며 DONE은 검증 / Review / 최종 완료 승인을 뜻하지 않는다.
-- Claude 세션의 390 / 768 / 1280px 화면 캡처와 Merge 후 Staging 새 생성 확인이 남는다. 다른 Task 상태와 Current Task TASK-030 / BLOCKED는 유지한다.
-
-## TASK-052 — Music Pool Curation (선곡 조정)
-
-- 상태: DONE (Executor 구현 완료), Milestone 52. Dependency: TASK-048.
-- 승인: 2026-10-04 Human 선곡 이동 승인과 명시 실행 지시. 승인된 표대로 기존 곡만 이동하고 목적지 Pool의 tag / reason을 적용했다.
-- ENERGETIC 26곡과 앞 5곡, RAIN 9곡 / 순서, 음식 Pool / 판정 / 선택 규칙 / 계약 예시를 유지했다. 이동 / 크기 / 계약 위치 회귀 Test를 별도 추가했고 기존 Matrix / 계약 Test는 수정하지 않았다.
-- Container Smoke 성공 문구 한 줄에서 실제 검사하지 않는 400 표기를 제거했다.
-- 자체 검증은 npm 캐시 EPERM, Gradle Wrapper lock 생성 제한, JAR 미생성 / Docker 접근 제한으로 실행되지 않았다. 정적 Pool 대조 / Smoke 구문 / diff 검사는 통과했다. Sandbox 밖 Orchestrator Verify가 기준이다.
-- 다른 Task 상태와 Current Task TASK-030 / BLOCKED를 유지한다. DONE은 Verify / Review / Human Squash Merge 승인이 아니며 Merge 후 자동 배포 Smoke 확인이 남는다.
-
-## TASK-053 — AI Card Layout
-
-- 상태: DONE (Executor 구현 완료), Milestone 53. Dependency: TASK-051.
-- 승인: 2026-10-04 Human 명시 실행 지시와 TASK-053 Contract.
-- 결과 화면을 요약 → 날씨 / 지역 → AI 코멘트 → 추천 음식 / 음악 → 버튼 순서로 수정했다. 기존 구역 간격과 기능 꺼짐 시 빈 Wrapper 없는 구조를 유지한다.
-- AI 본문 / 버튼 구역에 --space-4, 기간 줄 / 본문에 --space-2와 기존 보조 색 / 작은 글자 Token을 적용했다. DOM 순서와 리포트 / 재시도 구조 Test를 보완했다.
-- 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Sandbox 밖 Orchestrator Verify가 기준이며 DONE은 검증 / Review / Human Squash Merge 승인을 대신하지 않는다.
-- Claude 세션의 390 / 768 / 1280px 캡처와 간격 측정이 남는다. 다른 Task 상태와 Current Task는 유지한다.
-
-## TASK-054 — Privacy Notice / Account Deletion / SPA Route Fix
-
-- 상태: DONE (Executor 구현 완료), Milestone 54. Dependency: TASK-042 / TASK-044 / TASK-045.
-- 승인: 2026-10-04 Human 승인 Contract와 명시 실행 지시, DEC-041. TASK-054를 IN_PROGRESS로 등록하고 구현 완료를 DONE으로 반영했다. 다른 Task와 기존 Current Task 상태는 변경하지 않는다.
-- 공개 `/privacy`에 확인된 처리 사실 / 목적 / 외부 전달·국외 처리 / 암호화 / 보관 기간 / 체험 계정 / 삭제 / 문의를 안내한다. 로그인 화면 / 사용자 메뉴 / Footer에서 연결한다.
-- 로그인·CSRF가 필요한 계정 삭제 API와 취소 기본 초점 / Esc / 초점 가두기 Dialog를 구현했다. 소셜 본인 데이터 전체를 Transaction으로 삭제하며 계정 세션을 종료한다. 공유 계정은 고정 오류 403으로 거부한다.
-- CloudFront의 알려진 경로 배열과 Staging Smoke에 `/login`, `/privacy` 및 로그인 오류 Query 검사를 추가했다. Human이 Merge 직후 Frontend Stack을 먼저 갱신해야 한다.
-- H2 / MySQL Testcontainers 공통 삭제·보존·Rollback·재로그인·권한 Test와 Frontend / API 계약 / SPA 함수 Test를 추가했다. 자체 전체 검증은 Sandbox 제한으로 완료하지 못했으며 정적 SPA / Query / 계약·인코딩 / 구문·diff 검사를 수행했다.
-- 검증과 Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. 화면 캡처와 Human Frontend Stack 적용 / Staging 실제 삭제 흐름 확인은 후속 작업이다.
-
-## TASK-055 — Recommendation Feedback (추천 피드백)
-
-- 상태: DONE (Executor 구현 완료), Milestone 55. Dependency: TASK-042 / TASK-048 / TASK-054.
-- 승인: Human Approved 2026-10-04 Contract와 명시 실행 지시, DEC-042. TASK-055만 IN_PROGRESS 등록 후 구현 완료를 DONE으로 반영했다. 기존 Current Task TASK-030 / BLOCKED와 다른 Task 상태는 유지한다.
-- V6 항목별 평가 / 본인 GET·PUT / Pool 검증 / 체험 제한 / 사용자 행 잠금, 다음 Check-in의 결정적 DISLIKE 회피·보충 / LIKE 하나 우선과 중복 방지를 구현했다.
-- Dashboard / 결과 공통 버튼에 낙관적 갱신과 실패 복구, 항목 이름 / aria-pressed, 기존 Token의 줄바꿈 배치를 적용했다. 개인정보 안내와 계정 삭제를 확장했다.
-- H2 / MySQL 공통 API·삭제 Test, 추천 순환 / 결정성 Test, 공유 계약과 Frontend Toggle·실패·체험·이전 곡 Test를 추가했다. 자체 Verify는 npm 캐시 EPERM, Backend 단독 Test는 Gradle 잠금 경로 생성 제한, Container Smoke는 app.jar 부재 / Docker 접근 제한으로 실행되지 않았다. 정적 검사와 diff 검사를 수행했으며 상세는 WORK_LOG를 따른다.
-- Orchestrator Verify / Claude Review 이후 화면 캡처, Remote CI / Human Squash Merge와 Staging 평가 → 새 Check-in 확인이 남는다. DONE은 검증 성공이나 최종 완료 승인이 아니다.
-
-## TASK-056 — Personal Baseline (개인별 Baseline / 신체 긴장도)
-
-- 상태: DONE (Executor 구현 완료), Milestone 56. Dependency: TASK-042 / TASK-045 / TASK-048 / TASK-055.
-- 승인: Human Approved 2026-10-05, Gate B B안 및 체험 계정 평소 값 적용 지시, DEC-043. TASK-056만 IN_PROGRESS 등록 후 구현 완료를 DONE으로 반영했다. 기존 Current Task TASK-030 / BLOCKED와 다른 Task 상태는 유지한다.
-- 본인 최근 14일 이전 기록 5건 이상 평균 / 차이 / 신체 긴장도, V7 nullable snapshot 저장과 생성 / 최신 baseline / 이력 tension을 구현했다. Score 공식은 유지하며 HIGH일 때만 승인된 기분 / 추천 Pool / 요약 조정을 적용한다.
-- Dashboard / 결과의 다섯 지표 차이와 긴장도 / 비교 안내, 체험 공유 평균 설명, History Badge, AI 입력 / 개인정보 안내를 확장했다. 두 Smoke는 Score / 지표 / 날씨의 값 비교, Baseline / 기분 / 요약 / 이력 긴장도의 형식 비교와 latest == created를 유지한다.
-- 경계 / 사용자 / 저장 / 계약 / AI / 삭제 / H2 및 MySQL Migration / Frontend Test를 추가했다. 자체 Verify는 npm 캐시 EPERM으로 설치에서 중단됐고 Gradle 잠금 경로 생성 제한으로 Backend Test를 실행하지 못했다. Container Smoke는 app.jar 부재와 Docker 접근 제한으로 미완료다. 구문 / 계약 예시 / Smoke 비교 규칙 / diff / 인코딩을 정적으로 확인했다.
-- 검증 기준은 Sandbox 밖 Orchestrator Verify다. 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 캡처와 Merge 뒤 Staging 소셜 기록 5건 이상 비교 확인이 남는다. [개인별 Baseline](26-PERSONAL-BASELINE.md)을 따른다.
-
-## TASK-057 — Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리)
-
-- 상태: DONE (Executor 구현 완료), Milestone 57. Dependency: TASK-054.
-- 승인: 2026-10-05 Human 명시 실행 지시와 TASK-057 Contract. TASK-057만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 기존 Current Task TASK-030 / BLOCKED는 유지한다.
-- 메뉴와 확인 창 / 개인정보 안내의 이름을 회원 탈퇴로 맞췄다. 개인정보 처리 안내 → 로그아웃 → 구분선 → 회원 탈퇴 순서, 첫 항목 초점과 기존 위험 색 / 간격 Token / 44px 터치 영역을 적용했다. 체험 계정에는 탈퇴와 구분선을 숨긴다.
-- 공통 Button의 secondary / primary Variant를 사용하고 진행 중 취소 / Esc 닫기를 막는다. 초점 가두기와 aria-modal / aria-busy를 유지하고 실패 뒤 취소 기본 초점과 닫기를 복원한다.
-- 메뉴 순서 / 초점 / 체험 계정, 새 이름 / 완료 안내 / 요청 1회, 진행 중 닫기 차단 / 실패 뒤 복원 Test를 보완했다. 자체 Verify는 npm 캐시 stat EPERM으로 설치에서 중단되어 Test / tsc / Build를 실행하지 못했다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
-- 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 화면 캡처와 Merge 후 Staging 메뉴 / 확인 창 확인이 남는다.
-
-## TASK-058 — Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로)
-
-- 상태: DONE (Executor 구현 완료), Milestone 58. Dependency: TASK-055.
-- 승인: 2026-10-05 Human 명시 실행 지시와 TASK-058 Contract. 해당 Task만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task 상태와 Current Task는 유지한다.
-- Dashboard / 결과 공통 추천의 이름 줄 오른쪽에 Badge와 평가 묶음을 배치했다. 글자 없는 Inline SVG, 알약 테두리 / 구분선, 눌림 시 채움과 강조 색, 기존 44px 터치 / 초점 Token을 적용했다.
-- 접근성 이름 / 그룹 / title과 기존 Toggle / 실패 복구 / 안내 / 음악 재생을 유지하며 DOM 위치와 SVG / 저장 중 비활성화 Test를 보완했다.
-- 자체 Verify는 npm 캐시 접근 EPERM으로 설치 단계에서 중단됐다. Test / 타입 검사 / Build는 실행하지 못했으며 Sandbox 밖 Orchestrator Verify가 기준이다. DONE은 검증 성공이나 최종 완료 승인이 아니다.
-- Claude 세션의 390 / 768 / 1280px 캡처 확인, Remote CI / Human Squash Merge와 Merge 뒤 Staging 화면 확인이 남는다.
-
-## TASK-059 — Weather Card Layout (Check-in 날씨 영역 배치)
-
-- 상태: DONE (Executor 구현 완료), Milestone 59. Dependency: TASK-040 / TASK-044.
-- 승인: 2026-10-05 Human 명시 실행 지시. TASK-059만 IN_PROGRESS 등록 후 구현 완료를 DONE으로 반영했다. 다른 Task와 Current Task TASK-030 / BLOCKED는 유지한다.
-- 모드 / 상태 / 결과 또는 입력 → 버튼 → 좌표 안내 / 출처 순서로 DOM을 재배치했다. 자동 모드 설명, 기존 secondary 버튼, 결과 글자 강조와 세 묶음 간격을 적용했다. 조회 / 모드 저장 / 제출 / 오류 / 접근성과 기존 문구 / 링크는 유지한다.
-- DOM 순서와 모드별 설명 Test를 추가했다. 자체 Verify는 npm 캐시 / 정리 EPERM으로 설치에서 중단되어 Test / TypeScript / Build를 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
-- Claude 세션이 390 / 768 / 1280px에서 자동 / 직접 입력 / 실패 화면과 가로 넘침 / 터치 영역을 확인하고 캡처한다. DONE은 Verify / Review / Remote CI / Human Squash Merge 승인이 아니다.
-
-## TASK-060 — History Record Compact
-
-- 상태: DONE (Executor 구현 완료), Milestone 60. Dependency: TASK-045 / TASK-048 / TASK-056.
-- 승인: 2026-10-05 Human 명시 실행 지시와 TASK-060 Contract. TASK-060만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 Current Task TASK-030 / BLOCKED는 유지한다.
-- 추천 이력을 기본 닫힌 details / summary로 감싸 실제 개수와 기존 이름 목록을 제공한다. 기존 터치 영역 / 간격 / 초점 Token을 사용하며 페이지 이동 뒤 새 기록은 접힌 상태로 시작한다.
-- 기간 문자열을 직접 나눠 한국어 월 / 일을 표시하고 올해가 아니거나 해가 걸치면 양쪽 연도를 표시한다. 원본 날짜는 time dateTime으로 유지한다. 단위 / Card / 페이지 이동 회귀 Test를 보완했다.
-- 자체 Verify는 npm 캐시 stat EPERM과 node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Test / tsc / Build는 실행하지 못했으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다.
-- DONE은 Executor 구현 완료이며 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 접힘 / 펼침 캡처와 Merge 후 Staging 확인이 남는다.
-
-## TASK-061 — Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치)
-
-- 상태: DONE, Milestone 61. Dependency: TASK-058. Executor 구현 완료이며 최종 완료 승인은 Human Squash Merge다.
-- 승인: 2026-10-05 Human이 Claude 세션의 화면 개선 후보를 모두 Task로 정리하도록 지시했다. Task 문서: `docs/tasks/`, Contract: `harness/tasks/TASK-061.json`.
-- 범위: 음악의 "바로 듣기"를 이름 줄의 재생 아이콘으로 옮기고 "YouTube에서 열기"를 가수 줄로 옮긴다. 평소 값 비교 안내 문구를 Body Metrics Card로 옮기고, 좁은 화면의 이름 줄 모양을 통일한다. Frontend와 문서만 바꾼다.
-- 구현: 제목 왼쪽 재생 / 닫기 아이콘, 가수 줄 보조 Link, 지표 아래 비교 안내를 적용했다. 768px 미만은 이름 / 평가 첫 줄과 Badge 둘째 줄로 통일한다. 기존 Token과 평가 동작을 유지한다.
-
-## TASK-062 — Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리)
-
-- 상태: DONE, Milestone 62. Dependency: TASK-042, TASK-054, TASK-057.
-- 승인: 2026-10-05 Human이 Claude 세션의 화면 개선 후보를 모두 Task로 정리하도록 지시했다. Task 문서: `docs/tasks/`, Contract: `harness/tasks/TASK-062.json`.
-- 범위: Google / Kakao 로그인을 제공자 Logo와 색이 있는 버튼으로 바꾸고, 화면 아래 Footer를 정리한다. Frontend와 문서만 바꾼다.
-- 구현: 장식용 Inline SVG와 제공자 색, 48px 이상 Link 버튼, secondary 체험 버튼과 안내 문단 간격을 적용했다. 공통 Footer에 고지 / 개인정보 Link와 구분선, 반응형 줄바꿈 및 화면 하단 Flex 배치를 적용했다.
-- 검증: 자체 Verify는 npm ci의 캐시 stat EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify다. Claude 세션의 390 / 768 / 1280px 캡처가 남는다. DONE은 Executor 구현 완료이며 Review / Human Squash Merge 승인을 대신하지 않는다. 다른 Task와 Current Task 상태는 유지한다.
-
-## TASK-063 — Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로)
-
-- 상태: DONE (Executor 구현 완료), Milestone 63. Dependency: TASK-059, TASK-061.
-- 승인: 2026-10-05 Human이 Claude 세션의 화면 개선 후보를 모두 Task로 정리하도록 지시했다. Task 문서: `docs/tasks/`, Contract: `harness/tasks/TASK-063.json`.
-- 범위: Check-in 결과 화면의 Score와 날씨를 Dashboard와 같은 Tile로 보여 주고, 수면 / 스트레스 / 에너지 입력에 Slider를 더한다. Frontend와 문서만 바꾼다.
-- 구현: TASK-063만 IN_PROGRESS 후 DONE으로 반영했다. Score / 날씨 마크업과 스타일을 WellnessTiles로 공유하고 결과를 Tile → AI 코멘트 → Body Metrics → 추천 → 버튼 순서로 배치했다. 빈 값을 유지하는 Slider와 숫자 입력 동기화, 신체 리듬 2열 / 컨디션 3열을 적용했다.
-- 검증: 자체 Verify는 npm ci의 캐시 stat EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify이며 DONE은 최종 완료 승인을 대신하지 않는다. 다른 Task와 Current Task 상태는 유지한다.
-- Claude 세션의 390 / 768 / 1280px 입력 / 결과 캡처, Remote CI / Human Squash Merge 및 Merge 후 Staging 확인이 남는다.
-
-## TASK-064 — PWA Install (홈 화면 설치 / 앱 설치 버튼)
-
-- 상태: DONE (Executor 구현 완료), Milestone 64. Dependency: TASK-037 / TASK-062.
-- 승인: Human 2026-10-05 설치만 지원 승인 및 명시 실행 지시, DEC-044. 해당 Task만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 Current Task는 유지한다.
-- 구현: 새 Manifest / iOS Meta Tag, React 실행 전 이벤트 초기화, 공통 Footer / 아바타 메뉴 설치 버튼, 접근 가능한 iOS 안내를 추가했다. Service Worker / Offline / 알림 / Storage 저장은 없다.
-- 검증: 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Test / 타입 검사 / Build는 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
-- Claude 세션의 390 / 768 / 1280px 캡처와 Chrome Manifest 확인, Human Squash Merge 및 Merge 후 실제 기기 설치 확인이 남는다. DONE은 최종 완료 승인이 아니다.

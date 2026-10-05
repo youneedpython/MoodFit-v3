@@ -73,3 +73,47 @@ Reviewer Verdict는 `PASS`, `CHANGES_REQUIRED`, `HUMAN_REQUIRED`, `BLOCKED`만 �
 
 - DEC-026 승인과 AGENTS.md 반영 전에는 현재 AGENTS.md 규칙(Human 지시 후 Commit / Push)을 따른다.
 - 자동화 단계에서도 Commit 형식은 기존 규칙(`docs:` / `feat:` / `test:` / `ci:` / `chore:` + 한국어 요약 + `- ` 목록)을 유지하고, Codex 작업이 포함되면 Codex Co-author Trailer를 붙인다.
+
+## 9. `docs/07-TASKS.md` 작성 형식
+
+Task를 `docs/07-TASKS.md`에 등록하거나 상태를 바꿀 때는 아래 형식을 지킨다(2026-10-05 Human 지시: TASK-018 ~ 037과 같은 형식으로 통일).
+
+1. **표("4. 전체 Task 목록")**: Task 번호 순서에 맞는 자리에 한 행만 둔다. 같은 Task의 행을 두 번 만들지 않는다. 표 중간에 빈 줄을 넣지 않는다. "Human Approval" 칸에는 승인 근거만 적는다(예: `Human 지시 2026-10-05`). 진행 상황("Merge 대기" 등)을 적지 않는다.
+2. **절**: `## 5. Human Approval 필요 Task` **앞**, 번호 순서에 맞는 자리에 둔다. 문서 끝에 덧붙이지 않는다. 절과 절 사이는 `---`로 나눈다.
+3. **절의 구성**(제목과 순서를 그대로 쓴다):
+
+   ````markdown
+   ## TASK-0NN — 영문 이름 (한글 설명)
+
+   ### 상태
+
+   ```text
+   DONE
+   ```
+
+   Milestone NN. 선행: TASK-0AA, TASK-0BB. (경과 한두 문장)
+
+   - 구현 요약 1
+   - 구현 요약 2
+
+   ### 목적
+
+   (Task 문서의 "목적"과 같은 내용)
+
+   ### Human Approval 또는 Gate
+
+   - (승인 근거와 날짜)
+
+   ### 완료 조건
+
+   - (Task 문서의 "완료 조건")
+
+   ### 상세 Task Contract
+
+   [`docs/tasks/TASK-0NN_NAME.md`](tasks/TASK-0NN_NAME.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+   ---
+   ````
+
+4. "상태" 아래의 구현 요약에는 **무엇을 만들었는지**만 적는다. Sandbox에서 실행하지 못한 검증, 남은 절차, "최종 완료 승인이 아니다" 같은 진행 메모는 `docs/08-WORK_LOG.md`에 적는다.
+5. 다른 Task의 행과 절, "3. Current Task"는 바꾸지 않는다.
