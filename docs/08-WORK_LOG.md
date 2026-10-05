@@ -3896,3 +3896,9 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 화면 확인(Claude 세션, `docs/images/task-068/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답(`enabled: true`, `shared: true`)으로 대신해 체험 계정 Dashboard를 390 / 1280px로 캡처했다. 추천 10개 항목 모두에 평가 묶음이 보이고, 누르면 저장 요청이 1회 나가며 눌림 표시가 된다. 목록 아래에 "체험 계정의 평가는 모든 방문자가 함께 씁니다. 다음 Check-in의 추천부터 반영됩니다."가 나온다. 소셜 사용자 화면의 문구는 이전과 같다. 가로 넘침이 없다. 실제 Staging에서 평가가 다음 Check-in에 반영되는지는 Merge 뒤 확인한다.
 - TASK-069 화면 확인(Claude 세션, `docs/images/task-069/`): Run 2의 최종 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 오늘 / 어제 / 3일 전 / 평소 값 없음 네 경우를 390 / 768 / 1280px로 캡처했다. 오늘 기록이면 "오늘 컨디션은 …"과 "다시 입력하기", 지난 기록이면 큰 제목의 안내 영역 → 최근 14일 평균 → "마지막 기록 · 3일 전 (10월 2일 …)" 순서다. 하루 전은 "어제"로 나온다. 지난 기록 화면에서 AI 코멘트 생성 요청은 나가지 않았다. AI 코멘트 Card에 밝은 배경, 왼쪽 강조 선, "AI" Badge가 보인다. 가로 넘침이 없다.
 
+### v3.5.0 Release Note 작성 (2026-10-05, Claude 세션, Human 승인)
+
+- Human이 `v3.5.0` Release를 승인했다("v3.5.0 Release 진행! 승인!"). `docs/releases/v3.5.0.md`를 작성했다. 범위는 `v3.4.0` 이후의 TASK-066 ~ TASK-070이다.
+- Tag `v3.5.0`과 GitHub Release는 TASK-070과 이 PR이 Merge된 뒤 그 Commit에 만든다(DEC-025).
+- TASK-067 Task 문서의 틀린 서술을 바로잡았다. "`main`에 Branch Protection이 없다"고 적었으나 실제로는 Ruleset `main-protection`(Squash만 허용, `frontend` / `backend` 검사 필수, 최신 `main` 반영 필수)이 있다. 건너뛴 Job은 필수 검사에서 통과로 처리되어 설계에는 영향이 없다.
+

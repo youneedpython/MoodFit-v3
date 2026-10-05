@@ -20,7 +20,7 @@
 
 - `.github/workflows/ci.yml`: `push`(main)와 `pull_request`(main 대상)에서 `frontend` Job과 `backend` Job을 조건 없이 실행한다. 각 Job은 마지막에 Step Summary를 쓴다(DEC-021).
 - `.github/workflows/deploy-staging.yml`: `main`의 CI Workflow가 **성공**하면(`workflow_run`, `conclusion == 'success'`) 시작한다. `classify` Job이 `git diff --name-only`로 바뀐 경로를 보고 문서 전용이면 배포를 건너뛴다(TASK-050). 분류할 수 없으면 배포하는 쪽으로 간다(안전한 기본값).
-- `main` Branch에는 Branch Protection(필수 Status Check)이 설정되어 있지 않다.
+- `main` Branch에는 Ruleset `main-protection`이 걸려 있다: Squash Merge만 허용, `frontend`와 `backend` 검사 필수, PR이 최신 `main`을 반영해야 한다. (정정 2026-10-05: 처음 판은 "Branch Protection이 설정되어 있지 않다"고 적었으나, 예전 방식의 Branch Protection API만 확인하고 Ruleset을 보지 않은 Claude 세션의 오류였다. 조건으로 건너뛴 Job은 필수 검사에서 통과로 처리되므로 이 Task의 설계에는 영향이 없고, 실제 PR에서 그렇게 동작하는 것을 확인했다.)
 
 ## 설계 (실행 기준)
 
