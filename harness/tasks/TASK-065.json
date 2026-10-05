@@ -1,0 +1,51 @@
+{
+  "id": "TASK-065",
+  "title": "Mobile Install Button / Trend Zoom (모바일 앱 설치 버튼 크기 / History 그래프 확대와 밀어 보기)",
+  "task_file": "docs/tasks/TASK-065_MOBILE_INSTALL_BUTTON_TREND_ZOOM.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "docs/03-UX_UI_SPEC.md",
+    "docs/27-PWA-INSTALL.md",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "frontend/index.html",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}
