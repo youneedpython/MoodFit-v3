@@ -3739,3 +3739,22 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - TASK-060 Orchestrator Verify에서 `privacy.test.tsx`의 "blocks closing while pending and permits cancel after failure"가 한 번 실패했다. 같은 Test는 그 전 두 번의 Verify와 Remote CI에서는 통과했다.
 - 원인: 탈퇴 실패 뒤 "취소"로 초점을 돌려놓는 동작은 실패 상태가 그려진 뒤 Effect에서 일어나는데, Test는 실패 문구가 보이자마자 초점을 바로 검사했다. 실행 시점에 따라 Effect보다 먼저 검사할 수 있었다.
 - 조치: 초점 검사를 `waitFor`로 감쌌다. 검사 내용과 구현은 바꾸지 않았다. 같은 Test 파일을 20회 반복 실행해 모두 통과했다.
+
+### TASK-060 — History Record Compact (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. Task source / 공통 규칙과 프로젝트 필수 Context를 읽고 Human 승인 H2 / H3만 구현했다. TASK-060만 IN_PROGRESS 등록 후 Executor 구현 완료를 DONE으로 반영했다.
+- 추천 dl을 기본 닫힌 details로 감싸 실제 음식 / 음악 개수를 summary에 표시한다. 빈 쪽의 개수는 생략하고 둘 다 없으면 details를 숨긴다. 기존 이름 목록과 머리 줄 / 지표 / Pagination / 그래프는 유지했다. 기본 Browser 동작과 기존 44px 터치 영역 / 초점 / 간격 Token을 사용했다.
+- 기간 날짜를 문자열로 나누는 변환 함수와 원본 time dateTime을 추가했다. 서울 기준 현재 연도를 인자로 고정할 수 있고 올해가 아니거나 서로 다른 해이면 양쪽 연도를 표시한다. 잘못된 형식 / 달력 날짜는 원문을 유지한다.
+- 추천 개수 / 빈 목록 / 기본 닫힘 / 페이지 복귀, 같은 해 / 과거 해 / 해 경계 / 잘못된 기간, Card 기간 / 건수 / 원본 time 회귀 Test를 보완했다. jest-dom Matcher / CSS raw import / Dependency 추가는 없다.
+- Verification: bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci에서 중단됐다. Test / tsc --noEmit / Build는 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
+- UTF-8 apply_patch로 문서를 작성했다. Git 작업은 수행하지 않았다. Executor DONE은 Verify / Review / Human 완료 승인이 아니다. Claude 세션의 390 / 768 / 1280px 접힘 / 펼침 캡처와 Merge 후 Staging 확인은 후속 작업이며 allowed_paths 밖 이미지 경로에는 쓰지 않았다.
+
+### TASK-060 Run 2 — 기존 구현 재확인 (2026-10-05)
+
+- 이번 실행도 clean Working Tree에서 승인된 Run 2 검토 범위만 확인했다. 기존 구현과 Test에서 설계 불일치를 발견하지 않아 추가 수정은 없다. 기본 닫힘 / 개수 생략 / 페이지 이동 시 새 DOM 생성, 기존 44px Token과 초점 표시, 문자열 분리와 서울 연도 기준 / 원본 time 속성을 확인했다. 자체 `bash scripts/verify.sh`는 npm 캐시 stat EPERM으로 설치 단계에서 중단되어 Test / 타입 검사 / Build는 실행하지 못했다. Task source의 Frontend 236건 / Build 통과는 이전 Orchestrator의 참고 증거이며 이번 검증 결과가 아니다. 재시도와 권한 우회 및 Git 작업은 하지 않았다. Sandbox 밖 Orchestrator Verify가 기준이고 화면 캡처 / Merge 후 Staging 확인은 후속 작업이다. 이번 변경 문서의 인코딩과 `git diff --check`를 직접 검사한다.
+
+- 이번 재검토는 이전 Run 2 기록까지 포함된 clean Working Tree에서 시작했다. 승인된 H2 / H3 구현과 기존 회귀 Test를 다시 대조했으며 기본 닫힘, 음식 / 음악 개수와 빈 목록 처리, 페이지 이동 뒤 닫힘, 기존 44px 터치 영역 / 초점 Token, 문자열 기반 기간 변환 / 연도 규칙 및 원본 time dateTime이 설계와 일치해 코드와 Test는 수정하지 않았다. 이번 `bash scripts/verify.sh`는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 재시도나 권한 우회는 하지 않았으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다. Run 1의 Frontend Test 236건 / Build 통과 및 Backend 제한 시간 초과는 Task source에서 전달된 참고 증거다. 변경 문서의 인코딩과 `git diff --check`를 확인하며, Executor DONE은 재검토와 기록 완료를 뜻한다. Git 작업은 수행하지 않았고 Claude 세션의 화면 캡처와 Merge 후 Staging 확인은 후속 작업으로 남긴다.
+
+- 최초 Working Tree는 clean이었다. Task source와 필수 Context를 확인하고 기본 닫힌 details / summary, 실제 추천 개수와 빈 목록 처리, 기존 이름 순서, 페이지 이동 뒤 닫힘, 기존 터치 영역 / 초점 Token, 문자열 기반 기간 변환과 서울 기준 연도 규칙, 원본 time dateTime 및 회귀 Test를 재확인했다. 설계와 어긋난 구현은 발견하지 않아 코드 / 통과한 Test / Task 상태는 변경하지 않았다. Task source의 Run 1 Frontend Test 236건 / Build 통과와 Backend Test 중 10분 제한 시간 초과는 전달받은 참고 증거이며 이번 Executor 결과가 아니다. 이번 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci 단계에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 Run 2 재확인과 기록 완료만 뜻한다. Git 작업은 수행하지 않았다. Claude 세션의 390 / 768 / 1280px 접힘 / 펼침 화면 캡처와 Merge 후 Staging 확인은 후속 작업으로 유지한다.
+- 화면 확인(Claude 세션, `docs/images/task-060/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 History를 접힌 상태와 첫 기록을 펼친 상태로 390 / 768 / 1280px에서 캡처했다. 기록 5건의 추천 이력이 모두 접힌 채 시작하고 요약 줄은 "추천 음식 5개 · 음악 5곡 보기"이다. 주간 리포트 기간은 "9월 28일 ~ 10월 4일 · 7건"으로 보인다. 세 폭 모두 가로 넘침이 없다.
+- Run 1 ~ 3이 멈춘 경위: Run 1 / 2는 개발 PC에서 VS Code Java 확장이 작업 복사본까지 분석하면서 Backend Test의 MySQL Container 접속이 실패해 제한 시간을 넘겼다(확장을 끈 뒤 해소). Run 3은 TASK-057의 불안정한 초점 Test 1건이 실패했다(별도 PR로 안정화). Run 4에서 Verify와 Claude Review를 통과했고, PR 단계는 다른 열린 PR 본문에 이 Task 번호가 있어 멈췄다. Human 지시로 Claude 세션이 PR을 직접 만들었다.

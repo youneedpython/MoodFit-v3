@@ -52,7 +52,7 @@ Claude 세션이 화면을 훑어 뽑은 개선 후보를 Human이 모두 승인
 
 ### 문서
 
-- `docs/07-TASKS.md`: 이미 READY로 등록된 TASK-060 행과 절을 DONE으로 고치고 구현 내용을 적는다(없으면 번호 순서에 맞게 추가, Task 표가 빈 줄로 끊기지 않게). 다른 Task 상태는 바꾸지 않는다.
+- `docs/07-TASKS.md`: TASK-060 행과 절 추가, DONE(Milestone 60, 번호 순서, Task 표가 빈 줄로 끊기지 않게). 다른 Task 상태는 바꾸지 않는다. 표에 없는 앞 번호 Task 행은 만들지 않는다(다른 Branch에서 진행 중일 수 있다).
 - `docs/03-UX_UI_SPEC.md`의 History 부분에 추천 이력을 접어 둔다는 점을 한 줄로 적는다. `docs/23-LLM-INSIGHT.md`에 기간 표기를 적는다.
 - `docs/08-WORK_LOG.md`, `prompts/`(지금 있는 마지막 번호의 다음 번호).
 
@@ -65,6 +65,15 @@ Claude 세션이 화면을 훑어 뽑은 개선 후보를 Human이 모두 승인
 ### 참고 (Executor Sandbox)
 
 - Sandbox에서 npm Test를 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다.
+
+## Run 2 범위 (검토 중심)
+
+Run 1에서 구현은 끝났다. Orchestrator Verify에서 Frontend Test 236건과 Build는 통과했고, Backend Test가 진행되던 중 **제한 시간(10분)을 넘겨** 멈췄다. 개발 PC에서 다른 Java 작업이 함께 돌아 느려진 것으로 구현과 무관하다(이 Task는 Backend를 바꾸지 않는다). 제한 시간을 늘렸다. Run 1의 변경은 WIP Commit으로 이 Branch에 들어 있다.
+
+이번 Run에서 할 일:
+
+1. 구현이 위 설계와 맞는지 다시 확인하고, 어긋난 곳만 고친다. 통과한 Test를 다시 쓰지 않는다.
+2. `docs/08-WORK_LOG.md`에 Run 2 경과를 한 단락 더한다.
 
 ## Verification
 
