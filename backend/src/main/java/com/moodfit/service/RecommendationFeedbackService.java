@@ -21,7 +21,7 @@ public class RecommendationFeedbackService {
         public static Rating parse(String value) { return value == null ? null : valueOf(value); }
     }
     public record Item(Kind kind, String item, Rating rating) {}
-    public record Feedback(boolean enabled, List<Item> items) {
+    public record Feedback(boolean enabled, boolean shared, List<Item> items) {
         Map<String, Rating> ratings(Kind kind) {
             return items.stream().filter(item -> item.kind() == kind)
                     .collect(Collectors.toMap(Item::item, Item::rating));
@@ -29,13 +29,10 @@ public class RecommendationFeedbackService {
     }
     private final JdbcTemplate jdbc;
     public RecommendationFeedbackService(JdbcTemplate jdbc) { this.jdbc = jdbc; }
-    public static boolean enabled(UserIdentity identity) {
-        return identity.id() != 1L && !"guest".equals(identity.provider());
-    }
     @Transactional(readOnly = true)
     public Feedback get(UserIdentity identity) {
-        if (!enabled(identity)) return new Feedback(false, List.of());
-        return new Feedback(true, jdbc.query(
+        boolean shared = identity.id() == 1L || "guest".equals(identity.provider());
+        return new Feedback(true, shared, jdbc.query(
                 "SELECT kind, item_name, rating FROM recommendation_feedback WHERE user_id = ? ORDER BY kind, item_name",
                 (row, n) -> new Item(Kind.valueOf(row.getString(1)), row.getString(2), Rating.valueOf(row.getString(3))), identity.id()));
     }
@@ -45,9 +42,6 @@ public class RecommendationFeedbackService {
         var providers = jdbc.query("SELECT provider FROM app_user WHERE id = ? FOR UPDATE",
                 (row, n) -> row.getString(1), identity.id());
         if (providers.isEmpty()) throw new org.springframework.security.authentication.AuthenticationCredentialsNotFoundException("Authentication required");
-        if (!enabled(identity) || "guest".equals(providers.getFirst())) {
-            throw new org.springframework.security.access.AccessDeniedException("Guest feedback forbidden");
-        }
         jdbc.update("DELETE FROM recommendation_feedback WHERE user_id = ? AND kind = ? AND item_name = ?", identity.id(), kind.name(), item);
         if (rating != null) jdbc.update(
                 "INSERT INTO recommendation_feedback (user_id, kind, item_name, rating, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",

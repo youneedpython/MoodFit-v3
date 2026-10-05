@@ -63,6 +63,8 @@ request 400 /api/check-ins "$work/error" -H 'Content-Type: application/json' --d
 request 201 /api/check-ins "$work/create" -H 'Content-Type: application/json' --data '{"heartRate":68,"respiratoryRate":18,"sleepScore":86,"stressLevel":31,"energyLevel":74,"temperature":19.0,"weather":"RAIN"}'
 request 200 /api/check-ins/latest "$work/latest"
 request 200 '/api/check-ins/history?days=7' "$work/history"
+# Read only: visitors own the current shared ratings; do not write feedback here.
+request 200 /api/recommendations/feedback "$work/feedback"
 python - "$work" <<'PY'
 import datetime, json, pathlib, sys
 p = pathlib.Path(sys.argv[1])
@@ -112,6 +114,15 @@ def match(actual, expected):
         for a, e in zip(actual, expected): match(a, e)
     else: assert actual == expected
 created = load('create')
+feedback = load('feedback')
+assert type(feedback) is dict and set(feedback) == {'enabled', 'shared', 'items'}
+assert feedback['enabled'] is True and feedback['shared'] is True
+assert type(feedback['items']) is list
+for entry in feedback['items']:
+    assert type(entry) is dict and set(entry) == {'kind', 'item', 'rating'}
+    assert type(entry['kind']) is str and entry['kind'] in ('FOOD', 'MUSIC')
+    assert type(entry['item']) is str and entry['item'].strip()
+    assert type(entry['rating']) is str and entry['rating'] in ('LIKE', 'DISLIKE')
 match(created, contract('checkin-create-201'))
 match(load('error'), contract('checkin-create-400'))
 latest = load('latest')
@@ -123,6 +134,6 @@ assert history.keys() == sample.keys() and history['days'] == 7
 item = next(i for i in history['items'] if i['id'] == created['id'])
 match(item, sample['items'][0])
 assert item['recordedAt'] == created['recordedAt']
-print('PASS: create/latest/history and 400 contract preserved')
+print('PASS: create/latest/history and 400 contract preserved; shared guest feedback shape checked (read only)')
 PY
 printf 'PASS: staging smoke (synthetic record retained; no deletion)\n'

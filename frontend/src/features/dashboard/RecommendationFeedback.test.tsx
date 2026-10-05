@@ -76,8 +76,26 @@ describe("추천 평가", () => {
     expect(dislike.querySelector("svg")?.getAttribute("fill")).toBe("none");
     expect(screen.getByRole("button", { name: "연어 샐러드 좋아요" }).getAttribute("aria-pressed")).toBe("true");
   });
-  it("hides guest controls and explains social login", async () => {
-    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(response(guest))));
+  it("shows shared guest controls and saves feedback", async () => {
+    const fetchMock = vi.fn().mockImplementation((_path: string, init?: RequestInit) => Promise.resolve(
+      init?.method === "PUT" ? new Response(null, { status: 204 }) : response(guest)));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<Screen />);
+    const like = await screen.findByRole("button", { name: "연어 샐러드 좋아요" });
+    expect(screen.getByText("체험 계정의 평가는 모든 방문자가 함께 씁니다. 다음 Check-in의 추천부터 반영됩니다.")).toBeTruthy();
+    fireEvent.click(like);
+    await waitFor(() => expect(like.hasAttribute("disabled")).toBe(false));
+    expect(like.getAttribute("aria-pressed")).toBe("true");
+    expect(JSON.parse(fetchMock.mock.calls[1]![1].body as string)).toEqual({ kind: "FOOD", item: "연어 샐러드", rating: "LIKE" });
+  });
+  it.each([false, undefined])("uses the individual notice with shared=%s", async shared => {
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(response({ ...social, shared }))));
+    render(<Screen />);
+    await screen.findByText("평가는 다음 Check-in의 추천부터 반영됩니다. 지금 보이는 목록은 유지됩니다.");
+    expect(screen.queryByText(/모든 방문자가 함께 씁니다/)).toBeNull();
+  });
+  it("hides unavailable controls and explains social login", async () => {
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(response({ enabled: false, shared: false, items: [] }))));
     render(<Screen />);
     await screen.findByText("소셜 로그인 후 추천을 평가하면 다음 추천에 반영됩니다");
     expect(screen.queryByRole("button", { name: /좋아요|별로예요/ })).toBeNull();

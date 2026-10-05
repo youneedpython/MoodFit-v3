@@ -146,10 +146,12 @@ code=$(curl --silent --cookie "$auth_dir/cookies" --config "$auth_dir/headers" -
 curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/check-ins/latest" > "$auth_dir/latest"
 cmp "$auth_dir/create" "$auth_dir/latest"
 curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/check-ins/history?days=7" > "$auth_dir/history"
+# Read only: never alter shared guest feedback in smoke checks.
+curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/recommendations/feedback" > "$auth_dir/feedback"
 SH
 
 # Copy response bodies only; cookies and authentication headers remain in the container.
-for response in create latest history; do
+for response in create latest history feedback; do
   docker exec "$app" cat "/tmp/moodfit-api-smoke/$response" > "$work_dir/$response"
 done
 docker exec "$app" rm -rf /tmp/moodfit-api-smoke
@@ -202,6 +204,15 @@ def match(actual, expected):
         for a, e in zip(actual, expected): match(a, e)
     else: assert actual == expected
 created = load('create')
+feedback = load('feedback')
+assert type(feedback) is dict and set(feedback) == {'enabled', 'shared', 'items'}
+assert feedback['enabled'] is True and feedback['shared'] is True
+assert type(feedback['items']) is list
+for entry in feedback['items']:
+    assert type(entry) is dict and set(entry) == {'kind', 'item', 'rating'}
+    assert type(entry['kind']) is str and entry['kind'] in ('FOOD', 'MUSIC')
+    assert type(entry['item']) is str and entry['item'].strip()
+    assert type(entry['rating']) is str and entry['rating'] in ('LIKE', 'DISLIKE')
 match(created, contract('checkin-create-201'))
 latest = load('latest')
 match(latest, contract('checkin-latest-200'))
@@ -212,7 +223,7 @@ assert history.keys() == sample.keys() and history['days'] == 7
 item = next(i for i in history['items'] if i['id'] == created['id'])
 match(item, sample['items'][0])
 assert item['recordedAt'] == created['recordedAt']
-print('PASS: create/latest/history contract preserved')
+print('PASS: create/latest/history contract preserved; shared guest feedback shape checked (read only)')
 PY
 
 step 'DB outage: readiness 503 / liveness 200'

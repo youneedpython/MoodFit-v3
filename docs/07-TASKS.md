@@ -118,6 +118,7 @@ TASK-001 ~ TASK-029, TASK-032 ~ TASK-065는 DONE이다(모두 PR Squash Merge와
 | TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | DONE | TASK-059, TASK-061 | Human 지시 2026-10-05 |
 | TASK-064 | Milestone 64 | PWA Install (홈 화면 설치 / 앱 설치 버튼) | DONE | TASK-037, TASK-062 | Human 승인 2026-10-05 |
 | TASK-065 | Milestone 65 | Mobile Install Button / Trend Zoom (모바일 앱 설치 버튼 크기 / History 그래프 날짜별 평균과 확대) | DONE | TASK-064, TASK-060 | Human 지시 2026-10-05 |
+| TASK-068 | Milestone 68 | Guest Feedback (체험 계정의 추천 평가) | DONE | TASK-055, TASK-058 | Human 지시 2026-10-05, Gate B |
 
 ---
 
@@ -2690,6 +2691,38 @@ Human이 휴대폰(갤럭시)으로 Staging을 보고 지적한 두 가지를 �
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-065_MOBILE_INSTALL_BUTTON_TREND_ZOOM.md`](tasks/TASK-065_MOBILE_INSTALL_BUTTON_TREND_ZOOM.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-068 — Guest Feedback (체험 계정의 추천 평가)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 68. 선행: TASK-055, TASK-058.
+
+- 체험 계정도 추천 평가를 읽고 저장 / 변경 / 삭제하며 다음 Check-in에 같은 규칙으로 반영한다.
+- 응답의 shared와 화면 / 개인정보 안내로 모든 방문자의 공유 평가임을 알린다.
+- 계약 예시와 평가를 쓰지 않는 Smoke 형식 검사를 추가한다.
+
+### 목적
+
+체험 계정("로그인 없이 둘러보기")에서도 추천에 좋아요 / 별로예요를 남길 수 있게 한다. 지금은 소셜 로그인 사용자만 평가할 수 있어, 로그인 없이 둘러보는 방문자는 이 기능을 써 볼 수 없다.
+
+### Human Approval 또는 Gate
+
+- Human 지시 2026-10-05, Gate B: 체험 계정 평가 허용과 공유 안내. DEC-045가 DEC-042의 체험 계정 평가 금지를 대체한다.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 체험 계정 화면을 390 / 1280px로 캡처해 확인하고, Merge 뒤 Staging에서 체험 계정으로 평가를 남겨 다음 Check-in에 반영되는지 확인한다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-068_GUEST_FEEDBACK.md`](tasks/TASK-068_GUEST_FEEDBACK.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 

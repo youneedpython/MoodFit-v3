@@ -104,3 +104,7 @@ export type Baseline = {
   averages: Metrics | null;
   deltas: Metrics | null;
 };
+export type FeedbackKind = "FOOD" | "MUSIC";
+export type FeedbackRating = "LIKE" | "DISLIKE";
+export type FeedbackItem = { kind: FeedbackKind; item: string; rating: FeedbackRating };
+export type FeedbackResponse = { enabled: boolean; shared?: boolean; items: FeedbackItem[] };

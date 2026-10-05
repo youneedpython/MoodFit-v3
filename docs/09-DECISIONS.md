@@ -1601,3 +1601,12 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - 설치만 지원한다. Service Worker / Offline / 푸시 알림은 넣지 않는다. Backend / API / DB / Dependency는 변경하지 않는다.
 - 버튼은 모든 화면 Footer의 개인정보 처리 안내 앞과 아바타 메뉴의 개인정보 처리 안내 / 로그아웃 사이에 둔다. Chromium 설치 이벤트는 Browser 설치 창, iOS / iPadOS는 사용자 요청 시 안내 창으로 처리한다. 미지원 / 설치 완료 / 독립 창에서는 숨긴다.
 - 1년 immutable Cache 때문에 Manifest를 app.webmanifest로 옮기며 기존 아이콘 파일은 유지한다. 상세는 [27-PWA-INSTALL.md](27-PWA-INSTALL.md)를 따른다. 구현 승인은 최종 완료 승인을 대신하지 않는다.
+
+## DEC-045 TASK-068 체험 계정 추천 평가
+
+- Human Approved 2026-10-05, Gate B: “체험계정도 '좋아요 / 별루예요' 추가 → 개선 후 영상 촬영”. 승인된 TASK-068 Contract와 명시 실행 지시를 따른다.
+- DEC-042의 체험 계정 평가 금지를 대체한다. 체험 계정도 평가를 조회 / 저장 / 변경 / 삭제하고 다음 Check-in 추천에 소셜 사용자와 같은 규칙으로 반영한다.
+- 체험 계정은 하나의 공유 계정이며 모든 방문자가 평가를 함께 쓴다. 다른 방문자의 화면과 다음 추천에도 반영됨을 추천 영역과 개인정보 처리 안내에 표시한다.
+- 조회 응답에 shared boolean을 추가한다. 사용자 번호 1 또는 guest Provider는 true, 그 밖에는 false다. enabled와 items는 유지하고 Frontend는 shared 누락을 false로 처리한다.
+- 사용자 행 FOR UPDATE, 사용자별 평가 격리, 후보 검증, 로그인 / CSRF, 평가 반영 규칙과 추천 개수를 유지한다. 기존 V6 Table에 사용자 번호 1의 평가를 저장하며 DB Schema / Dependency는 변경하지 않는다.
+- 체험 계정의 계정 삭제 / AI 코멘트 / 주간 리포트 제한은 유지한다. Smoke는 평가 조회 형식만 검사하며 평가를 쓰지 않는다. Executor DONE은 구현 완료이며 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.

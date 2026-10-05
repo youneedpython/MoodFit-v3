@@ -144,3 +144,4 @@ Prompt는 실행 순서를 확인할 수 있도록 번호를 사용한다.
 | 77 | TASK-054 Privacy / Account Deletion / SPA Route | 승인된 처리 안내 / 본인 데이터 삭제 / 직접 접근 / 배포 순서 | Executor 구현 완료, Verify / Review / Merge 및 Human Frontend Stack 적용 대기 |
 | 80 | TASK-055 Recommendation Feedback | 승인된 항목별 추천 평가 / 다음 추천 반영 / 삭제 / 개인정보 | Executor 구현 완료, Verify / Review / 화면 및 Staging 확인 대기 |
 | 83 | TASK-056 Personal Baseline | 승인된 개인 평균 / 긴장도 / HIGH 조정 / 체험 안내 / snapshot | Executor 구현 완료, Verify / Review / 화면 및 Staging 확인 대기 |
+| 95 | TASK-068 Guest Feedback | 승인된 체험 계정 평가 / 공유 안내 / 계약 / 읽기 전용 Smoke | Executor 구현 완료, 화면 및 Merge 후 Staging 확인 대기 |

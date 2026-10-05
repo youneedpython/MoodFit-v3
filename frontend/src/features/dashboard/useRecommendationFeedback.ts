@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { request } from "../../services/api";
 
-export type FeedbackKind = "FOOD" | "MUSIC";
-export type FeedbackRating = "LIKE" | "DISLIKE";
-export type FeedbackItem = { kind: FeedbackKind; item: string; rating: FeedbackRating };
-export type FeedbackResponse = { enabled: boolean; items: FeedbackItem[] };
+import type { FeedbackResponse, FeedbackKind, FeedbackRating, FeedbackItem } from "../../types/api";
+export type { FeedbackResponse, FeedbackKind, FeedbackRating, FeedbackItem } from "../../types/api";
 
 export function useRecommendationFeedback() {
   const [data, setData] = useState<FeedbackResponse | null>(null);
@@ -14,7 +12,7 @@ export function useRecommendationFeedback() {
   useEffect(() => {
     let active = true;
     void request<FeedbackResponse>("/recommendations/feedback").then(value => {
-      if (active) setData(value);
+      if (active) setData({ ...value, shared: value.shared ?? false });
     }).catch(() => { if (active) setError("추천 평가를 불러오지 못했습니다."); });
     return () => { active = false; };
   }, []);
