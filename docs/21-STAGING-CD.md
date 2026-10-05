@@ -138,3 +138,7 @@ Container Smoke의 App `/tmp`는 tmpfs이므로 `docker cp` 대신 `docker exec`
 Container Script는 Linux Container 경로 보존을 위해 MSYS 경로 변환을 끈다. 호스트 Python에 전달하는 임시 디렉터리는 기존 `docker_path`로 변환한다(Windows Git Bash에서는 `cygpath -w`, Linux에서는 원래 경로). Staging Script는 호스트 curl / Python을 사용하며 MSYS 변환을 끄지 않으므로 같은 Container tmpfs 추출이나 명시 경로 변환 수정이 필요하지 않다. Linux CI에서도 두 Script의 임시 경로 처리와 종료 시 제거는 유지된다.
 
 Run 2 전체 Verify 통과와 Run 3의 두 줄 수정 후 Container Smoke exit 0은 Task 문서에 기록된 Claude 세션의 Sandbox 밖 실행 근거다. 이번 Executor는 해당 두 줄을 유지하고 흐름과 구문을 확인했다. 최종 검증과 Review는 Orchestrator 결과를 따른다.
+
+## Production 배포 분리
+
+Production은 별도 `deploy-production.yml`을 사람이 Release Tag로 시작하고 `production` Environment의 Human 승인을 받는다. Staging에서 검증된 공유 ECR Image Digest를 재Build 없이 승격한다. 상세 생성 / 첫 배포 / Rollback 절차는 [Production Runbook](28-PRODUCTION-DEPLOYMENT-RUNBOOK.md)을 따른다.

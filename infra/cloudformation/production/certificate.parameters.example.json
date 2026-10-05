@@ -1,0 +1,18 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "production"
+  },
+  {
+    "ParameterKey": "Owner",
+    "ParameterValue": "<Owner>"
+  },
+  {
+    "ParameterKey": "HostedZoneId",
+    "ParameterValue": "<HostedZoneId>"
+  },
+  {
+    "ParameterKey": "ViewerHostname",
+    "ParameterValue": "moodfit.8949db.kr"
+  }
+]

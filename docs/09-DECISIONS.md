@@ -1634,3 +1634,17 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - 기존 상황 Pool / 서울 날짜 순환 / 사용자 평가 반영 코드를 기분 선택 없이 사용한다. Check-in은 기분 추천과의 중복을 제외하므로 상황 추천 항목이 다를 수 있다. Run 2에서 받아들인 차이이며 Check-in 선택 규칙과 Pool은 유지한다.
 - 좌표는 Browser에서 기존 Open-Meteo / BigDataCloud로만 전달한다. Backend에는 기온 / 날씨만 보내며 지역은 화면에만 표시한다. 조회한 날씨와 추천을 저장하지 않고 화면 이탈 시 취소한다. 추천 평가 저장은 기존 동작을 유지하며 체험 계정은 공유 평가를 적용한다.
 - 구현 완료는 Orchestrator Verify / Claude Review / Human Squash Merge를 대신하지 않는다. 화면 캡처와 Merge 후 Staging 실제 위치 확인은 승인된 후속 절차다.
+
+## DEC-049 TASK-030 Production 생성 / 비용 / 승인 배포
+
+Human Approved (2026-10-05, “1. 승인 2. 가 3. 오늘 작업 후 모두 정리” 및 OIDC 검사 예외 “승인!”, 승인된 Contract / 명시 실행 지시).
+
+1. Staging과 같은 Template / 크기(AZ 2개, Fargate 2개, RDS Multi-AZ, NAT 2개)를 같은 계정에 환경별 Stack으로 생성한다. Production CIDR은 `10.50.0.0/16`이다.
+2. 사용자 주소는 `https://moodfit.8949db.kr`, origin은 `origin.moodfit.8949db.kr`이다.
+3. 운영 2일 이내 / 추가 비용 USD 30 이내이며 Production Budget 알림도 설정한다. 월 USD 300 알림 기준은 유지하고 추가 비용 상한은 Human이 별도 확인한다.
+4. 자동 배포 없이 workflow_dispatch와 production Environment Human Required Reviewer 승인을 사용한다. Staging에서 검증된 Image는 같은 저장소의 같은 Digest로 승격하며 재Build / Push하지 않는다.
+5. Agent의 Production Stack Change Set 생성 / 실행은 Human의 명시적이고 범위가 정해진 위임 아래 Claude 세션이 수행한다. 별도 Production Profile은 없으며 Executor는 AWS를 호출하지 않는다. 삭제는 별도 승인이다.
+6. Production DB는 빈 상태로 시작한다.
+7. 오늘 생성 → 배포 → 확인 / 영상 후 Staging과 Production 정리는 TASK-031에서 별도 승인한다.
+
+OIDC 쓰기 권한 줄 하나만 Contract의 승인된 검사 예외로 두며 기존 Secret 차단 / 마스킹을 유지한다. 이전 Release Tag 재실행도 Environment 승인을 받는다. Migration 호환성이 불확실한 Rollback / 파괴적 변경은 HUMAN_REQUIRED다. 구현 완료는 실제 배포 성공이나 Human 완료 승인을 대신하지 않는다.

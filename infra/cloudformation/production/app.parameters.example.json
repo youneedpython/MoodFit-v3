@@ -1,0 +1,114 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "production"
+  },
+  {
+    "ParameterKey": "Owner",
+    "ParameterValue": "<Owner>"
+  },
+  {
+    "ParameterKey": "VpcId",
+    "ParameterValue": "<VpcId>"
+  },
+  {
+    "ParameterKey": "PublicSubnetA",
+    "ParameterValue": "<PublicSubnetA>"
+  },
+  {
+    "ParameterKey": "PublicSubnetB",
+    "ParameterValue": "<PublicSubnetB>"
+  },
+  {
+    "ParameterKey": "AppSubnetA",
+    "ParameterValue": "<AppSubnetA>"
+  },
+  {
+    "ParameterKey": "AppSubnetB",
+    "ParameterValue": "<AppSubnetB>"
+  },
+  {
+    "ParameterKey": "AlbSecurityGroupId",
+    "ParameterValue": "<AlbSecurityGroupId>"
+  },
+  {
+    "ParameterKey": "AppSecurityGroupId",
+    "ParameterValue": "<AppSecurityGroupId>"
+  },
+  {
+    "ParameterKey": "HostedZoneId",
+    "ParameterValue": "<HostedZoneId>"
+  },
+  {
+    "ParameterKey": "OriginHostname",
+    "ParameterValue": "origin.moodfit.8949db.kr"
+  },
+  {
+    "ParameterKey": "BackendImage",
+    "ParameterValue": "<BackendImage>"
+  },
+  {
+    "ParameterKey": "ExecutionRoleArn",
+    "ParameterValue": "<ExecutionRoleArn>"
+  },
+  {
+    "ParameterKey": "TaskRoleArn",
+    "ParameterValue": "<TaskRoleArn>"
+  },
+  {
+    "ParameterKey": "ApplicationLogGroupName",
+    "ParameterValue": "<ApplicationLogGroupName>"
+  },
+  {
+    "ParameterKey": "DatabaseEndpoint",
+    "ParameterValue": "<DatabaseEndpoint>"
+  },
+  {
+    "ParameterKey": "DatabaseName",
+    "ParameterValue": "<DatabaseName>"
+  },
+  {
+    "ParameterKey": "DbCredentialArn",
+    "ParameterValue": "<DbCredentialArn>"
+  },
+  {
+    "ParameterKey": "DesiredCount",
+    "ParameterValue": "<DesiredCount>"
+  },
+  {
+    "ParameterKey": "TaskCpu",
+    "ParameterValue": "<TaskCpu>"
+  },
+  {
+    "ParameterKey": "TaskMemory",
+    "ParameterValue": "<TaskMemory>"
+  },
+  {
+    "ParameterKey": "OAuthCredentialArn",
+    "ParameterValue": "<OAuthCredentialArn>"
+  },
+  {
+    "ParameterKey": "PublicUrl",
+    "ParameterValue": "<PublicUrl>"
+  },
+  {
+    "ParameterKey": "GuestLoginEnabled",
+    "ParameterValue": "<GuestLoginEnabled>"
+  },
+  {
+    "ParameterKey": "LlmRoleArn",
+    "ParameterValue": "<LlmRoleArn>"
+  },
+  {
+    "ParameterKey": "LlmEnabled",
+    "ParameterValue": "<LlmEnabled>"
+  },
+  {
+    "ParameterKey": "LlmModelId",
+    "ParameterValue": "<LlmModelId>"
+  },
+  {
+    "ParameterKey": "LlmRegion",
+    "ParameterValue": "<LlmRegion>"
+  }
+]

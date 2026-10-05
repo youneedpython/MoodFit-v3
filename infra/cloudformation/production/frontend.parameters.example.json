@@ -1,0 +1,26 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "production"
+  },
+  {
+    "ParameterKey": "Owner",
+    "ParameterValue": "<Owner>"
+  },
+  {
+    "ParameterKey": "HostedZoneId",
+    "ParameterValue": "<HostedZoneId>"
+  },
+  {
+    "ParameterKey": "ViewerHostname",
+    "ParameterValue": "moodfit.8949db.kr"
+  },
+  {
+    "ParameterKey": "ViewerCertificateArn",
+    "ParameterValue": "<ViewerCertificateArn>"
+  },
+  {
+    "ParameterKey": "OriginHostname",
+    "ParameterValue": "origin.moodfit.8949db.kr"
+  }
+]

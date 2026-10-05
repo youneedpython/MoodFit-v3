@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Staging monthly USD 300 cost alert; no automatic resource actions"
+Description: "Environment monthly USD 300 cost alert; no automatic resource actions"
 Parameters:
   Environment:
     Type: String
-    AllowedValues: [staging]
+    AllowedValues: [staging, production]
     Default: staging
   NotificationEmail:
     Type: String
