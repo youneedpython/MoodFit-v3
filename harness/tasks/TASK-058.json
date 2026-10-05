@@ -1,0 +1,50 @@
+{
+  "id": "TASK-058",
+  "title": "Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로)",
+  "task_file": "docs/tasks/TASK-058_FEEDBACK_ICONS.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/",
+    "docs/03-UX_UI_SPEC.md",
+    "docs/20-RECOMMENDATION-MUSIC-PLAYBACK.md"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}
