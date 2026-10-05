@@ -15,11 +15,18 @@ type RecommendationCardsProps = {
 function FeedbackButtons({ feedback, kind, item, label }: { feedback?: FeedbackControls; kind: FeedbackKind; item: string; label: string }) {
   if (!feedback?.data?.enabled) return null;
   const current = feedback.data.items.find(value => value.kind === kind && value.item === item)?.rating;
-  return <div className="recommendation-feedback">
+  return <div className="recommendation-feedback" role="group" aria-label={`${label} 평가`}>
     {(["LIKE", "DISLIKE"] as const).map(rating => <button type="button" key={rating}
       aria-label={`${label} ${rating === "LIKE" ? "좋아요" : "별로예요"}`} aria-pressed={current === rating}
+      title={rating === "LIKE" ? "좋아요" : "별로예요"}
       disabled={feedback.pending.includes(`${kind}:${item}`)} onClick={() => void feedback.toggle(kind, item, rating)}>
-      <span aria-hidden="true">{rating === "LIKE" ? "👍" : "👎"}</span> {rating === "LIKE" ? "좋아요" : "별로예요"}
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+        fill={current === rating ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5"
+        strokeLinecap="round" strokeLinejoin="round">
+        <g transform={rating === "DISLIKE" ? "rotate(180 12 12)" : undefined}>
+          <path d="M8 10v11H4V10zM8 10l5-7c1-1 3 0 3 2l-1 5h4c2 0 2 1 2 2l-2 7c0 1-1 2-2 2H8" />
+        </g>
+      </svg>
     </button>)}
   </div>;
 }
@@ -34,11 +41,13 @@ function MusicTrack({ track, feedback }: { track: MusicRecommendation; feedback?
     <li className="recommendation-item">
       <div className="recommendation-item__header">
         <h3 className="recommendation-item__name">{track.title}</h3>
-        <Badge tone="accent">{track.tag}</Badge>
+        <div className="recommendation-item__actions">
+          <Badge tone="accent">{track.tag}</Badge>
+          {videoId && <FeedbackButtons feedback={feedback} kind="MUSIC" item={videoId} label={track.title} />}
+        </div>
       </div>
       <p className="recommendation-item__artist">{track.artist}</p>
       <p className="recommendation-item__reason">{track.reason}</p>
-      {videoId && <FeedbackButtons feedback={feedback} kind="MUSIC" item={videoId} label={track.title} />}
       {videoId && (
         <div className="music-playback">
           {playing ? (
@@ -84,10 +93,12 @@ export function RecommendationCards({ foods, music, feedback }: RecommendationCa
                   <span className="recommendation-item__emoji" aria-hidden="true">{foodEmoji(food.name)}</span>
                   <span>{food.name}</span>
                 </h3>
-                <Badge tone="info">{food.tag}</Badge>
+                <div className="recommendation-item__actions">
+                  <Badge tone="info">{food.tag}</Badge>
+                  <FeedbackButtons feedback={feedback} kind="FOOD" item={food.name} label={food.name} />
+                </div>
               </div>
               <p className="recommendation-item__reason">{food.reason}</p>
-              <FeedbackButtons feedback={feedback} kind="FOOD" item={food.name} label={food.name} />
             </li>
           ))}
         </ul>

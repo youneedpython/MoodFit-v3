@@ -109,6 +109,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-055 | Milestone 55 | Recommendation Feedback (추천 피드백) | DONE | TASK-042, TASK-048, TASK-054 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-056 | Milestone 56 | Personal Baseline (개인별 Baseline / 신체 긴장도) | DONE | TASK-042, TASK-045, TASK-048, TASK-055 | Human Approved 2026-10-05, Gate B B안 / 체험 계정 적용, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-057 | Milestone 57 | Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리) | DONE | TASK-054 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-058 | Milestone 58 | Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로) | DONE | TASK-055 | Human 명시 실행 지시 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-059 | Milestone 59 | Weather Card Layout (Check-in 날씨 영역 배치) | DONE | TASK-040, TASK-044 | Human 명시 실행 승인 (2026-10-05), Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
@@ -2015,6 +2016,14 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 공통 Button의 secondary / primary Variant를 사용하고 진행 중 취소 / Esc 닫기를 막는다. 초점 가두기와 aria-modal / aria-busy를 유지하고 실패 뒤 취소 기본 초점과 닫기를 복원한다.
 - 메뉴 순서 / 초점 / 체험 계정, 새 이름 / 완료 안내 / 요청 1회, 진행 중 닫기 차단 / 실패 뒤 복원 Test를 보완했다. 자체 Verify는 npm 캐시 stat EPERM으로 설치에서 중단되어 Test / tsc / Build를 실행하지 못했다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
 - 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 화면 캡처와 Merge 후 Staging 메뉴 / 확인 창 확인이 남는다.
+## TASK-058 — Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로)
+
+- 상태: DONE (Executor 구현 완료), Milestone 58. Dependency: TASK-055.
+- 승인: 2026-10-05 Human 명시 실행 지시와 TASK-058 Contract. 해당 Task만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task 상태와 Current Task는 유지한다.
+- Dashboard / 결과 공통 추천의 이름 줄 오른쪽에 Badge와 평가 묶음을 배치했다. 글자 없는 Inline SVG, 알약 테두리 / 구분선, 눌림 시 채움과 강조 색, 기존 44px 터치 / 초점 Token을 적용했다.
+- 접근성 이름 / 그룹 / title과 기존 Toggle / 실패 복구 / 안내 / 음악 재생을 유지하며 DOM 위치와 SVG / 저장 중 비활성화 Test를 보완했다.
+- 자체 Verify는 npm 캐시 접근 EPERM으로 설치 단계에서 중단됐다. Test / 타입 검사 / Build는 실행하지 못했으며 Sandbox 밖 Orchestrator Verify가 기준이다. DONE은 검증 성공이나 최종 완료 승인이 아니다.
+- Claude 세션의 390 / 768 / 1280px 캡처 확인, Remote CI / Human Squash Merge와 Merge 뒤 Staging 화면 확인이 남는다.
 ## TASK-059 — Weather Card Layout (Check-in 날씨 영역 배치)
 
 - 상태: DONE (Executor 구현 완료), Milestone 59. Dependency: TASK-040 / TASK-044.
