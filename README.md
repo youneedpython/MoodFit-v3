@@ -1,66 +1,108 @@
 # MoodFit v3
 
-최근 14일 기록 5건 이상이면 평소 값과 비교한 차이와 신체 긴장도를 보여 줍니다. 점수는 유지하며 긴장도가 높을 때 차분한 추천을 제공합니다. [개인별 Baseline 안내](docs/26-PERSONAL-BASELINE.md)를 참고하세요.
-
-소셜 로그인 후 음식 / 음악에 좋아요 · 별로예요를 남기면 다음 Check-in 추천에 반영됩니다. 추천은 기존 규칙이 결정하며 현재 기록은 유지합니다.
-
-[개인정보 처리 안내](docs/25-PRIVACY.md) — 처리 정보, 외부 전달, 암호화·보관 기간과 계정 삭제 방법을 안내합니다. 공개 화면은 `/privacy`입니다.
-
-Google / Kakao 소셜 로그인과 "로그인 없이 둘러보기" 체험 계정을 제공합니다. 개인 Check-in은 로그인 사용자별로 분리하며 체험 기록은 모든 방문자가 공유합니다. 이메일이나 프로필 사진은 저장하지 않고 닉네임 첫 글자로 아바타를 표시합니다. 제공자 값이 없는 환경에서는 체험 로그인만 제공하며 실제 OAuth 설정은 TASK-043에서 진행합니다. [로그인 / Session 안내](docs/22-AUTH.md)를 참고하세요.
-
 <img src="frontend/public/favicon.svg" alt="MoodFit 로고" width="64" height="64" />
 
 [![CI](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml/badge.svg)](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml)
 
 **신체 리듬과 날씨로 오늘의 컨디션을 읽고, 어울리는 음식과 음악을 추천하는 웰니스 웹 서비스**
 
-수면, 스트레스, 에너지 같은 오늘의 상태와 기온·날씨를 입력하면
-MoodFit이 Wellness Score와 Mood를 계산하고, 그날의 상황에 맞는 음식 2개와 음악 2개를 추천합니다.
-기록은 저장되어 최근 7일의 컨디션 흐름을 그래프로 확인할 수 있습니다.
+수면, 스트레스, 에너지 같은 오늘의 상태를 입력하면 MoodFit이 Wellness Score와 Mood를 계산하고,
+현재 위치의 날씨에 맞춰 음식 5개와 음악 5곡을 추천합니다.
+기록이 쌓이면 나의 평소 값과 비교해 신체 긴장도를 알려 주고, AI가 오늘의 코멘트와 주간 리포트를 써 줍니다.
 
 ![MoodFit Dashboard](docs/images/readme/dashboard.png)
 
 > MoodFit의 분석 기준은 교육용 Product Heuristic이며, 의학적 진단이나 치료 목적이 아닙니다.
 
+| | |
+|---|---|
+| 화면 | Dashboard, Daily Check-in, History, 로그인, 개인정보 처리 안내 |
+| 로그인 | Google / Kakao 소셜 로그인, 로그인 없이 둘러보는 체험 계정 |
+| 분석 | 규칙 기반 Wellness Score / Mood, 개인별 평소 값 비교(신체 긴장도) |
+| 추천 | 음식 5개 + 음악 5곡(YouTube 재생), 좋아요 / 별로예요 반영 |
+| AI | Claude(Amazon Bedrock)가 쓰는 AI 코멘트와 주간 리포트 |
+| 배포 | AWS(ECS Fargate, RDS, CloudFront) + GitHub Actions CI / CD |
+
 ---
 
 ## 주요 기능
 
-### 1. Daily Check-in — 오늘의 상태 입력
+### 1. 로그인
 
-날씨는 자동 조회가 기본이며 Check-in에 지역 · 날씨 · 기온을 표시합니다. Open-Meteo 날씨와 BigDataCloud 지역 이름 조회에 같은 소수 둘째 자리 좌표를 사용합니다. 직접 입력으로 바꾸면 조회된 값을 고칠 수 있고, 기존 직접 입력 설정은 유지합니다. 실패 시 직접 입력을 제공하며 좌표는 저장하거나 Backend로 보내지 않습니다. [동작과 개인정보 처리](docs/19-LOCATION-WEATHER.md)를 참고하세요.
+Google / Kakao 계정으로 로그인하면 기록이 사용자별로 분리됩니다. "로그인 없이 둘러보기"를 누르면 체험 계정으로 바로 써 볼 수 있습니다.
 
-자동 조회로 얻은 지역 이름만 기록과 함께 저장하여 Dashboard · History · Check-in 결과에서 날씨와 함께 보여 줍니다.
+- 제공자의 사용자 번호와 닉네임만 저장합니다. 이메일과 프로필 사진은 받지 않고, 닉네임 첫 글자로 아바타를 표시합니다.
+- 체험 계정의 기록은 모든 방문자가 함께 봅니다.
+- 아바타 메뉴에서 로그아웃하거나 계정과 기록을 모두 삭제할 수 있습니다.
+- 자세한 내용: [로그인 / Session 안내](docs/22-AUTH.md), [개인정보 처리 안내](docs/25-PRIVACY.md) (화면은 `/privacy`)
 
-신체 리듬(심박수, 호흡수), 컨디션(수면 점수, 스트레스, 에너지), 날씨(기온, 날씨 상태)를 입력합니다.
-입력 범위를 화면에서 먼저 확인하고, 서버 검증 결과도 해당 입력칸 옆에 표시합니다.
+![로그인](docs/images/readme/login.png)
+
+### 2. Daily Check-in — 오늘의 상태 입력
+
+신체 리듬(심박수, 호흡수)과 컨디션(수면 점수, 스트레스, 에너지)을 입력합니다.
+날씨는 현재 위치로 자동 조회하며, 원하면 직접 입력으로 바꿔 고칠 수 있습니다.
+
+- 날씨는 Open-Meteo, 지역 이름은 BigDataCloud에서 조회합니다.
+- 좌표는 소수 둘째 자리로 반올림해 조회에만 쓰고 저장하지 않습니다. 지역 이름만 기록과 함께 저장합니다.
+- 위치 권한이 없거나 조회에 실패하면 직접 입력으로 넘어갑니다.
+- 자세한 내용: [위치 / 날씨 안내](docs/19-LOCATION-WEATHER.md)
 
 ![Daily Check-in 입력](docs/images/readme/checkin-form.png)
 
-저장하면 바로 분석 결과를 보여 줍니다.
+저장하면 바로 분석 결과와 추천을 보여 줍니다.
 
 ![Check-in 분석 결과](docs/images/readme/checkin-result.png)
 
-### 2. Dashboard — 지금 컨디션 한눈에 보기
+### 3. Dashboard — 지금 컨디션 한눈에 보기
 
 가장 최근 기록을 기준으로 다음을 보여 줍니다.
 
-- Mood와 Wellness Score, 상태 요약 문장
-- 날씨와 기온
-- 5가지 Body Metric
-- 음식 Emoji를 곁들인 추천 음식 5개, 실제 곡 추천 5개와 추천 이유
-- 이용 가능한 소셜 계정의 AI 코멘트 자동 생성과 실패 후 수동 재시도
-- 음악 카드에서 바로 듣기와 YouTube에서 열기 (재생 클릭 전에는 외부 Player를 불러오지 않음)
+- Mood, Wellness Score, 상태 요약 문장, 날씨와 지역
+- 5가지 Body Metric과 평소 대비 차이, 신체 긴장도
+- AI 코멘트
+- 추천 음식 5개와 추천 음악 5곡, 추천마다 좋아요 / 별로예요
 
 기록이 없으면 Check-in으로 안내하는 Empty State를 보여 줍니다.
 
-### 3. History / Trend — 최근 7일 흐름
+### 4. 개인별 평소 값과 신체 긴장도
 
-최근 7일의 Wellness Score 변화를 그래프로 보여 주고, 기록별 Mood, 지표, 날씨, 추천 이력을 최신순으로 한 페이지에 5개씩 보여 줍니다.
+같은 심박수라도 사람마다 평소 값이 다릅니다. 최근 14일 기록이 5건 이상 쌓이면 그 평균을 "평소 값"으로 삼아 오늘 값과 비교합니다.
+
+| 신체 긴장도 | 기준 |
+|---|---|
+| 높음 | 심박수가 평소보다 15% 이상, 또는 호흡수가 20% 이상 높음 |
+| 안정 | 두 값 모두 평소 대비 10% 이하 증가 |
+| 보통 | 나머지 |
+
+- 긴장도가 높으면 기분 판정과 추천을 차분한 쪽으로 조정합니다. Wellness Score는 바꾸지 않습니다.
+- 체험 계정은 모든 방문자 기록의 평균과 비교하며, 화면에 그 사실을 안내합니다.
+- 자세한 내용: [개인별 Baseline 안내](docs/26-PERSONAL-BASELINE.md)
+
+### 5. 추천 음식 / 음악과 평가
+
+- 음식 5개, 음악 5곡을 추천합니다. Mood 기준 3개와 날씨 기준 2개로 구성하고, 날짜에 따라 후보를 돌려 가며 고릅니다.
+- 음악은 카드에서 바로 들을 수 있습니다. 재생 버튼을 누르기 전에는 YouTube Player를 불러오지 않습니다.
+- 소셜 로그인 사용자가 좋아요 / 별로예요를 남기면 다음 Check-in의 추천에 반영됩니다. 별로예요 항목은 건너뛰고, 좋아요 항목은 앞자리에 둡니다.
+- 자세한 내용: [추천 음악 안내](docs/20-RECOMMENDATION-MUSIC-PLAYBACK.md)
+
+### 6. AI 코멘트와 주간 리포트
+
+Score와 추천은 규칙이 결정하고, AI는 그 결과를 읽기 쉬운 문장으로 풀어 줍니다.
+
+- AI 코멘트: Check-in을 저장하면 자동으로 생성됩니다.
+- 주간 리포트: History에서 최근 7일의 흐름을 요약합니다.
+- Amazon Bedrock의 Claude Sonnet 5.5를 사용합니다. 이름과 지역 같은 식별 정보는 모델에 보내지 않습니다.
+- 소셜 로그인 사용자만 쓸 수 있고 하루 생성 횟수에 제한이 있습니다. 생성에 실패해도 규칙이 만든 요약 문장은 그대로 보입니다.
+- 자세한 내용: [LLM Insight](docs/23-LLM-INSIGHT.md)
+
+### 7. History / Trend — 최근 7일 흐름
+
+최근 7일의 Wellness Score 변화를 그래프로 보여 주고, 기록별 Mood, 신체 긴장도, 지표, 날씨와 지역, 추천 이력을 최신순으로 한 페이지에 5개씩 보여 줍니다.
 
 ![History / Trend](docs/images/readme/history.png)
 
-### 4. 모바일 화면
+### 8. 모바일 화면
 
 모든 화면은 390px(모바일)부터 데스크톱까지 같은 기능을 제공합니다.
 
@@ -74,19 +116,20 @@ MoodFit이 Wellness Score와 Mood를 계산하고, 그날의 상황에 맞는 �
 
 ## 분석과 추천은 어떻게 동작하나요?
 
-외부 AI나 외부 API 없이 정해진 Rule로 계산합니다. 같은 입력에는 항상 같은 결과가 나옵니다.
+Score, Mood, 추천은 정해진 Rule로 계산합니다. 같은 날 같은 입력과 같은 평가에는 항상 같은 결과가 나옵니다. AI는 판정에 관여하지 않고 설명 문장만 씁니다.
 
 | 단계 | 기준 |
 |---|---|
 | Wellness Score | 수면 35% + 스트레스(낮을수록 좋음) 35% + 에너지 30%의 가중 평균 (0 ~ 100) |
 | Mood | 피곤함 → 활기 있음 → 차분함 → 균형 있음 순서로 조건을 확인해 결정 |
+| 신체 긴장도 | 최근 14일 평균 대비 심박수 / 호흡수 증가율 (기록 5건 이상일 때) |
 | 날씨 Context | 5°C 이하는 추위, 30°C 이상은 더위, 그 외에는 날씨 상태(맑음 / 흐림 / 비 / 눈) |
-| 추천 | 새 기록의 음식·음악 각각 5개: Mood 기반 3개, 날씨 Context 기반 2개. 기존 기록은 저장된 추천을 유지 |
+| 추천 | 음식·음악 각각 5개: Mood 기반 3개, 날씨 Context 기반 2개. 날짜별 순환과 개인 평가를 반영 |
 | 요약 문장 | Mood와 날씨 Context 문장을 조합한 Template |
 
-- 심박수와 호흡수는 점수에 반영하지 않고 화면에 표시만 합니다.
+- 심박수와 호흡수는 점수에 반영하지 않고, 평소 값 비교(신체 긴장도)에만 사용합니다.
 - 날씨와 기온은 점수에 반영하지 않고 추천과 요약에만 사용합니다.
-- 실제 곡은 승인된 YouTube 영상 목록을 사용합니다. 재생 버튼을 누르면 YouTube 내장 Player가 연결되며 외부 서비스로 요청이 나갑니다. 영상이 재생되지 않으면 카드의 YouTube 링크를 이용할 수 있습니다. [추천 음악 안내](docs/20-RECOMMENDATION-MUSIC-PLAYBACK.md)
+- 저장된 기록의 추천과 긴장도는 나중에 다시 계산하지 않습니다.
 - 상세 기준과 경계값은 [DEC-014](docs/09-DECISIONS.md)와 [Wellness Rule 제안서](docs/10-WELLNESS-RULE-PROPOSAL.md)에 있습니다.
 
 ---
@@ -95,26 +138,53 @@ MoodFit이 Wellness Score와 Mood를 계산하고, 그날의 상황에 맞는 �
 
 ```text
 Browser ── React (Vite) ──▶ /api ──▶ Spring Boot ──▶ MySQL
-            Dashboard / Check-in / History      Check-in API      Flyway Schema
+                                        │
+                                        ├─▶ Google / Kakao (OAuth 로그인)
+                                        └─▶ Amazon Bedrock (AI 코멘트 / 주간 리포트)
+Browser ──▶ Open-Meteo / BigDataCloud (날씨 / 지역 이름), YouTube (재생)
 ```
 
 | API | 설명 |
 |---|---|
+| `GET /api/auth/me` | 로그인 상태, 사용할 수 있는 로그인 방법 |
+| `POST /api/auth/guest` · `POST /api/auth/logout` | 체험 계정 로그인, 로그아웃 |
+| `DELETE /api/auth/account` | 계정과 기록 삭제 |
 | `POST /api/check-ins` | Check-in 저장, 분석 / 추천 결과 반환 |
 | `GET /api/check-ins/latest` | 최신 Check-in 조회 (없으면 `404 CHECKIN_NOT_FOUND`) |
 | `GET /api/check-ins/history?days=7` | 최근 `days`일(1 ~ 30) 기록 조회 |
+| `GET` · `POST /api/check-ins/{id}/insight` | AI 코멘트 조회 / 생성 |
+| `GET` · `POST /api/reports/weekly` | 주간 리포트 조회 / 생성 |
+| `GET` · `PUT /api/recommendations/feedback` | 추천 평가 조회 / 저장 |
 
+모든 기록은 로그인한 사용자 것만 읽고 씁니다. 변경 요청은 CSRF 값을 확인합니다.
 API 형식은 [API 명세](docs/05-API_SPEC.md)와 계약 파일 [`contracts/`](contracts/)에 정의되어 있습니다.
+
+## AWS 배포
+
+Infrastructure는 CloudFormation으로 정의하고, `main`에 Merge되면 GitHub Actions가 CI를 거쳐 자동으로 배포합니다.
+
+![AWS Architecture](docs/images/readme/aws-architecture.png)
+
+- **화면**: 비공개 S3에 올린 Build를 CloudFront가 HTTPS로 제공합니다.
+- **API**: CloudFront가 `/api` 요청만 Application Load Balancer로 넘기고, 두 가용 영역의 ECS Fargate Task가 처리합니다.
+- **Database**: Private Subnet의 RDS MySQL(Multi-AZ)이며 외부에서 직접 접근할 수 없습니다.
+- **값 관리**: DB 접속 정보와 OAuth 값은 Secrets Manager에 두고 Task가 실행될 때 주입합니다. 저장소에는 넣지 않습니다.
+- **AI**: Amazon Bedrock은 별도 계정의 Role을 임시 자격 증명으로 빌려 호출합니다(그림에는 없음).
+- **배포**: GitHub Actions가 OIDC 임시 자격 증명으로 Image Push → ECS 교체 → 화면 Upload → Smoke Test를 수행합니다. 저장된 Access Key가 없습니다. 문서만 바뀐 Commit은 배포를 건너뜁니다.
+
+자세한 내용은 [AWS Architecture](docs/13-AWS-ARCHITECTURE.md), [Staging 배포 Runbook](docs/18-STAGING-DEPLOYMENT-RUNBOOK.md), [Staging CD](docs/21-STAGING-CD.md)를 참고합니다.
 
 ## 기술 스택
 
 | 영역 | 기술 |
 |---|---|
 | Frontend | React 19, TypeScript 6, Vite 8, React Router 8 |
-| Backend | Java 21, Spring Boot 4.1, Spring Data JPA, Bean Validation |
+| Backend | Java 21, Spring Boot 4.1, Spring Data JPA, Spring Security(OAuth2 Client), Spring Session JDBC |
 | Database | MySQL 8.4 (`mysql:8.4.11` 검증 기준), Flyway |
+| AI | Amazon Bedrock (Claude Sonnet 5.5), Anthropic Java SDK |
+| Infrastructure | AWS CloudFormation, ECS Fargate, RDS, CloudFront, S3, ALB, Secrets Manager |
 | Test | Vitest, React Testing Library, JUnit, MockMvc, Testcontainers |
-| CI | GitHub Actions |
+| CI / CD | GitHub Actions (OIDC) |
 
 정확한 Version은 [DEC-015](docs/09-DECISIONS.md)를 따릅니다. (Node.js `24.21.0`, Gradle Wrapper `9.8.0`)
 
@@ -125,11 +195,12 @@ Release와 Version 규칙은 [Releases](https://github.com/youneedpython/MoodFit
 | 검증 | 내용 |
 |---|---|
 | Frontend Test | 화면 / 입력 검증 / API Client / 날짜 표시(Timezone 고정) |
-| Backend Test | API Validation, Wellness Rule 경계값, Repository |
-| DB 연동 테스트 | Testcontainers로 실제 MySQL에서 Schema / 저장 / 조회 검증 |
+| Backend Test | API Validation, Wellness Rule 경계값, 사용자별 분리, 로그인 / 삭제 |
+| DB 연동 테스트 | Testcontainers로 실제 MySQL에서 Schema / Migration / 저장 / 조회 검증 |
 | API 계약 테스트 | Backend 응답, Frontend Type, API 명세 예시가 `contracts/`와 같은지 검증 |
+| Container Smoke Test | 배포용 Image를 띄워 로그인, Check-in, DB 장애 시 동작을 확인 |
 | Local Verification | `scripts/verify.ps1` / `scripts/verify.sh`로 CI와 같은 순서(설치 → Test → Build) 실행 |
-| CI | Push / Pull Request마다 Frontend / Backend Test·Build, 결과를 Step Summary로 기록 |
+| CI / CD | Push / Pull Request마다 Test·Build, `main` 배포 뒤 Staging Smoke Test |
 
 ---
 
@@ -169,6 +240,7 @@ READY → IN_PROGRESS → 구현 → Local Verification → Commit / Push → Re
 ```
 
 - Task가 DONE이 되면 GitHub Actions(`Sync Milestones`)가 해당 GitHub Milestone을 자동으로 닫습니다.
+- 실행(Codex) → 범위 / 비밀 값 검사 → 검증 → 검토(Claude) → Draft PR까지는 Orchestrator(`scripts/orchestrator/`)가 순서대로 진행하고, Merge는 사람이 합니다. [Orchestrator 설계](docs/12-ORCHESTRATOR-DESIGN.md)
 - Agent에게 준 실제 Prompt는 [prompts/](prompts/README.md)에 순서대로 남겨, 어떤 지시로 어떤 결과가 나왔는지 추적할 수 있습니다.
 - 진행 내역과 Task별 상세 기록은 [07-TASKS](docs/07-TASKS.md)와 [08-WORK_LOG](docs/08-WORK_LOG.md)를 참고합니다.
 
@@ -214,6 +286,8 @@ set -a; source .env.local; set +a
 cd backend && ./gradlew bootRun   # http://localhost:8080 (Flyway가 Table 자동 생성)
 ```
 
+OAuth 값을 설정하지 않으면 로그인 화면에 "로그인 없이 둘러보기"(체험 계정)만 보입니다. AI 코멘트는 기본값이 꺼짐입니다. 설정 방법은 [로그인 안내](docs/22-AUTH.md)와 [LLM 환경 안내](docs/24-LLM-INFRA.md)를 참고합니다.
+
 ### 3. Frontend 실행
 
 ```bash
@@ -243,20 +317,21 @@ MoodFit-v3/
 │   └── src/
 │       ├── app/         Router, Layout
 │       ├── components/  공통 UI Component
-│       ├── features/    checkin / dashboard / history
+│       ├── features/    auth / checkin / dashboard / history / insight / privacy
 │       ├── services/    API Client
 │       └── contracts/   API 계약 Type 검사
 ├── backend/             Spring Boot
 │   └── src/main/java/com/moodfit/
 │       ├── controller/  REST API
-│       ├── service/     Wellness Rule, Check-in 처리
+│       ├── service/     Wellness Rule, 개인별 Baseline, Check-in 처리
+│       ├── auth/  insight/  로그인 / AI 코멘트
 │       ├── entity/  repository/  dto/  exception/  config/
 ├── contracts/           API 계약 파일 (Frontend / Backend 공유)
 ├── docs/                명세, 계획, Task, Work Log, 결정 기록
 ├── prompts/             Agent Prompt 기록
-├── scripts/             Local Verification, Milestone 생성 도구
-├── .github/workflows/   CI, Milestone 자동 Close
+├── infra/cloudformation/  AWS Stack Template
+├── harness/             Task Contract (허용 경로, 검증 명령)
+├── scripts/             Local Verification, Orchestrator, 배포 / Smoke Test 도구
+├── .github/workflows/   CI, Staging 배포, Milestone 자동 Close
 └── AGENTS.md            Agent 작업 규칙
 ```
-
-AI 맞춤 코멘트와 최근 7일 주간 리포트는 기존 규칙의 Score·상태·추천을 참고 문장으로 설명합니다. 기능이 설정된 경우에만 소셜 로그인 사용자가 생성할 수 있으며, 결과를 저장해 재조회하고 실패 시 기존 규칙 문장을 유지합니다. 이름과 지역 같은 식별 정보는 모델에 보내지 않으며 의학적 조언을 제공하지 않습니다. 기본값은 꺼짐이고 실제 Bedrock 환경 연결은 TASK-046에서 진행합니다. 자세한 정책은 [LLM Insight](docs/23-LLM-INSIGHT.md)를 참고하세요.
