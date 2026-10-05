@@ -122,6 +122,7 @@ TASK-001 ~ TASK-029, TASK-032 ~ TASK-065는 DONE이다(모두 PR Squash Merge와
 | TASK-067 | Milestone 67 | CI Path Filter (바뀐 경로에 따라 필요한 CI Job만 실행) | DONE | TASK-022, TASK-050 | Human 지시 2026-10-05, Gate C |
 | TASK-068 | Milestone 68 | Guest Feedback (체험 계정의 추천 평가) | DONE | TASK-055, TASK-058 | Human 지시 2026-10-05, Gate B |
 | TASK-069 | Milestone 69 | Dashboard Today State (오늘 기록 여부에 따른 Dashboard / AI 코멘트 강조) | DONE | TASK-056, TASK-061, TASK-063 | Human 지시 2026-10-05, Gate B |
+| TASK-070 | Milestone 70 | Today Weather Recommendation (오늘 날씨에 맞는 추천) | DONE | TASK-069, TASK-040, TASK-048, TASK-055, TASK-068 | Human 지시 2026-10-05, Gate B / Gate C |
 
 ---
 
@@ -2820,6 +2821,38 @@ Milestone 69. 선행: TASK-056, TASK-061, TASK-063.
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-069_DASHBOARD_TODAY_STATE.md`](tasks/TASK-069_DASHBOARD_TODAY_STATE.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-070 — Today Weather Recommendation (오늘 날씨에 맞는 추천)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 70. 선행: TASK-069, TASK-040, TASK-048, TASK-055, TASK-068.
+
+- 로그인 필요 읽기 API에서 기존 상황 Pool / 날짜 순환 / 평가 코드로 음식 2개와 음악 2곡을 반환한다. 기분 / Score 계산과 날씨 / 추천 저장은 하지 않는다.
+- 오늘 기록이 없는 Dashboard에 버튼 요청 방식의 날씨 추천과 취소 / 재시도 / 공유 평가 / 기존 추천 Card·재생을 연결했다. 계약 / Smoke / Test / 개인정보·UX·API 문서를 갱신했다.
+
+### 목적
+
+오늘 상태를 아직 입력하지 않은 날에도 Dashboard가 쓸모 있게 한다. 현재 위치의 오늘 날씨만으로 어울리는 음식 2개와 음악 2곡을 추천한다. TASK-069(1단계)에 이은 2단계다.
+
+### Human Approval 또는 Gate
+
+- Human 2026-10-05 “1단계 → 2단계 모두 진행”, Gate B / Gate C, 승인된 Run 2 Contract와 명시 실행 지시(DEC-048).
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 처음 상태 / 결과 / 위치 거부 / API 실패를 390 / 768 / 1280px로 캡처해 확인한다.
+- Merge 뒤 Staging에서 체험 계정으로 실제 위치의 날씨 추천이 나오는지 확인한다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-070_TODAY_WEATHER_RECOMMENDATION.md`](tasks/TASK-070_TODAY_WEATHER_RECOMMENDATION.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 

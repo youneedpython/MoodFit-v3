@@ -19,7 +19,7 @@ export function PrivacyPage() {
         <tr><th scope="row">접속 기록</th><td>서비스 운영을 위해 IP 주소 등이 포함된 Load Balancer 접속 로그와 Application 로그를 30일 보관합니다.</td></tr>
       </tbody></table>
     </section>
-    <section><h2>저장하지 않는 정보</h2><p>위도 / 경도는 브라우저에서 날씨와 지역 이름 조회에만 사용합니다. 좌표를 저장하거나 MoodFit 서버로 보내지 않습니다.</p></section>
+    <section><h2>저장하지 않는 정보</h2><p>위도 / 경도는 브라우저에서 날씨와 지역 이름 조회에만 사용합니다. 좌표를 저장하거나 MoodFit 서버로 보내지 않습니다. Dashboard의 '오늘 날씨로 추천 받기'를 눌렀을 때도 같은 방식으로 조회합니다. 이때 서버에는 기온과 날씨 상태만 보내며 조회한 날씨와 추천은 저장하지 않습니다.</p></section>
     <section><h2>외부 서비스로 나가는 정보</h2>
       <table><thead><tr><th scope="col">받는 곳</th><th scope="col">전달 내용과 시점</th></tr></thead><tbody>
         <tr><th scope="row">Google / Kakao</th><td>로그인 요청을 서버와 브라우저에서 전달하며 사용자가 제공자 서비스에서 직접 인증합니다.</td></tr>

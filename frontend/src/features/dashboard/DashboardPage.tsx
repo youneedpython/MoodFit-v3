@@ -11,6 +11,7 @@ import { useLatestCheckin } from "./useLatestCheckin";
 import { WellnessHero } from "./WellnessHero";
 import "./DashboardPage.css";
 import { useRecommendationFeedback } from "./useRecommendationFeedback";
+import { TodayWeatherRecommendations } from "./TodayWeatherRecommendations";
 
 /** DASH-001 Dashboard. 최신 Check-in 결과와 추천을 표시한다. */
 export function DashboardPage() {
@@ -52,13 +53,16 @@ export function DashboardPage() {
       )}
 
       {state.status === "empty" && (
-        <Card>
-          <EmptyState
-            title="아직 Check-in 기록이 없습니다."
-            message="오늘의 상태를 입력하면 분석 결과와 음식 · 음악 추천을 확인할 수 있습니다."
-            action={<ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>}
-          />
-        </Card>
+        <div className="dashboard">
+          <Card>
+            <EmptyState
+              title="아직 Check-in 기록이 없습니다."
+              message="오늘의 상태를 입력하면 분석 결과와 음식 · 음악 추천을 확인할 수 있습니다."
+              action={<ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>}
+            />
+          </Card>
+          <TodayWeatherRecommendations feedback={feedback} />
+        </div>
       )}
 
       {state.status === "ready" && (
@@ -80,6 +84,7 @@ export function DashboardPage() {
               </dl>
               <p>기록 {state.checkin.baseline.sampleCount}건의 평균입니다. 오늘 상태를 추정한 값이 아닙니다.</p>
             </Card>}
+            <TodayWeatherRecommendations feedback={feedback} />
             <section className="dashboard dashboard-last-record" aria-labelledby="last-record-title">
               <h2 id="last-record-title">마지막 기록 · {days === 1 ? "어제" : `${days}일 전`} ({formatDisplayDateTime(state.checkin.recordedAt)})</h2>
               {content}

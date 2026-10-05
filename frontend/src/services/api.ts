@@ -7,6 +7,11 @@ import type {
 
 const API_BASE = "/api";
 
+export function getTodayRecommendations(temperature: number, weather: import("../types/api").WeatherCondition, signal: AbortSignal) {
+  const query = new URLSearchParams({ temperature: String(temperature), weather });
+  return request<import("../types/api").TodayRecommendationResponse>(`/recommendations/today?${query}`, { signal });
+}
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;

@@ -2,6 +2,8 @@
 
 Dashboard는 서울 날짜 기준 오늘 기록 여부를 구분합니다. 오늘 미입력이면 입력 안내를 먼저 표시하고 저장된 평균과 마지막 기록을 구분하며, 지난 기록의 AI 코멘트는 자동 생성하지 않습니다.
 
+오늘 기록이 없으면 “오늘 날씨로 추천 받기”를 눌러 음식 2개와 음악 2곡을 볼 수 있습니다. 버튼을 누를 때만 위치를 조회하며 날씨와 추천은 저장하지 않습니다. 오늘 상태를 입력하면 기분까지 반영한 추천을 볼 수 있습니다.
+
 <img src="frontend/public/favicon.svg" alt="MoodFit 로고" width="64" height="64" />
 
 [![CI](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml/badge.svg)](https://github.com/youneedpython/MoodFit-v3/actions/workflows/ci.yml)
@@ -159,6 +161,7 @@ Browser ──▶ Open-Meteo / BigDataCloud (날씨 / 지역 이름), YouTube (�
 | `GET` · `POST /api/check-ins/{id}/insight` | AI 코멘트 조회 / 생성 |
 | `GET` · `POST /api/reports/weekly` | 주간 리포트 조회 / 생성 |
 | `GET` · `PUT /api/recommendations/feedback` | 추천 평가 조회 / 저장 |
+| `GET /api/recommendations/today?temperature=19.0&weather=RAIN` | 로그인 후 날씨 기준 음식 2개 / 음악 2곡 조회 (저장 없음) |
 
 모든 기록은 로그인한 사용자 것만 읽고 씁니다. 변경 요청은 CSRF 값을 확인합니다.
 API 형식은 [API 명세](docs/05-API_SPEC.md)와 계약 파일 [`contracts/`](contracts/)에 정의되어 있습니다.

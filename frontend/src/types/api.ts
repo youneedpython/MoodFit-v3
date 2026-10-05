@@ -108,3 +108,8 @@ export type FeedbackKind = "FOOD" | "MUSIC";
 export type FeedbackRating = "LIKE" | "DISLIKE";
 export type FeedbackItem = { kind: FeedbackKind; item: string; rating: FeedbackRating };
 export type FeedbackResponse = { enabled: boolean; shared?: boolean; items: FeedbackItem[] };
+export type TodayRecommendationResponse = {
+  context: { code: "COLD" | "HOT" | "CLEAR" | "CLOUDY" | "RAIN" | "SNOW"; label: string };
+  foods: FoodRecommendation[];
+  music: MusicRecommendation[];
+};

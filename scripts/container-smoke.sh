@@ -131,6 +131,8 @@ mkdir -m 700 "$auth_dir"
 base=http://127.0.0.1:8080
 code=$(curl --silent --output /dev/null --write-out '%{http_code}' "$base/api/check-ins/latest")
 [ "$code" = 401 ]
+code=$(curl --silent --output /dev/null --write-out '%{http_code}' "$base/api/recommendations/today?temperature=19.0&weather=RAIN")
+[ "$code" = 401 ]
 curl --silent --fail --cookie-jar "$auth_dir/cookies" "$base/api/auth/me" > "$auth_dir/me"
 headers() {
   awk -F '\t' -v name='X-XSRF-TOKEN' '$6 == "XSRF-TOKEN" { print "header = \"" name ": " $7 "\"" }' "$auth_dir/cookies" > "$auth_dir/headers"
@@ -148,10 +150,12 @@ cmp "$auth_dir/create" "$auth_dir/latest"
 curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/check-ins/history?days=7" > "$auth_dir/history"
 # Read only: never alter shared guest feedback in smoke checks.
 curl --silent --fail --cookie "$auth_dir/cookies" "$base/api/recommendations/feedback" > "$auth_dir/feedback"
+code=$(curl --silent --cookie "$auth_dir/cookies" --output "$auth_dir/today" --write-out '%{http_code}' "$base/api/recommendations/today?temperature=19.0&weather=RAIN")
+[ "$code" = 200 ]
 SH
 
 # Copy response bodies only; cookies and authentication headers remain in the container.
-for response in create latest history feedback; do
+for response in create latest history feedback today; do
   docker exec "$app" cat "/tmp/moodfit-api-smoke/$response" > "$work_dir/$response"
 done
 docker exec "$app" rm -rf /tmp/moodfit-api-smoke
@@ -204,6 +208,14 @@ def match(actual, expected):
         for a, e in zip(actual, expected): match(a, e)
     else: assert actual == expected
 created = load('create')
+today = load('today')
+assert type(today) is dict and set(today) == {'context', 'foods', 'music'}
+assert type(today['context']) is dict and set(today['context']) == {'code', 'label'}
+assert today['context']['code'] in ('COLD', 'HOT', 'CLEAR', 'CLOUDY', 'RAIN', 'SNOW')
+assert type(today['context']['label']) is str and today['context']['label'].strip()
+for kind in ('foods', 'music'):
+    assert type(today[kind]) is list and len(today[kind]) == 2
+    for entry in today[kind]: recommendation(entry, contract('recommendations-today-200')[kind][0])
 feedback = load('feedback')
 assert type(feedback) is dict and set(feedback) == {'enabled', 'shared', 'items'}
 assert feedback['enabled'] is True and feedback['shared'] is True

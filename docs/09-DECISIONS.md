@@ -1625,3 +1625,12 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - 오늘 기록이 없으면 통계로 오늘 상태를 추정하지 않는다. 오늘 미입력을 먼저 알리고 저장된 평소 값과 지난 기록을 그 이름대로 표시한다.
 - 오늘은 Asia/Seoul 달력 날짜다. 지난 기록의 AI 자동 생성은 막고 수동 생성은 유지한다. 공통 AI Card를 기존 표면색 / 강조 선 / AI Badge로 강조한다.
 - 오늘 날씨 추천과 Backend 변경은 다음 Task 범위다.
+
+## DEC-048 TASK-070 오늘 날씨 추천
+
+- Human Approved 2026-10-05, Gate B / Gate C: “1단계 → 2단계 모두 진행” 및 승인된 TASK-070 Run 2 Contract와 명시 실행 지시.
+- 오늘 기록이 없는 Dashboard에서 버튼을 눌렀을 때만 현재 위치의 날씨를 조회하여 음식 2개 / 음악 2곡을 제공한다. 오늘 기록이 있으면 영역을 숨긴다. Score와 기분을 추정하거나 계산하지 않는다.
+- 로그인 필요 GET /api/recommendations/today를 승인한다. 기온 -30.0 ~ 50.0(소수 첫째 자리)과 기존 날씨 Enum만 받고 기존 항목 형식과 context를 반환한다. DB 쓰기 / Migration / Dependency 변경은 없다.
+- 기존 상황 Pool / 서울 날짜 순환 / 사용자 평가 반영 코드를 기분 선택 없이 사용한다. Check-in은 기분 추천과의 중복을 제외하므로 상황 추천 항목이 다를 수 있다. Run 2에서 받아들인 차이이며 Check-in 선택 규칙과 Pool은 유지한다.
+- 좌표는 Browser에서 기존 Open-Meteo / BigDataCloud로만 전달한다. Backend에는 기온 / 날씨만 보내며 지역은 화면에만 표시한다. 조회한 날씨와 추천을 저장하지 않고 화면 이탈 시 취소한다. 추천 평가 저장은 기존 동작을 유지하며 체험 계정은 공유 평가를 적용한다.
+- 구현 완료는 Orchestrator Verify / Claude Review / Human Squash Merge를 대신하지 않는다. 화면 캡처와 Merge 후 Staging 실제 위치 확인은 승인된 후속 절차다.
