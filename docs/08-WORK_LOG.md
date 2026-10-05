@@ -3816,3 +3816,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 범위는 v3.2.0(TASK-041) 이후 TASK-042 ~ TASK-063이다: 소셜 로그인과 사용자별 기록, AI 코멘트 / 주간 리포트, 개인별 평소 값과 신체 긴장도, 추천 다양화와 평가, 지역 기록, 화면 다듬기, 배포 보완.
 - Tag와 GitHub Release는 만들지 않았다. `v3.1.0`, `v3.2.0`도 Release Note만 있고 Tag가 없다. 만들지는 Human 결정이다(DEC-025: Tag는 옮기거나 지울 수 없다).
 - 화면 확인(Claude 세션, `docs/images/task-064/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. 설치 Event를 흉내 내 Footer와 아바타 메뉴의 "앱 설치"(390 / 768 / 1280px), 로그인 화면, 설치 수락 뒤, 지원하지 않는 환경, iOS 안내 창(390px)을 캡처했다. Chrome의 Manifest 해석 오류는 없었고 설치 조건 검사에서 남은 항목은 검사 환경(시크릿 창)뿐이었다. 실제 기기 설치는 확인하지 못했다.
+
+### `docs/07-TASKS.md` 형식 통일 (2026-10-05, Claude 세션, Human 지시)
+
+- Human이 "TASK 작성 스타일이 이전과 달라. 스타일을 맞춰."라고 지시했다. TASK-018 ~ 037은 "상태 / 목적 / Human Approval 또는 Gate / 완료 조건 / 상세 Task Contract" 형식인데, TASK-038 ~ 040은 다른 제목을 썼고 TASK-041 ~ 064는 제목 없이 Bullet만 나열했다.
+- TASK-038 ~ 064의 27개 절을 TASK-018 ~ 037과 같은 형식으로 다시 썼다. 목적과 완료 조건은 각 Task 문서(`docs/tasks/`)에서 가져왔고, 기존 Bullet 가운데 무엇을 만들었는지 적은 것은 "상태" 아래 구현 요약으로 남겼다. "Merge 대기", "최종 완료 승인이 아니다", Sandbox에서 실행하지 못한 검증 같은 지난 진행 메모는 뺐다(같은 내용이 이 문서에 남아 있다). PR 번호와 Merge 사실을 적었다.
+- 구조도 바로잡았다. TASK-042 ~ 064 절이 "5. Human Approval 필요 Task" / "6. 현재 Pending Decision" 뒤(문서 끝)에 붙어 있어 5 / 6절 앞으로 옮겼다. 표 맨 위(TASK-001 앞)에 끼어 있던 TASK-042 / 043 중복 행을 지웠고, TASK-043이 READY와 DONE 두 행으로 있던 것을 DONE 하나로 정리했다. 표의 "Human Approval" 칸에 남아 있던 "Merge 대기" 문구를 지웠다.
+- "3. Current Task"의 설명을 현재 상태(TASK-064까지 DONE, 남은 것은 TASK-030 / 031)로 고쳤다.
+- 다시 어긋나지 않도록 `docs/tasks/COMMON.md`에 "9. `docs/07-TASKS.md` 작성 형식"을 추가했다. 이후 Task를 실행하는 Agent는 이 형식을 따른다.
+- 문서만 바꿨다. Task의 상태(DONE / BLOCKED)와 내용은 바꾸지 않았다.
+
