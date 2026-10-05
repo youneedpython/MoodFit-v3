@@ -11,8 +11,7 @@
 
 .wellness-trend__plot {
   display: grid;
-  grid-template-columns: 2.5rem 1fr;
-  grid-template-rows: 200px auto;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
   column-gap: var(--space-2);
 }
 
@@ -32,9 +31,17 @@
 }
 
 .wellness-trend__x-labels {
-  grid-column: 2;
   height: 1.75rem;
 }
+
+.wellness-trend__viewport { overflow-x: auto; min-width: 0; touch-action: pan-x pan-y; padding-block: 6px; padding-inline: var(--space-2); }
+.wellness-trend__y-labels { height: 200px; margin-top: 6px; }
+.wellness-trend__area { height: 200px; }
+.wellness-trend__controls { display: flex; gap: var(--space-1); flex-wrap: wrap; }
+.wellness-trend-card .card__header { flex-wrap: wrap; }
+.wellness-trend__controls { margin-left: auto; }
+.wellness-trend__controls .button { min-width: 44px; min-height: 44px; }
+.wellness-trend__hint { font-size: var(--font-size-sm); color: var(--color-text-muted); }
 
 .wellness-trend__x-labels span {
   position: absolute;
@@ -178,9 +185,7 @@
 }
 
 @media (max-width: 560px) {
-  .wellness-trend__plot {
-    grid-template-rows: 160px auto;
-  }
+  .wellness-trend__area, .wellness-trend__y-labels { height: 160px; }
 
   .history-record__score {
     margin-left: 0;

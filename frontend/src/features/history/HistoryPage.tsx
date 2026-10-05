@@ -45,9 +45,7 @@ export function HistoryPage() {
 
         {state.status === "ready" && (
           <div className="history">
-            <Card title="최근 7일 Wellness Score">
-              <WellnessTrend items={state.items} />
-            </Card>
+            <WellnessTrend items={state.items} />
             <HistoryRecordList items={state.items} />
           </div>
         )}

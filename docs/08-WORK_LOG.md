@@ -3825,3 +3825,24 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - "3. Current Task"의 설명을 현재 상태(TASK-064까지 DONE, 남은 것은 TASK-030 / 031)로 고쳤다.
 - 다시 어긋나지 않도록 `docs/tasks/COMMON.md`에 "9. `docs/07-TASKS.md` 작성 형식"을 추가했다. 이후 Task를 실행하는 Agent는 이 형식을 따른다.
 - 문서만 바꿨다. Task의 상태(DONE / BLOCKED)와 내용은 바꾸지 않았다.
+### TASK-065 — 모바일 설치 버튼 / History 확대 (2026-10-05)
+
+#### Run 3 — Touch Events / 최초 평균 안내 재확인
+
+- clean Working Tree에서 승인된 Run 3 범위를 검토했다. 두 손가락의 touchmove에만 preventDefault를 적용하는 비수동 Listener와 해제 처리, 한 손가락 기본 스크롤, Viewport의 기존 간격 Token 여백, 초기 배율 1 / 평균 전환 / 확대 범위 / 요약 유지 및 Footer secondary / 480px 이하 DOM 순서를 확인했다. 구현 불일치는 발견하지 않아 기존 동작과 통과한 Test는 유지하고, 30건 Test의 최초 평균 안내 검사만 추가했다. UX 명세의 Pointer 설명을 승인된 Touch Events 방식으로 맞추고 TASK-065 절을 상태 / 목적 / Human Approval 또는 Gate / 완료 조건 / 상세 Task Contract 순서로 정리했다. 이번 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 재시도나 Sandbox 우회는 하지 않았다. Contract에 적힌 Chrome 조작 확인과 Frontend Test 265건 / 타입 검사 / Build 통과는 Claude 세션의 이전 참고 증거이며 이번 Executor 검증 결과가 아니다. UTF-8 apply_patch로 작성한 변경 문서의 연속 물음표 치환 흔적 / U+FFFD와 git diff --check를 직접 검사한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 구현과 기록 완료만 뜻한다. Git 작업은 수행하지 않았으며 Claude 세션의 화면 캡처와 Merge 후 Human의 실제 기기 확인이 남는다.
+
+#### Run 2 — 날짜별 평균 / 개별 기록 전환
+
+- Human 추가 지시에 따라 초기 배율을 1로 변경했다. 기록 수 × 24가 측정 너비보다 크면 서울 시간대 날짜별 반올림 평균을 표시하고 확대 시 개별 기록으로 전환한다. 첫 확대는 읽기 가능한 배율로 이동하며 축소 / 날짜별 평균 버튼 / Pinch 1.05 경계로 기본 표시로 돌아간다. Pinch의 가운데 위치 보정은 점 개수와 독립적인 너비 좌표를 사용한다. 요약은 항상 전체 기록 기준이며 안내 전환은 aria-live로 알린다. Footer는 그대로 유지했다.
+- 서울 자정 경계 / 정렬 / 평균 반올림 / 빈 입력 Test와 30건 3일 전환, 요약 유지, Label 변화, Pinch 경계 Test를 보완하고 ByRoleOptions의 exact 타입 오류를 제거했다.
+- 자체 bash scripts/verify.sh는 Node.js 확인 후 npm ci의 npm 캐시 stat EPERM / node_modules 정리 EPERM으로 중단됐다. Test / tsc / Build는 실행하지 못했다. 우회나 자동 재시도 없이 Sandbox 밖 Orchestrator Verify에 판정을 맡긴다. Executor DONE은 구현 완료만 의미한다. git diff --check 및 UTF-8 문서의 연속 물음표 / U+FFFD를 직접 확인한다.
+- Claude 세션의 390 / 768 / 1280px 평균 / 개별 기록 전후 캡처와 Merge 후 Human의 실제 휴대폰 Pinch / 밀어 보기 확인이 남는다. 캡처 경로는 allowed_paths 밖이며 Executor는 Git 작업을 수행하지 않았다.
+
+- 최초 Working Tree는 clean이었다. 승인된 Contract와 필수 Context를 확인하고 TASK-065만 IN_PROGRESS 등록 후 구현 완료를 DONE으로 반영했다. Git 작업은 수행하지 않았다.
+- Footer 앱 설치는 기존 secondary 버튼, 본문 크기 / 44px 이상 높이로 변경했다. 480px 이하에서는 첫 줄 전체 너비, 고지 문구 / 안내는 아래이며 matchMedia 변경에 맞춰 DOM 순서도 갱신한다. 메뉴 / iOS 안내 / 설치 동작은 유지한다.
+- History는 고정 Y축 옆 가로 Viewport와 ResizeObserver 측정, 24px 기준 초기 확대 / 48px 기준 최대 확대, 초기 최신 기록 위치, 수동 배율 유지 / 범위 보정, 두 Pointer 거리 비율과 가운데 위치 기준 Pinch를 제공한다. 기본 가로 / 세로 스크롤과 Keyboard, 44px 확대 버튼 및 밀어 보기 안내, 너비에 따른 Label / 마지막 Label을 추가했다. 점 하나당 기록 하나, 선 / 점 Style, 글자 요약을 유지한다.
+- Test를 보완했다: Footer secondary, 측정 미지원 / 30건 320px 초기 225% / 1.5배 조작 / 범위 비활성화 / 전체 보기 / Label 변화와 마지막 위치 / 3건 기본 배율, 순수 Pinch 함수. 기존 장식 영역 검사는 새 안쪽 영역을 확인한다.
+- 자체 bash scripts/verify.sh는 Node.js 버전 확인 후 npm ci의 캐시 stat EPERM으로 중단됐다. Test / 타입 검사 / Build는 실행하지 못했으며 자동 재시도 / 권한 우회는 하지 않았다. 판정은 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 연속 물음표 / U+FFFD 검사를 수행한다.
+- Claude 세션의 390 / 768 / 1280px 기록 많음 / 적음, 확대 전후 / Footer 캡처가 남는다. 캡처 경로는 allowed_paths 밖이므로 Executor가 추가하지 않았다. Remote CI / Human Squash Merge 이후 실제 휴대폰 Pinch / 밀어 보기를 Human이 확인한다. Executor DONE은 검증 성공 / 최종 완료 승인이 아니다.
+- 화면 확인(Claude 세션, `docs/images/task-065/`): 최종 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. 휴대폰 화면(390px, Touch)을 흉내 낸 Chrome에 두 손가락 터치 입력을 직접 보내 확인했다. 기록 30건(4일)에서 처음에 점 4개와 평균 안내, 벌리면 점 30개와 밀어 보기 안내, 오므리면 다시 점 4개다. 그래프 위 한 손가락 세로 밀기는 화면을 세로로 스크롤한다. 기록 3건이면 버튼과 안내가 없다. Footer의 "앱 설치"는 358 × 44px 전체 너비 버튼이다. 768 / 1280px 포함 가로 넘침이 없다. 실제 기기에서의 Pinch는 확인하지 못했다.
+

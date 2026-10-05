@@ -25,6 +25,7 @@ describe("install", () => {
     expect(event.defaultPrevented).toBe(true);
     footer();
     const button = within(screen.getByRole("contentinfo")).getByRole("button", { name: "앱 설치" });
+    expect(button.classList.contains("button--secondary")).toBe(true);
     fireEvent.click(button);
     expect((button as HTMLButtonElement).disabled).toBe(true);
     await waitFor(() => expect(screen.queryByRole("button", { name: "앱 설치" })).toBeNull());

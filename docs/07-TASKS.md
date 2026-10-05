@@ -41,7 +41,7 @@ Status:
 BLOCKED
 ```
 
-TASK-001 ~ TASK-029, TASK-032 ~ TASK-064는 DONE이다(모두 PR Squash Merge와 Staging 자동 배포까지 마쳤다). Release는 `v3.3.0`(TASK-063까지)이다.
+TASK-001 ~ TASK-029, TASK-032 ~ TASK-065는 DONE이다(모두 PR Squash Merge와 Staging 자동 배포까지 마쳤다). Release는 `v3.3.0`(TASK-063까지)이다.
 
 남은 Task는 TASK-030(실제 Production)과 TASK-031(운영 / 정리)이며 둘 다 BLOCKED다. 2026-10-05 Human이 정한 순서는 "사용 영상 촬영 → TASK-030 → TASK-031"이다. TASK-030은 Production 생성에 대한 Human 승인(구성 / 비용 Gate)이 있어야 READY가 된다.
 
@@ -117,6 +117,7 @@ TASK-001 ~ TASK-029, TASK-032 ~ TASK-064는 DONE이다(모두 PR Squash Merge와
 | TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | DONE | TASK-042, TASK-054, TASK-057 | Human 지시 2026-10-05 |
 | TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | DONE | TASK-059, TASK-061 | Human 지시 2026-10-05 |
 | TASK-064 | Milestone 64 | PWA Install (홈 화면 설치 / 앱 설치 버튼) | DONE | TASK-037, TASK-062 | Human 승인 2026-10-05 |
+| TASK-065 | Milestone 65 | Mobile Install Button / Trend Zoom (모바일 앱 설치 버튼 크기 / History 그래프 날짜별 평균과 확대) | DONE | TASK-064, TASK-060 | Human 지시 2026-10-05 |
 
 ---
 
@@ -2654,6 +2655,41 @@ MoodFit을 휴대폰 홈 화면이나 PC에 앱처럼 설치해, 주소창 없�
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-064_PWA_INSTALL.md`](tasks/TASK-064_PWA_INSTALL.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-065 — Mobile Install Button / Trend Zoom (모바일 앱 설치 버튼 크기 / History 그래프 날짜별 평균과 확대)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 65. 선행: TASK-064, TASK-060. Orchestrator Verify와 Claude Review를 통과했고 PR #54 Human Squash Merge로 완료한다.
+
+- Footer의 "앱 설치"를 테두리 있는 기존 Variant로 바꾸고 480px 이하에서는 Footer 첫 줄의 전체 너비 버튼으로 놓았다. 아바타 메뉴, iOS 안내 창, 설치 동작은 그대로다.
+- History 그래프: 기록이 겹칠 만큼 많고(`기록 수 × 24 > 그래프 너비`) 배율이 1이면 서울 날짜별 평균(반올림)으로, 확대하면 기록 전체로 보여 준다. 확대 / 축소 / 날짜별 평균 버튼과 두 손가락 Pinch, 가로 밀어 보기를 지원한다. 요약 글자는 항상 기록 전체 기준이다.
+- Pinch는 Touch Events로 받아 두 손가락일 때만 기본 동작을 막는다(확대된 상태에서 Pointer Events가 끊기는 문제를 Claude 세션이 확인해 바꿨다). X축 Label 개수는 그래프 너비에 맞춘다. 외부 Chart Library는 쓰지 않았다.
+
+### 목적
+
+Human이 휴대폰(갤럭시)으로 Staging을 보고 지적한 두 가지를 고친다. 모바일에서 "앱 설치" 버튼이 너무 작고, History 그래프는 기록이 많으면 점이 겹친다.
+
+### Human Approval 또는 Gate
+
+- Human 지시 2026-10-05 (버튼 크기, 그래프 겹침, "모바일은 기본 날짜별 평균, 확대하면 원래 데이터")
+- 근거와 세부 결정은 Task 문서의 "Human 지시 (2026-10-05)"와 "Run 2 범위 — Human 추가 지시 반영" 절에 있다.
+
+### 완료 조건
+
+- 검증과 Review 통과, Claude 세션의 390 / 768 / 1280px 캡처 확인(`docs/images/task-065/`)
+- PR #54 Squash Merge와 Staging 자동 배포 확인
+- 실제 휴대폰에서의 Pinch와 밀어 보기는 Merge 뒤 Human이 확인한다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-065_MOBILE_INSTALL_BUTTON_TREND_ZOOM.md`](tasks/TASK-065_MOBILE_INSTALL_BUTTON_TREND_ZOOM.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 
