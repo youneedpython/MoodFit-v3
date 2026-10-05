@@ -80,6 +80,19 @@ Claude 세션이 화면을 훑어 뽑은 개선 후보를 Human이 모두 승인
 
 - Sandbox에서 npm Test를 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다.
 
+## Run 2 범위 (검토 중심)
+
+Run 1에서 구현은 끝났고, Orchestrator Verify가 Frontend Test 1건에서 멈췄다(242건 중 241건 통과).
+
+- 실패: `DashboardPage.test.tsx`의 기존 Test가 음악 항목에서 가수 이름을 `getByText("Lewis Capaldi")`로 찾는데, 가수 이름과 " · YouTube에서 열기"가 같은 `<p>` 안의 글자로 섞이면서 찾지 못했다.
+- 조치(Claude 세션, Sandbox 밖): 가수 이름을 `<span>`으로 감쌌다(`<p class="recommendation-item__artist"><span>{가수}</span> · <a>…</a></p>`). 기존 Test는 고치지 않았다. Screen Reader가 가수 이름을 따로 읽는 데에도 맞는 구조다.
+- Sandbox 밖 결과: Frontend Test 242건 통과, `tsc --noEmit` / Build 통과. Claude 세션이 화면도 확인했다(재생 아이콘이 제목 왼쪽, "가수 · YouTube에서 열기" 한 줄, 비교 안내 문구가 Body Metrics Card 안에 한 번, 390px에서 평가 묶음이 첫 줄 오른쪽이고 Tag가 아래 줄, 가로 넘침 없음).
+
+이번 Run에서 할 일:
+
+1. 구현이 위 설계와 맞는지 다시 확인하고, 어긋난 곳만 고친다. 통과한 Test를 다시 쓰지 않는다. 가수 이름의 `<span>`을 없애지 않는다.
+2. `docs/08-WORK_LOG.md`에 Run 2 경과를 한 단락 더한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

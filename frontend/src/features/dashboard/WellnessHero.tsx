@@ -1,5 +1,5 @@
 import { Badge } from "../../components/Badge/Badge";
-import { BaselineNotice, TensionBadge } from "./PersonalBaseline";
+import { TensionBadge } from "./PersonalBaseline";
 import { ButtonLink } from "../../components/Button/Button";
 import { WEATHER_LABELS } from "../../constants/weather";
 import type { CheckinResponse, WeatherCondition } from "../../types/api";
@@ -32,7 +32,6 @@ export function WellnessHero({ checkin }: WellnessHeroProps) {
           지금 컨디션은 <strong>{mood.label}</strong>
         </h2>
         <p className="wellness-hero__summary">{summary}</p>
-        <BaselineNotice baseline={checkin.baseline} />
         <ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>
       </div>
 

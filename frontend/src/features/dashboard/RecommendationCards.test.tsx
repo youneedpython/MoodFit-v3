@@ -10,14 +10,21 @@ describe("music playback", () => {
     expect(within(screen.getByRole("region", { name: "추천 음악" })).getAllByRole("listitem")).toHaveLength(5);
     expect(container.querySelector("iframe")).toBeNull();
     expect(container.querySelector("img, script, link")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Dynamite - BTS 재생" }));
+    const toggle = screen.getByRole("button", { name: "Dynamite - BTS 재생" });
+    expect(toggle.closest(".recommendation-item__header")).toBeTruthy();
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(toggle.textContent?.trim()).toBe("");
     const player = screen.getByTitle("Dynamite - BTS YouTube 플레이어");
     expect(player.getAttribute("src")).toBe("https://www.youtube-nocookie.com/embed/gdZLi9oWNZg?autoplay=1");
     const link = screen.getByRole("link", { name: "Dynamite YouTube에서 열기 (새 탭)" });
+    expect(link.closest(".recommendation-item__artist")).toBeTruthy();
     expect(link.getAttribute("href")).toBe("https://www.youtube.com/watch?v=gdZLi9oWNZg");
     expect(link.getAttribute("target")).toBe("_blank");
     expect(link.getAttribute("rel")).toBe("noopener noreferrer");
     fireEvent.click(screen.getByRole("button", { name: "Dynamite 재생 닫기" }));
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
     expect(container.querySelector("iframe")).toBeNull();
   });
 

@@ -9,6 +9,13 @@
 - 자체 bash scripts/verify.sh는 npm ci의 사용자 캐시 stat EPERM / node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Test / TypeScript / Frontend 및 Backend Build는 실행되지 않았다. 재시도 / Sandbox 우회는 하지 않았으며 검증 기준은 Sandbox 밖 Orchestrator Verify다.
 - git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. 한글은 UTF-8 apply_patch로 작성했다. Git 후속 작업은 수행하지 않았다.
 - Claude 세션의 로그인 / 체험만 있는 로그인 / Footer 390 / 768 / 1280px 화면 캡처가 남는다. 캡처 경로는 allowed_paths 밖이므로 Executor는 생성하지 않았다. Remote CI / Human Squash Merge 후 Staging 확인이 남는다. DONE은 구현 완료이며 Verify / Review / Human 승인을 대신하지 않는다.
+### TASK-061 — Dashboard Recommendation Compact (2026-10-05)
+
+- 제목 왼쪽 재생 / 닫기 아이콘과 aria-expanded, 가수 줄 YouTube 보조 Link를 적용했다. Player는 클릭 후 추천 이유 아래에만 생성하며 같은 버튼으로 제거한다. iframe / Link 속성, 평가 모양과 동작 및 추천 개수를 유지했다.
+- 768px 미만에서는 이름 / 평가 첫 줄과 Badge 둘째 줄로 통일하고, 그 이상에서는 한 줄로 표시한다. 기존 색 / 크기 / 터치 영역 / 초점 Token을 사용하며 Card 높이를 강제로 맞추지 않았다.
+- Dashboard와 결과 화면의 BaselineNotice를 Body Metrics 지표 아래로 옮겼다. 안내 문구와 보조 Style을 유지하며 중복 렌더링을 제거했다. 재생 토글 / 접근성 / Link 위치와 지표 안 안내 회귀 Test를 보완했다.
+- Verification: 자체 npm Test는 vitest가 설치되지 않아 실행되지 않았다. bash scripts/verify.sh는 Node.js 버전 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단됐다. Test / tsc --noEmit / Build는 실행하지 못했으며 Sandbox 밖 Orchestrator Verify가 기준이다. 재시도나 권한 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 / U+FFFD를 직접 검사했다.
+- Executor 구현 완료는 Verify / Review / Human 완료 승인이 아니다. Git 작업은 수행하지 않았다. Claude 세션의 390 / 768 / 1280px 재생 전 / 중 캡처와 Merge 후 Staging 확인이 남았다. 이미지 경로는 allowed_paths 밖이므로 Executor가 생성하지 않았다.
 
 ### TASK-051 — AI 코멘트 가독성 (2026-10-04)
 
@@ -3769,3 +3776,5 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 화면 확인(Claude 세션, `docs/images/task-060/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 History를 접힌 상태와 첫 기록을 펼친 상태로 390 / 768 / 1280px에서 캡처했다. 기록 5건의 추천 이력이 모두 접힌 채 시작하고 요약 줄은 "추천 음식 5개 · 음악 5곡 보기"이다. 주간 리포트 기간은 "9월 28일 ~ 10월 4일 · 7건"으로 보인다. 세 폭 모두 가로 넘침이 없다.
 - Run 1 ~ 3이 멈춘 경위: Run 1 / 2는 개발 PC에서 VS Code Java 확장이 작업 복사본까지 분석하면서 Backend Test의 MySQL Container 접속이 실패해 제한 시간을 넘겼다(확장을 끈 뒤 해소). Run 3은 TASK-057의 불안정한 초점 Test 1건이 실패했다(별도 PR로 안정화). Run 4에서 Verify와 Claude Review를 통과했고, PR 단계는 다른 열린 PR 본문에 이 Task 번호가 있어 멈췄다. Human 지시로 Claude 세션이 PR을 직접 만들었다.
 - 화면 확인(Claude 세션, `docs/images/task-062/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 로그인 화면(390 / 768 / 1280px), 체험 로그인만 있는 로그인 화면, Footer(개인정보 처리 안내 / History)를 캡처했다. Google은 흰 버튼에 4색 Logo, Kakao는 노란 버튼에 말풍선 Symbol로 보이고 Link 주소는 그대로다. 세 버튼의 너비가 같고 높이는 48px 이상이다(제공자 52px, 체험 48px). Footer는 구분선 아래 한 줄이며 390px에서 두 줄로 내려간다. 모든 캡처에서 가로 넘침이 없다.
+- TASK-061 Run 2 (2026-10-05): 최초 Working Tree는 clean이었다. Task source와 필수 Context를 읽고 기존 구현 / 회귀 Test를 설계와 대조했다. 제목 왼쪽 재생 / 닫기 SVG와 접근성 이름 / title / aria-expanded, 클릭 후에만 추천 이유 아래 생성되는 iframe과 기존 속성, 가수 이름 span 및 같은 줄 YouTube Link의 주소 / 새 탭 / rel / 접근성 이름, 기존 44px 터치 / 초점 Token을 확인했다. 768px 미만 이름 / 평가 첫 줄과 Badge 둘째 줄의 Grid 배치, Dashboard / Check-in 결과의 지표 아래 한 번만 표시되는 BaselineNotice도 확인했다. 설계 불일치를 발견하지 않아 코드 / 통과한 Test / Task 상태는 변경하지 않았다. Task source에 기록된 Sandbox 밖 Frontend Test 242건 / tsc --noEmit / Build 통과와 화면 확인은 전달받은 참고 증거다. 이번 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM과 node_modules 정리 EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 재시도나 Sandbox 우회는 하지 않았으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Executor DONE은 Run 2 재검토 / 기록 완료이며 Verify / Review / Human 완료 승인이 아니다. Git 작업은 수행하지 않았고 Claude 세션의 390 / 768 / 1280px 재생 전 / 중 캡처 기록과 Merge 후 Staging 확인은 후속 작업이다.
+- 화면 확인(Claude 세션, `docs/images/task-061/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 Dashboard(390 / 768 / 1280px), 재생 중인 Dashboard(1280px), Check-in 결과(390px)를 캡처했다. 재생 아이콘 버튼이 곡 제목 왼쪽에 있고 누르기 전에는 Player가 없으며 누르면 항목 안에 펼쳐진다. "가수 · YouTube에서 열기"가 한 줄이다. 비교 안내 문구는 Body Metrics Card 안에 한 번만 나온다. 390px에서는 모든 항목이 이름과 평가 묶음이 첫 줄, Tag가 아래 줄이다. 모든 캡처에서 가로 넘침이 없다.

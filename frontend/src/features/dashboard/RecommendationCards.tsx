@@ -40,18 +40,29 @@ function MusicTrack({ track, feedback }: { track: MusicRecommendation; feedback?
   return (
     <li className="recommendation-item">
       <div className="recommendation-item__header">
-        <h3 className="recommendation-item__name">{track.title}</h3>
-        <div className="recommendation-item__actions">
-          <Badge tone="accent">{track.tag}</Badge>
-          {videoId && <FeedbackButtons feedback={feedback} kind="MUSIC" item={videoId} label={track.title} />}
+        <div className="recommendation-item__title">
+          {videoId && <button type="button" className="music-playback__toggle" onClick={() => setPlaying(value => !value)}
+            aria-expanded={playing} aria-label={playing ? `${track.title} 재생 닫기` : `${track.title} - ${track.artist} 재생`}
+            title={playing ? `${track.title} 재생 닫기` : `${track.title} - ${track.artist} 재생`}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              {playing ? <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" />
+                : <path d="M8 5l11 7-11 7z" fill="currentColor" />}
+            </svg>
+          </button>}
+          <h3 className="recommendation-item__name">{track.title}</h3>
         </div>
+        <div className="recommendation-item__tag">
+          <Badge tone="accent">{track.tag}</Badge>
+        </div>
+        {videoId && <FeedbackButtons feedback={feedback} kind="MUSIC" item={videoId} label={track.title} />}
       </div>
-      <p className="recommendation-item__artist">{track.artist}</p>
+      <p className="recommendation-item__artist"><span>{track.artist}</span>
+        {videoId && <> · <a href={`https://www.youtube.com/watch?v=${videoId}`} target="_blank" rel="noopener noreferrer"
+          aria-label={`${track.title} YouTube에서 열기 (새 탭)`}>YouTube에서 열기</a></>}
+      </p>
       <p className="recommendation-item__reason">{track.reason}</p>
-      {videoId && (
+      {videoId && playing && (
         <div className="music-playback">
-          {playing ? (
-            <>
               <iframe
                 className="music-playback__player"
                 src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`}
@@ -60,19 +71,6 @@ function MusicTrack({ track, feedback }: { track: MusicRecommendation; feedback?
                 allowFullScreen
                 referrerPolicy="strict-origin-when-cross-origin"
               />
-              <button type="button" onClick={() => setPlaying(false)} aria-label={`${track.title} 재생 닫기`}>
-                재생 닫기
-              </button>
-            </>
-          ) : (
-            <button type="button" onClick={() => setPlaying(true)} aria-label={`${track.title} - ${track.artist} 재생`}>
-              바로 듣기
-            </button>
-          )}
-          <a href={`https://www.youtube.com/watch?v=${videoId}`} target="_blank" rel="noopener noreferrer"
-            aria-label={`${track.title} YouTube에서 열기 (새 탭)`}>
-            YouTube에서 열기
-          </a>
         </div>
       )}
     </li>
@@ -93,10 +91,10 @@ export function RecommendationCards({ foods, music, feedback }: RecommendationCa
                   <span className="recommendation-item__emoji" aria-hidden="true">{foodEmoji(food.name)}</span>
                   <span>{food.name}</span>
                 </h3>
-                <div className="recommendation-item__actions">
+                <div className="recommendation-item__tag">
                   <Badge tone="info">{food.tag}</Badge>
-                  <FeedbackButtons feedback={feedback} kind="FOOD" item={food.name} label={food.name} />
                 </div>
+                <FeedbackButtons feedback={feedback} kind="FOOD" item={food.name} label={food.name} />
               </div>
               <p className="recommendation-item__reason">{food.reason}</p>
             </li>

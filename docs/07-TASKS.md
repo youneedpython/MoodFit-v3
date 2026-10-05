@@ -112,7 +112,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-058 | Milestone 58 | Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로) | DONE | TASK-055 | Human 명시 실행 지시 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-059 | Milestone 59 | Weather Card Layout (Check-in 날씨 영역 배치) | DONE | TASK-040, TASK-044 | Human 명시 실행 승인 (2026-10-05), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-060 | Milestone 60 | History Record Compact | DONE | TASK-045, TASK-048, TASK-056 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
-| TASK-061 | Milestone 61 | Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치) | READY | TASK-058 | Human 승인 2026-10-05 ("위 사항 모두 Task로 정리"), 실행 대기 |
+| TASK-061 | Milestone 61 | Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치) | DONE | TASK-058 | Executor 구현 완료, Orchestrator Verify / Review / 화면 확인 / Human Merge 대기 |
 | TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | DONE | TASK-042, TASK-054, TASK-057 | 제공자 버튼 / 공통 Footer 구현 완료, Verify / Review / Human Squash Merge 대기 |
 | TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | READY | TASK-059, TASK-061 | Human 승인 2026-10-05 ("위 사항 모두 Task로 정리"), 실행 대기 |
 
@@ -2049,9 +2049,10 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 
 ## TASK-061 — Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치)
 
-- 상태: READY, Milestone 61. Dependency: TASK-058.
+- 상태: DONE, Milestone 61. Dependency: TASK-058. Executor 구현 완료이며 최종 완료 승인은 Human Squash Merge다.
 - 승인: 2026-10-05 Human이 Claude 세션의 화면 개선 후보를 모두 Task로 정리하도록 지시했다. Task 문서: `docs/tasks/`, Contract: `harness/tasks/TASK-061.json`.
 - 범위: 음악의 "바로 듣기"를 이름 줄의 재생 아이콘으로 옮기고 "YouTube에서 열기"를 가수 줄로 옮긴다. 평소 값 비교 안내 문구를 Body Metrics Card로 옮기고, 좁은 화면의 이름 줄 모양을 통일한다. Frontend와 문서만 바꾼다.
+- 구현: 제목 왼쪽 재생 / 닫기 아이콘, 가수 줄 보조 Link, 지표 아래 비교 안내를 적용했다. 768px 미만은 이름 / 평가 첫 줄과 Badge 둘째 줄로 통일한다. 기존 Token과 평가 동작을 유지한다.
 
 ## TASK-062 — Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리)
 
