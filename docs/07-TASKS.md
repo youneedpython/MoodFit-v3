@@ -113,7 +113,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-059 | Milestone 59 | Weather Card Layout (Check-in 날씨 영역 배치) | DONE | TASK-040, TASK-044 | Human 명시 실행 승인 (2026-10-05), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-060 | Milestone 60 | History Record Compact | DONE | TASK-045, TASK-048, TASK-056 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-061 | Milestone 61 | Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치) | DONE | TASK-058 | Executor 구현 완료, Orchestrator Verify / Review / 화면 확인 / Human Merge 대기 |
-| TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | READY | TASK-042, TASK-054, TASK-057 | Human 승인 2026-10-05 ("위 사항 모두 Task로 정리"), 실행 대기 |
+| TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | DONE | TASK-042, TASK-054, TASK-057 | 제공자 버튼 / 공통 Footer 구현 완료, Verify / Review / Human Squash Merge 대기 |
 | TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | READY | TASK-059, TASK-061 | Human 승인 2026-10-05 ("위 사항 모두 Task로 정리"), 실행 대기 |
 
 ---
@@ -2056,9 +2056,11 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 
 ## TASK-062 — Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리)
 
-- 상태: READY, Milestone 62. Dependency: TASK-042, TASK-054, TASK-057.
+- 상태: DONE, Milestone 62. Dependency: TASK-042, TASK-054, TASK-057.
 - 승인: 2026-10-05 Human이 Claude 세션의 화면 개선 후보를 모두 Task로 정리하도록 지시했다. Task 문서: `docs/tasks/`, Contract: `harness/tasks/TASK-062.json`.
 - 범위: Google / Kakao 로그인을 제공자 Logo와 색이 있는 버튼으로 바꾸고, 화면 아래 Footer를 정리한다. Frontend와 문서만 바꾼다.
+- 구현: 장식용 Inline SVG와 제공자 색, 48px 이상 Link 버튼, secondary 체험 버튼과 안내 문단 간격을 적용했다. 공통 Footer에 고지 / 개인정보 Link와 구분선, 반응형 줄바꿈 및 화면 하단 Flex 배치를 적용했다.
+- 검증: 자체 Verify는 npm ci의 캐시 stat EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify다. Claude 세션의 390 / 768 / 1280px 캡처가 남는다. DONE은 Executor 구현 완료이며 Review / Human Squash Merge 승인을 대신하지 않는다. 다른 Task와 Current Task 상태는 유지한다.
 
 ## TASK-063 — Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로)
 

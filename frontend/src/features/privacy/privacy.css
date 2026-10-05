@@ -5,6 +5,5 @@
 .privacy-page table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .privacy-page th, .privacy-page td { padding: 12px; border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: top; }
 .privacy-page th:first-child { width: 28%; }
-.privacy-page a, .app-footer a { color: var(--color-accent-blue); }
-.app-footer { padding-block: 24px; font-size: .875rem; }
+.privacy-page a { color: var(--color-accent-blue); }
 @media (max-width: 560px) { .privacy-page section { padding: 12px; } .privacy-page th, .privacy-page td { padding: 8px; } }
