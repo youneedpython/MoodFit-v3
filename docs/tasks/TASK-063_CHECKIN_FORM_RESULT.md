@@ -74,6 +74,19 @@ Claude 세션이 화면을 훑어 뽑은 개선 후보를 Human이 모두 승인
 
 - Sandbox에서 npm Test를 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다.
 
+## Run 2 범위 (검토 중심)
+
+Run 1에서 구현은 끝났고, Orchestrator Verify가 Frontend Test 5건에서 멈췄다(251건 중 246건 통과).
+
+- 실패: `CheckinWeather.test.tsx`의 기존 Test가 입력칸을 `getByLabelText(new RegExp(label))`로 찾는데, 새 Slider의 접근성 이름("수면 점수 Slider")도 같은 정규식에 걸려 두 개가 잡혔다.
+- 조치(Claude 세션, Sandbox 밖): 그 세 곳의 조회에 `{ selector: 'input[type="number"]' }`를 더해 숫자 입력칸만 찾게 했다. 검사 내용은 그대로이고 구현은 바꾸지 않았다.
+- Sandbox 밖 결과: Frontend Test 251건 통과, `tsc --noEmit` / Build 통과. Claude 세션이 화면도 확인했다(결과 화면에 Score Tile과 날씨 Tile, 순서는 Tile → AI 코멘트 → Body Metrics → 추천 → 버튼 줄, 컨디션 세 칸의 Slider가 숫자 입력칸과 서로 맞게 움직이고 빈 값은 채워지지 않음, 신체 리듬 2열 / 컨디션 3열, 390 / 768 / 1280px 가로 넘침 없음, Dashboard 모양 유지).
+
+이번 Run에서 할 일:
+
+1. 구현이 위 설계와 맞는지 다시 확인하고, 어긋난 곳만 고친다. 통과한 Test를 다시 쓰지 않는다.
+2. `docs/08-WORK_LOG.md`에 Run 2 경과를 한 단락 더한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

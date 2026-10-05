@@ -114,7 +114,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-060 | Milestone 60 | History Record Compact | DONE | TASK-045, TASK-048, TASK-056 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-061 | Milestone 61 | Dashboard Recommendation Compact (음악 재생 줄 간결화 / 비교 안내 위치) | DONE | TASK-058 | Executor 구현 완료, Orchestrator Verify / Review / 화면 확인 / Human Merge 대기 |
 | TASK-062 | Milestone 62 | Login Buttons / Footer (로그인 버튼 모양 / 화면 아래 Link 정리) | DONE | TASK-042, TASK-054, TASK-057 | 제공자 버튼 / 공통 Footer 구현 완료, Verify / Review / Human Squash Merge 대기 |
-| TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | READY | TASK-059, TASK-061 | Human 승인 2026-10-05 ("위 사항 모두 Task로 정리"), 실행 대기 |
+| TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | DONE | TASK-059, TASK-061 | Executor 구현 완료, 공유 Tile / 컨디션 Slider / 묶음별 열 수 |
 
 ---
 
@@ -2064,6 +2064,9 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 
 ## TASK-063 — Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로)
 
-- 상태: READY, Milestone 63. Dependency: TASK-059, TASK-061.
+- 상태: DONE (Executor 구현 완료), Milestone 63. Dependency: TASK-059, TASK-061.
 - 승인: 2026-10-05 Human이 Claude 세션의 화면 개선 후보를 모두 Task로 정리하도록 지시했다. Task 문서: `docs/tasks/`, Contract: `harness/tasks/TASK-063.json`.
 - 범위: Check-in 결과 화면의 Score와 날씨를 Dashboard와 같은 Tile로 보여 주고, 수면 / 스트레스 / 에너지 입력에 Slider를 더한다. Frontend와 문서만 바꾼다.
+- 구현: TASK-063만 IN_PROGRESS 후 DONE으로 반영했다. Score / 날씨 마크업과 스타일을 WellnessTiles로 공유하고 결과를 Tile → AI 코멘트 → Body Metrics → 추천 → 버튼 순서로 배치했다. 빈 값을 유지하는 Slider와 숫자 입력 동기화, 신체 리듬 2열 / 컨디션 3열을 적용했다.
+- 검증: 자체 Verify는 npm ci의 캐시 stat EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 판정은 Sandbox 밖 Orchestrator Verify이며 DONE은 최종 완료 승인을 대신하지 않는다. 다른 Task와 Current Task 상태는 유지한다.
+- Claude 세션의 390 / 768 / 1280px 입력 / 결과 캡처, Remote CI / Human Squash Merge 및 Merge 후 Staging 확인이 남는다.

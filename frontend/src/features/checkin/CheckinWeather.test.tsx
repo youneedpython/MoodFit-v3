@@ -81,7 +81,7 @@ describe("Check-in weather modes", () => {
       fireEvent.click(screen.getByLabelText("비"));
     }
     for (const [label, value] of [["심박수", "68"], ["호흡수", "18"], ["수면 점수", "86"], ["스트레스 수준", "31"], ["에너지 수준", "74"]]) {
-      fireEvent.change(screen.getByLabelText(new RegExp(label)), { target: { value } });
+      fireEvent.change(screen.getByLabelText(new RegExp(label), { selector: 'input[type="number"]' }), { target: { value } });
     }
     fireEvent.click(screen.getByRole("button", { name: "분석 요청" }));
     await screen.findByText("Check-in이 저장되었습니다.");
@@ -99,7 +99,7 @@ describe("Check-in weather modes", () => {
       manual();
     }
     for (const [label, value] of [["심박수", "68"], ["호흡수", "18"], ["수면 점수", "86"], ["스트레스 수준", "31"], ["에너지 수준", "74"], ["기온", "19"]]) {
-      fireEvent.change(screen.getByLabelText(new RegExp(label)), { target: { value } });
+      fireEvent.change(screen.getByLabelText(new RegExp(label), { selector: 'input[type="number"]' }), { target: { value } });
     }
     fireEvent.click(screen.getByLabelText("비"));
     fireEvent.click(screen.getByRole("button", { name: "분석 요청" }));
@@ -158,7 +158,7 @@ describe("Check-in weather modes", () => {
     await screen.findByRole("alert");
     expect(localStorage.getItem(AUTO_WEATHER_KEY)).toBe("true");
     for (const [label, value] of [["심박수", "68"], ["호흡수", "18"], ["수면 점수", "86"], ["스트레스 수준", "31"], ["에너지 수준", "74"], ["기온", "19"]]) {
-      fireEvent.change(screen.getByLabelText(new RegExp(label)), { target: { value } });
+      fireEvent.change(screen.getByLabelText(new RegExp(label), { selector: 'input[type="number"]' }), { target: { value } });
     }
     fireEvent.click(screen.getByLabelText("비"));
     fireEvent.click(screen.getByRole("button", { name: "분석 요청" }));

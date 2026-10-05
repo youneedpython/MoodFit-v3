@@ -200,6 +200,21 @@ export function CheckinPage() {
           aria-invalid={error ? "true" : "false"}
           aria-describedby={error ? `${hintId} ${errorId}` : hintId}
         />
+        {(["sleepScore", "stressLevel", "energyLevel"] as NumberFieldName[]).includes(name) && (
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={1}
+            aria-label={`${field.label} Slider`}
+            aria-describedby={error ? `${hintId} ${errorId}` : hintId}
+            aria-invalid={error ? "true" : "false"}
+            className="checkin-field__slider"
+            value={values[name] === "" ? 50 : Math.min(100, Math.max(0, Number(values[name])))}
+            onChange={updateValue(name)}
+            disabled={isSubmitting}
+          />
+        )}
         <p id={hintId} className="checkin-field__hint">
           {rangeHint(field)}
         </p>
@@ -228,7 +243,7 @@ export function CheckinPage() {
             <fieldset className="checkin-group">
               <legend className="checkin-group__legend">{group.title}</legend>
               <p className="checkin-group__description">{group.description}</p>
-              <div className="checkin-group__fields">{group.fields.map(renderNumberField)}</div>
+              <div className={`checkin-group__fields checkin-group__fields--${group.fields.length}`}>{group.fields.map(renderNumberField)}</div>
             </fieldset>
           </Card>
         ))}
