@@ -3713,3 +3713,7 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 추천 개수 / 빈 목록 / 기본 닫힘 / 페이지 복귀, 같은 해 / 과거 해 / 해 경계 / 잘못된 기간, Card 기간 / 건수 / 원본 time 회귀 Test를 보완했다. jest-dom Matcher / CSS raw import / Dependency 추가는 없다.
 - Verification: bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci에서 중단됐다. Test / tsc --noEmit / Build는 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았으며 Sandbox 밖 Orchestrator Verify가 검증 기준이다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
 - UTF-8 apply_patch로 문서를 작성했다. Git 작업은 수행하지 않았다. Executor DONE은 Verify / Review / Human 완료 승인이 아니다. Claude 세션의 390 / 768 / 1280px 접힘 / 펼침 캡처와 Merge 후 Staging 확인은 후속 작업이며 allowed_paths 밖 이미지 경로에는 쓰지 않았다.
+
+### TASK-060 Run 2 — 기존 구현 재확인 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. Task source와 필수 Context를 확인하고 기본 닫힌 details / summary, 실제 추천 개수와 빈 목록 처리, 기존 이름 순서, 페이지 이동 뒤 닫힘, 기존 터치 영역 / 초점 Token, 문자열 기반 기간 변환과 서울 기준 연도 규칙, 원본 time dateTime 및 회귀 Test를 재확인했다. 설계와 어긋난 구현은 발견하지 않아 코드 / 통과한 Test / Task 상태는 변경하지 않았다. Task source의 Run 1 Frontend Test 236건 / Build 통과와 Backend Test 중 10분 제한 시간 초과는 전달받은 참고 증거이며 이번 Executor 결과가 아니다. 이번 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci 단계에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 Run 2 재확인과 기록 완료만 뜻한다. Git 작업은 수행하지 않았다. Claude 세션의 390 / 768 / 1280px 접힘 / 펼침 화면 캡처와 Merge 후 Staging 확인은 후속 작업으로 유지한다.
