@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
 @Component
 public class BedrockInsightGenerator implements InsightGenerator {
     static final String SYSTEM = "당신은 웰니스 코치입니다. 주어진 Score와 상태를 바꾸거나 다시 계산하지 마세요. "
+            + "신체 긴장도는 서비스가 정한 참고 지표이며 진단처럼 말하지 마세요. "
             + "진단, 치료, 약 권유를 하지 마세요. 목록 기호, Markdown, 제목 없이 존댓말 문장으로만 쓰세요. "
             + "영문 Code나 내부 이름을 쓰지 마세요. 입력의 Key 이름을 그대로 옮기지 마세요. "
             + "입력에 없는 사실을 지어내지 마세요. 수치가 걱정스러워도 전문가 상담을 가볍게 권하는 정도만 쓰세요. ";

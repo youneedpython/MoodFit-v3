@@ -84,10 +84,22 @@
     }
   ],
   "baseline": {
-    "available": false,
-    "sampleCount": 0,
-    "tension": null,
-    "averages": null,
-    "deltas": null
+    "available": true,
+    "sampleCount": 5,
+    "tension": "STABLE",
+    "averages": {
+      "heartRate": 68.0,
+      "respiratoryRate": 18.0,
+      "sleepScore": 86.0,
+      "stressLevel": 31.0,
+      "energyLevel": 74.0
+    },
+    "deltas": {
+      "heartRate": 0.0,
+      "respiratoryRate": 0.0,
+      "sleepScore": 0.0,
+      "stressLevel": 0.0,
+      "energyLevel": 0.0
+    }
   }
 }

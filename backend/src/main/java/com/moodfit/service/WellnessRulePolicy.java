@@ -70,8 +70,17 @@ class WellnessRulePolicy {
     }
 
     AnalysisResult analyze(CreateCheckinRequest request, RecommendationFeedbackService.Feedback feedback) {
+        return analyze(request, feedback, com.moodfit.dto.response.BaselineResponse.unavailable());
+    }
+
+    AnalysisResult analyze(CreateCheckinRequest request, RecommendationFeedbackService.Feedback feedback,
+            com.moodfit.dto.response.BaselineResponse baseline) {
         int wellnessScore = calculateScore(request.sleepScore(), request.stressLevel(), request.energyLevel());
         MoodType mood = determineMood(request.sleepScore(), request.stressLevel(), request.energyLevel(), wellnessScore);
+        MoodType originalMood = mood;
+        boolean high = "HIGH".equals(baseline.tension());
+        if (high && mood == MoodType.ENERGETIC) mood = MoodType.BALANCED;
+        MoodType poolMood = high && mood == MoodType.BALANCED ? MoodType.CALM : mood;
         ContextType context = determineContext(request.temperature(), request.weather());
 
         long epochDay = LocalDate.now(clock.withZone(ZoneId.of("Asia/Seoul"))).toEpochDay();
@@ -79,9 +88,9 @@ class WellnessRulePolicy {
                 wellnessScore,
                 mood.code(),
                 mood.label(),
-                mood.summarySentence() + " " + context.summarySentence(),
-                select(MOOD_FOODS.get(mood), CONTEXT_FOODS.get(context), epochDay, FoodRecommendationValue::getName, feedback.ratings(RecommendationFeedbackService.Kind.FOOD)),
-                select(MOOD_MUSIC.get(mood), CONTEXT_MUSIC.get(context), epochDay, MusicRecommendationValue::getVideoId, feedback.ratings(RecommendationFeedbackService.Kind.MUSIC)));
+                originalMood.summarySentence() + " " + context.summarySentence() + PersonalBaseline.summary(baseline),
+                select(MOOD_FOODS.get(poolMood), CONTEXT_FOODS.get(context), epochDay, FoodRecommendationValue::getName, feedback.ratings(RecommendationFeedbackService.Kind.FOOD)),
+                select(MOOD_MUSIC.get(poolMood), CONTEXT_MUSIC.get(context), epochDay, MusicRecommendationValue::getVideoId, feedback.ratings(RecommendationFeedbackService.Kind.MUSIC)));
     }
 
     static boolean contains(RecommendationFeedbackService.Kind kind, String item) {

@@ -11,6 +11,9 @@ import com.moodfit.entity.WellnessCheckin;
 
 public interface WellnessCheckinRepository extends JpaRepository<WellnessCheckin, Long> {
 
+    List<WellnessCheckin> findByUserIdAndRecordedAtGreaterThanEqualAndRecordedAtLessThan(
+            Long userId, Instant from, Instant until);
+
     Optional<WellnessCheckin> findTopByUserIdOrderByRecordedAtDescIdDesc(Long userId);
 
     @EntityGraph(attributePaths = {"foodRecommendations", "musicRecommendations"})

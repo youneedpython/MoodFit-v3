@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import { BaselineNotice, TensionBadge } from "../dashboard/PersonalBaseline";
+import { BodyMetrics } from "../dashboard/BodyMetrics";
 import { InsightCard } from "../insight/InsightCard";
 import { Badge } from "../../components/Badge/Badge";
 import { WEATHER_LABELS } from "../../constants/weather";
@@ -35,6 +37,7 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
 
       <div className="checkin-result__score">
         <Badge tone="accent">{result.mood.label}</Badge>
+        <TensionBadge tension={result.baseline.tension} />
         <p>
           <span className="checkin-result__score-label">Wellness Score</span>
           <span className="checkin-result__score-value">{result.wellnessScore}</span>
@@ -42,6 +45,8 @@ export function CheckinResultSummary({ result, onStartOver }: CheckinResultSumma
       </div>
 
       <p className="checkin-result__summary">{result.summary}</p>
+      <BaselineNotice baseline={result.baseline} />
+      <BodyMetrics metrics={result.metrics} baseline={result.baseline} />
       {result.weather.region && <p className="checkin-result__weather">
         {WEATHER_LABELS[result.weather.condition]} · {result.weather.temperature.toFixed(1)}°C
         <span className="weather-region">{result.weather.region}</span>

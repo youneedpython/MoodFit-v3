@@ -107,6 +107,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-053 | Milestone 53 | AI Card Layout (AI 코멘트 위치 / 주간 리포트 버튼 간격) | DONE | TASK-051 | Human 명시 실행 승인 (2026-10-04), Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-054 | Milestone 54 | Privacy Notice / Account Deletion / SPA Route Fix | DONE | TASK-042, TASK-044, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-055 | Milestone 55 | Recommendation Feedback (추천 피드백) | DONE | TASK-042, TASK-048, TASK-054 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-056 | Milestone 56 | Personal Baseline (개인별 Baseline / 신체 긴장도) | DONE | TASK-042, TASK-045, TASK-048, TASK-055 | Human Approved 2026-10-05, Gate B B안 / 체험 계정 적용, Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
 
@@ -1994,3 +1995,12 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - Dashboard / 결과 공통 버튼에 낙관적 갱신과 실패 복구, 항목 이름 / aria-pressed, 기존 Token의 줄바꿈 배치를 적용했다. 개인정보 안내와 계정 삭제를 확장했다.
 - H2 / MySQL 공통 API·삭제 Test, 추천 순환 / 결정성 Test, 공유 계약과 Frontend Toggle·실패·체험·이전 곡 Test를 추가했다. 자체 Verify는 npm 캐시 EPERM, Backend 단독 Test는 Gradle 잠금 경로 생성 제한, Container Smoke는 app.jar 부재 / Docker 접근 제한으로 실행되지 않았다. 정적 검사와 diff 검사를 수행했으며 상세는 WORK_LOG를 따른다.
 - Orchestrator Verify / Claude Review 이후 화면 캡처, Remote CI / Human Squash Merge와 Staging 평가 → 새 Check-in 확인이 남는다. DONE은 검증 성공이나 최종 완료 승인이 아니다.
+
+## TASK-056 — Personal Baseline (개인별 Baseline / 신체 긴장도)
+
+- 상태: DONE (Executor 구현 완료), Milestone 56. Dependency: TASK-042 / TASK-045 / TASK-048 / TASK-055.
+- 승인: Human Approved 2026-10-05, Gate B B안 및 체험 계정 평소 값 적용 지시, DEC-043. TASK-056만 IN_PROGRESS 등록 후 구현 완료를 DONE으로 반영했다. 기존 Current Task TASK-030 / BLOCKED와 다른 Task 상태는 유지한다.
+- 본인 최근 14일 이전 기록 5건 이상 평균 / 차이 / 신체 긴장도, V7 nullable snapshot 저장과 생성 / 최신 baseline / 이력 tension을 구현했다. Score 공식은 유지하며 HIGH일 때만 승인된 기분 / 추천 Pool / 요약 조정을 적용한다.
+- Dashboard / 결과의 다섯 지표 차이와 긴장도 / 비교 안내, 체험 공유 평균 설명, History Badge, AI 입력 / 개인정보 안내를 확장했다. 두 Smoke는 Score / 지표 / 날씨의 값 비교, Baseline / 기분 / 요약 / 이력 긴장도의 형식 비교와 latest == created를 유지한다.
+- 경계 / 사용자 / 저장 / 계약 / AI / 삭제 / H2 및 MySQL Migration / Frontend Test를 추가했다. 자체 Verify는 npm 캐시 EPERM으로 설치에서 중단됐고 Gradle 잠금 경로 생성 제한으로 Backend Test를 실행하지 못했다. Container Smoke는 app.jar 부재와 Docker 접근 제한으로 미완료다. 구문 / 계약 예시 / Smoke 비교 규칙 / diff / 인코딩을 정적으로 확인했다.
+- 검증 기준은 Sandbox 밖 Orchestrator Verify다. 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 캡처와 Merge 뒤 Staging 소셜 기록 5건 이상 비교 확인이 남는다. [개인별 Baseline](26-PERSONAL-BASELINE.md)을 따른다.

@@ -42,9 +42,13 @@ public class CheckinServiceImpl implements CheckinService {
     @Override
     @Transactional
     public CheckinResponse create(CreateCheckinRequest request) {
-        WellnessRulePolicy.AnalysisResult analysis = wellnessRulePolicy.analyze(request, feedback.get(com.moodfit.auth.UserIdentity.current()));
+        Instant now = clock.instant().truncatedTo(ChronoUnit.MICROS);
+        Long userId = com.moodfit.auth.UserIdentity.current().id();
+        var baseline = PersonalBaseline.calculate(repository.findByUserIdAndRecordedAtGreaterThanEqualAndRecordedAtLessThan(
+                userId, now.minus(Duration.ofDays(14)), now), userId, now, request);
+        WellnessRulePolicy.AnalysisResult analysis = wellnessRulePolicy.analyze(request, feedback.get(com.moodfit.auth.UserIdentity.current()), baseline);
         WellnessCheckin checkin = new WellnessCheckin(
-                clock.instant().truncatedTo(ChronoUnit.MICROS),
+                now,
                 request.heartRate(),
                 request.respiratoryRate(),
                 request.sleepScore(),
@@ -60,6 +64,7 @@ public class CheckinServiceImpl implements CheckinService {
 
         checkin.assignUser(com.moodfit.auth.UserIdentity.current().id());
         checkin.assignRegion(request.region());
+        checkin.assignBaseline(baseline);
         return toCheckinResponse(repository.save(checkin), analysis.moodLabel());
     }
 
@@ -101,7 +106,7 @@ public class CheckinServiceImpl implements CheckinService {
                         .toList(),
                 checkin.getMusicRecommendations().stream()
                         .map(this::toMusicResponse)
-                        .toList());
+                        .toList(), checkin.getBaseline());
     }
 
     private HistoryItemResponse toHistoryItemResponse(WellnessCheckin checkin) {
@@ -123,7 +128,7 @@ public class CheckinServiceImpl implements CheckinService {
                         .toList(),
                 checkin.getMusicRecommendations().stream()
                         .map(MusicRecommendationValue::getTitle)
-                        .toList());
+                        .toList(), checkin.getTension());
     }
 
     private FoodRecommendationResponse toFoodResponse(FoodRecommendationValue value) {

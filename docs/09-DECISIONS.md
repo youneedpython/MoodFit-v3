@@ -393,6 +393,8 @@ Human Approved
 
 변경 이력: 2026-10-04 Human Approved TASK-055 / DEC-042에 따라 개인 추천 평가를 후보 선택 순서에만 반영한다. Score / 기분 / 상황 판정과 추천 개수 및 Check-in 응답은 유지한다.
 
+변경 이력: 2026-10-05 Human Approved TASK-056 / DEC-043 (Gate B B안)에 따라 개인 Baseline의 HIGH 긴장도일 때 기분 / 추천 / 요약을 조정한다. 아래 최초 규칙의 심박수 / 호흡수 표시 전용 제한은 이 범위에서 변경하며 Score 공식은 유지한다.
+
 ### 결정
 
 TASK-005 Gate B Human Review를 통해 Wellness Analysis / Recommendation Rule을 다음과 같이 확정한다.
@@ -1582,3 +1584,13 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - 평가는 다음 Check-in부터 적용한다. 평가 없음의 기존 결과, 판정 규칙, 음식 5개 / 음악 5개, 응답 형식과 저장 기록을 유지한다. 추천은 계속 규칙이 결정한다.
 - Dashboard / 결과 화면에 낙관적 Toggle과 실패 복구, 접근 가능한 이름 / 눌림 상태를 제공한다. 개인정보 안내와 계정 삭제 대상에 추천 평가를 추가한다. 새 Dependency / Infra / Smoke 변경은 없다.
 - 실행 승인은 Verify / Review / Human Squash Merge를 대신하지 않는다. 규칙 예시는 [20-RECOMMENDATION-MUSIC-PLAYBACK.md](20-RECOMMENDATION-MUSIC-PLAYBACK.md)를 따른다.
+
+## DEC-043 TASK-056 개인별 Baseline / 신체 긴장도
+
+- Human Approved 2026-10-05, Gate B B안 및 제공된 Contract와 명시 실행 지시. 체험 계정에도 평소 값 적용 지시를 포함한다.
+- 같은 사용자 최근 14일 기록 중 현재 저장 시각보다 앞선 5건 이상을 사용한다. 시작 경계 포함, 현재 기록 제외. 다섯 지표 평균은 소수 첫째 자리 HALF_UP이며 심박수 / 호흡수 평균 0이면 Baseline 없음이다.
+- 심박수 15% 이상 또는 호흡수 20% 이상 증가면 HIGH, 모두 10% 이하 증가면 STABLE, 나머지 NORMAL이다. 의학적 기준이 아닌 Product Heuristic이다.
+- HIGH일 때만 ENERGETIC을 BALANCED로 조정하고 조정 뒤 BALANCED는 CALM 추천 Pool을 사용한다. TIRED / CALM은 유지하며 기존 요약에 높은 지표를 지칭하는 휴식 제안을 덧붙인다. Score 공식, 상황 Pool, 추천 개수 / Pool 내용 / 날짜 순환 / 개인 피드백은 유지한다.
+- V7 기본값 없는 nullable Column으로 평균 / 표본 수 / 긴장도를 기록과 함께 저장한다. 조회 시 평균을 재계산하지 않는다. 생성 / 최신에 baseline, 이력에 tension을 추가한다. 체험 계정은 모든 방문자의 공유 평균임을 화면에 표시한다.
+- AI에는 한국어 긴장도와 심박수 / 호흡수 차이만 추가하며 식별 정보 제외를 유지한다. 처리 안내를 갱신하고 Smoke는 Score / 지표 / 날씨 값 비교와 나머지 형식 검사 및 latest == created를 유지한다.
+- 상세는 [26-PERSONAL-BASELINE.md](26-PERSONAL-BASELINE.md)를 따른다. Executor DONE은 구현 완료이며 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.

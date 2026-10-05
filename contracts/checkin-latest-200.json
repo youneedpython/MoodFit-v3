@@ -82,5 +82,12 @@
       "reason": "비 오는 날의 실내 분위기에 어울립니다.",
       "videoId": "BzYnNdJhZQw"
     }
-  ]
+  ],
+  "baseline": {
+    "available": false,
+    "sampleCount": 0,
+    "tension": null,
+    "averages": null,
+    "deltas": null
+  }
 }

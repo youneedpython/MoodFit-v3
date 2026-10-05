@@ -12,6 +12,7 @@ export function PrivacyPage() {
         <tr><th scope="row">로그인</th><td>Google / Kakao 사용자 번호와 표시 이름(닉네임)을 계정 구분에 사용합니다. 이메일과 프로필 사진은 요청하거나 저장하지 않습니다.</td></tr>
         <tr><th scope="row">체크인</th><td>심박수, 호흡수, 수면 점수, 스트레스, 에너지, 기온, 날씨 종류, 자동 조회 지역 이름, 기록 시각과 규칙이 계산한 점수 / 상태 / 추천을 저장해 결과와 이력을 보여 줍니다.</td></tr>
         <tr><th scope="row">AI 문장</th><td>생성된 AI 코멘트, 주간 리포트와 하루 생성 한도 계산을 위한 생성 시도 기록을 저장합니다.</td></tr>
+        <tr><th scope="row">평소 값</th><td>본인의 이전 기록 평균으로 평소 값을 계산해 기록과 함께 저장합니다. 체험 계정은 모든 방문자의 기록 평균으로 계산합니다. 신체 긴장도는 의학적 기준이 아닌 참고 지표입니다.</td></tr>
         <tr><th scope="row">추천 평가</th><td>추천 평가(좋아요 / 별로예요)를 항목별로 저장하여 다음 Check-in의 추천 후보 순서에 반영합니다. 계정 삭제 시 함께 지웁니다.</td></tr>
         <tr><th scope="row">로그인 상태</th><td>로그인 유지용 Cookie와 서버 세션을 사용합니다. 세션은 마지막 사용 뒤 7일 유지됩니다.</td></tr>
         <tr><th scope="row">브라우저 저장</th><td>날씨 자동 조회 사용 여부 한 가지 값을 localStorage에 저장합니다. 계정 삭제 완료 안내를 표시하기 위한 일회용 값을 sessionStorage에 저장하고 로그인 화면에서 읽은 직후 지웁니다. 이 값에는 좌표나 개인 정보를 넣지 않습니다.</td></tr>
@@ -24,7 +25,7 @@ export function PrivacyPage() {
         <tr><th scope="row">Google / Kakao</th><td>로그인 요청을 서버와 브라우저에서 전달하며 사용자가 제공자 서비스에서 직접 인증합니다.</td></tr>
         <tr><th scope="row">Open-Meteo / BigDataCloud</th><td>날씨 자동 조회 시 브라우저에서 소수 둘째 자리로 줄인 좌표를 보내 날씨 / 지역 이름을 조회합니다.</td></tr>
         <tr><th scope="row">YouTube</th><td>사용자가 “바로 듣기”를 누를 때 브라우저에서 youtube-nocookie.com으로 영상 요청을 보냅니다.</td></tr>
-        <tr><th scope="row">Amazon Bedrock (Anthropic Claude)</th><td>소셜 로그인 사용자가 AI 코멘트 / 주간 리포트를 생성할 때 서버에서 체크인 수치, 날씨, 규칙 결과를 전달합니다. 사용자 번호 / 이름 / 지역 이름 / 좌표 / 기록 번호는 보내지 않습니다. global 추론 Profile을 사용하므로 국외 Region에서 처리될 수 있습니다.</td></tr>
+        <tr><th scope="row">Amazon Bedrock (Anthropic Claude)</th><td>소셜 로그인 사용자가 AI 코멘트 / 주간 리포트를 생성할 때 서버에서 체크인 수치, 날씨, 규칙 결과를 전달합니다. 평소 값이 있으면 신체 긴장도와 심박수 / 호흡수의 평균 대비 차이도 전달합니다. 사용자 번호 / 이름 / 지역 이름 / 좌표 / 기록 번호는 보내지 않습니다. global 추론 Profile을 사용하므로 국외 Region에서 처리될 수 있습니다.</td></tr>
       </tbody></table>
     </section>
     <section><h2>보관 위치와 기간</h2><p>서비스 데이터는 AWS 서울 Region의 Private Subnet에 있는 RDS MySQL에 저장합니다. 계정과 기록, AI 문장과 생성 시도 기록은 계정 삭제 시 지웁니다. 자동 백업은 14일 보관하므로 삭제 전 데이터가 백업에 최대 14일 남을 수 있습니다. 세션은 마지막 사용 뒤 7일, 접속 / Application 로그는 30일 보관합니다.</p></section>

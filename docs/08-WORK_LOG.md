@@ -3670,3 +3670,19 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Docker가 꺼져 있으면 MySQL Testcontainers Test가 실패하지 않고 건너뛰어진다(이번에 18건). Local 검증 결과를 볼 때 Skip 수를 함께 확인해야 한다.
 - 화면 확인(`docs/images/task-055/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 390 / 768 / 1280px를 캡처했다. 저장된 평가(좋아요 1, 별로예요 1)가 `aria-pressed`로 표시되고, 버튼 이름에 항목이 들어간다("새우 볶음밥 좋아요"). 누르면 저장 요청이 1회 나가고, 저장 실패 시 되돌아가며 오류 문구가 보인다. 체험 계정에는 버튼이 없고 안내 문구가 보인다. 세 폭 모두 가로 넘침이 없다.
 - 후속 후보(비차단, Review INFO-3 ~ 5): Prompt 색인에 Run 2 / 3 행 추가, 실제 Pool에서 LIKE 첫 자리 단언 추가, Pool에서 빠진 항목의 평가 정리.
+
+### TASK-056 — Personal Baseline 구현 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. AGENTS / 프로젝트 / UX / Architecture / API / 계획 / 상태 / 공통 규칙 / Task source / DEC-014·042 / Orchestrator 정책과 LLM / 개인정보 Context를 확인했다. Human 승인 B안과 체험 계정 평소 값 적용 지시만 구현했다.
+- 같은 사용자 최근 14일 이전 기록 5건 이상 평균과 차이, 정확한 15% / 20% / 10% 경계 판정, V7 nullable 평균 / 표본 수 / 긴장도 snapshot 저장과 API를 추가했다. 기존 행은 null이며 조회 시 재계산하지 않는다. Score는 유지하고 HIGH일 때만 기분 / 차분한 추천 Pool / 휴식 문장을 조정한다.
+- Dashboard / 결과 다섯 Metric 차이와 비교 안내 / 긴장도 Badge, 체험 공유 평균 설명, History Badge, 한국어 AI 지표와 진단 금지 Prompt, 개인정보 안내 / DEC-043 / 기능 문서 / API 예시 / 실행 Prompt를 추가했다. 다른 Task 상태와 Current Task는 유지했다.
+- Backend Test는 기간 / 표본 / 소유자 / 현재 기록 제외 / 체험·소셜 / 긴장도 경계 / Score 유지 / Pool·피드백·요약 / snapshot / 응답 계약 / AI 식별 정보 제외와 nullable H2·MySQL Migration을 다룬다. 기존 H2·MySQL 계정 삭제 공통 Test의 fixture에 Baseline을 저장해 기록과 함께 삭제됨을 확인한다. Frontend는 있음 / 없음 / 체험 / Badge / 다섯 차이와 부호를 검사한다.
+- 자체 `bash scripts/verify.sh`는 npm ci의 캐시 stat EPERM 및 node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Frontend Test / tsc / Build와 Backend Test / Build는 실행되지 않았다. Backend 단독 `gradlew.bat test`도 Gradle wrapper 잠금 부모 디렉터리 생성 제한으로 시작하지 못했다. 자동 재시도 / 설치 / 설정 변경 / Sandbox 우회는 하지 않았다.
+- 자체 `bash scripts/container-smoke.sh`는 선행 app.jar 부재로 preflight에서 중단됐으며 Docker 설정과 daemon 접근에도 권한 제한이 있었다. 실제 Container / MySQL 통합 성공은 주장하지 않는다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- `bash -n scripts/staging-smoke.sh` 통과. 두 Smoke의 내장 Python 비교 함수를 합성 응답으로 검사해 Baseline / 기분 / 이력 긴장도 형식 허용, 잘못된 타입 / Code / 지표 집합 거부, Score / metrics / weather 값 변경 거부를 확인했다. API 문서의 생성 / 이력 JSON이 공유 계약과 일치했다. `git diff --check`와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행했다.
+- 한글은 UTF-8 apply_patch / 명시 UTF-8 쓰기로 작성했다. Git 후속 작업과 AWS 작업은 수행하지 않았다. DONE은 구현 완료이며 Verify / Review / Human 완료 승인이 아니다. Claude 세션의 390 / 768 / 1280px 화면 캡처와 Human Squash Merge, Merge 뒤 Staging 소셜 사용자 기록 5건 이상 비교 확인이 남는다.
+
+### TASK-056 Run 2 — 기존 구현 재확인 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인 Task source와 필수 Context, DEC-043을 읽고 최근 14일 / 5건 / 사용자 분리 / 현재 기록 제외, 비율 경계, 평균 snapshot과 HIGH 전용 기분 / 추천 / 요약 조정을 재확인했다. Score 공식, Baseline 부족 시 기존 결과, AI 식별 정보 제외, 화면 / 개인정보 안내와 두 Smoke의 값·형식 비교 구분에 수정이 필요한 불일치는 발견하지 않았다. Claude 세션이 수정한 Frontend Test의 toBeTruthy / textContent 검사를 유지하고 구현과 통과한 Test, Task 상태는 변경하지 않았다. Task source의 Sandbox 밖 Frontend 223건 / tsc / Build, Backend Test(건너뜀 DockerAvailabilityTests 1건), Container Smoke 통과는 전달받은 참고 증거이며 이번 Executor 결과가 아니다. 이번 bash scripts/verify.sh는 npm 캐시 stat EPERM과 node_modules 정리 EPERM으로 설치 단계에서 중단되어 Test / Build를 실행하지 못했다. bash scripts/container-smoke.sh는 app.jar 부재로 preflight에서 중단됐고 Docker 설정 / daemon 접근도 제한됐다. 자동 재시도나 Sandbox 우회는 하지 않았다. bash -n scripts/staging-smoke.sh는 통과했다. git diff --check와 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 재확인과 기록 완료만 뜻한다. Git / AWS 작업은 수행하지 않았다. 화면 캡처와 Merge 뒤 Staging 소셜 기록 5건 이상 비교 확인은 Claude 세션 / Human 후속 작업으로 유지한다.
+- 화면 확인(Claude 세션, `docs/images/task-056/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 Dashboard / Check-in 결과 / History를 390 / 768 / 1280px로 캡처했다. 긴장도 Badge(높음 / 보통 / 안정), 다섯 지표의 "평소 대비" 차이, 비교 안내 문구가 보이고, 기록이 5건 미만이면 Badge 없이 안내 문구만 보인다. 체험 계정에는 평소 값과 함께 공유 평균 안내가 붙는다. History는 기록마다 그때의 Badge를 보이고 이전 기록에는 Badge가 없다. 세 폭 모두 가로 넘침이 없다. 실제 Staging 흐름은 Merge 뒤 확인한다.

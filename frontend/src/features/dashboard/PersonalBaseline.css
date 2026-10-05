@@ -1,0 +1,5 @@
+.baseline-notice {
+  color: var(--color-text-muted);
+  margin-block: var(--space-3);
+  overflow-wrap: anywhere;
+}

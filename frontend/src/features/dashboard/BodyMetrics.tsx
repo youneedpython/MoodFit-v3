@@ -1,6 +1,7 @@
 import { Card } from "../../components/Card/Card";
 import { MetricCard } from "../../components/MetricCard/MetricCard";
-import type { Metrics } from "../../types/api";
+import type { Baseline, Metrics } from "../../types/api";
+import { baselineDelta } from "./PersonalBaseline";
 
 const METRICS: { key: keyof Metrics; label: string; unit: string }[] = [
   { key: "heartRate", label: "심박수", unit: "bpm" },
@@ -12,14 +13,16 @@ const METRICS: { key: keyof Metrics; label: string; unit: string }[] = [
 
 type BodyMetricsProps = {
   metrics: Metrics;
+  baseline?: Baseline;
 };
 
-export function BodyMetrics({ metrics }: BodyMetricsProps) {
+export function BodyMetrics({ metrics, baseline }: BodyMetricsProps) {
   return (
     <Card title="Body Metrics">
       <div className="grid grid--metrics">
         {METRICS.map((metric) => (
-          <MetricCard key={metric.key} label={metric.label} value={metrics[metric.key]} unit={metric.unit} />
+          <MetricCard key={metric.key} label={metric.label} value={metrics[metric.key]} unit={metric.unit}
+            hint={baseline?.available && baseline.deltas ? baselineDelta(baseline.deltas[metric.key]) : undefined} />
         ))}
       </div>
     </Card>

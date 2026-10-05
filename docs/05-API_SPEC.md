@@ -55,6 +55,8 @@ SNOW
 
 Mood 판정 규칙은 `docs/09-DECISIONS.md` DEC-014를 따른다.
 
+TASK-056 / DEC-043부터 신체 긴장도 `HIGH`일 때 ENERGETIC은 BALANCED로 조정한다. Score 공식은 그대로다. 긴장도 Code는 HIGH / NORMAL / STABLE이며 기존 기록이나 표본 부족이면 null이다.
+
 ---
 
 ## 4. Check-in 생성
@@ -182,11 +184,19 @@ Temperature 범위와 정밀도는 TASK-006 Persistence Gate C Human Approval에
       "reason": "비 오는 날의 실내 분위기에 어울립니다.",
       "videoId": "BzYnNdJhZQw"
     }
-  ]
+  ],
+  "baseline": {
+    "available": false,
+    "sampleCount": 0,
+    "tension": null,
+    "averages": null,
+    "deltas": null
+  }
 }
 ```
 
 - `wellnessScore`, `mood`, `summary`, `foods`, `music`은 DEC-014 Rule로 생성한다.
+- `baseline`은 저장 시점의 비교 결과다. `available`은 boolean, `sampleCount`는 0 이상 정수, `tension`은 HIGH / NORMAL / STABLE 또는 null이다. `averages` / `deltas`는 없으면 null, 있으면 heartRate / respiratoryRate / sleepScore / stressLevel / energyLevel 다섯 숫자다. 평균과 차이는 소수 첫째 자리이며 표본 부족이면 available false / sampleCount 0 / 나머지 null이다. [Baseline 있음 계약 예시](../contracts/checkin-baseline-201.json)를 Backend Test로 확인한다. 계산 / 조정 기준은 [개인별 Baseline](26-PERSONAL-BASELINE.md)을 따른다.
 - 생성 / 최신 응답의 `weather.region`과 이력 항목의 `region`은 저장 당시 지역 이름 또는 null이다. 좌표는 요청에 포함하거나 저장하지 않는다. 지역 없는 기존 요청과 기록을 지원한다.
 - `foods`, `music`은 새 기록에서 각각 5개이며, Mood 기반 3개 다음에 Weather / Temperature Context 기반 2개가 온다. 기존 2개짜리 기록은 그대로 반환한다.
 - 음악의 `videoId`는 선택적 문자열(기존 기록은 null 또는 생략 가능)이며 새 추천에서는 승인된 YouTube 영상 ID 11자를 반환한다. History는 기존 이름 / 제목 목록 형식을 유지한다.
@@ -289,13 +299,15 @@ GET /api/check-ins/history?days=7
         "Shape of You",
         "Someone You Loved",
         "밤편지"
-      ]
+      ],
+      "tension": null
     }
   ]
 }
 ```
 
 History 화면에 필요한 최소 정보만 반환하는 것을 우선한다.
+각 항목의 `tension`은 저장된 HIGH / NORMAL / STABLE 또는 null이며 이후 평균 변화로 바뀌지 않는다.
 추천 이력 요약을 위해 각 항목은 추천 이름만 포함한다. (DEC-020)
 
 - `foodNames`: 추천 음식 이름 목록 (Mood 3개, Context 2개 순서; 기존 기록은 저장된 순서)

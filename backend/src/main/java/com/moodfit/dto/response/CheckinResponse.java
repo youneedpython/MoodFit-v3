@@ -12,5 +12,6 @@ public record CheckinResponse(
         MetricsResponse metrics,
         WeatherResponse weather,
         List<FoodRecommendationResponse> foods,
-        List<MusicRecommendationResponse> music) {
+        List<MusicRecommendationResponse> music,
+        BaselineResponse baseline) {
 }

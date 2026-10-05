@@ -25,6 +25,41 @@ import jakarta.persistence.Table;
 @Table(name = "wellness_checkin")
 public class WellnessCheckin {
 
+    @Column(name = "baseline_sample_count")
+    private Integer baselineSampleCount;
+    @Column(name = "baseline_heart_rate", precision = 4, scale = 1)
+    private BigDecimal baselineHeartRate;
+    @Column(name = "baseline_respiratory_rate", precision = 3, scale = 1)
+    private BigDecimal baselineRespiratoryRate;
+    @Column(name = "baseline_sleep_score", precision = 4, scale = 1)
+    private BigDecimal baselineSleepScore;
+    @Column(name = "baseline_stress_level", precision = 4, scale = 1)
+    private BigDecimal baselineStressLevel;
+    @Column(name = "baseline_energy_level", precision = 4, scale = 1)
+    private BigDecimal baselineEnergyLevel;
+    @Column(length = 10)
+    private String tension;
+
+    public void assignBaseline(com.moodfit.dto.response.BaselineResponse baseline) {
+        if (!baseline.available()) return;
+        baselineSampleCount = baseline.sampleCount();
+        baselineHeartRate = baseline.averages().heartRate();
+        baselineRespiratoryRate = baseline.averages().respiratoryRate();
+        baselineSleepScore = baseline.averages().sleepScore();
+        baselineStressLevel = baseline.averages().stressLevel();
+        baselineEnergyLevel = baseline.averages().energyLevel();
+        tension = baseline.tension();
+    }
+    public String getTension() { return tension; }
+    public com.moodfit.dto.response.BaselineResponse getBaseline() {
+        if (baselineSampleCount == null) return com.moodfit.dto.response.BaselineResponse.unavailable();
+        var averages = new com.moodfit.dto.response.BaselineResponse.Values(baselineHeartRate,
+                baselineRespiratoryRate, baselineSleepScore, baselineStressLevel, baselineEnergyLevel);
+        return new com.moodfit.dto.response.BaselineResponse(true, baselineSampleCount, tension, averages,
+                com.moodfit.service.PersonalBaseline.differences(averages, heartRate, respiratoryRate,
+                        sleepScore, stressLevel, energyLevel));
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

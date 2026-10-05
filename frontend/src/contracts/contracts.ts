@@ -27,14 +27,15 @@ type Equals<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B 
 type Expect<T extends true> = T;
 
 /** 새 추천 예시는 videoId가 필수이며, 조회 타입은 이전 기록의 null / 생략도 허용한다. */
-type NewCheckinContract = Omit<CheckinResponse, "music" | "weather"> & {
+type NewCheckinContract = Omit<CheckinResponse, "music" | "weather" | "baseline"> & {
+  baseline: { available: boolean; sampleCount: number; tension: null; averages: null; deltas: null };
   weather: Omit<CheckinResponse["weather"], "region"> & { region: null };
   music: (Omit<CheckinResponse["music"][number], "videoId"> & { videoId: string })[];
 };
 
 /** Smoke examples deliberately use null regions; the API also accepts string regions. */
 type RegionlessHistoryContract = Omit<HistoryResponse, "items"> & {
-  items: (Omit<HistoryResponse["items"][number], "region"> & { region: null })[];
+  items: (Omit<HistoryResponse["items"][number], "region" | "tension"> & { region: null; tension: null })[];
 };
 
 /*
