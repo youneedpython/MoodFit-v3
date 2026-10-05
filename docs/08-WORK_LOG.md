@@ -3718,3 +3718,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 
 - 최초 Working Tree는 clean이었다. 승인 Task source와 필수 Context를 읽고 이름 줄의 Badge / 평가 묶음 배치, 알약 테두리 / 구분선 / Inline SVG, 글자 없는 버튼의 접근성 이름 / title / aria-pressed / 평가 그룹, 채움과 강조 색 전환, 기존 44px 터치 Token / 초점 표시, 평가 불가 조건 및 저장 / 지우기 / 교체 / 실패 복구와 음악 재생 유지 여부를 재확인했다. 수정이 필요한 불일치는 발견하지 않아 구현과 통과한 Test, 다른 Task 상태를 유지했다. Task source의 Run 1 Frontend Test 224건 및 Backend Test / Build 통과와 동시 검증으로 인한 제한 시간 초과, Claude 세션의 390 / 768 / 1280px 화면 확인은 전달받은 참고 증거이며 이번 Executor 실행 결과가 아니다. 이번 bash scripts/verify.sh는 npm ci에서 사용자 캐시 stat EPERM과 node_modules 정리 EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD 직접 검사를 수행한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 재확인과 기록 완료만 뜻한다. Git 작업은 수행하지 않았다. Claude 세션의 화면 캡처 기록과 Human Squash Merge, Merge 뒤 Staging 화면 확인은 후속 작업으로 유지한다.
 - 화면 확인(Claude 세션, `docs/images/task-058/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 Dashboard(390 / 768 / 1280px), 체험 계정, Check-in 결과(390px)를 캡처했다. 평가 버튼이 이름 줄 오른쪽의 알약 모양 아이콘 묶음으로 보이고 눌린 쪽은 채워진 강조 색이다. 체험 계정에는 묶음이 없다. 390px에서 이름이 긴 항목은 Badge와 묶음이 다음 줄로 내려가며 가로 넘침은 없다.
+
+### UI / UX 개선 Task 등록 (2026-10-05, Claude 세션, Human 지시)
+
+- Human이 Staging 화면을 보고 지적한 두 가지(회원 탈퇴 메뉴가 보이지 않음, 추천 평가 버튼이 복잡함)와 Check-in 날씨 영역 배치를 TASK-057 / 058 / 059로 진행했다. UI / UX 수정은 화면(성격)별로 나눠 진행하기로 했다.
+- Human 요청으로 Claude 세션이 Dashboard / Check-in / History / 로그인 화면을 훑어 개선 후보를 뽑았고, Human이 모두 Task로 정리하도록 지시했다. TASK-060(History), TASK-061(Dashboard 추천 영역), TASK-062(로그인 / Footer), TASK-063(Check-in 입력 / 결과)을 READY로 등록했다.
+- 후보 가운데 "History 그래프의 시간 방향"은 Claude 세션의 오인이었다(캡처용 가짜 데이터의 순서가 거꾸로였다). 실제 그래프는 과거 → 현재 순서라 Task에서 뺐다.
+- 이 변경은 Task 문서, Contract, Task 목록만 더한다. 코드는 바꾸지 않았다.
