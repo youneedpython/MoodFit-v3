@@ -1,5 +1,13 @@
 # 08. MoodFit v3 Work Log
 
+### TASK-061 — Dashboard Recommendation Compact (2026-10-05)
+
+- 제목 왼쪽 재생 / 닫기 아이콘과 aria-expanded, 가수 줄 YouTube 보조 Link를 적용했다. Player는 클릭 후 추천 이유 아래에만 생성하며 같은 버튼으로 제거한다. iframe / Link 속성, 평가 모양과 동작 및 추천 개수를 유지했다.
+- 768px 미만에서는 이름 / 평가 첫 줄과 Badge 둘째 줄로 통일하고, 그 이상에서는 한 줄로 표시한다. 기존 색 / 크기 / 터치 영역 / 초점 Token을 사용하며 Card 높이를 강제로 맞추지 않았다.
+- Dashboard와 결과 화면의 BaselineNotice를 Body Metrics 지표 아래로 옮겼다. 안내 문구와 보조 Style을 유지하며 중복 렌더링을 제거했다. 재생 토글 / 접근성 / Link 위치와 지표 안 안내 회귀 Test를 보완했다.
+- Verification: 자체 npm Test는 vitest가 설치되지 않아 실행되지 않았다. bash scripts/verify.sh는 Node.js 버전 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단됐다. Test / tsc --noEmit / Build는 실행하지 못했으며 Sandbox 밖 Orchestrator Verify가 기준이다. 재시도나 권한 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 / U+FFFD를 직접 검사했다.
+- Executor 구현 완료는 Verify / Review / Human 완료 승인이 아니다. Git 작업은 수행하지 않았다. Claude 세션의 390 / 768 / 1280px 재생 전 / 중 캡처와 Merge 후 Staging 확인이 남았다. 이미지 경로는 allowed_paths 밖이므로 Executor가 생성하지 않았다.
+
 ### TASK-051 — AI 코멘트 가독성 (2026-10-04)
 
 - 초기 Working Tree는 clean이었다. Human이 제공한 승인 Contract와 Task 원문 / 필수 Context를 확인하고 allowed_paths 안에서 구현했다. Git 쓰기나 외부 호출은 수행하지 않았다.

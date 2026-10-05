@@ -16,6 +16,8 @@ Dashboard / 결과 진입에서 한 번 조회하여 공통 Card에 내려준다
 
 ## 추천 규칙
 
+TASK-061: 재생 / 닫기 아이콘은 곡 제목 왼쪽에 둔다. 같은 버튼으로 Player를 펼치거나 제거하며 aria-expanded와 곡 이름을 포함한 접근성 이름 / title을 제공한다. 별도 재생 닫기 글자 버튼은 없다. YouTube Link는 가수와 같은 줄에 “가수 · YouTube에서 열기”로 표시한다. 버튼과 Link는 기존 터치 영역 Token을 사용한다. Player는 추천 이유 아래에서 클릭 후에만 생성하며 기존 iframe 속성 / Link 주소 / 새 탭 / rel / 접근성 이름을 유지한다. 영상 ID가 없으면 재생 버튼과 Link를 표시하지 않는다. 768px 미만에서는 이름과 평가를 첫 줄, Badge를 둘째 줄에 두고 그 이상에서는 한 줄에 배치한다.
+
 새 Check-in은 음식과 음악을 각각 5개 생성한다. 순서는 Mood 3개 → Context 2개다. Wellness Score 계산, Mood 우선순위와 경계값, 기온 우선 Context 선택, Summary 문장은 DEC-014 그대로 유지한다. TASK-048 이후 음식은 확대된 후보 Pool에서 서울 날짜별로 선택한다. 기존 항목은 후보로 유지한다. 한 응답 내 음식 이름 / 곡 / 영상 ID는 중복되지 않는다.
 
 History는 DEC-020의 `foodNames` / `musicTitles` 목록을 유지하고 5개 제목을 모두 표시한다. 영상 메타데이터가 없는 History에는 재생 UI를 추가하지 않는다. Dashboard와 Check-in 결과는 같은 추천 카드로 곡 제목, 가수, Tag, 이유와 재생을 제공한다.

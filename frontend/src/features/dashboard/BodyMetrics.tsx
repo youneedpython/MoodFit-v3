@@ -1,7 +1,7 @@
 import { Card } from "../../components/Card/Card";
 import { MetricCard } from "../../components/MetricCard/MetricCard";
 import type { Baseline, Metrics } from "../../types/api";
-import { baselineDelta } from "./PersonalBaseline";
+import { BaselineNotice, baselineDelta } from "./PersonalBaseline";
 
 const METRICS: { key: keyof Metrics; label: string; unit: string }[] = [
   { key: "heartRate", label: "심박수", unit: "bpm" },
@@ -25,6 +25,7 @@ export function BodyMetrics({ metrics, baseline }: BodyMetricsProps) {
             hint={baseline?.available && baseline.deltas ? baselineDelta(baseline.deltas[metric.key]) : undefined} />
         ))}
       </div>
+      {baseline && <BaselineNotice baseline={baseline} />}
     </Card>
   );
 }
