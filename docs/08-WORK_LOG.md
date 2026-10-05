@@ -3693,3 +3693,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 로그인, 개인별 평소 값 / 신체 긴장도, 추천 평가, AI 코멘트 / 주간 리포트, AWS 배포 절과 API 목록, 기술 스택, 프로젝트 구조를 추가 / 갱신했다.
 - `docs/images/readme/`의 화면 캡처 6장을 새로 찍고 로그인 화면과 AWS Architecture 그림을 추가했다. 캡처는 `main`(TASK-056 포함) Build를 로컬에서 띄우고 API와 날씨 조회는 가짜 응답으로 대신했다.
 - 문서와 이미지 변경뿐이라 Test는 실행하지 않았다. 코드, 계약, Infrastructure는 바꾸지 않았다.
+
+## TASK-058 — Feedback Icons (2026-10-05)
+
+- 승인된 TASK-058 Contract와 Human 명시 실행 지시를 기준으로 추천 영역만 수정했다. 초기 Working Tree는 clean이었다. 계정 영역 / API / 추천 규칙 / Dependency는 변경하지 않았다.
+- 공통 RecommendationCards에서 음식과 음악 이름 줄에 Badge와 평가 묶음을 배치하고 추천 이유 아래 평가 줄을 제거했다. Badge와 묶음은 함께 줄바꿈되며 이름은 긴 낱말도 줄바꿈한다.
+- Inline SVG 엄지 아이콘 두 개를 하나의 알약 테두리와 구분선으로 묶었다. 보이는 글자를 없애고 접근성 이름 / aria-pressed / 항목별 평가 그룹 / title을 제공한다. 눌림은 채움과 강조 색으로 구분하고 기존 Token으로 44 × 44px 터치 영역 / Hover / 초점 표시를 유지한다.
+- 기존 저장 / 교체 / 지우기 / 실패 복구 / 평가 불가 조건 / 안내 / 재생을 유지했다. 이름 줄 자손 / 글자 없음 / SVG 접근성 / 채움 전환 / 저장 중 양쪽 비활성화 Test를 보완했다.
+- Verification: bash scripts/verify.sh는 Node.js 버전 일치 후 npm ci에서 npm 캐시 stat EPERM으로 중단됐다. 설치된 TypeScript / Vitest 실행 파일도 없어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 우회는 하지 않았으며 실제 통과를 주장하지 않는다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- git diff --check 및 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Executor DONE은 구현 완료만 뜻하며 검증 / Review / 최종 완료 승인을 대신하지 않는다.
+- 화면 캡처는 Contract에 따라 Claude 세션이 390 / 768 / 1280px에서 확인한다. 캡처 경로는 Executor allowed_paths 밖이므로 생성하지 않았다. 검증 / Review 후 승인된 Git 후속 작업과 Human Squash Merge, Merge 뒤 Staging 화면 확인이 남는다.
