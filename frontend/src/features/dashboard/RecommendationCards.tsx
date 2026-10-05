@@ -10,6 +10,11 @@ type RecommendationCardsProps = {
   foods: FoodRecommendation[];
   music: MusicRecommendation[];
   feedback?: FeedbackControls;
+  /** Card 제목. 같은 화면에 추천 묶음이 둘일 때 구분한다. */
+  foodTitle?: string;
+  musicTitle?: string;
+  /** 평가 안내 / 오류 문구. 같은 화면의 다른 묶음이 이미 보여 주면 끈다. */
+  showNotice?: boolean;
 };
 
 function FeedbackButtons({ feedback, kind, item, label }: { feedback?: FeedbackControls; kind: FeedbackKind; item: string; label: string }) {
@@ -78,11 +83,11 @@ function MusicTrack({ track, feedback }: { track: MusicRecommendation; feedback?
 }
 
 /** Food / Music Recommendation. 이름, Tag, 추천 이유를 함께 표시한다. (UX Spec 3절 D) */
-export function RecommendationCards({ foods, music, feedback }: RecommendationCardsProps) {
+export function RecommendationCards({ foods, music, feedback, foodTitle = "추천 음식", musicTitle = "추천 음악", showNotice = true }: RecommendationCardsProps) {
   return (
     <>
     <div className="grid grid--two">
-      <Card title="추천 음식">
+      <Card title={foodTitle}>
         <ul className="recommendation-list">
           {foods.map((food) => (
             <li key={food.name} className="recommendation-item">
@@ -101,7 +106,7 @@ export function RecommendationCards({ foods, music, feedback }: RecommendationCa
           ))}
         </ul>
       </Card>
-      <Card title="추천 음악">
+      <Card title={musicTitle}>
         <ul className="recommendation-list">
           {music.map((track) => (
             <MusicTrack key={`${track.title}:${track.videoId ?? "legacy"}`} track={track} feedback={feedback} />
@@ -109,12 +114,12 @@ export function RecommendationCards({ foods, music, feedback }: RecommendationCa
         </ul>
       </Card>
     </div>
-    {feedback?.data && <p className="recommendation-feedback__notice">{feedback.data.enabled
+    {showNotice && feedback?.data && <p className="recommendation-feedback__notice">{feedback.data.enabled
       ? feedback.data.shared
         ? "체험 계정의 평가는 모든 방문자가 함께 씁니다. 다음 Check-in의 추천부터 반영됩니다."
         : "평가는 다음 Check-in의 추천부터 반영됩니다. 지금 보이는 목록은 유지됩니다."
       : "소셜 로그인 후 추천을 평가하면 다음 추천에 반영됩니다"}</p>}
-    {feedback?.error && <p role="alert" className="recommendation-feedback__notice">{feedback.error}</p>}
+    {showNotice && feedback?.error && <p role="alert" className="recommendation-feedback__notice">{feedback.error}</p>}
     </>
   );
 }

@@ -48,6 +48,10 @@ describe("Dashboard today weather recommendations", () => {
     expect(requests("/api/recommendations/today")).toHaveLength(0);
     fireEvent.click(button);
     await screen.findByText("서울 · 비 · 19°C 기준 추천");
+    // 지난 기록의 추천과 구분되는 제목을 쓰고, 평가 안내 문구는 화면에 한 번만 나온다.
+    expect(screen.getByRole("heading", { name: "오늘 날씨 추천 음식" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "오늘 날씨 추천 음악" })).toBeTruthy();
+    expect(screen.queryAllByText(/평가는 다음 Check-in의 추천부터 반영됩니다/).length).toBeLessThanOrEqual(1);
     const calls = requests("/api/recommendations/today");
     expect(calls).toHaveLength(1);
     const query = new URL(String(calls[0][0]), "https://example.test").searchParams;

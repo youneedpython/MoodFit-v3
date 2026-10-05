@@ -2843,7 +2843,7 @@ Milestone 70. 선행: TASK-069, TASK-040, TASK-048, TASK-055, TASK-068.
 
 ### Human Approval 또는 Gate
 
-- Human 2026-10-05 “1단계 → 2단계 모두 진행”, Gate B / Gate C, 승인된 Run 2 Contract와 명시 실행 지시(DEC-048).
+- Human 승인 2026-10-05 “1단계 → 2단계 모두 진행”(Gate B / Gate C, DEC-048). “Check-in의 상황 추천과 같은 항목” 조건을 뺀 Run 2 설계는 Claude 세션이 정해 Human에게 알렸다.
 
 ### 완료 조건
 

@@ -1628,7 +1628,7 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 
 ## DEC-048 TASK-070 오늘 날씨 추천
 
-- Human Approved 2026-10-05, Gate B / Gate C: “1단계 → 2단계 모두 진행” 및 승인된 TASK-070 Run 2 Contract와 명시 실행 지시.
+- Human Approved 2026-10-05, Gate B / Gate C: “1단계 → 2단계 모두 진행”. 세부 설계는 Claude 세션이 정했다. 처음 판의 “Check-in의 상황 추천과 같은 항목” 조건은 기존 중복 제외 규칙(DEC-040 / DEC-042)과 양립할 수 없어 Claude 세션이 빼고 Human에게 알렸다(Human이 반대하면 다시 정한다).
 - 오늘 기록이 없는 Dashboard에서 버튼을 눌렀을 때만 현재 위치의 날씨를 조회하여 음식 2개 / 음악 2곡을 제공한다. 오늘 기록이 있으면 영역을 숨긴다. Score와 기분을 추정하거나 계산하지 않는다.
 - 로그인 필요 GET /api/recommendations/today를 승인한다. 기온 -30.0 ~ 50.0(소수 첫째 자리)과 기존 날씨 Enum만 받고 기존 항목 형식과 context를 반환한다. DB 쓰기 / Migration / Dependency 변경은 없다.
 - 기존 상황 Pool / 서울 날짜 순환 / 사용자 평가 반영 코드를 기분 선택 없이 사용한다. Check-in은 기분 추천과의 중복을 제외하므로 상황 추천 항목이 다를 수 있다. Run 2에서 받아들인 차이이며 Check-in 선택 규칙과 Pool은 유지한다.

@@ -98,3 +98,4 @@
     width: 100%;
   }
 }
+.dashboard-weather__note { color: var(--color-text-muted); font-size: var(--font-size-sm); }

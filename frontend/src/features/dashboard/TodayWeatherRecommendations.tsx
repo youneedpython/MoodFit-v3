@@ -52,13 +52,13 @@ export function TodayWeatherRecommendations({ feedback }: { feedback: FeedbackCo
         <p role="alert">{error.message}</p>
         {error.weather && <p>Check-in 화면에서는 날씨를 직접 입력할 수 있습니다. <Link to="/check-in">오늘 상태 입력</Link></p>}
       </>}
-      {!result && <Button variant="secondary" disabled={loading} onClick={() => void load()}>오늘 날씨로 추천 받기</Button>}
-      <p><a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">날씨 데이터: Open-Meteo</a></p>
+      <Button variant="secondary" disabled={loading} onClick={() => void load()}>{result ? "다시 조회" : "오늘 날씨로 추천 받기"}</Button>
+      <p className="dashboard-weather__note"><a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">날씨 데이터: Open-Meteo</a></p>
     </Card>
     {result && <>
-      <RecommendationCards foods={result.recommendations.foods} music={result.recommendations.music} feedback={feedback} />
-      <p>날씨만으로 고른 추천입니다. 오늘 상태를 입력하면 기분까지 반영한 추천 5개를 볼 수 있습니다.</p>
-      <Button variant="ghost" disabled={loading} onClick={() => void load()}>다시 조회</Button>
+      <RecommendationCards foods={result.recommendations.foods} music={result.recommendations.music} feedback={feedback}
+        foodTitle="오늘 날씨 추천 음식" musicTitle="오늘 날씨 추천 음악" showNotice={false} />
+      <p className="dashboard-weather__note">날씨만으로 고른 추천입니다. 오늘 상태를 입력하면 기분까지 반영한 추천 5개를 볼 수 있습니다.</p>
     </>}
   </section>;
 }
