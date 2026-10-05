@@ -3702,3 +3702,4 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 자체 bash scripts/verify.sh는 npm ci의 캐시 stat EPERM / node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Test / TypeScript / Frontend 및 Backend Build는 실행되지 않았다. 재시도 / 설치 변경 / Sandbox 우회는 하지 않았다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
 - git diff --check 및 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. UTF-8 apply_patch로 한글을 기록했다. Git 후속 작업은 수행하지 않았다.
 - Claude 세션의 390 / 768 / 1280px 자동 / 직접 입력 / 실패 화면 확인과 캡처가 남는다. 캡처 경로는 이번 allowed_paths 밖이며 앱 설치도 제한되어 Executor에서는 생성하지 않았다. Remote CI / Human Squash Merge 이후 Staging 화면 확인이 남는다. DONE은 구현 완료이며 검증 / Review / Human 완료 승인을 대신하지 않는다.
+- 화면 확인(Claude 세션, `docs/images/task-059/`): 이 Branch의 Build를 로컬에서 띄우고 날씨 / 지역 조회는 가짜 응답으로 대신해 날씨 영역을 자동 / 직접 입력 / 위치 권한 거부 세 경우로 390 / 768 / 1280px에서 캡처했다. 자동 모드는 모드 → 상태 문구 → 조회 결과 → 버튼 → 좌표 안내 → 출처 순서이고, 직접 입력 모드는 조회 결과 자리에 입력칸이 온다. 버튼은 덜 강조되는 모양이다. 모든 경우에 가로 넘침이 없다.
