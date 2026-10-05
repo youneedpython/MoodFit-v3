@@ -8,6 +8,14 @@
 - Workflow Python 코드의 자체 검사 통과. 같은 코드에 대한 PR / push 범위, 0 SHA / 잘못된 SHA / 지원하지 않는 Event / 빈 diff / diff 실패 / 특수 경로와 20개 제한 등 9개 검사 통과. 원본과 기존 두 Job Step의 일치도 확인했다. Windows Local 검사에서 Python subprocess의 기본 입력 인코딩으로 실패한 뒤 UTF-8을 명시해 통과했고 문서 명령에도 명시했다.
 - Contract YAML 구조 검사 시도는 Local Python의 PyYAML 부재(ModuleNotFoundError)로 실행하지 못했다. 새 Dependency 설치나 Sandbox 우회는 하지 않았다. Sandbox 밖 Orchestrator Verify가 검증 기준이다. git diff --check와 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
 - Executor DONE은 구현 완료이며 Verify / Claude Review / Human 완료 승인이 아니다. 이 PR의 Remote CI에서 changes와 두 Job 실행, Merge 후 문서 전용 / 화면 전용 Job 생략과 배포 관계를 Claude 세션이 확인한다. 승인된 후속 Git 작업과 Human Squash Merge가 남으며 Executor는 Git 작업을 수행하지 않았다.
+## TASK-066 — Slider 접근성 / 로그인 버튼 높이 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. Task source와 필수 Context를 확인하고 TASK-066만 IN_PROGRESS로 등록한 뒤 승인된 구현을 DONE으로 반영했다. Executor DONE은 구현 완료이며 검증 성공이나 Human 완료 승인을 대신하지 않는다. 다른 Task와 Current Task는 변경하지 않았다.
+- 컨디션 Slider의 aria-describedby / aria-invalid를 제거하고 숫자 입력칸에는 기존 안내 / 오류 연결을 유지했다. 빈 값에만 aria-valuetext="입력 안 함"을 제공한다. 접근성 이름, 숫자 / Slider 동기화, 빈 값 유지, 검증과 제출은 유지했다.
+- 세 항목의 접근성 속성 / 빈 값과 숫자 전환을 기존 동기화 Test에서 검사하고, 각 항목만 비워 제출할 때 필수 오류 / 숫자 입력칸 초점 / API 호출 차단을 검사하는 회귀 Test를 추가했다. 기존 Slider 제출 Test는 유지했다. 로그인 높이의 jsdom Test는 추가하지 않았다.
+- 로그인 세 버튼의 최소 높이를 52px로 맞추고 border-box를 명시했다. 제공자 버튼의 세로 여백을 0으로 줄여 안쪽 내용이 높이를 더 키우지 않게 했다. 너비 / 색 / Logo / 문구 / 간격 / Hover / Focus와 로그인 흐름은 유지한다. 진행 문구도 같은 높이 규칙을 적용한다.
+- 자체 `bash scripts/verify.sh`는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단됐다. Test / 타입 검사 / Frontend Build / Backend 검증을 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. 판정 기준은 Sandbox 밖 Orchestrator Verify다.
+- `git diff --check`와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. Claude 세션의 로그인 세 버튼 실측과 390 / 1280px 캡처가 남는다. 캡처 경로는 allowed_paths 밖이므로 Executor가 생성하지 않았다. Git 작업은 수행하지 않았으며 Remote CI / Human Squash Merge는 후속 절차다.
 
 ## TASK-064 — PWA 설치 (2026-10-05)
 
@@ -3854,6 +3862,7 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 자체 bash scripts/verify.sh는 Node.js 버전 확인 후 npm ci의 캐시 stat EPERM으로 중단됐다. Test / 타입 검사 / Build는 실행하지 못했으며 자동 재시도 / 권한 우회는 하지 않았다. 판정은 Sandbox 밖 Orchestrator Verify다. git diff --check와 변경 문서의 연속 물음표 / U+FFFD 검사를 수행한다.
 - Claude 세션의 390 / 768 / 1280px 기록 많음 / 적음, 확대 전후 / Footer 캡처가 남는다. 캡처 경로는 allowed_paths 밖이므로 Executor가 추가하지 않았다. Remote CI / Human Squash Merge 이후 실제 휴대폰 Pinch / 밀어 보기를 Human이 확인한다. Executor DONE은 검증 성공 / 최종 완료 승인이 아니다.
 - 화면 확인(Claude 세션, `docs/images/task-065/`): 최종 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. 휴대폰 화면(390px, Touch)을 흉내 낸 Chrome에 두 손가락 터치 입력을 직접 보내 확인했다. 기록 30건(4일)에서 처음에 점 4개와 평균 안내, 벌리면 점 30개와 밀어 보기 안내, 오므리면 다시 점 4개다. 그래프 위 한 손가락 세로 밀기는 화면을 세로로 스크롤한다. 기록 3건이면 버튼과 안내가 없다. Footer의 "앱 설치"는 358 × 44px 전체 너비 버튼이다. 768 / 1280px 포함 가로 넘침이 없다. 실제 기기에서의 Pinch는 확인하지 못했다.
+- 화면 확인(Claude 세션, `docs/images/task-066/`): 이 Branch의 Build를 로컬에서 띄워 쟀다. 로그인 화면의 세 버튼(Google, Kakao, 로그인 없이 둘러보기)은 390px에서 모두 52 × 316px, 1280px에서 모두 52 × 446px이다. Slider는 빈 값에서 `aria-describedby` / `aria-invalid`가 없고 `aria-valuetext`가 "입력 안 함"이며, 값을 넣으면 `aria-valuetext`가 없어진다. 빈 값으로 제출하면 초점이 숫자 입력칸으로 가고 숫자 입력칸에는 안내 / 오류 연결이 그대로 있다. 가로 넘침이 없다.
 
 ### v3.4.0 Release Note 작성 (2026-10-05, Claude 세션, Human 지시)
 

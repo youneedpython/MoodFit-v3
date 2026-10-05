@@ -118,6 +118,7 @@ TASK-001 ~ TASK-029, TASK-032 ~ TASK-065는 DONE이다(모두 PR Squash Merge와
 | TASK-063 | Milestone 63 | Check-in Form / Result (컨디션 Slider / 결과 화면을 Dashboard와 같은 표현으로) | DONE | TASK-059, TASK-061 | Human 지시 2026-10-05 |
 | TASK-064 | Milestone 64 | PWA Install (홈 화면 설치 / 앱 설치 버튼) | DONE | TASK-037, TASK-062 | Human 승인 2026-10-05 |
 | TASK-065 | Milestone 65 | Mobile Install Button / Trend Zoom (모바일 앱 설치 버튼 크기 / History 그래프 날짜별 평균과 확대) | DONE | TASK-064, TASK-060 | Human 지시 2026-10-05 |
+| TASK-066 | Milestone 66 | Slider A11y / Login Button Height (Slider 안내 중복 읽기 / 로그인 버튼 높이) | DONE | TASK-062, TASK-063 | Human 지시 2026-10-05 |
 | TASK-067 | Milestone 67 | CI Path Filter (바뀐 경로에 따라 필요한 CI Job만 실행) | DONE | TASK-022, TASK-050 | Human 지시 2026-10-05, Gate C |
 
 ---
@@ -2691,6 +2692,38 @@ Human이 휴대폰(갤럭시)으로 Staging을 보고 지적한 두 가지를 �
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-065_MOBILE_INSTALL_BUTTON_TREND_ZOOM.md`](tasks/TASK-065_MOBILE_INSTALL_BUTTON_TREND_ZOOM.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-066 — Slider A11y / Login Button Height (Slider 안내 중복 읽기 / 로그인 버튼 높이)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 66. 선행: TASK-062, TASK-063.
+
+- Slider의 안내 / 오류 연결은 숫자 입력칸에만 두고 빈 값은 "입력 안 함"으로 읽는다.
+- 로그인 화면의 제공자 / 체험 버튼 높이를 52px로 맞춘다.
+
+### 목적
+
+이전 Task의 Review에서 남겨 둔 작은 후속 두 가지를 고친다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 지시 2026-10-05: "'작은 후속 후보' 모두 진행해."
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW.
+- Claude 세션이 로그인 화면에서 세 버튼의 높이를 재고 390 / 1280px 캡처로 확인한다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-066_SLIDER_A11Y_LOGIN_BUTTON_HEIGHT.md`](tasks/TASK-066_SLIDER_A11Y_LOGIN_BUTTON_HEIGHT.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 
