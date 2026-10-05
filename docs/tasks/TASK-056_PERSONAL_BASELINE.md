@@ -122,6 +122,20 @@ Claude 세션이 A(비교 표시만) / B(신체 긴장도 지표 추가) / C(점
 - Sandbox에서 Gradle / npm Test를 실행하지 못할 수 있다. 실행하지 못한 검증은 `docs/08-WORK_LOG.md`에 적는다. 판정은 Sandbox 밖 Orchestrator Verify가 한다.
 - 반복된 실수에 주의한다: Java의 괄호 짝 / Type 불일치, Test의 `tsc --noEmit` 타입 오류, CSS를 `?raw`로 읽는 Test, 같은 Spring Context를 쓰는 다른 Test의 상태를 바꾸는 Test, 여러 fetch에 같은 `Response` 객체를 돌려주는 mock.
 
+## Run 2 범위 (검토 중심)
+
+Run 1에서 구현은 끝났고, Orchestrator Verify가 Frontend Test 3건에서 멈췄다.
+
+- 원인: `frontend/src/features/dashboard/PersonalBaseline.test.tsx`가 이 저장소에 설치되지 않은 jest-dom Matcher(`toBeVisible`, `toHaveTextContent`)를 썼다.
+- 조치(Claude 세션, Sandbox 밖): 같은 검사를 `toBeTruthy()`와 `expect(el.textContent).toContain(...)`로 바꿨다. 검사 대상과 기대 문구는 그대로다. Dependency는 추가하지 않았다.
+- Sandbox 밖 결과: Frontend Test 223건 통과, `tsc --noEmit` / Build 통과, Backend Test 통과(건너뜀은 `DockerAvailabilityTests` 1건), `scripts/container-smoke.sh` 통과.
+
+이번 Run에서 할 일:
+
+1. 구현이 위 설계와 맞는지 다시 확인하고, 어긋난 곳만 고친다. 통과한 Test를 다시 쓰지 않는다.
+2. jest-dom Matcher를 다시 쓰지 않는다. 이 저장소의 다른 Test와 같은 방식(`textContent`, `toBeTruthy`)을 쓴다.
+3. `docs/08-WORK_LOG.md`에 Run 2 경과를 한 단락 더한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`
