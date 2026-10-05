@@ -50,3 +50,14 @@ Resource 삭제, RDS Snapshot / Delete, Budget Threshold, Destructive Cleanup은
 ## 완료 조건
 
 운영 / 비용 / 삭제 / 복구 정책이 Human Review를 통과하고 최종 문서와 실제 환경이 동기화되면 DONE.
+
+## Human 결정과 실행 기록 (2026-10-05)
+
+Human이 삭제 목록과 순서를 본 뒤 승인했다(DEC-050). 범위는 환경 정리와 다시 만드는 방법의 문서화로 좁혔다.
+
+- 실행: Claude 세션이 위임받은 관리 Profile로 Stack 13개와 Stack이 남긴 Resource를 지웠다. Orchestrator Run은 없다(파일 구현이 아니라 AWS 작업이다).
+- 삭제 전 확인: 진행 중인 배포 없음, 배포 Workflow 두 개 비활성화.
+- 삭제 뒤 확인: 비용이 드는 Resource 0개(조회 항목은 `docs/29-CLEANUP-AND-REDEPLOY.md` 2절).
+- 승인 목록에 없어 남긴 것: 인증서 검증용 DNS Record 4개(무료).
+- Human이 할 일: OAuth Secret 삭제.
+- 하지 않은 것: Resource Tag 규칙 정리, ECR Lifecycle / 보존 정책 조정, Scaling 가이드, aws-nuke 검토. 운영을 계속하지 않아 대상이 없다.

@@ -213,6 +213,8 @@ Infrastructure는 CloudFormation으로 정의하고, `main`에 Merge되면 GitHu
 
 자세한 내용은 [AWS Architecture](docs/13-AWS-ARCHITECTURE.md), [Staging 배포 Runbook](docs/18-STAGING-DEPLOYMENT-RUNBOOK.md), [Staging CD](docs/21-STAGING-CD.md)를 참고합니다.
 
+> **환경 상태 (2026-10-05)**: Staging과 Production을 모두 만들어 배포와 Smoke Test, 사용 영상 녹화까지 마친 뒤 AWS Resource를 정리했습니다. 지금은 두 주소가 열리지 않습니다. Template과 Runbook이 남아 있어 다시 만들 수 있습니다. 정리한 내용과 다시 만드는 방법은 [환경 정리와 다시 만들기](docs/29-CLEANUP-AND-REDEPLOY.md)에 있습니다.
+
 Production은 Release Tag를 입력한 수동 Workflow와 GitHub `production` Environment의 Human 승인으로 배포합니다. Staging의 검증된 Container Image Digest를 그대로 사용하며, 생성 / 첫 배포 / 이전 Release Rollback은 [Production Runbook](docs/28-PRODUCTION-DEPLOYMENT-RUNBOOK.md)을 따릅니다.
 
 ## 기술 스택

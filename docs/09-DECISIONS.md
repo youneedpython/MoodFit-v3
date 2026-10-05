@@ -1648,3 +1648,18 @@ Human Approved (2026-10-05, “1. 승인 2. 가 3. 오늘 작업 후 모두 정�
 7. 오늘 생성 → 배포 → 확인 / 영상 후 Staging과 Production 정리는 TASK-031에서 별도 승인한다.
 
 OIDC 쓰기 권한 줄 하나만 Contract의 승인된 검사 예외로 두며 기존 Secret 차단 / 마스킹을 유지한다. 이전 Release Tag 재실행도 Environment 승인을 받는다. Migration 호환성이 불확실한 Rollback / 파괴적 변경은 HUMAN_REQUIRED다. 구현 완료는 실제 배포 성공이나 Human 완료 승인을 대신하지 않는다.
+
+---
+
+## DEC-050 TASK-031 환경 정리
+
+Human Approved (2026-10-05, "3. 시작!"으로 정리 시작을 지시했고, 삭제 목록을 본 뒤 "1. 삭제 2. OAuth Secret 직접 지울게. 3. 네가 해. 4. 한 번에 맡김."으로 승인).
+
+1. Staging과 Production의 Stack을 모두 지운다. Budget Stack과 기존 도메인 Hosted Zone은 남긴다.
+2. Stack이 남기는 Resource(Bucket, ECR 저장소, DB Secret, Log Group, OIDC Provider)도 지운다.
+3. DB의 마지막 Snapshot을 지운다. 실제 사용자의 기록이 들어 있고 개인정보 안내가 백업 보관을 최대 14일로 설명하기 때문이다. 기록은 복구할 수 없다.
+4. OAuth Secret은 Human이 직접 지운다. Agent는 이 Secret을 다루지 않는다.
+5. 삭제는 Human의 범위가 정해진 위임 아래 Claude 세션이 관리 Profile로 실행한다. 승인한 목록에 없는 것이 나오거나 삭제가 실패하면 멈추고 묻는다.
+6. TASK-031의 범위를 환경 정리와 다시 만드는 방법의 문서화로 좁힌다. 운영을 계속하지 않으므로 운영 정책 항목은 진행하지 않는다.
+
+이 결정은 TASK-031 Task 문서의 "Agent는 Dry-run과 절차 준비까지만 한다"를 이번 정리에 한해 바꾼다. 다음에 환경을 다시 만들고 지울 때는 다시 승인받는다.
