@@ -3788,3 +3788,7 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 자체 `bash scripts/verify.sh`는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단됐다. Test / 타입 검사 / Frontend Build / Backend 검증은 실행하지 못했다. 재시도나 권한 우회는 하지 않았으며 Sandbox 밖 Orchestrator Verify가 판정 기준이다.
 - `git diff --check` 통과. 변경 파일의 연속 물음표 치환 흔적과 U+FFFD를 직접 검사하고 UTF-8을 확인했다. Executor DONE은 구현 완료이며 검증 성공이나 Human 최종 완료 승인이 아니다.
 - Claude 세션의 390 / 768 / 1280px 입력 / 결과 화면 캡처와 가로 넘침 / 터치 영역 확인, Remote CI / Human Squash Merge 및 Merge 후 Staging 확인이 남는다. Contract 허용 경로에 캡처 저장 경로가 없어 Executor는 캡처 파일을 추가하지 않았다.
+
+### TASK-063 Run 2 — 기존 구현 재확인 (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인된 Run 2 범위와 필수 Context를 읽고 공유 WellnessTiles의 마크업 / 스타일, 결과 제목 초점과 기록 시각, Badge / 요약 및 Tile → AI 코멘트 → Body Metrics → 추천 → 버튼 순서, 지역 없는 날씨 표시를 확인했다. 컨디션 세 Slider의 접근성 이름 / 범위 / 양방향 동기화 / 빈 값 유지 / 범위 밖 숫자의 기존 검증, 기존 터치 영역 / 강조 색 / 초점 Token, 신체 리듬 2열 / 컨디션 3열과 반응형 배치도 설계와 일치했다. CheckinWeather Test의 세 조회에 숫자 입력 selector가 적용되어 있어 구현과 통과한 Test, Task 상태는 수정하지 않았다. Task source의 Sandbox 밖 Frontend Test 251건 / tsc --noEmit / Build 통과 및 Claude 세션의 390 / 768 / 1280px 화면 확인은 전달받은 참고 증거이며 이번 Executor 결과가 아니다. 이번 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 자동 재시도나 Sandbox 우회는 하지 않았다. git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 재확인과 기록 완료만 뜻한다. Git 작업은 수행하지 않았고 Claude 세션의 화면 캡처 기록, Human Squash Merge와 Merge 후 Staging 확인은 후속 작업으로 유지한다.
