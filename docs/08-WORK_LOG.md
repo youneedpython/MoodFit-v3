@@ -1,5 +1,15 @@
 # 08. MoodFit v3 Work Log
 
+### TASK-062 — Login Buttons / Footer (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. Task source / 필수 Context와 승인 지시를 확인하고 TASK-062만 IN_PROGRESS로 등록한 뒤 Executor 구현 완료를 DONE으로 기록했다.
+- 제공자 로그인 주소와 Link 의미를 유지하며 Google 4색 G / Kakao 검정 말풍선 Inline SVG, 지정 제공자 색과 48px 이상 버튼, Hover / 이중 초점 표시를 적용했다. 체험 로그인은 공통 secondary Button으로 바꾸고 요청 / 진행 중 비활성화 / 실패 문구는 유지했다. 안내 문구는 변경 없이 저장 항목 → 체험 계정 → 개인정보 Link 순서로 간격을 두었다.
+- 공통 Footer에 승인 고지 문구 / 개인정보 Link와 구분선을 추가했다. 최소 화면 높이와 Flex 배치로 짧은 페이지에서도 하단에 위치하고 좁은 화면에서 줄바꿈한다. 개인정보 화면 CSS에 있던 Footer 규칙을 Layout으로 옮겼다. 사용자 메뉴 / 탈퇴 창은 수정하지 않았다.
+- 제공자 Link 이름 / 주소 / 장식 SVG, 제공자 없는 환경, 체험 요청 진행 / 실패, 공통 Footer 고지 / Link Test를 추가하거나 유지했다. jest-dom Matcher와 CSS raw import는 사용하지 않았다.
+- 자체 bash scripts/verify.sh는 npm ci의 사용자 캐시 stat EPERM / node_modules 정리 EPERM으로 설치 단계에서 중단됐다. Test / TypeScript / Frontend 및 Backend Build는 실행되지 않았다. 재시도 / Sandbox 우회는 하지 않았으며 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- git diff --check와 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. 한글은 UTF-8 apply_patch로 작성했다. Git 후속 작업은 수행하지 않았다.
+- Claude 세션의 로그인 / 체험만 있는 로그인 / Footer 390 / 768 / 1280px 화면 캡처가 남는다. 캡처 경로는 allowed_paths 밖이므로 Executor는 생성하지 않았다. Remote CI / Human Squash Merge 후 Staging 확인이 남는다. DONE은 구현 완료이며 Verify / Review / Human 승인을 대신하지 않는다.
+
 ### TASK-051 — AI 코멘트 가독성 (2026-10-04)
 
 - 초기 Working Tree는 clean이었다. Human이 제공한 승인 Contract와 Task 원문 / 필수 Context를 확인하고 allowed_paths 안에서 구현했다. Git 쓰기나 외부 호출은 수행하지 않았다.
