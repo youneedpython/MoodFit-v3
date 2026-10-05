@@ -3703,3 +3703,4 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Verification: `bash scripts/verify.sh`는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM으로 설치 단계에서 중단됐다. Test / tsc --noEmit / Build는 실행하지 못했으며 성공으로 주장하지 않는다. 자동 재시도나 Sandbox 우회는 하지 않았다. Sandbox 밖 Orchestrator Verify가 검증 기준이고 자체 결과는 참고 증거다. `git diff --check` 통과 및 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
 - 확인 창은 화면 폭 안의 너비, viewport 높이 제한과 내부 스크롤, 버튼 줄바꿈을 적용했다. Claude 세션의 390 / 768 / 1280px 캡처와 실제 화면 확인은 후속 작업이며 allowed_paths 밖 이미지 경로에는 쓰지 않았다.
 - Executor DONE은 구현 완료이며 검증 / Review / Human Squash Merge 승인과 다르다. Git 작업은 수행하지 않았다. Remote CI / Human Squash Merge 이후 Staging 소셜 / 체험 메뉴와 탈퇴 확인 흐름을 확인한다.
+- 화면 확인(Claude 세션, `docs/images/task-057/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 사용자 메뉴와 회원 탈퇴 확인 창을 390 / 768 / 1280px로 캡처했다. 메뉴는 닉네임 / 제공자 → 개인정보 처리 안내 → 로그아웃 → 구분선 → 회원 탈퇴 순서이고, 체험 계정 메뉴에는 회원 탈퇴가 없다. 확인 창의 버튼은 공통 Button 모양이다. 세 폭 모두 가로 넘침이 없다.
