@@ -3863,4 +3863,5 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - Human 지시("release 출시해")에 따라 `docs/releases/v3.4.0.md`를 작성했다. 범위는 `v3.3.0` 이후의 TASK-064(홈 화면 설치, 앱 설치 버튼)와 TASK-065(모바일 앱 설치 버튼 크기, History 그래프 날짜별 평균 / 확대)이다.
 - Tag `v3.4.0`과 GitHub Release는 이 PR이 Merge된 뒤 그 Commit에 만든다(DEC-025).
 - AWS Architecture 그림(`docs/images/readme/aws-architecture.png`)을 다시 그렸다(Human 지시: "aws architecture에 aws 아이콘도 넣었으면 해", 후속 후보 "Bedrock 경로 추가"). 각 Service에 AWS Architecture Icons를 넣었고, 별도 AWS 계정의 Amazon Bedrock(STS AssumeRole)과 Google / Kakao OAuth 호출 경로를 더했다. Spring Boot Version 표기(4.1)와 Secrets Manager 설명(OAuth 값)을 현재 구성에 맞췄다. Bedrock은 사용한 아이콘 묶음(2021)에 전용 아이콘이 없어 Machine Learning 분류 아이콘을 썼다. 그림에는 계정 ID나 ARN이 없다.
+- 화면 확인(Claude 세션, `docs/images/task-068/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답(`enabled: true`, `shared: true`)으로 대신해 체험 계정 Dashboard를 390 / 1280px로 캡처했다. 추천 10개 항목 모두에 평가 묶음이 보이고, 누르면 저장 요청이 1회 나가며 눌림 표시가 된다. 목록 아래에 "체험 계정의 평가는 모든 방문자가 함께 씁니다. 다음 Check-in의 추천부터 반영됩니다."가 나온다. 소셜 사용자 화면의 문구는 이전과 같다. 가로 넘침이 없다. 실제 Staging에서 평가가 다음 Check-in에 반영되는지는 Merge 뒤 확인한다.
 
