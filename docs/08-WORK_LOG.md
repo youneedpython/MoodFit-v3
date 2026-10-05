@@ -3819,6 +3819,13 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 
 ### TASK-065 — 모바일 설치 버튼 / History 확대 (2026-10-05)
 
+#### Run 2 — 날짜별 평균 / 개별 기록 전환
+
+- Human 추가 지시에 따라 초기 배율을 1로 변경했다. 기록 수 × 24가 측정 너비보다 크면 서울 시간대 날짜별 반올림 평균을 표시하고 확대 시 개별 기록으로 전환한다. 첫 확대는 읽기 가능한 배율로 이동하며 축소 / 날짜별 평균 버튼 / Pinch 1.05 경계로 기본 표시로 돌아간다. Pinch의 가운데 위치 보정은 점 개수와 독립적인 너비 좌표를 사용한다. 요약은 항상 전체 기록 기준이며 안내 전환은 aria-live로 알린다. Footer는 그대로 유지했다.
+- 서울 자정 경계 / 정렬 / 평균 반올림 / 빈 입력 Test와 30건 3일 전환, 요약 유지, Label 변화, Pinch 경계 Test를 보완하고 ByRoleOptions의 exact 타입 오류를 제거했다.
+- 자체 bash scripts/verify.sh는 Node.js 확인 후 npm ci의 npm 캐시 stat EPERM / node_modules 정리 EPERM으로 중단됐다. Test / tsc / Build는 실행하지 못했다. 우회나 자동 재시도 없이 Sandbox 밖 Orchestrator Verify에 판정을 맡긴다. Executor DONE은 구현 완료만 의미한다. git diff --check 및 UTF-8 문서의 연속 물음표 / U+FFFD를 직접 확인한다.
+- Claude 세션의 390 / 768 / 1280px 평균 / 개별 기록 전후 캡처와 Merge 후 Human의 실제 휴대폰 Pinch / 밀어 보기 확인이 남는다. 캡처 경로는 allowed_paths 밖이며 Executor는 Git 작업을 수행하지 않았다.
+
 - 최초 Working Tree는 clean이었다. 승인된 Contract와 필수 Context를 확인하고 TASK-065만 IN_PROGRESS 등록 후 구현 완료를 DONE으로 반영했다. Git 작업은 수행하지 않았다.
 - Footer 앱 설치는 기존 secondary 버튼, 본문 크기 / 44px 이상 높이로 변경했다. 480px 이하에서는 첫 줄 전체 너비, 고지 문구 / 안내는 아래이며 matchMedia 변경에 맞춰 DOM 순서도 갱신한다. 메뉴 / iOS 안내 / 설치 동작은 유지한다.
 - History는 고정 Y축 옆 가로 Viewport와 ResizeObserver 측정, 24px 기준 초기 확대 / 48px 기준 최대 확대, 초기 최신 기록 위치, 수동 배율 유지 / 범위 보정, 두 Pointer 거리 비율과 가운데 위치 기준 Pinch를 제공한다. 기본 가로 / 세로 스크롤과 Keyboard, 44px 확대 버튼 및 밀어 보기 안내, 너비에 따른 Label / 마지막 Label을 추가했다. 점 하나당 기록 하나, 선 / 점 Style, 글자 요약을 유지한다.

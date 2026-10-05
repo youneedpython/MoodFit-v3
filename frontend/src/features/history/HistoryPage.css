@@ -34,7 +34,7 @@
   height: 1.75rem;
 }
 
-.wellness-trend__viewport { overflow-x: auto; min-width: 0; touch-action: pan-x pan-y; padding-block: 6px; }
+.wellness-trend__viewport { overflow-x: auto; min-width: 0; touch-action: pan-x pan-y; padding-block: 6px; padding-inline: var(--space-2); }
 .wellness-trend__y-labels { height: 200px; margin-top: 6px; }
 .wellness-trend__area { height: 200px; }
 .wellness-trend__controls { display: flex; gap: var(--space-1); flex-wrap: wrap; }

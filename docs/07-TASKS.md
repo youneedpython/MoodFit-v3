@@ -2085,6 +2085,6 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 
 - 상태: DONE (Executor 구현 완료), Milestone 65. Dependency: TASK-064 / TASK-060.
 - 승인: Human 명시 실행 지시 2026-10-05와 TASK-065 Contract. 해당 Task만 IN_PROGRESS 등록 후 DONE 반영. 다른 Task와 Current Task는 유지한다.
-- Footer secondary 버튼 / 모바일 첫 줄 전체 너비와 DOM 순서, History 자동 초기 확대 / 최신 위치 / 가로 스크롤 / Pinch / 확대 버튼 / Keyboard / 너비 기반 Label을 구현했다. 기록 개수와 설치 동작, 기존 색 / Variant / Dependency는 유지한다.
+- Footer secondary 버튼 / 모바일 첫 줄 전체 너비와 DOM 순서는 Run 1 그대로 유지한다. Run 2 Human 지시에 따라 History는 배율 1로 시작하며 조밀한 기록은 서울 날짜별 반올림 평균으로 표시한다. 확대하면 개별 기록으로 전환하고 축소 / 날짜별 평균 버튼 / Pinch 1.05 경계로 돌아간다. 전체 기록 요약, 최신 위치 / 가로 스크롤 / Keyboard / 너비 기반 Label과 기존 색 / Variant / Dependency는 유지한다.
 - 자체 Verify는 npm 캐시 stat EPERM으로 설치 단계에서 중단되어 Test / 타입 검사 / Build는 실행하지 못했다. Sandbox 밖 Orchestrator Verify가 판정 기준이며 DONE은 검증 성공 / Review / 최종 완료 승인이 아니다.
 - Claude 세션의 390 / 768 / 1280px 화면 캡처, Remote CI / Human Squash Merge와 Merge 후 실제 휴대폰 조작 확인이 남는다.

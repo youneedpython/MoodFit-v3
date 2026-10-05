@@ -157,6 +157,22 @@ Run 1의 구현(WIP Commit으로 이 Branch에 있음)을 바탕으로 **그래�
 - `figcaption` 요약이 두 방식에서 같다.
 - Pinch 순수 함수: 1.05 이하로 내려가면 1을 돌려준다.
 
+## Run 3 범위 (검토 중심)
+
+Run 2는 Verify와 Claude Review를 통과했다(PR 단계는 다른 열린 PR 본문에 이 Task 번호가 있어 멈췄다). Run 2의 변경은 WIP Commit으로 이 Branch에 있다. 그 뒤 Claude 세션이 휴대폰 화면을 흉내 낸 Chrome에서 실제 두 손가락 입력으로 확인하고 두 가지를 고쳤다.
+
+1. **Pinch를 Touch Events로 바꿨다.** Run 2의 Pointer Events 구현은 확대(평균 → 기록 전체)는 됐지만, 확대된 뒤에는 그래프가 가로로 스크롤되어 Browser가 두 손가락 이동을 스크롤로 가져가면서 `pointercancel`로 끊겨 **축소가 되지 않았다**(Run 2 Review의 N-3이 실제로 일어남). `touchstart` / `touchmove` / `touchend` / `touchcancel`을 Viewport에 직접 등록하고, `touchmove`는 `passive: false`로 받아 **손가락이 둘일 때만** `preventDefault()`한다. 한 손가락 스크롤(가로 / 세로)은 Browser에 맡긴다. 설계의 "Pointer Events로" 대신 이 방식을 쓴다.
+2. **배율 1에서 그래프 안쪽이 6px 넘치던 것**을 Viewport에 좌우 안쪽 여백(`padding-inline`, 기존 간격 Token)을 주어 없앴다. 마지막 날짜 Label이 오른쪽으로 삐져나와 생긴 넘침이다.
+
+Claude 세션의 확인 결과(390px, 기록 30건 / 4일): 처음에 점 4개와 평균 안내 → 두 손가락을 벌리면 점 30개와 밀어 보기 안내 → 오므리면 다시 점 4개. "확대" 버튼은 겹치지 않는 배율로 한 번에 간다. 그래프 위에서 한 손가락으로 세로로 밀면 화면이 세로로 스크롤된다. 기록 3건이면 버튼과 안내가 없다. Footer의 "앱 설치"는 358 × 44px 전체 너비 버튼이다. Frontend Test 265건, `tsc --noEmit`, Build 통과.
+
+이번 Run에서 할 일:
+
+1. 위 두 변경을 포함해 구현이 설계와 맞는지 확인하고, 어긋난 곳만 고친다. Touch Events 방식을 Pointer Events로 되돌리지 않는다. 통과한 Test를 다시 쓰지 않는다.
+2. Run 2 Review의 참고 사항 N-1을 반영한다: 기록 30건 Test에서 **처음 화면**에 평균 안내 문구가 있는지도 검사한다.
+3. `docs/07-TASKS.md`의 TASK-065 절을 `docs/tasks/COMMON.md` "9. `docs/07-TASKS.md` 작성 형식"에 맞춰 적는다(이 Branch의 `COMMON.md`에 9절이 없으면 "상태 / 목적 / Human Approval 또는 Gate / 완료 조건 / 상세 Task Contract" 제목과 순서로 적는다).
+4. `docs/08-WORK_LOG.md`에 Run 3 경과를 한 단락 더한다.
+
 ## Verification
 
 - `bash scripts/verify.sh`

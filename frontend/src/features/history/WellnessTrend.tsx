@@ -1,12 +1,15 @@
-import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "../../components/Button/Button";
 import { Card } from "../../components/Card/Card";
 import type { HistoryItem } from "../../types/api";
 import { formatTrendDate } from "../../utils/dateTime";
 
+import { dailyTrend } from "./dailyTrend";
+
 const GRID_SCORES = [100, 50, 0];
 export function pinchZoom(startDistance: number, distance: number, startZoom: number, maximum: number) {
-  return Math.min(maximum, Math.max(1, startDistance > 0 ? startZoom * distance / startDistance : startZoom));
+  const next = Math.min(maximum, Math.max(1, startDistance > 0 ? startZoom * distance / startDistance : startZoom));
+  return next <= 1.05 ? 1 : next;
 }
 /** 양 끝 점이 잘리지 않도록 가로 여백(%)을 둔다. */
 const X_INSET = 4;
@@ -37,9 +40,12 @@ export function WellnessTrend({ items }: WellnessTrendProps) {
   const [zoom, setZoom] = useState(1);
   const manual = useRef(false);
   const pendingScroll = useRef<number | null>(null);
-  const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<{ distance: number; zoom: number; anchor: number } | null>(null);
   const maximum = width > 0 ? Math.max(1, items.length * 48 / width) : 1;
+  const crowded = width > 0 && items.length * 24 > width;
+  const averageMode = crowded && zoom === 1;
+  const readableZoom = width > 0 ? Math.min(maximum, Math.max(1.5, items.length * 24 / width)) : 1;
+  const previousZoom = useRef(1);
   useEffect(() => {
     if (!viewport.current || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
@@ -48,7 +54,7 @@ export function WellnessTrend({ items }: WellnessTrendProps) {
   }, []);
   useLayoutEffect(() => {
     setZoom((previous) => manual.current ? Math.min(maximum, Math.max(1, previous)) :
-      width > 0 ? Math.max(1, items.length * 24 / width) : 1);
+      1);
   }, [width, items.length, maximum]);
   useLayoutEffect(() => {
     const element = viewport.current;
@@ -56,59 +62,76 @@ export function WellnessTrend({ items }: WellnessTrendProps) {
     if (pendingScroll.current !== null) {
       element.scrollLeft = pendingScroll.current;
       pendingScroll.current = null;
-    } else if (!manual.current) element.scrollLeft = element.scrollWidth;
+    } else if (zoom > 1 && previousZoom.current === 1) element.scrollLeft = element.scrollWidth;
+    else if (zoom === 1) element.scrollLeft = 0;
+    previousZoom.current = zoom;
   }, [zoom, width, items.length]);
   function changeZoom(next: number) {
     manual.current = true;
     setZoom(Math.min(maximum, Math.max(1, next)));
   }
-  function pointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (event.pointerType !== "touch") return;
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    if (pointers.current.size === 2 && viewport.current) {
-      const [a, b] = [...pointers.current.values()];
-      const midpoint = (a.x + b.x) / 2 - viewport.current.getBoundingClientRect().left;
-      gesture.current = { distance: Math.hypot(a.x - b.x, a.y - b.y), zoom,
-        anchor: (viewport.current.scrollLeft + midpoint) / zoom };
-    }
-  }
-  function pointerMove(event: PointerEvent<HTMLDivElement>) {
-    if (!pointers.current.has(event.pointerId)) return;
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-    if (pointers.current.size !== 2 || !gesture.current || !viewport.current) return;
-    const [a, b] = [...pointers.current.values()];
-    const start = gesture.current;
-    const next = pinchZoom(start.distance, Math.hypot(a.x - b.x, a.y - b.y), start.zoom, maximum);
-    const midpoint = (a.x + b.x) / 2 - viewport.current.getBoundingClientRect().left;
-    pendingScroll.current = start.anchor * next - midpoint;
-    if (next === zoom) {
-      viewport.current.scrollLeft = pendingScroll.current;
-      pendingScroll.current = null;
-    }
-    changeZoom(next);
-  }
-  function pointerEnd(event: PointerEvent<HTMLDivElement>) {
-    pointers.current.delete(event.pointerId);
-    gesture.current = null;
-  }
+  // 두 손가락 확대 / 축소. 확대된 그래프는 가로로 스크롤되므로 Pointer Events는 Browser가 두 손가락 이동을
+  // 스크롤로 가져가면서 pointercancel로 끊긴다. Touch Events를 passive가 아닌 Listener로 받아 두 손가락일 때만
+  // 기본 동작을 막는다. 한 손가락 스크롤(가로 / 세로)은 Browser에 맡긴다.
+  const live = useRef({ zoom, maximum });
+  live.current = { zoom, maximum };
+  useEffect(() => {
+    const element = viewport.current;
+    if (!element) return;
+    const measure = (touches: TouchList) => {
+      const [a, b] = [touches[0], touches[1]];
+      return { distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+        midpoint: (a.clientX + b.clientX) / 2 - element.getBoundingClientRect().left };
+    };
+    const start = (event: TouchEvent) => {
+      if (event.touches.length !== 2) { gesture.current = null; return; }
+      const { distance, midpoint } = measure(event.touches);
+      const current = live.current.zoom;
+      gesture.current = { distance, zoom: current, anchor: (element.scrollLeft + midpoint) / current };
+    };
+    const move = (event: TouchEvent) => {
+      const begun = gesture.current;
+      if (event.touches.length !== 2 || !begun) return;
+      event.preventDefault();
+      const { distance, midpoint } = measure(event.touches);
+      const next = pinchZoom(begun.distance, distance, begun.zoom, live.current.maximum);
+      const scroll = begun.anchor * next - midpoint;
+      if (next === live.current.zoom) element.scrollLeft = scroll;
+      else { pendingScroll.current = scroll; manual.current = true; setZoom(next); }
+    };
+    const end = (event: TouchEvent) => { if (event.touches.length < 2) gesture.current = null; };
+    element.addEventListener("touchstart", start, { passive: true });
+    element.addEventListener("touchmove", move, { passive: false });
+    element.addEventListener("touchend", end, { passive: true });
+    element.addEventListener("touchcancel", end, { passive: true });
+    return () => {
+      element.removeEventListener("touchstart", start);
+      element.removeEventListener("touchmove", move);
+      element.removeEventListener("touchend", end);
+      element.removeEventListener("touchcancel", end);
+    };
+  }, []);
   const scores = items.map((item) => item.wellnessScore);
-  const points = items.map((item, index) => ({ x: xFor(index, items.length), y: yFor(item.wellnessScore), item }));
+  const displayed = averageMode
+    ? dailyTrend(items).map((day) => ({ key: `day:${day.key}`, label: day.label, score: day.average }))
+    : items.map((item) => ({ key: `record:${item.id}`, label: formatTrendDate(item.recordedAt), score: item.wellnessScore }));
+  const points = displayed.map((item, index) => ({ x: xFor(index, displayed.length), y: yFor(item.score), item }));
   const innerWidth = width * zoom;
-  const labelStep = Math.max(1, Math.ceil(items.length * 56 / (innerWidth || 392)));
+  const labelStep = Math.max(1, Math.ceil(points.length * 56 / (innerWidth || 392)));
   const labels = points.map((_, index) => index).filter((index) => index % labelStep === 0);
   const last = points.length - 1;
   if (last >= 0 && labels[labels.length - 1] !== last) {
     const previous = labels[labels.length - 1];
-    if (previous !== undefined && (xFor(last, items.length) - xFor(previous, items.length)) * (innerWidth || 392) / 100 < 56) labels.pop();
+    if (previous !== undefined && (xFor(last, points.length) - xFor(previous, points.length)) * (innerWidth || 392) / 100 < 56) labels.pop();
     labels.push(last);
   }
   const latest = scores[scores.length - 1];
 
   return (
-    <Card className="wellness-trend-card" title="최근 7일 Wellness Score" aside={maximum > 1 && <div className="wellness-trend__controls">
-      <Button variant="secondary" aria-label="그래프 축소" disabled={zoom <= 1} onClick={() => changeZoom(zoom / 1.5)}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" strokeWidth="2" /></svg></Button>
-      <Button variant="secondary" aria-label="그래프 확대" disabled={zoom >= maximum} onClick={() => changeZoom(zoom * 1.5)}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M12 5v14" stroke="currentColor" strokeWidth="2" /></svg></Button>
-      <Button variant="secondary" aria-label="그래프 전체 보기" disabled={zoom <= 1} onClick={() => changeZoom(1)}>전체 보기</Button>
+    <Card className="wellness-trend-card" title="최근 7일 Wellness Score" aside={(crowded || maximum > 1) && <div className="wellness-trend__controls">
+      <Button variant="secondary" aria-label="그래프 축소" disabled={zoom <= 1} onClick={() => changeZoom(zoom / 1.5 < readableZoom ? 1 : zoom / 1.5)}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" strokeWidth="2" /></svg></Button>
+      <Button variant="secondary" aria-label="그래프 확대" disabled={zoom >= maximum} onClick={() => changeZoom(zoom === 1 ? readableZoom : zoom * 1.5)}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M12 5v14" stroke="currentColor" strokeWidth="2" /></svg></Button>
+      <Button variant="secondary" aria-label={crowded ? "그래프 날짜별 평균으로 보기" : "그래프 전체 보기"} disabled={zoom <= 1} onClick={() => changeZoom(1)}>{crowded ? "날짜별 평균" : "전체 보기"}</Button>
     </div>}>
     <figure className="wellness-trend">
       <div className="wellness-trend__plot">
@@ -119,8 +142,7 @@ export function WellnessTrend({ items }: WellnessTrendProps) {
             </span>
           ))}
         </div>
-        <div ref={viewport} className="wellness-trend__viewport" role="group" aria-label="Wellness Score 그래프 (좌우로 스크롤)" tabIndex={zoom > 1 ? 0 : undefined}
-          onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onPointerLeave={pointerEnd}>
+        <div ref={viewport} className="wellness-trend__viewport" role="group" aria-label="Wellness Score 그래프 (좌우로 스크롤)" tabIndex={zoom > 1 ? 0 : undefined}>
         <div className="wellness-trend__inner" style={{ width: `${zoom * 100}%` }} aria-hidden="true">
         <div className="wellness-trend__area">
           <svg className="wellness-trend__chart" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
@@ -136,7 +158,7 @@ export function WellnessTrend({ items }: WellnessTrendProps) {
           </svg>
           {points.map((point) => (
             <span
-              key={point.item.id}
+              key={point.item.key}
               className="wellness-trend__point"
               style={{ left: `${point.x}%`, top: `${point.y}%` }}
               data-testid="trend-point"
@@ -147,8 +169,8 @@ export function WellnessTrend({ items }: WellnessTrendProps) {
           {points.map(
             (point, index) =>
               labels.includes(index) && (
-                <span key={point.item.id} style={{ left: `${point.x}%` }}>
-                  {formatTrendDate(point.item.recordedAt)}
+                <span key={point.item.key} style={{ left: `${point.x}%` }}>
+                  {point.item.label}
                 </span>
               )
           )}
@@ -156,7 +178,7 @@ export function WellnessTrend({ items }: WellnessTrendProps) {
         </div>
         </div>
       </div>
-      {zoom > 1 && <p className="wellness-trend__hint">좌우로 밀어 전체 기록을 볼 수 있습니다.</p>}
+      <p className="wellness-trend__hint" aria-live="polite">{averageMode ? "날짜별 평균입니다. 확대하면 기록을 하나씩 볼 수 있습니다." : zoom > 1 ? "좌우로 밀어 전체 기록을 볼 수 있습니다." : ""}</p>
       <figcaption className="wellness-trend__summary">
         기록 {items.length}건 · 최저 {Math.min(...scores)}점 · 최고 {Math.max(...scores)}점 · 최근 {latest}점
       </figcaption>
