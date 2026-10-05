@@ -37,6 +37,7 @@ else
 fi
 printf 'STEP: unauthenticated 401 and guest login\n'
 request 401 /api/check-ins/latest "$work/unauthenticated"
+request 401 '/api/recommendations/today?temperature=19.0&weather=RAIN' "$work/today-unauthenticated"
 request 200 /api/auth/me "$work/me"
 csrf_headers() {
   python - "$work" <<'PY'
@@ -65,6 +66,7 @@ request 200 /api/check-ins/latest "$work/latest"
 request 200 '/api/check-ins/history?days=7' "$work/history"
 # Read only: visitors own the current shared ratings; do not write feedback here.
 request 200 /api/recommendations/feedback "$work/feedback"
+request 200 '/api/recommendations/today?temperature=19.0&weather=RAIN' "$work/today"
 python - "$work" <<'PY'
 import datetime, json, pathlib, sys
 p = pathlib.Path(sys.argv[1])
@@ -114,6 +116,14 @@ def match(actual, expected):
         for a, e in zip(actual, expected): match(a, e)
     else: assert actual == expected
 created = load('create')
+today = load('today')
+assert type(today) is dict and set(today) == {'context', 'foods', 'music'}
+assert type(today['context']) is dict and set(today['context']) == {'code', 'label'}
+assert today['context']['code'] in ('COLD', 'HOT', 'CLEAR', 'CLOUDY', 'RAIN', 'SNOW')
+assert type(today['context']['label']) is str and today['context']['label'].strip()
+for kind in ('foods', 'music'):
+    assert type(today[kind]) is list and len(today[kind]) == 2
+    for entry in today[kind]: recommendation(entry, contract('recommendations-today-200')[kind][0])
 feedback = load('feedback')
 assert type(feedback) is dict and set(feedback) == {'enabled', 'shared', 'items'}
 assert feedback['enabled'] is True and feedback['shared'] is True

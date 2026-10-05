@@ -58,7 +58,7 @@ public class AuthSecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/account").authenticated()
                 .requestMatchers("/actuator/health", "/actuator/health/**", "/api/auth/**").permitAll()
-                .requestMatchers("/api/check-ins", "/api/check-ins/**", "/api/reports/**", "/api/recommendations/feedback").authenticated()
+                .requestMatchers("/api/check-ins", "/api/check-ins/**", "/api/reports/**", "/api/recommendations/feedback", "/api/recommendations/today").authenticated()
                 .anyRequest().permitAll());
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepository)
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));

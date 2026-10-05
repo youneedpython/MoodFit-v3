@@ -32,7 +32,7 @@ class WellnessRulePolicy {
             java.util.Map<String, RecommendationFeedbackService.Rating> ratings) {
         List<T> selected = new ArrayList<>(5);
         HashSet<String> used = new HashSet<>();
-        selectFrom(mood, 3, epochDay, name, selected, used, ratings);
+        if (!mood.isEmpty()) selectFrom(mood, 3, epochDay, name, selected, used, ratings);
         selectFrom(context, 2, epochDay, name, selected, used, ratings);
         return List.copyOf(selected);
     }
@@ -91,6 +91,28 @@ class WellnessRulePolicy {
                 originalMood.summarySentence() + " " + context.summarySentence() + PersonalBaseline.summary(baseline),
                 select(MOOD_FOODS.get(poolMood), CONTEXT_FOODS.get(context), epochDay, FoodRecommendationValue::getName, feedback.ratings(RecommendationFeedbackService.Kind.FOOD)),
                 select(MOOD_MUSIC.get(poolMood), CONTEXT_MUSIC.get(context), epochDay, MusicRecommendationValue::getVideoId, feedback.ratings(RecommendationFeedbackService.Kind.MUSIC)));
+    }
+
+    com.moodfit.dto.response.TodayRecommendationResponse recommendToday(BigDecimal temperature, WeatherCondition weather,
+            RecommendationFeedbackService.Feedback feedback) {
+        ContextType context = determineContext(temperature, weather);
+        long epochDay = LocalDate.now(clock.withZone(ZoneId.of("Asia/Seoul"))).toEpochDay();
+        String label = switch (context) {
+            case COLD -> "추위";
+            case HOT -> "더위";
+            case CLEAR -> "맑음";
+            case CLOUDY -> "흐림";
+            case RAIN -> "비";
+            case SNOW -> "눈";
+        };
+        return new com.moodfit.dto.response.TodayRecommendationResponse(
+                new com.moodfit.dto.response.TodayRecommendationResponse.Context(context.name(), label),
+                select(List.of(), CONTEXT_FOODS.get(context), epochDay, FoodRecommendationValue::getName,
+                        feedback.ratings(RecommendationFeedbackService.Kind.FOOD)).stream()
+                        .map(value -> new com.moodfit.dto.response.FoodRecommendationResponse(value.getName(), value.getTag(), value.getReason())).toList(),
+                select(List.of(), CONTEXT_MUSIC.get(context), epochDay, MusicRecommendationValue::getVideoId,
+                        feedback.ratings(RecommendationFeedbackService.Kind.MUSIC)).stream()
+                        .map(value -> new com.moodfit.dto.response.MusicRecommendationResponse(value.getTitle(), value.getArtist(), value.getTag(), value.getReason(), value.getVideoId())).toList());
     }
 
     static boolean contains(RecommendationFeedbackService.Kind kind, String item) {

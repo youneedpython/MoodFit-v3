@@ -1,0 +1,8 @@
+{
+  "code": "VALIDATION_ERROR",
+  "message": "Request validation failed.",
+  "fieldErrors": {
+    "temperature": "Temperature must be between -30.0 and 50.0 with at most one decimal place.",
+    "weather": "Weather must be CLEAR, CLOUDY, RAIN or SNOW."
+  }
+}
