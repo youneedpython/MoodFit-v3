@@ -1,0 +1,80 @@
+{
+  "id": "TASK-030",
+  "title": "Production Continuous Deployment / Approval / Rollback",
+  "task_file": "docs/tasks/TASK-030_PRODUCTION_CD.md",
+  "allowed_paths": [
+    ".github/workflows/deploy-production.yml",
+    "scripts/production-changeset.sh",
+    "scripts/production-smoke.sh",
+    "infra/cloudformation/budget.yaml",
+    "infra/cloudformation/production/",
+    "docs/",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    ".github/workflows/deploy-staging.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/milestones.yml",
+    "scripts/staging-changeset.sh",
+    "scripts/staging-smoke.sh",
+    "scripts/iac-validate.sh",
+    "scripts/verify.sh",
+    "scripts/orchestrator/",
+    "infra/cloudformation/local/",
+    "infra/cloudformation/app.yaml",
+    "infra/cloudformation/iam.yaml",
+    "infra/cloudformation/network.yaml",
+    "infra/cloudformation/data.yaml",
+    "infra/cloudformation/frontend.yaml",
+    "infra/cloudformation/certificate.yaml",
+    "infra/cloudformation/ecr.yaml",
+    "backend/",
+    "frontend/",
+    "contracts/",
+    "harness/",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "python",
+        "-c",
+        "import yaml; d=yaml.safe_load(open('.github/workflows/deploy-production.yml',encoding='utf-8')); on=d.get('on', d.get(True)); assert set(on.keys())=={'workflow_dispatch'}, 'triggers'; j=d['jobs']; assert {'plan','deploy'} <= set(j), 'jobs'; dj=j['deploy']; env=dj.get('environment'); assert (env=='production' or (isinstance(env,dict) and env.get('name')=='production')), 'environment'; n=dj.get('needs'); assert 'plan' in (n if isinstance(n,list) else [n]), 'needs'; assert dj.get('permissions',{}).get('id-token')=='write', 'deploy id-token'; assert all((v.get('permissions') or {}).get('id-token')!='write' for k,v in j.items() if k!='deploy'), 'id-token scope'; assert (d.get('permissions') or {}).get('id-token')!='write', 'top id-token'"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/production-changeset.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/production-smoke.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3,
+  "secret_scan_allow": [
+    "id-token: write"
+  ]
+}
