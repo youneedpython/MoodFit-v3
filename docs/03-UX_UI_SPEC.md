@@ -139,6 +139,7 @@ Trend는 CSS 또는 SVG 기반의 단순한 Component로 시작한다.
 - 완료 후 Dashboard로 이동하거나 결과 요약을 제공한다.
 - 수면 점수 / 스트레스 수준 / 에너지 수준은 숫자 입력과 0 ~ 100, step 1 Slider를 함께 제공하고 값을 동기화한다. 빈 값은 Slider만 50으로 보이며 움직이기 전에는 필수 입력 상태를 유지한다. 범위 밖 숫자는 원래 검증을 유지하고 Slider만 범위 끝에 표시한다. 접근성 이름은 항목 이름 + Slider이며 기존 터치 영역 / 초점 / 강조 색 Token을 사용한다.
 - 넓은 화면에서 신체 리듬은 2열, 컨디션은 3열로 너비를 채운다. Tablet은 2열, Mobile은 1열이며 날씨 입력 배치는 유지한다.
+- Slider에는 안내 / 오류의 aria-describedby와 aria-invalid를 연결하지 않고 숫자 입력칸에만 유지한다. 빈 값은 aria-valuetext="입력 안 함"으로 읽고 값이 있으면 숫자를 읽으며 오류 초점은 숫자 입력칸으로 이동한다(TASK-066).
 - 결과는 저장 완료 제목 / 기록 시각 → (Mood / 긴장도 Badge와 요약 | Score / 날씨 Tile) → AI 코멘트 → Body Metrics → 추천 → 버튼 순서다. Dashboard와 Tile Component 및 Style을 공유하며 지역이 없어도 날씨 / 기온을 표시한다. 날씨 Icon은 장식이고 의미는 글자로 전달한다. 결과 제목으로 초점 이동을 유지한다.
 
 ### 상태

@@ -19,18 +19,13 @@ public class RecommendationFeedbackController {
     @PutMapping
     public ResponseEntity<?> put(@RequestBody Input input) {
         var identity = UserIdentity.current();
-        if (!RecommendationFeedbackService.enabled(identity)) return guestError();
         String item = input.item() == null ? "" : input.item().strip();
         if (input.kind() == null || item.isEmpty() || item.length() > 120
                 || item.codePoints().anyMatch(Character::isISOControl)
                 || !WellnessRulePolicy.contains(input.kind(), item)) {
             return ResponseEntity.badRequest().body(new ErrorResponse("VALIDATION_ERROR", "Request validation failed.", Map.of("item", "Invalid recommendation item.")));
         }
-        try { feedback.put(identity, input.kind(), item, input.rating()); }
-        catch (org.springframework.security.access.AccessDeniedException denied) { return guestError(); }
+        feedback.put(identity, input.kind(), item, input.rating());
         return ResponseEntity.noContent().build();
-    }
-    private ResponseEntity<ErrorResponse> guestError() {
-        return ResponseEntity.status(403).body(new ErrorResponse("GUEST_FEEDBACK_FORBIDDEN", "체험 계정은 추천을 평가할 수 없습니다.", Map.of()));
     }
 }

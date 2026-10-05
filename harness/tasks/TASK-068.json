@@ -1,0 +1,68 @@
+{
+  "id": "TASK-068",
+  "title": "Guest Feedback (체험 계정의 추천 평가)",
+  "task_file": "docs/tasks/TASK-068_GUEST_FEEDBACK.md",
+  "allowed_paths": [
+    "backend/",
+    "frontend/src/",
+    "contracts/",
+    "scripts/staging-smoke.sh",
+    "scripts/container-smoke.sh",
+    "docs/",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/",
+    "backend/build.gradle",
+    "backend/src/main/resources/db/migration/",
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/orchestrator/",
+    "scripts/verify.sh",
+    "scripts/verify.ps1",
+    "scripts/iac-validate.sh",
+    "scripts/staging-changeset.sh",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/container-smoke.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/staging-smoke.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

@@ -1,0 +1,51 @@
+{
+  "id": "TASK-066",
+  "title": "Slider A11y / Login Button Height (Slider 안내 중복 읽기 / 로그인 버튼 높이)",
+  "task_file": "docs/tasks/TASK-066_SLIDER_A11Y_LOGIN_BUTTON_HEIGHT.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "docs/03-UX_UI_SPEC.md",
+    "docs/22-AUTH.md",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "frontend/index.html",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "docs/09-DECISIONS.md",
+    "AGENTS.md",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}

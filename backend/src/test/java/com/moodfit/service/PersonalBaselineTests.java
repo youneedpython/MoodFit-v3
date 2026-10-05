@@ -55,7 +55,7 @@ class PersonalBaselineTests {
     }
     @Test void onlyHighAdjustsMoodAndPoolKeepingScoreContextAndFeedback() {
         var policy = new WellnessRulePolicy(Clock.fixed(NOW, ZoneOffset.UTC));
-        var feedback = new RecommendationFeedbackService.Feedback(true, List.of());
+        var feedback = new RecommendationFeedbackService.Feedback(true, false, List.of());
         var input = request(115, 24);
         var plain = policy.analyze(input, feedback);
         var high = PersonalBaseline.calculate(samples(100, 20), 1L, NOW, input);
@@ -90,7 +90,7 @@ class PersonalBaselineTests {
         var policy = new WellnessRulePolicy(Clock.fixed(NOW, ZoneOffset.UTC));
         var input = new CreateCheckinRequest(115, 24, sleep, stress, energy, new BigDecimal("19.0"), WeatherCondition.RAIN);
         var baseline = PersonalBaseline.calculate(samples(100, 20), 1L, NOW, input);
-        var feedback = new RecommendationFeedbackService.Feedback(true, List.of(
+        var feedback = new RecommendationFeedbackService.Feedback(true, false, List.of(
                 new RecommendationFeedbackService.Item(RecommendationFeedbackService.Kind.FOOD, "두부 채소 덮밥", RecommendationFeedbackService.Rating.LIKE),
                 new RecommendationFeedbackService.Item(RecommendationFeedbackService.Kind.MUSIC,
                         WellnessRulePolicy.MOOD_MUSIC.get(WellnessRulePolicy.MoodType.CALM).getFirst().getVideoId(),

@@ -110,7 +110,9 @@ export function RecommendationCards({ foods, music, feedback }: RecommendationCa
       </Card>
     </div>
     {feedback?.data && <p className="recommendation-feedback__notice">{feedback.data.enabled
-      ? "평가는 다음 Check-in의 추천부터 반영됩니다. 지금 보이는 목록은 유지됩니다."
+      ? feedback.data.shared
+        ? "체험 계정의 평가는 모든 방문자가 함께 씁니다. 다음 Check-in의 추천부터 반영됩니다."
+        : "평가는 다음 Check-in의 추천부터 반영됩니다. 지금 보이는 목록은 유지됩니다."
       : "소셜 로그인 후 추천을 평가하면 다음 추천에 반영됩니다"}</p>}
     {feedback?.error && <p role="alert" className="recommendation-feedback__notice">{feedback.error}</p>}
     </>
