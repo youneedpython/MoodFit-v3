@@ -3915,3 +3915,14 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - TASK-067 Task 문서의 틀린 서술을 바로잡았다. "`main`에 Branch Protection이 없다"고 적었으나 실제로는 Ruleset `main-protection`(Squash만 허용, `frontend` / `backend` 검사 필수, 최신 `main` 반영 필수)이 있다. 건너뛴 Job은 필수 검사에서 통과로 처리되어 설계에는 영향이 없다.
 - `v3.5.0`에 맞춰 README를 갱신했다. Dashboard 절을 "오늘 기록이 있을 때 / 없을 때"로 다시 쓰고, 오늘 기록이 없을 때의 화면 캡처를 더했다. `docs/images/readme/`의 캡처는 TASK-070까지 Merge된 `main`의 Build로 다시 찍었다(API와 날씨 조회는 가짜 응답).
 
+## TASK-030 Executor 구현 기록 (2026-10-05)
+
+- 초기 Working Tree는 clean이었다. TASK-030 READY와 Human 승인 Contract를 확인하고 구현 중 IN_PROGRESS로 전환했다. 최종 DONE은 Executor 파일 구현 완료 반영이며 Orchestrator Verify / Claude Review / Remote CI / Human Squash Merge 및 실제 Production 배포 완료를 주장하지 않는다.
+- 수동 Release 계획과 Environment 승인, 공유 ECR Digest 승격, 목표 ECS Revision 판정, 화면 게시 / Invalidation / Smoke / 비민감 Audit를 구현했다. 이전 Release에 Script가 없어도 현재 승인된 Smoke 검사를 사용한다.
+- Production Change Set은 허용 7종 / 비추적 Parameter / Profile / Environment / Hostname / 승인 CIDR / 자리 표시 / 검증 값 길이와 실행 직전 환경을 확인한다. 삭제 동작은 없다.
+- budget.yaml만 환경 허용과 설명을 변경했다. 나머지 Template / Application / Staging Workflow와 Script는 수정하지 않았다. Production 예시 / Runbook / DEC-049 / Prompt 101을 기록했다.
+- 참고 검증: bash 문법 검사 PASS. 인자 없음 / ecr 종류 / moodfit-readonly Profile 호출은 각각 exit 1로 AWS 호출 전에 거부했다. git diff --check PASS.
+- Workflow 내 Python 구문과 문서 전용 / 코드 / 혼합 / 빈 목록 분류 자체 검사, Parameter 예시 7개의 기존 Key 일치와 변경 문서 UTF-8 / 연속 물음표 / U+FFFD 검사는 PASS다. Python subprocess로 실행한 추가 Workflow Shell 검사는 Bash가 진단 없이 exit 1을 반환해 완료하지 못했다. Production Script 자체의 직접 bash -n 검사는 통과했다.
+- Contract Python YAML 구조 검사는 로컬 Python에 PyYAML이 없어 실행 불가(ModuleNotFoundError). 설치하지 않았다. Orchestrator의 Sandbox 밖 Verify가 검증 기준이다. Workflow 실행 / AWS / cfn-lint / 실제 Smoke는 실행하지 않았다. iac-validate.sh는 Merge 뒤 Human SSO 로그인 후 Claude 세션이 별도 실행한다.
+- 실제 Stack 생성 / 첫 배포 / Rollback 확인과 Release 결과 기록은 Merge 뒤 Runbook에 따른 후속 작업이다. Production Required Reviewer 승인은 실행마다 필요하다. 비용 추가 USD 30 / 2일 및 TASK-031 별도 삭제 승인 경계를 유지한다.
+

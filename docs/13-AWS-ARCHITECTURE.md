@@ -153,3 +153,7 @@ B안 월 상한은 **USD 300 / 환경**, Staging + Production 동시 운영 시 
 [CloudFront HTTPS](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cnames-and-https-requirements.html), [Regional Services](https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/), [S3 OAC](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html) 세부 설정은 TASK-025 / TASK-026 생성 전에 확인한다. Domain 선택은 승인 완료이며 DNS 복구, ACM 공개 인증서 비용의 공식 확인, 미조회 서비스 단가와 실제 orderable 가용성은 TASK-026 전 후속 조건이다.
 
 TASK-023 DONE / TASK-024 READY는 이번 PR의 완료 반영이며 Human Squash Merge로 확정한다. TASK-024 실행은 별도 명시 지시가 필요하다. 설계 승인은 실제 Resource 생성 / IAM 설정 / Local DB 버전 변경 / Production 배포 승인을 대신하지 않는다.
+
+## Production 공유 Artifact (TASK-030)
+
+Production은 Staging ECR 저장소의 검증된 동일 Image Digest를 읽는다. Production ECR Stack은 만들지 않으며 Production 배포 Role에는 저장소 읽기만 허용한다. Network / Data / App / Frontend / IAM / Certificate / Budget은 환경별로 분리하며 상세는 [Production Runbook](28-PRODUCTION-DEPLOYMENT-RUNBOOK.md)을 따른다.

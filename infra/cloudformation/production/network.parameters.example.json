@@ -1,0 +1,26 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "production"
+  },
+  {
+    "ParameterKey": "Owner",
+    "ParameterValue": "<Owner>"
+  },
+  {
+    "ParameterKey": "AvailabilityZoneA",
+    "ParameterValue": "<AvailabilityZoneA>"
+  },
+  {
+    "ParameterKey": "AvailabilityZoneB",
+    "ParameterValue": "<AvailabilityZoneB>"
+  },
+  {
+    "ParameterKey": "CloudFrontOriginPrefixListId",
+    "ParameterValue": "<CloudFrontOriginPrefixListId>"
+  },
+  {
+    "ParameterKey": "VpcCidr",
+    "ParameterValue": "10.50.0.0/16"
+  }
+]

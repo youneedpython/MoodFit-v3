@@ -1,0 +1,330 @@
+name: deploy-production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Approved release tag v3.x.y
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: moodfit-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      image_sha: ${{ steps.plan.outputs.image_sha }}
+      tag_sha: ${{ steps.plan.outputs.tag_sha }}
+    steps:
+      - name: Checkout main history
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Plan release promotion
+        id: plan
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess
+          def git(*args):
+              return subprocess.check_output(['git', *args], stderr=subprocess.DEVNULL)
+          def deploy(paths):
+              return not (paths and all(paths) and all(
+                  p.startswith((b'docs/', b'prompts/', b'harness/tasks/')) or p.endswith(b'.md')
+                  for p in paths))
+          assert not deploy([b'docs/a.txt', b'prompts/a', b'harness/tasks/a', b'README.md'])
+          assert deploy([b'frontend/a.ts'])
+          assert deploy([b'docs/a.md', b'backend/a.java'])
+          assert deploy([])
+          tag = os.environ['RELEASE_TAG']
+          if not re.fullmatch(r'v3\.[0-9]+\.[0-9]+', tag):
+              raise SystemExit('Invalid release tag')
+          tag_sha = git('rev-parse', '--verify', 'refs/tags/' + tag + '^{commit}').decode().strip()
+          assert re.fullmatch(r'[a-f0-9]{40}', tag_sha)
+          git('merge-base', '--is-ancestor', tag_sha, 'origin/main')
+          mainline = git('rev-list', '--first-parent', 'origin/main').decode().splitlines()
+          assert tag_sha in mainline, 'Release must be on main first-parent history'
+          commits = git('rev-list', '--first-parent', '--max-count=30', tag_sha).decode().splitlines()
+          image_sha = None
+          skipped = 0
+          for sha in commits:
+              assert re.fullmatch(r'[a-f0-9]{40}', sha)
+              try:
+                  raw = git('diff', '--no-renames', '--name-only', '-z', sha + '^', sha, '--')
+                  assert not raw or raw.endswith(b'\0')
+                  paths = raw[:-1].split(b'\0') if raw else []
+              except (subprocess.CalledProcessError, AssertionError):
+                  paths = []
+              if deploy(paths):
+                  image_sha = sha
+                  break
+              skipped += 1
+          if image_sha is None:
+              raise SystemExit('No deployment commit in the last 30 commits')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
+              f.write('image_sha=' + image_sha + '\n' + 'tag_sha=' + tag_sha + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
+              f.write('## Production approval plan\n\n')
+              f.write('- Release tag: ' + tag + '\n- Tag commit: ' + tag_sha + '\n')
+              f.write('- Image commit: ' + image_sha + '\n- Documentation-only commits: ' + str(skipped) + '\n')
+          PY
+
+  deploy:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        shell: bash
+    env:
+      AWS_REGION: ap-northeast-2
+      AWS_PAGER: ''
+      AWS_CLI_AUTO_PROMPT: 'off'
+      AWS_MAX_ATTEMPTS: '1'
+      AWS_RETRY_MODE: standard
+      ECS_CLUSTER: moodfit-production
+      ECS_SERVICE: moodfit-production-backend
+      ECR_REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI }}
+      STATIC_BUCKET_NAME: ${{ secrets.STATIC_BUCKET_NAME }}
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+    steps:
+      - name: Checkout main history
+        id: checkout
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate and checkout deployment commit
+        id: target
+        env:
+          REQUESTED_SHA: ${{ needs.plan.outputs.tag_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$REQUESTED_SHA" =~ ^[a-fA-F0-9]{40}$ ]] || { echo 'Invalid full commit SHA'; exit 1; }
+          sha=${REQUESTED_SHA,,}
+          [[ "$(git rev-parse "$sha^{commit}")" == "$sha" ]]
+          git merge-base --is-ancestor "$sha" origin/main
+          sed 's|^cd .*|cd "$GITHUB_WORKSPACE"|' scripts/production-smoke.sh > "$RUNNER_TEMP/production-smoke.sh"
+          git checkout --detach "$sha"
+          [[ "$(git rev-parse HEAD)" == "$sha" ]]
+          printf 'sha=%s\n' "$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        id: node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.21.0'
+          package-manager-cache: false
+
+      - name: Obtain production OIDC session
+        id: oidc
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-northeast-2
+          role-duration-seconds: 3600
+          role-session-name: moodfit-production-${{ github.run_id }}
+          mask-aws-account-id: true
+          disable-retry: true
+
+      - name: Resolve verified immutable image
+        id: image
+        env:
+          IMAGE_SHA: ${{ needs.plan.outputs.image_sha }}
+        run: |
+          set -euo pipefail
+          umask 077
+          [[ "$IMAGE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$ECR_REPOSITORY_URI" =~ ^[0-9]{12}\.dkr\.ecr\.ap-northeast-2\.amazonaws\.com/[a-z0-9._/-]+$ ]]
+          repo=${ECR_REPOSITORY_URI#*/}
+          digest=$(aws ecr describe-images --repository-name "$repo" --image-ids "imageTag=sha-$IMAGE_SHA" \
+            --query 'imageDetails[0].imageDigest' --output text 2>"$RUNNER_TEMP/ecr-error") || { echo 'Verified image lookup failed'; exit 1; }
+          [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]
+          printf 'digest=%s\n' "$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Register image revision and update ECS service
+        id: ecs_update
+        env:
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+        run: |
+          set -euo pipefail
+          umask 077
+          call() { aws "$@" 2>"$RUNNER_TEMP/aws-error"; }
+          call ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" > "$RUNNER_TEMP/service-before.json"
+          previous=$(python - "$RUNNER_TEMP/service-before.json" <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1]))
+          assert not d.get('failures') and len(d['services']) == 1
+          s = d['services'][0]
+          assert s['status'] == 'ACTIVE' and len(s['deployments']) == 1
+          assert s['deployments'][0]['rolloutState'] == 'COMPLETED'
+          assert s['runningCount'] == s['desiredCount'] and s['pendingCount'] == 0
+          print(s['taskDefinition'])
+          PY
+          )
+          call ecs describe-task-definition --task-definition "$previous" > "$RUNNER_TEMP/task-current.json"
+          python - "$RUNNER_TEMP/task-current.json" "$RUNNER_TEMP/task-new.json" <<'PY'
+          import json, os, sys
+          d = json.load(open(sys.argv[1]))['taskDefinition']
+          assert d['family'] == 'moodfit-production-backend'
+          for key in ('taskDefinitionArn', 'revision', 'status', 'requiresAttributes',
+                      'compatibilities', 'registeredAt', 'registeredBy', 'deregisteredAt'):
+              d.pop(key, None)
+          containers = [c for c in d['containerDefinitions'] if c['name'] == 'backend']
+          assert len(containers) == 1
+          containers[0]['image'] = os.environ['ECR_REPOSITORY_URI'] + '@' + os.environ['IMAGE_DIGEST']
+          d['tags'] = [{'key': 'MoodFitEnvironment', 'value': 'production'}]
+          with open(sys.argv[2], 'w') as f: json.dump(d, f)
+          PY
+          call ecs register-task-definition --cli-input-json "file://$RUNNER_TEMP/task-new.json" > "$RUNNER_TEMP/task-registered.json"
+          target=$(python - "$RUNNER_TEMP/task-registered.json" <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1]))['taskDefinition']
+          assert d['family'] == 'moodfit-production-backend'
+          print(d['taskDefinitionArn'])
+          PY
+          )
+          revision=${target##*:}
+          [[ "$revision" =~ ^[0-9]+$ ]]
+          printf 'revision=%s\n' "$revision" >> "$GITHUB_OUTPUT"
+          printf '%s' "$target" > "$RUNNER_TEMP/target-task"
+          call ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --task-definition "$target" > /dev/null
+
+      - name: Wait for ECS and reject circuit breaker rollback
+        id: ecs_wait
+        run: |
+          set -euo pipefail
+          python - "$RUNNER_TEMP/target-task" <<'PY'
+          import json, os, pathlib, subprocess, sys, time
+          target = pathlib.Path(sys.argv[1]).read_text()
+          deadline = time.monotonic() + 600
+          reason = 'target deployment not ready'
+          while True:
+              remaining = deadline - time.monotonic()
+              if remaining <= 0:
+                  sys.exit('ECS rollout timeout: ' + reason)
+              try:
+                  result = subprocess.run(
+                      ['aws', 'ecs', 'describe-services', '--cluster', os.environ['ECS_CLUSTER'],
+                       '--services', os.environ['ECS_SERVICE'], '--output', 'json'],
+                      capture_output=True, text=True, timeout=min(30, remaining))
+                  if result.returncode != 0:
+                      sys.exit('ECS service lookup failed')
+                  d = json.loads(result.stdout)
+              except subprocess.TimeoutExpired:
+                  sys.exit('ECS service lookup timed out')
+              except (OSError, ValueError):
+                  sys.exit('ECS service lookup unavailable or invalid')
+              if d.get('failures') or len(d.get('services', [])) != 1:
+                  sys.exit('ECS service lookup did not return one service')
+              s = d['services'][0]
+              if s.get('taskDefinition') != target:
+                  sys.exit('ECS rolled back instead of deploying target')
+              deployments = s.get('deployments', [])
+              targets = [item for item in deployments if item.get('taskDefinition') == target]
+              if any(item.get('rolloutState') == 'FAILED' for item in targets):
+                  sys.exit('ECS target rollout FAILED')
+              state = targets[0].get('rolloutState') if len(targets) == 1 else None
+              safe_state = state if state in ('IN_PROGRESS', 'COMPLETED', 'FAILED') else 'UNKNOWN'
+              if len(deployments) != 1 or len(targets) != 1:
+                  reason = 'waiting for one target deployment'
+              elif state != 'COMPLETED':
+                  reason = 'rollout state ' + safe_state
+              elif (s.get('desiredCount'), s.get('runningCount'), s.get('pendingCount')) != (2, 2, 0):
+                  reason = 'desired/running/pending counts not ready'
+              else:
+                  print('ECS target rollout COMPLETED')
+                  break
+              remaining = deadline - time.monotonic()
+              if remaining <= 0:
+                  sys.exit('ECS rollout timeout: ' + reason)
+              time.sleep(min(15, remaining))
+          PY
+
+      - name: Install test and build frontend
+        id: frontend
+        working-directory: frontend
+        run: |
+          set -euo pipefail
+          npm ci
+          npm test
+          npm run build
+
+      - name: Publish assets before HTML without deletion
+        id: publish
+        run: |
+          set -euo pipefail
+          [[ -n "$STATIC_BUCKET_NAME" ]]
+          aws s3 sync frontend/dist/ "s3://$STATIC_BUCKET_NAME/" --exclude '*.html' \
+            --cache-control 'public,max-age=31536000,immutable' >"$RUNNER_TEMP/upload-log" 2>&1
+          aws s3 cp frontend/dist/ "s3://$STATIC_BUCKET_NAME/" --recursive --exclude '*' --include '*.html' \
+            --cache-control 'no-cache' --content-type text/html >"$RUNNER_TEMP/html-log" 2>&1
+
+      - name: Invalidate CloudFront and wait for completion
+        id: invalidate
+        run: |
+          set -euo pipefail
+          invalidation=$(aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths '/*' --query 'Invalidation.Id' --output text 2>"$RUNNER_TEMP/aws-error")
+          [[ "$invalidation" =~ ^[A-Za-z0-9]+$ ]]
+          aws cloudfront wait invalidation-completed --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --id "$invalidation" 2>"$RUNNER_TEMP/aws-error"
+
+      - name: Smoke test production
+        id: smoke
+        run: |
+          set -euo pipefail
+          bash "$RUNNER_TEMP/production-smoke.sh"
+
+      - name: Write deployment audit summary
+        if: always()
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          TAG_SHA: ${{ needs.plan.outputs.tag_sha }}
+          IMAGE_SHA: ${{ needs.plan.outputs.image_sha }}
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+          TASK_REVISION: ${{ steps.ecs_update.outputs.revision }}
+          DEPLOY_RESULT: ${{ job.status }}
+          SMOKE_RESULT: ${{ steps.smoke.outcome }}
+          RUN_ACTOR: ${{ github.actor }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          python - <<'PY'
+          import datetime, html, os
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
+              f.write('## Production deployment audit\n\n')
+              for label, key in [('Release tag', 'RELEASE_TAG'), ('Tag commit', 'TAG_SHA'),
+                                 ('Image commit', 'IMAGE_SHA'), ('Image digest', 'IMAGE_DIGEST'),
+                                 ('Task revision', 'TASK_REVISION'), ('Actor', 'RUN_ACTOR'),
+                                 ('Run number', 'RUN_NUMBER'), ('Deployment', 'DEPLOY_RESULT'), ('Smoke', 'SMOKE_RESULT')]:
+                  f.write('- ' + label + ': <code>' + html.escape(os.environ.get(key) or 'unavailable') + '</code>\n')
+              f.write('- UTC: ' + datetime.datetime.now(datetime.timezone.utc).isoformat() + '\n')
+              f.write('\nEnvironment approval identity remains in the GitHub deployment approval history.\n')
+          PY
+
+      - name: Remove private temporary deployment files
+        if: always()
+        run: |
+          set -euo pipefail
+          rm -f -- "$RUNNER_TEMP/ecr-error" "$RUNNER_TEMP/aws-error" "$RUNNER_TEMP/image-push-log" \
+            "$RUNNER_TEMP/service-before.json" "$RUNNER_TEMP/service-after.json" "$RUNNER_TEMP/task-current.json" \
+            "$RUNNER_TEMP/task-new.json" "$RUNNER_TEMP/task-registered.json" "$RUNNER_TEMP/target-task" \
+            "$RUNNER_TEMP/upload-log" "$RUNNER_TEMP/html-log" "$RUNNER_TEMP/production-smoke.sh"
