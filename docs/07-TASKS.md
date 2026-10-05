@@ -108,6 +108,7 @@ TASK-029는 2026-10-04 승인 Contract에 따른 Executor 구현 완료를 DONE�
 | TASK-054 | Milestone 54 | Privacy Notice / Account Deletion / SPA Route Fix | DONE | TASK-042, TASK-044, TASK-045 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-055 | Milestone 55 | Recommendation Feedback (추천 피드백) | DONE | TASK-042, TASK-048, TASK-054 | Human Approved 2026-10-04, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-056 | Milestone 56 | Personal Baseline (개인별 Baseline / 신체 긴장도) | DONE | TASK-042, TASK-045, TASK-048, TASK-055 | Human Approved 2026-10-05, Gate B B안 / 체험 계정 적용, Executor 구현 완료 / Verify · Review · Merge 대기 |
+| TASK-057 | Milestone 57 | Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리) | DONE | TASK-054 | Human 명시 실행 승인 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 | TASK-058 | Milestone 58 | Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로) | DONE | TASK-055 | Human 명시 실행 지시 2026-10-05, Executor 구현 완료 / Verify · Review · Merge 대기 |
 
 ---
@@ -2006,6 +2007,14 @@ DEC-019 Persistence Dependency / DB Schema는 TASK-006 Gate C Human Review에서
 - 경계 / 사용자 / 저장 / 계약 / AI / 삭제 / H2 및 MySQL Migration / Frontend Test를 추가했다. 자체 Verify는 npm 캐시 EPERM으로 설치에서 중단됐고 Gradle 잠금 경로 생성 제한으로 Backend Test를 실행하지 못했다. Container Smoke는 app.jar 부재와 Docker 접근 제한으로 미완료다. 구문 / 계약 예시 / Smoke 비교 규칙 / diff / 인코딩을 정적으로 확인했다.
 - 검증 기준은 Sandbox 밖 Orchestrator Verify다. 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 캡처와 Merge 뒤 Staging 소셜 기록 5건 이상 비교 확인이 남는다. [개인별 Baseline](26-PERSONAL-BASELINE.md)을 따른다.
 
+## TASK-057 — Account Menu (회원 탈퇴 메뉴 이름 / 사용자 메뉴와 확인 창 정리)
+
+- 상태: DONE (Executor 구현 완료), Milestone 57. Dependency: TASK-054.
+- 승인: 2026-10-05 Human 명시 실행 지시와 TASK-057 Contract. TASK-057만 IN_PROGRESS 등록 후 DONE으로 반영했다. 다른 Task와 기존 Current Task TASK-030 / BLOCKED는 유지한다.
+- 메뉴와 확인 창 / 개인정보 안내의 이름을 회원 탈퇴로 맞췄다. 개인정보 처리 안내 → 로그아웃 → 구분선 → 회원 탈퇴 순서, 첫 항목 초점과 기존 위험 색 / 간격 Token / 44px 터치 영역을 적용했다. 체험 계정에는 탈퇴와 구분선을 숨긴다.
+- 공통 Button의 secondary / primary Variant를 사용하고 진행 중 취소 / Esc 닫기를 막는다. 초점 가두기와 aria-modal / aria-busy를 유지하고 실패 뒤 취소 기본 초점과 닫기를 복원한다.
+- 메뉴 순서 / 초점 / 체험 계정, 새 이름 / 완료 안내 / 요청 1회, 진행 중 닫기 차단 / 실패 뒤 복원 Test를 보완했다. 자체 Verify는 npm 캐시 stat EPERM으로 설치에서 중단되어 Test / tsc / Build를 실행하지 못했다. Sandbox 밖 Orchestrator Verify가 검증 기준이다.
+- 검증 / Review 통과 뒤 REVIEW, 최종 완료 승인은 Human Squash Merge다. Claude 세션의 390 / 768 / 1280px 화면 캡처와 Merge 후 Staging 메뉴 / 확인 창 확인이 남는다.
 ## TASK-058 — Feedback Icons (추천 평가 버튼을 이름 옆 아이콘으로)
 
 - 상태: DONE (Executor 구현 완료), Milestone 58. Dependency: TASK-055.
