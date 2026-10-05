@@ -56,6 +56,8 @@ Claude 세션이 낸 Gate 제안을 Human이 승인했다("1. 승인 2. 가 3. �
 
 이 결정으로 위 "Human Gate"의 "최초 생성은 Human이 `MoodFitProductionAdmin` 권한으로 직접 수행하거나 승인한다. Agent는 Production Profile을 사용하지 않는다"는 다음과 같이 적용한다: 별도의 Production Profile은 없고(Staging과 같은 계정, 같은 관리 권한), Human의 명시적이고 범위가 정해진 위임 아래 Claude 세션이 Production Stack의 Change Set을 만들고 실행한다. Executor(Codex)는 AWS를 호출하지 않는다.
 
+8. **검사 예외 문자열**: 배포 Workflow의 OIDC 권한 줄(`id-token` 쓰기 권한, TASK-029 / 039 / 050에서 승인한 것과 같은 문자열)을 이 Task의 비밀 값 검사 예외로 두는 것을 Human이 승인했다(2026-10-05 "승인!"). Contract의 `secret_scan_allow`에 그 한 줄만 둔다.
+
 ## 설계 (실행 기준, 2026-10-05)
 
 이 Task의 Executor 작업은 **파일을 만드는 것**이다. AWS Resource를 만들거나 배포하지 않는다(그것은 Merge 뒤 Claude 세션과 Human이 Runbook대로 한다).
