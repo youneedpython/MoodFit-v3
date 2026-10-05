@@ -448,19 +448,19 @@ ErrorResponse는 기존 code / message / fieldErrors 형식을 사용한다. 인
 
 미로그인은 401 UNAUTHENTICATED, CSRF 누락 / 불일치는 403 FORBIDDEN으로 기존 ErrorResponse 계약을 유지한다. CSRF 필터가 인증보다 먼저 실행되므로 미로그인 요청이라도 CSRF가 없으면 403을 반환한다. 삭제 확인 화면과 [개인정보 처리 안내](25-PRIVACY.md)는 되돌릴 수 없으며 백업에 최대 14일 데이터가 남을 수 있다는 점을 안내한다. [체험 오류 예시](../contracts/account-delete-guest-403.json).
 
-## 추천 평가 (TASK-055 / DEC-042)
+## 추천 평가 (TASK-055 / TASK-068, DEC-042 / DEC-046)
 
-로그인 사용자 본인의 항목별 평가만 읽고 쓴다. 기존 Check-in 응답과 저장된 추천은 바꾸지 않는다.
+로그인 사용자 본인의 항목별 평가를 읽고 쓴다. 체험 계정의 평가는 모든 방문자가 함께 쓰며 다음 Check-in에 같은 규칙으로 반영된다. 기존 Check-in 응답과 저장된 추천은 바꾸지 않는다.
 
 | Method / 경로 | 응답 |
 |---|---|
-| GET `/api/recommendations/feedback` | 200, 평가 가능 여부와 본인 목록 |
+| GET `/api/recommendations/feedback` | 200, 평가 가능 여부(enabled), 공유 여부(shared)와 본인 목록(items) |
 | PUT `/api/recommendations/feedback` | 저장 / 교체 / 삭제 성공 204, 본문 없음 |
 
 GET 예시([계약](../contracts/recommendation-feedback-200.json)):
 
 ```json
-{"enabled":true,"items":[{"kind":"FOOD","item":"연어 샐러드","rating":"LIKE"}]}
+{"enabled":true,"shared":false,"items":[{"kind":"FOOD","item":"연어 샐러드","rating":"LIKE"}]}
 ```
 
 PUT 요청([계약](../contracts/recommendation-feedback-put-204.json)):
@@ -471,4 +471,4 @@ PUT 요청([계약](../contracts/recommendation-feedback-put-204.json)):
 
 kind는 FOOD / MUSIC, rating은 LIKE / DISLIKE / null이다. null이면 해당 평가를 삭제한다. item은 앞뒤 공백 제거 후 1~120자, 제어 문자 없이 현재 해당 종류의 추천 Pool에 존재해야 한다. 음식은 이름, 음악은 videoId를 보낸다. 검증 실패는 400 VALIDATION_ERROR다. 목록은 종류 / 항목 순으로 반환한다.
 
-체험 GET은 `{"enabled":false,"items":[]}`이고 PUT은 403 GUEST_FEEDBACK_FORBIDDEN이다([GET 계약](../contracts/recommendation-feedback-guest-200.json), [오류 계약](../contracts/recommendation-feedback-guest-403.json)). 미로그인 GET / 유효 CSRF의 PUT은 401, CSRF 누락 / 불일치 PUT은 403이다. 기존 Session / CSRF 설정을 유지한다.
+체험 GET은 `enabled: true`, `shared: true`와 공유 계정에 저장된 목록을 반환한다. 평가가 없는 예시는 `{"enabled":true,"shared":true,"items":[]}`이다([GET 계약](../contracts/recommendation-feedback-guest-200.json)). 소셜 사용자는 `shared: false`이며 Frontend는 shared가 없는 이전 응답도 false로 처리한다. 체험 PUT도 저장 / 변경 / 삭제 성공 시 204다. 사용자 행 잠금과 사용자별 격리를 유지한다. 체험 계정 삭제는 여전히 403이며 방문자는 평가 버튼으로 개별 평가만 변경 / 삭제할 수 있다. 미로그인 GET / 유효 CSRF의 PUT은 401, CSRF 누락 / 불일치 PUT은 403이다. 기존 Session / CSRF 설정을 유지한다.

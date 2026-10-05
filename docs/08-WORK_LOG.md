@@ -3864,9 +3864,22 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - 화면 확인(Claude 세션, `docs/images/task-065/`): 최종 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신했다. 휴대폰 화면(390px, Touch)을 흉내 낸 Chrome에 두 손가락 터치 입력을 직접 보내 확인했다. 기록 30건(4일)에서 처음에 점 4개와 평균 안내, 벌리면 점 30개와 밀어 보기 안내, 오므리면 다시 점 4개다. 그래프 위 한 손가락 세로 밀기는 화면을 세로로 스크롤한다. 기록 3건이면 버튼과 안내가 없다. Footer의 "앱 설치"는 358 × 44px 전체 너비 버튼이다. 768 / 1280px 포함 가로 넘침이 없다. 실제 기기에서의 Pinch는 확인하지 못했다.
 - 화면 확인(Claude 세션, `docs/images/task-066/`): 이 Branch의 Build를 로컬에서 띄워 쟀다. 로그인 화면의 세 버튼(Google, Kakao, 로그인 없이 둘러보기)은 390px에서 모두 52 × 316px, 1280px에서 모두 52 × 446px이다. Slider는 빈 값에서 `aria-describedby` / `aria-invalid`가 없고 `aria-valuetext`가 "입력 안 함"이며, 값을 넣으면 `aria-valuetext`가 없어진다. 빈 값으로 제출하면 초점이 숫자 입력칸으로 가고 숫자 입력칸에는 안내 / 오류 연결이 그대로 있다. 가로 넘침이 없다.
 
+### TASK-068 — Guest Feedback (2026-10-05)
+
+- clean baseline에서 Task source와 필수 Context, Human Gate B 지시를 확인하고 TASK-068만 IN_PROGRESS 등록 후 Executor 구현 완료를 DONE으로 반영했다. 다른 Task와 Current Task는 유지했다. Git Branch / Commit / Push / PR 작업은 수행하지 않았다.
+- 체험 계정의 평가 차단을 Service와 Controller에서 제거하고 조회에 shared boolean을 추가했다. 기존 사용자 행 FOR UPDATE, 후보 검증과 사용자별 저장을 유지한다. CheckinServiceImpl이 기존 feedback.get 경로로 공유 평가를 받아 같은 추천 규칙에 반영하며 추천 규칙 / 개수 / DB Schema는 바꾸지 않았다. 체험 계정의 계정 삭제와 AI 기능 제한도 유지한다.
+- Frontend API 타입과 Hook에 shared 누락 시 false 처리를 추가하고 평가 아이콘 / 낙관적 변경 / 실패 복구를 그대로 사용한다. 추천 영역과 개인정보 처리 안내에 모든 방문자가 평가를 함께 쓰는 사실을 알린다. 소셜 안내와 enabled false의 기존 안내도 유지한다.
+- H2 / MySQL 공통 Backend Test에 체험 계정의 조회 / 저장 / 변경 / 삭제 / 방문자 공유 / 소셜 격리, 계정 삭제 거부, 미로그인 / CSRF, 다음 Check-in의 좋아요 / 별로예요 반영과 소셜 결과 비교를 추가했다. Frontend Test는 공유 안내와 저장 요청, shared false / 누락, 기능 비활성화를 확인한다. 기존 평가 없음 / 추천 규칙 Test는 유지한다.
+- 계약 예시를 갱신하고 더 이상 반환하지 않는 체험 평가 403 예시를 제거했다. 두 Smoke는 GET만 추가하여 enabled / shared와 목록 원소의 키 / 타입 / enum을 검사하고 방문자가 남긴 실제 목록과 비교하거나 평가를 쓰지 않는다. API / 추천 / 개인정보 / README와 DEC-046 / Prompt 95를 동기화했다.
+- 자체 `bash scripts/verify.sh`: Node.js 24.21.0 확인 후 npm ci에서 캐시 stat EPERM과 node_modules 정리 EPERM으로 중단됐다. Frontend Test / tsc / Build와 Backend Test / Build는 실행하지 못했다. 권한 우회 / 재시도는 하지 않았다.
+- 자체 `bash scripts/container-smoke.sh`: 검증 Build가 생성되지 않아 backend/build/libs/app.jar 부재로 Preflight 중단됐다. 종료 정리 중 Docker 설정 / daemon 접근도 Sandbox에서 거부됐다. Container 통합 검증은 실행하지 못했으며 실제 코드 실패를 성공으로 처리하지 않는다.
+- `bash -n scripts/staging-smoke.sh`, `bash -n scripts/container-smoke.sh`, `git diff --check`는 통과했다. 두 Smoke의 내장 Python 구문과 형식 검사도 직접 확인했다(빈 목록 / 여러 평가 허용, enabled false / shared false / 잘못된 종류 거부). 평가 계약의 JSON 키를 확인했고 변경 파일의 UTF-8 / U+FFFD와 변경 문서의 연속 물음표 치환 흔적 검사도 통과했다. Sandbox 밖 Orchestrator Verify가 검증 기준이며 Executor DONE은 구현 완료만 뜻한다.
+- Claude 세션의 390 / 1280px 체험 평가 화면 캡처 / 검토와 Repository 기록, Human Squash Merge 후 Staging에서 공유 평가를 변경 / 삭제하고 다음 Check-in 반영을 확인하는 절차가 남는다. Executor는 실환경 공유 평가를 쓰지 않았다.
+
 ### v3.4.0 Release Note 작성 (2026-10-05, Claude 세션, Human 지시)
 
 - Human 지시("release 출시해")에 따라 `docs/releases/v3.4.0.md`를 작성했다. 범위는 `v3.3.0` 이후의 TASK-064(홈 화면 설치, 앱 설치 버튼)와 TASK-065(모바일 앱 설치 버튼 크기, History 그래프 날짜별 평균 / 확대)이다.
 - Tag `v3.4.0`과 GitHub Release는 이 PR이 Merge된 뒤 그 Commit에 만든다(DEC-025).
 - AWS Architecture 그림(`docs/images/readme/aws-architecture.png`)을 다시 그렸다(Human 지시: "aws architecture에 aws 아이콘도 넣었으면 해", 후속 후보 "Bedrock 경로 추가"). 각 Service에 AWS Architecture Icons를 넣었고, 별도 AWS 계정의 Amazon Bedrock(STS AssumeRole)과 Google / Kakao OAuth 호출 경로를 더했다. Spring Boot Version 표기(4.1)와 Secrets Manager 설명(OAuth 값)을 현재 구성에 맞췄다. Bedrock은 사용한 아이콘 묶음(2021)에 전용 아이콘이 없어 Machine Learning 분류 아이콘을 썼다. 그림에는 계정 ID나 ARN이 없다.
+- 화면 확인(Claude 세션, `docs/images/task-068/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답(`enabled: true`, `shared: true`)으로 대신해 체험 계정 Dashboard를 390 / 1280px로 캡처했다. 추천 10개 항목 모두에 평가 묶음이 보이고, 누르면 저장 요청이 1회 나가며 눌림 표시가 된다. 목록 아래에 "체험 계정의 평가는 모든 방문자가 함께 씁니다. 다음 Check-in의 추천부터 반영됩니다."가 나온다. 소셜 사용자 화면의 문구는 이전과 같다. 가로 넘침이 없다. 실제 Staging에서 평가가 다음 Check-in에 반영되는지는 Merge 뒤 확인한다.
 

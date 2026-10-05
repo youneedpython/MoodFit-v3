@@ -66,7 +66,7 @@ class WellnessRulePolicy {
 
 
     AnalysisResult analyze(CreateCheckinRequest request) {
-        return analyze(request, new RecommendationFeedbackService.Feedback(true, List.of()));
+        return analyze(request, new RecommendationFeedbackService.Feedback(true, false, List.of()));
     }
 
     AnalysisResult analyze(CreateCheckinRequest request, RecommendationFeedbackService.Feedback feedback) {
