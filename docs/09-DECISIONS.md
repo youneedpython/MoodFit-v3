@@ -1602,7 +1602,14 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - 버튼은 모든 화면 Footer의 개인정보 처리 안내 앞과 아바타 메뉴의 개인정보 처리 안내 / 로그아웃 사이에 둔다. Chromium 설치 이벤트는 Browser 설치 창, iOS / iPadOS는 사용자 요청 시 안내 창으로 처리한다. 미지원 / 설치 완료 / 독립 창에서는 숨긴다.
 - 1년 immutable Cache 때문에 Manifest를 app.webmanifest로 옮기며 기존 아이콘 파일은 유지한다. 상세는 [27-PWA-INSTALL.md](27-PWA-INSTALL.md)를 따른다. 구현 승인은 최종 완료 승인을 대신하지 않는다.
 
-## DEC-045 TASK-068 체험 계정 추천 평가
+## DEC-045 TASK-067 경로에 따른 CI Job 실행
+
+- Human Approved 2026-10-05, Gate C: “'작은 후속 후보' 모두 진행해.” 및 승인된 TASK-067 Contract / 명시 실행 지시.
+- changes Job에서 PR base...head / main push before..head를 비교한다. frontend / backend는 각각 해당 Job, contracts / .github / scripts / harness / Root package.json / package-lock.json / .nvmrc는 두 Job을 실행한다. docs / prompts / infra / Root Markdown은 실행 대상이 아니며 혼합 변경은 합집합으로 판단한다.
+- 알 수 없는 경로, SHA 누락 / 형식 오류 / 0 SHA, 지원하지 않는 Event, diff 실패 / 빈 목록은 두 Job 실행을 기본값으로 한다. 분류 함수 자체 검사를 실제 분류 전에 수행하며 실패를 숨기지 않는다.
+- contents: read와 기존 Action / Job 이름 / Test·Build Step을 유지한다. SHA는 환경변수로 전달하고 git은 인자 배열로 호출하며 Summary 경로는 Escape하고 최대 20개만 표시한다.
+- 조건이 거짓인 Job은 skipped이며 실패가 아니다. CI 성공 뒤 기존 Staging 배포 시작 조건은 유지하고 배포의 classify가 배포 여부를 결정한다. 화면 전용 CI가 Backend를 생략해도 배포 Backend Test / Image Build는 유지한다. 배포 Workflow / Branch Protection 변경은 이 승인 범위에 없다.
+## DEC-046 TASK-068 체험 계정 추천 평가
 
 - Human Approved 2026-10-05, Gate B: “체험계정도 '좋아요 / 별루예요' 추가 → 개선 후 영상 촬영”. 승인된 TASK-068 Contract와 명시 실행 지시를 따른다.
 - DEC-042의 체험 계정 평가 금지를 대체한다. 체험 계정도 평가를 조회 / 저장 / 변경 / 삭제하고 다음 Check-in 추천에 소셜 사용자와 같은 규칙으로 반영한다.

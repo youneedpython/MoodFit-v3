@@ -46,14 +46,25 @@ describe("CheckinPage", () => {
     expect(screen.getAllByRole("slider")).toHaveLength(3);
     expect([slider.min, slider.max, slider.step]).toEqual(["0", "100", "1"]);
     expect(slider.value).toBe("50");
+    expect(slider.getAttribute("aria-valuetext")).toBe("입력 안 함");
+    expect(slider.getAttribute("aria-describedby")).toBeNull();
+    expect(slider.getAttribute("aria-invalid")).toBeNull();
+    expect(number.getAttribute("aria-describedby")).toBe(name + "-hint");
+    expect(number.getAttribute("aria-invalid")).toBe("false");
     expect(number.value).toBe("");
     fireEvent.click(submitButton());
     expect(document.getElementById(name + "-error")?.textContent).toBe("값을 입력해 주세요.");
+    expect(number.getAttribute("aria-describedby")).toBe(name + "-hint " + name + "-error");
+    expect(number.getAttribute("aria-invalid")).toBe("true");
+    expect(slider.getAttribute("aria-describedby")).toBeNull();
+    expect(slider.getAttribute("aria-invalid")).toBeNull();
     fireEvent.change(slider, { target: { value: "72" } });
     expect(number.value).toBe("72");
+    expect(slider.getAttribute("aria-valuetext")).toBeNull();
     expect(document.getElementById(name + "-error")).toBeNull();
     fireEvent.change(number, { target: { value: "31" } });
     expect(slider.value).toBe("31");
+    expect(slider.getAttribute("aria-valuetext")).toBeNull();
     fireEvent.change(number, { target: { value: "120" } });
     expect(slider.value).toBe("100");
     expect(number.value).toBe("120");
@@ -64,6 +75,27 @@ describe("CheckinPage", () => {
     fireEvent.change(number, { target: { value: "" } });
     expect(slider.value).toBe("50");
     expect(number.value).toBe("");
+    expect(slider.getAttribute("aria-valuetext")).toBe("입력 안 함");
+  });
+
+  it.each(["수면 점수", "스트레스 수준", "에너지 수준"])("focuses the empty %s number input on submission", (label) => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    renderPage();
+    fillValidForm();
+    const number = screen.getByRole("spinbutton", { name: label });
+    const slider = screen.getByRole("slider", { name: label + " Slider" });
+    fireEvent.change(number, { target: { value: "" } });
+    fireEvent.click(submitButton());
+
+    expect(number.getAttribute("aria-invalid")).toBe("true");
+    const errorId = number.getAttribute("aria-describedby")!.split(" ")[1];
+    expect(document.getElementById(errorId)?.textContent).toBe("값을 입력해 주세요.");
+    expect(document.activeElement).toBe(number);
+    expect(slider.getAttribute("aria-invalid")).toBeNull();
+    expect(slider.getAttribute("aria-describedby")).toBeNull();
+    expect(slider.getAttribute("aria-valuetext")).toBe("입력 안 함");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("groups inputs and shows range hints for each field", () => {

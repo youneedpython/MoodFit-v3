@@ -448,7 +448,7 @@ ErrorResponse는 기존 code / message / fieldErrors 형식을 사용한다. 인
 
 미로그인은 401 UNAUTHENTICATED, CSRF 누락 / 불일치는 403 FORBIDDEN으로 기존 ErrorResponse 계약을 유지한다. CSRF 필터가 인증보다 먼저 실행되므로 미로그인 요청이라도 CSRF가 없으면 403을 반환한다. 삭제 확인 화면과 [개인정보 처리 안내](25-PRIVACY.md)는 되돌릴 수 없으며 백업에 최대 14일 데이터가 남을 수 있다는 점을 안내한다. [체험 오류 예시](../contracts/account-delete-guest-403.json).
 
-## 추천 평가 (TASK-055 / TASK-068, DEC-042 / DEC-045)
+## 추천 평가 (TASK-055 / TASK-068, DEC-042 / DEC-046)
 
 로그인 사용자 본인의 항목별 평가를 읽고 쓴다. 체험 계정의 평가는 모든 방문자가 함께 쓰며 다음 Check-in에 같은 규칙으로 반영된다. 기존 Check-in 응답과 저장된 추천은 바꾸지 않는다.
 

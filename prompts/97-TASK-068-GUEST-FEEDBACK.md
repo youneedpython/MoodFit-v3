@@ -2,7 +2,7 @@
 
 - 목적: 로그인 없이 둘러보는 방문자도 추천 평가를 체험할 수 있도록 승인된 Gate B 결정을 반영한다.
 - 실행 단계: 승인 Contract 확인 → TASK-068 구현 / Test 보완 / 기록 → Sandbox 밖 Orchestrator 검증과 Claude Review.
-- Context: AGENTS.md, docs/tasks/COMMON.md, TASK-068 Contract, DEC-042 / DEC-045, API / 개인정보 / 추천 규칙 문서.
+- Context: AGENTS.md, docs/tasks/COMMON.md, TASK-068 Contract, DEC-042 / DEC-046, API / 개인정보 / 추천 규칙 문서.
 - Human Approval: 2026-10-05 Gate B 및 명시 실행 지시.
 
 ## 실제 Prompt

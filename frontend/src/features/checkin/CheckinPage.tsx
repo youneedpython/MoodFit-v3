@@ -207,8 +207,7 @@ export function CheckinPage() {
             max={100}
             step={1}
             aria-label={`${field.label} Slider`}
-            aria-describedby={error ? `${hintId} ${errorId}` : hintId}
-            aria-invalid={error ? "true" : "false"}
+            aria-valuetext={values[name] === "" ? "입력 안 함" : undefined}
             className="checkin-field__slider"
             value={values[name] === "" ? 50 : Math.min(100, Math.max(0, Number(values[name])))}
             onChange={updateValue(name)}
