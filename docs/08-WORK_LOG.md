@@ -3825,4 +3825,3 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - "3. Current Task"의 설명을 현재 상태(TASK-064까지 DONE, 남은 것은 TASK-030 / 031)로 고쳤다.
 - 다시 어긋나지 않도록 `docs/tasks/COMMON.md`에 "9. `docs/07-TASKS.md` 작성 형식"을 추가했다. 이후 Task를 실행하는 Agent는 이 형식을 따른다.
 - 문서만 바꿨다. Task의 상태(DONE / BLOCKED)와 내용은 바꾸지 않았다.
-
