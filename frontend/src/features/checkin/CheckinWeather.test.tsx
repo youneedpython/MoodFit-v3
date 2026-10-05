@@ -35,6 +35,43 @@ const manual = () => fireEvent.click(screen.getByRole("button", { name: "직접 
 const automatic = () => fireEvent.click(screen.getByRole("button", { name: "자동으로 가져오기" }));
 
 describe("Check-in weather modes", () => {
+  function expectOrder(elements: Element[]) {
+    for (let index = 1; index < elements.length; index++) {
+      expect(elements[index - 1].compareDocumentPosition(elements[index]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+  }
+
+  const notes = () => [
+    screen.getByText(/위치\(좌표\)는 소수 둘째 자리/),
+    screen.getByText(/지역 이름:/),
+    screen.getByText(/날씨 데이터:/)
+  ];
+
+  it("orders automatic status and result before secondary actions and sources", async () => {
+    setup();
+    const result = await screen.findByText("서울특별시 명동 · 눈 · 23.3°C");
+    expect(screen.getByText("현재 위치의 날씨를 자동으로 가져옵니다.")).toBeTruthy();
+    const status = screen.getByRole("status");
+    expect(status.getAttribute("aria-live")).toBe("polite");
+    expect(result.parentElement?.getAttribute("aria-live")).toBe("polite");
+    const retry = screen.getByRole("button", { name: "다시 조회" });
+    const edit = screen.getByRole("button", { name: "직접 입력" });
+    expectOrder([screen.getByText("날씨 모드: 자동"), status, result, retry, edit, ...notes()]);
+    for (const button of [retry, edit]) expect(button.classList.contains("button--secondary")).toBe(true);
+  });
+
+  it.each([false, true])("orders manual fields before actions, including failure status: %s", async (failure) => {
+    localStorage.setItem(AUTO_WEATHER_KEY, failure ? "true" : "false");
+    setup(failure ? 1 : undefined);
+    const status = failure ? await screen.findByRole("alert") : null;
+    expect(screen.getByText("현재 위치의 기온과 날씨를 입력해 주세요.")).toBeTruthy();
+    const button = screen.getByRole("button", { name: "자동으로 가져오기" });
+    const fields = screen.getByRole("group", { name: "날씨 상태" });
+    expectOrder([screen.getByText("날씨 모드: 직접 입력"), ...(status ? [status] : []), temperature(), fields, button, ...notes()]);
+    expect(button.classList.contains("button--secondary")).toBe(true);
+    if (status) expect(status.getAttribute("aria-live")).toBe("polite");
+  });
+
   it.each([false, true])("sends the fetched region, including after manual edits: %s", async (edit) => {
     const { fetchMock } = setup();
     await screen.findByText("서울특별시 명동 · 눈 · 23.3°C");
