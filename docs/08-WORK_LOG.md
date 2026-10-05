@@ -3727,3 +3727,10 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - git diff --check 및 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 검사한다. UTF-8 apply_patch로 한글을 기록했다. Git 후속 작업은 수행하지 않았다.
 - Claude 세션의 390 / 768 / 1280px 자동 / 직접 입력 / 실패 화면 확인과 캡처가 남는다. 캡처 경로는 이번 allowed_paths 밖이며 앱 설치도 제한되어 Executor에서는 생성하지 않았다. Remote CI / Human Squash Merge 이후 Staging 화면 확인이 남는다. DONE은 구현 완료이며 검증 / Review / Human 완료 승인을 대신하지 않는다.
 - 화면 확인(Claude 세션, `docs/images/task-059/`): 이 Branch의 Build를 로컬에서 띄우고 날씨 / 지역 조회는 가짜 응답으로 대신해 날씨 영역을 자동 / 직접 입력 / 위치 권한 거부 세 경우로 390 / 768 / 1280px에서 캡처했다. 자동 모드는 모드 → 상태 문구 → 조회 결과 → 버튼 → 좌표 안내 → 출처 순서이고, 직접 입력 모드는 조회 결과 자리에 입력칸이 온다. 버튼은 덜 강조되는 모양이다. 모든 경우에 가로 넘침이 없다.
+
+### UI / UX 개선 Task 등록 (2026-10-05, Claude 세션, Human 지시)
+
+- Human이 Staging 화면을 보고 지적한 두 가지(회원 탈퇴 메뉴가 보이지 않음, 추천 평가 버튼이 복잡함)와 Check-in 날씨 영역 배치를 TASK-057 / 058 / 059로 진행했다. UI / UX 수정은 화면(성격)별로 나눠 진행하기로 했다.
+- Human 요청으로 Claude 세션이 Dashboard / Check-in / History / 로그인 화면을 훑어 개선 후보를 뽑았고, Human이 모두 Task로 정리하도록 지시했다. TASK-060(History), TASK-061(Dashboard 추천 영역), TASK-062(로그인 / Footer), TASK-063(Check-in 입력 / 결과)을 READY로 등록했다.
+- 후보 가운데 "History 그래프의 시간 방향"은 Claude 세션의 오인이었다(캡처용 가짜 데이터의 순서가 거꾸로였다). 실제 그래프는 과거 → 현재 순서라 Task에서 뺐다.
+- 이 변경은 Task 문서, Contract, Task 목록만 더한다. 코드는 바꾸지 않았다.
