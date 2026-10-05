@@ -31,7 +31,7 @@ export function PrivacyPage() {
     <section><h2>보관 위치와 기간</h2><p>서비스 데이터는 AWS 서울 Region의 Private Subnet에 있는 RDS MySQL에 저장합니다. 계정과 기록, AI 문장과 생성 시도 기록은 계정 삭제 시 지웁니다. 자동 백업은 14일 보관하므로 삭제 전 데이터가 백업에 최대 14일 남을 수 있습니다. 세션은 마지막 사용 뒤 7일, 접속 / Application 로그는 30일 보관합니다.</p></section>
     <section><h2>보호 조치</h2><p>Database 저장 암호화를 사용합니다. 사용자 ↔ CloudFront ↔ Load Balancer 구간은 HTTPS이며 Application ↔ Database 연결에는 TLS를 요구합니다. 로그인 Cookie에는 HttpOnly, Secure, SameSite=Lax를 적용합니다. 운영자가 권한이 분리된 AWS 계정으로 접근합니다.</p></section>
     <section><h2>체험 계정 주의</h2><p>“로그인 없이 둘러보기”는 하나의 공유 계정입니다. 모든 방문자가 기록을 보고 쓸 수 있으므로 개인적인 수치를 입력하지 마세요. 공유 계정은 방문자가 삭제할 수 없습니다.</p></section>
-    <section><h2>계정과 기록 삭제</h2><p>소셜 로그인 후 사용자 메뉴의 “내 데이터 삭제”를 선택하고 확인하면 본인의 체크인과 추천, AI 코멘트, 주간 리포트, 생성 시도 기록과 계정을 함께 삭제하고 로그인 상태를 종료합니다. 삭제는 되돌릴 수 없습니다. 다시 로그인하면 이전 기록이 없는 새 계정으로 시작합니다. 백업(14일)과 접속 로그(30일)는 각 보관 기간까지 남을 수 있습니다.</p></section>
+    <section><h2>계정과 기록 삭제</h2><p>소셜 로그인 후 사용자 메뉴의 “회원 탈퇴”를 선택하고 확인하면 본인의 체크인과 추천, AI 코멘트, 주간 리포트, 생성 시도 기록과 계정을 함께 삭제하고 로그인 상태를 종료합니다. 삭제는 되돌릴 수 없습니다. 다시 로그인하면 이전 기록이 없는 새 계정으로 시작합니다. 백업(14일)과 접속 로그(30일)는 각 보관 기간까지 남을 수 있습니다.</p></section>
     <section><h2>문의</h2><p><a href="https://github.com/youneedpython/MoodFit-v3/issues" target="_blank" rel="noopener noreferrer">GitHub Issue로 문의하기 (외부 링크, 새 창)</a>. 공개 문의에는 건강 수치나 개인 인증 정보를 올리지 마세요.</p></section>
     <Link to="/login">로그인 화면으로</Link>
   </article>;
