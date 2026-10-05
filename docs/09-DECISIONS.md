@@ -1604,6 +1604,7 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 
 ## DEC-045 TASK-067 경로에 따른 CI Job 실행
 
+
 - Human Approved 2026-10-05, Gate C: “'작은 후속 후보' 모두 진행해.” 및 승인된 TASK-067 Contract / 명시 실행 지시.
 - changes Job에서 PR base...head / main push before..head를 비교한다. frontend / backend는 각각 해당 Job, contracts / .github / scripts / harness / Root package.json / package-lock.json / .nvmrc는 두 Job을 실행한다. docs / prompts / infra / Root Markdown은 실행 대상이 아니며 혼합 변경은 합집합으로 판단한다.
 - 알 수 없는 경로, SHA 누락 / 형식 오류 / 0 SHA, 지원하지 않는 Event, diff 실패 / 빈 목록은 두 Job 실행을 기본값으로 한다. 분류 함수 자체 검사를 실제 분류 전에 수행하며 실패를 숨기지 않는다.
@@ -1617,3 +1618,10 @@ Human Approved (2026-10-04, 승인된 TASK-054 Contract 및 명시 실행 지시
 - 조회 응답에 shared boolean을 추가한다. 사용자 번호 1 또는 guest Provider는 true, 그 밖에는 false다. enabled와 items는 유지하고 Frontend는 shared 누락을 false로 처리한다.
 - 사용자 행 FOR UPDATE, 사용자별 평가 격리, 후보 검증, 로그인 / CSRF, 평가 반영 규칙과 추천 개수를 유지한다. 기존 V6 Table에 사용자 번호 1의 평가를 저장하며 DB Schema / Dependency는 변경하지 않는다.
 - 체험 계정의 계정 삭제 / AI 코멘트 / 주간 리포트 제한은 유지한다. Smoke는 평가 조회 형식만 검사하며 평가를 쓰지 않는다. Executor DONE은 구현 완료이며 Verify / Review / Human Squash Merge 승인을 대신하지 않는다.
+
+## DEC-047 TASK-069 Dashboard 오늘 기록 상태
+
+- Human Approved 2026-10-05, Gate B: 승인된 Contract와 명시 실행 지시.
+- 오늘 기록이 없으면 통계로 오늘 상태를 추정하지 않는다. 오늘 미입력을 먼저 알리고 저장된 평소 값과 지난 기록을 그 이름대로 표시한다.
+- 오늘은 Asia/Seoul 달력 날짜다. 지난 기록의 AI 자동 생성은 막고 수동 생성은 유지한다. 공통 AI Card를 기존 표면색 / 강조 선 / AI Badge로 강조한다.
+- 오늘 날씨 추천과 Backend 변경은 다음 Task 범위다.

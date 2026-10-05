@@ -1,5 +1,13 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-069 — Dashboard Today State (2026-10-05)
+
+- 승인된 Gate B / Contract 범위에서 오늘 결과, 미입력 안내, 저장된 평균과 마지막 기록 구역을 구현했다. 추천 평가 / 재생과 Empty State를 유지했다.
+- 서울 달력 날짜 함수 및 1분 Interval / 화면 복귀 갱신과 정리, 지난 기록의 자동 생성 차단, 공통 AI Card 강조를 추가했다.
+- 날짜 경계 / 오늘·어제·3일 전 / 평균 유무 / 화면 복귀 / AI POST 여부 / Badge Test를 추가했다.
+- Verification: git diff --check 통과. npm test는 설치된 vitest가 없어 실행하지 못했다. bash scripts/verify.sh는 npm ci에서 Sandbox의 npm cache 접근 EPERM으로 중단되어 Test / 타입 검사 / Build를 실행하지 못했다. 검증 기준은 Sandbox 밖 Orchestrator Verify다.
+- Executor DONE은 구현 완료만 뜻한다. Claude 화면 확인(네 상태 × 390 / 768 / 1280px)과 캡처 기록, Remote CI / Human Squash Merge가 남아 있다. 캡처 경로는 allowed_paths 밖이므로 작성하지 않았다.
+
 ## TASK-067 — CI Path Filter (2026-10-05)
 
 - 최초 Working Tree는 clean이었다. 승인 Contract와 필수 Context를 확인하고 TASK-067만 IN_PROGRESS로 등록한 뒤 구현 완료를 DONE으로 반영했다. COMMON.md 9절에 따라 다른 Task와 Current Task는 유지했다.
@@ -3876,10 +3884,15 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - `bash -n scripts/staging-smoke.sh`, `bash -n scripts/container-smoke.sh`, `git diff --check`는 통과했다. 두 Smoke의 내장 Python 구문과 형식 검사도 직접 확인했다(빈 목록 / 여러 평가 허용, enabled false / shared false / 잘못된 종류 거부). 평가 계약의 JSON 키를 확인했고 변경 파일의 UTF-8 / U+FFFD와 변경 문서의 연속 물음표 치환 흔적 검사도 통과했다. Sandbox 밖 Orchestrator Verify가 검증 기준이며 Executor DONE은 구현 완료만 뜻한다.
 - Claude 세션의 390 / 1280px 체험 평가 화면 캡처 / 검토와 Repository 기록, Human Squash Merge 후 Staging에서 공유 평가를 변경 / 삭제하고 다음 Check-in 반영을 확인하는 절차가 남는다. Executor는 실환경 공유 평가를 쓰지 않았다.
 
+### TASK-069 Run 2 — 안내 강조 / 지난 기록 날짜 문구 (2026-10-05)
+
+- clean Working Tree에서 승인된 Run 2 범위와 Context를 확인했다. 미입력 안내에 Wellness Hero와 같은 배경 / 테두리 / 여백을 공유하고 제목은 같은 크기 Token으로 키웠다. 마지막 기록의 Hero 제목은 한 단계 작은 기존 Token으로 줄이며 Mobile에서도 두 제목의 크기 차이를 유지한다. 안내 날짜는 서울 기준 “M월 D일”로 표시하고 하루 전의 안내와 마지막 기록 제목은 모두 “어제”로 표시한다. 기존 오늘 / 어제 / 3일 전 Test에 날짜와 구역 이름 전체 문구 단언을 보완했으며 최신 기록 재시도는 요청 주소별로 세는 기존 수정 그대로다. 서울 날짜 비교 / 화면 복귀와 Interval 정리 / 지난 기록 AI 자동 생성 차단 / 저장된 평균 / 공유 AI Card를 다시 확인했으며 추가 불일치는 발견하지 않았다. TASK-069 행과 절은 COMMON 9절의 위치 / 순서 / Milestone 69 / 승인 근거 / 구현 요약 형식을 따르므로 유지했다. 자체 bash scripts/verify.sh는 Node.js 24.21.0 확인 후 npm 캐시 stat EPERM 및 node_modules 정리 EPERM으로 npm ci에서 중단되어 Test / 타입 검사 / Build는 실행하지 못했다. 우회와 재시도는 하지 않았다. git diff --check 및 변경 문서의 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다. Contract에 적힌 이전 267건 Test / 타입 검사 / Build와 화면 확인은 Claude 세션의 참고 증거다. 판정 기준은 Sandbox 밖 Orchestrator Verify이며 Executor DONE은 이번 수정 완료만 뜻한다. Git 작업은 수행하지 않았으며 Claude 세션의 수정 후 화면 캡처 기록과 Human Squash Merge가 남는다.
+
 ### v3.4.0 Release Note 작성 (2026-10-05, Claude 세션, Human 지시)
 
 - Human 지시("release 출시해")에 따라 `docs/releases/v3.4.0.md`를 작성했다. 범위는 `v3.3.0` 이후의 TASK-064(홈 화면 설치, 앱 설치 버튼)와 TASK-065(모바일 앱 설치 버튼 크기, History 그래프 날짜별 평균 / 확대)이다.
 - Tag `v3.4.0`과 GitHub Release는 이 PR이 Merge된 뒤 그 Commit에 만든다(DEC-025).
 - AWS Architecture 그림(`docs/images/readme/aws-architecture.png`)을 다시 그렸다(Human 지시: "aws architecture에 aws 아이콘도 넣었으면 해", 후속 후보 "Bedrock 경로 추가"). 각 Service에 AWS Architecture Icons를 넣었고, 별도 AWS 계정의 Amazon Bedrock(STS AssumeRole)과 Google / Kakao OAuth 호출 경로를 더했다. Spring Boot Version 표기(4.1)와 Secrets Manager 설명(OAuth 값)을 현재 구성에 맞췄다. Bedrock은 사용한 아이콘 묶음(2021)에 전용 아이콘이 없어 Machine Learning 분류 아이콘을 썼다. 그림에는 계정 ID나 ARN이 없다.
 - 화면 확인(Claude 세션, `docs/images/task-068/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답(`enabled: true`, `shared: true`)으로 대신해 체험 계정 Dashboard를 390 / 1280px로 캡처했다. 추천 10개 항목 모두에 평가 묶음이 보이고, 누르면 저장 요청이 1회 나가며 눌림 표시가 된다. 목록 아래에 "체험 계정의 평가는 모든 방문자가 함께 씁니다. 다음 Check-in의 추천부터 반영됩니다."가 나온다. 소셜 사용자 화면의 문구는 이전과 같다. 가로 넘침이 없다. 실제 Staging에서 평가가 다음 Check-in에 반영되는지는 Merge 뒤 확인한다.
+- TASK-069 화면 확인(Claude 세션, `docs/images/task-069/`): Run 2의 최종 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 오늘 / 어제 / 3일 전 / 평소 값 없음 네 경우를 390 / 768 / 1280px로 캡처했다. 오늘 기록이면 "오늘 컨디션은 …"과 "다시 입력하기", 지난 기록이면 큰 제목의 안내 영역 → 최근 14일 평균 → "마지막 기록 · 3일 전 (10월 2일 …)" 순서다. 하루 전은 "어제"로 나온다. 지난 기록 화면에서 AI 코멘트 생성 요청은 나가지 않았다. AI 코멘트 Card에 밝은 배경, 왼쪽 강조 선, "AI" Badge가 보인다. 가로 넘침이 없다.
 

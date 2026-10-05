@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { formatDisplayDateTime, formatDisplayDate, seoulDayDifference } from "../../utils/dateTime";
 import { ButtonLink } from "../../components/Button/Button";
 import { InsightCard } from "../insight/InsightCard";
 import { Card } from "../../components/Card/Card";
@@ -14,6 +16,24 @@ import { useRecommendationFeedback } from "./useRecommendationFeedback";
 export function DashboardPage() {
   const { state, reload } = useLatestCheckin();
   const feedback = useRecommendationFeedback();
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const update = () => setNow(new Date());
+    const visible = () => { if (document.visibilityState === "visible") update(); };
+    const interval = window.setInterval(update, 60000);
+    document.addEventListener("visibilitychange", visible);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", visible);
+    };
+  }, []);
+  const days = state.status === "ready" ? seoulDayDifference(state.checkin.recordedAt, now) : 0;
+  const content = state.status === "ready" ? <>
+    <WellnessHero checkin={state.checkin} past={days > 0} />
+    <InsightCard checkinId={state.checkin.id} autoGenerate={days === 0} />
+    <BodyMetrics metrics={state.checkin.metrics} baseline={state.checkin.baseline} />
+    <RecommendationCards foods={state.checkin.foods} music={state.checkin.music} feedback={feedback} />
+  </> : null;
 
   return (
     <>
@@ -43,10 +63,28 @@ export function DashboardPage() {
 
       {state.status === "ready" && (
         <div className="dashboard">
-          <WellnessHero checkin={state.checkin} />
-          <InsightCard checkinId={state.checkin.id} autoGenerate />
-          <BodyMetrics metrics={state.checkin.metrics} baseline={state.checkin.baseline} />
-          <RecommendationCards foods={state.checkin.foods} music={state.checkin.music} feedback={feedback} />
+          {days === 0 ? content : <>
+            <Card title="오늘 상태를 아직 입력하지 않았어요" className="dashboard-today-notice">
+              <p>마지막 기록은 {days === 1 ? "어제" : `${days}일 전`}({formatDisplayDate(state.checkin.recordedAt)})입니다. 오늘 상태를 입력하면 오늘에 맞는 분석과 추천을 볼 수 있습니다.</p>
+              <ButtonLink to="/check-in">오늘 상태 입력</ButtonLink>
+            </Card>
+            {state.checkin.baseline.available && state.checkin.baseline.averages && <Card title="최근 14일 평균">
+              <dl className="dashboard-baseline">
+                {([
+                  ["수면", state.checkin.baseline.averages.sleepScore, "/ 100"],
+                  ["스트레스", state.checkin.baseline.averages.stressLevel, "/ 100"],
+                  ["에너지", state.checkin.baseline.averages.energyLevel, "/ 100"],
+                  ["심박수", state.checkin.baseline.averages.heartRate, "bpm"],
+                  ["호흡수", state.checkin.baseline.averages.respiratoryRate, "회/분"]
+                ] as const).map(([label, value, unit]) => <div key={label}><dt>{label}</dt><dd>{value} {unit}</dd></div>)}
+              </dl>
+              <p>기록 {state.checkin.baseline.sampleCount}건의 평균입니다. 오늘 상태를 추정한 값이 아닙니다.</p>
+            </Card>}
+            <section className="dashboard dashboard-last-record" aria-labelledby="last-record-title">
+              <h2 id="last-record-title">마지막 기록 · {days === 1 ? "어제" : `${days}일 전`} ({formatDisplayDateTime(state.checkin.recordedAt)})</h2>
+              {content}
+            </section>
+          </>}
         </div>
       )}
     </>

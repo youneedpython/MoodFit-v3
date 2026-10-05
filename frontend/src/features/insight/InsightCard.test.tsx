@@ -33,6 +33,7 @@ describe("AI 코멘트와 주간 리포트", () => {
     login("guest"); const fetchMock = vi.fn().mockResolvedValue(response({ ...disabled, enabled: true })); vi.stubGlobal("fetch", fetchMock);
     render(<InsightCard checkinId={1} autoGenerate />);
     expect(await screen.findByText("소셜 로그인 후 이용할 수 있습니다")).toBeTruthy();
+    expect(screen.getByText("AI")).toBeTruthy();
     expect(screen.queryByRole("button")).toBeNull(); expect(fetchMock).toHaveBeenCalledTimes(1);
   });
   it("automatically generates once in the result view, even in StrictMode", async () => {

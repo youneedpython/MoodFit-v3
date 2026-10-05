@@ -121,6 +121,7 @@ TASK-001 ~ TASK-029, TASK-032 ~ TASK-065는 DONE이다(모두 PR Squash Merge와
 | TASK-066 | Milestone 66 | Slider A11y / Login Button Height (Slider 안내 중복 읽기 / 로그인 버튼 높이) | DONE | TASK-062, TASK-063 | Human 지시 2026-10-05 |
 | TASK-067 | Milestone 67 | CI Path Filter (바뀐 경로에 따라 필요한 CI Job만 실행) | DONE | TASK-022, TASK-050 | Human 지시 2026-10-05, Gate C |
 | TASK-068 | Milestone 68 | Guest Feedback (체험 계정의 추천 평가) | DONE | TASK-055, TASK-058 | Human 지시 2026-10-05, Gate B |
+| TASK-069 | Milestone 69 | Dashboard Today State (오늘 기록 여부에 따른 Dashboard / AI 코멘트 강조) | DONE | TASK-056, TASK-061, TASK-063 | Human 지시 2026-10-05, Gate B |
 
 ---
 
@@ -2788,6 +2789,37 @@ Milestone 68. 선행: TASK-055, TASK-058.
 ### 상세 Task Contract
 
 [`docs/tasks/TASK-068_GUEST_FEEDBACK.md`](tasks/TASK-068_GUEST_FEEDBACK.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
+
+---
+
+## TASK-069 — Dashboard Today State (오늘 기록 여부에 따른 Dashboard / AI 코멘트 강조)
+
+### 상태
+
+```text
+DONE
+```
+
+Milestone 69. 선행: TASK-056, TASK-061, TASK-063.
+
+- 서울 날짜에 따라 오늘 결과와 미입력 안내 / 저장된 평균 / 마지막 기록을 구분한다.
+- 지난 기록의 AI 자동 생성을 막고 공통 AI Card를 기존 Token으로 강조한다.
+
+### 목적
+
+며칠 전 기록을 지금 컨디션처럼 표시하지 않고 오늘 미입력을 먼저 알린다. AI 코멘트 Card를 살짝 강조한다. Frontend와 문서만 바꾼다.
+
+### Human Approval 또는 Gate
+
+- Human 승인 2026-10-05, Gate B / DEC-047과 명시 실행 지시.
+
+### 완료 조건
+
+- 검증과 Review를 통과하면 REVIEW. Claude 세션이 오늘 / 어제 / 여러 날 전 / 평소 값 없음 네 경우를 390 / 768 / 1280px로 캡처해 확인한다.
+
+### 상세 Task Contract
+
+[`docs/tasks/TASK-069_DASHBOARD_TODAY_STATE.md`](tasks/TASK-069_DASHBOARD_TODAY_STATE.md) (공통 규칙: [`docs/tasks/COMMON.md`](tasks/COMMON.md))
 
 ---
 

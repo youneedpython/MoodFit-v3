@@ -1,0 +1,51 @@
+{
+  "id": "TASK-069",
+  "title": "Dashboard Today State (오늘 기록 여부에 따른 Dashboard / AI 코멘트 강조)",
+  "task_file": "docs/tasks/TASK-069_DASHBOARD_TODAY_STATE.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "docs/03-UX_UI_SPEC.md",
+    "docs/23-LLM-INSIGHT.md",
+    "docs/09-DECISIONS.md",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/",
+    "frontend/index.html",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}
