@@ -3749,3 +3749,4 @@ Human이 관리자 권한 Profile로 Change Set을 직접 만들고 실행했다
 - TASK-060 Orchestrator Verify에서 `privacy.test.tsx`의 "blocks closing while pending and permits cancel after failure"가 한 번 실패했다. 같은 Test는 그 전 두 번의 Verify와 Remote CI에서는 통과했다.
 - 원인: 탈퇴 실패 뒤 "취소"로 초점을 돌려놓는 동작은 실패 상태가 그려진 뒤 Effect에서 일어나는데, Test는 실패 문구가 보이자마자 초점을 바로 검사했다. 실행 시점에 따라 Effect보다 먼저 검사할 수 있었다.
 - 조치: 초점 검사를 `waitFor`로 감쌌다. 검사 내용과 구현은 바꾸지 않았다. 같은 Test 파일을 20회 반복 실행해 모두 통과했다.
+- 화면 확인(Claude 세션, `docs/images/task-062/`): 이 Branch의 Build를 로컬에서 띄우고 API는 가짜 응답으로 대신해 로그인 화면(390 / 768 / 1280px), 체험 로그인만 있는 로그인 화면, Footer(개인정보 처리 안내 / History)를 캡처했다. Google은 흰 버튼에 4색 Logo, Kakao는 노란 버튼에 말풍선 Symbol로 보이고 Link 주소는 그대로다. 세 버튼의 너비가 같고 높이는 48px 이상이다(제공자 52px, 체험 48px). Footer는 구분선 아래 한 줄이며 390px에서 두 줄로 내려간다. 모든 캡처에서 가로 넘침이 없다.
