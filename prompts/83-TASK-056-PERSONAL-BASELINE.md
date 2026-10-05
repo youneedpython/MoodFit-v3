@@ -8,3 +8,8 @@
 - 기대 산출물: Baseline snapshot / V7 / API / 화면 / Test / 문서와 Executor JSON.
 - 상태: 구현 완료 후 자체 실행 제약을 WORK_LOG에 기록한다. 최종 검증 / Review / 완료 승인과 화면 캡처는 후속 단계다.
 - Related Commit: Executor는 Commit하지 않음.
+
+## Run 2 검토 지시와 결과
+
+- 지시: 기존 구현을 승인 설계와 재대조하고 어긋난 곳만 수정한다. 통과한 Test를 다시 쓰거나 jest-dom Matcher를 추가하지 않는다. WORK_LOG에 Run 2 경과를 한 단락 추가한다.
+- 결과: 수정이 필요한 불일치를 발견하지 않아 기존 구현 / Test를 유지했다. 전달받은 Sandbox 밖 통과 결과와 이번 자체 Verify / Container Smoke의 실행 제약을 구분해 기록했다. 최종 판정은 Orchestrator Verify / Claude Review에 따른다.
