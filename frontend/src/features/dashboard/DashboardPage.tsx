@@ -45,7 +45,7 @@ export function DashboardPage() {
         <div className="dashboard">
           <WellnessHero checkin={state.checkin} />
           <InsightCard checkinId={state.checkin.id} autoGenerate />
-          <BodyMetrics metrics={state.checkin.metrics} />
+          <BodyMetrics metrics={state.checkin.metrics} baseline={state.checkin.baseline} />
           <RecommendationCards foods={state.checkin.foods} music={state.checkin.music} feedback={feedback} />
         </div>
       )}

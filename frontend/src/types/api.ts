@@ -52,6 +52,7 @@ export type MusicRecommendation = {
 };
 
 export type CheckinResponse = {
+  baseline: Baseline;
   id: number;
   /** ISO-8601 UTC (DEC-006) */
   recordedAt: string;
@@ -65,6 +66,7 @@ export type CheckinResponse = {
 };
 
 export type HistoryItem = {
+  tension: Tension | null;
   region: string | null;
   id: number;
   recordedAt: string;
@@ -92,4 +94,13 @@ export type ErrorResponse = {
   code: string;
   message: string;
   fieldErrors: Record<string, string>;
+};
+
+export type Tension = "HIGH" | "NORMAL" | "STABLE";
+export type Baseline = {
+  available: boolean;
+  sampleCount: number;
+  tension: Tension | null;
+  averages: Metrics | null;
+  deltas: Metrics | null;
 };

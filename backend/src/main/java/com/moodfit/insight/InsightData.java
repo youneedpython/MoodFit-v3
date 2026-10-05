@@ -39,6 +39,17 @@ public class InsightData {
     }
     private Map<String, Object> daily(WellnessCheckin row) {
         var input = new LinkedHashMap<String, Object>();
+        var baseline = row.getBaseline();
+        if (baseline.available()) {
+            input.put("tension", switch (baseline.tension()) {
+                case "HIGH" -> "높음";
+                case "STABLE" -> "안정";
+                case "NORMAL" -> "보통";
+                default -> throw new IllegalArgumentException("Unknown tension");
+            });
+            input.put("heartRateDelta", baseline.deltas().heartRate());
+            input.put("respiratoryRateDelta", baseline.deltas().respiratoryRate());
+        }
         input.put("score", row.getWellnessScore());
         // Existing display names from WellnessRulePolicy; keep the persisted state unchanged.
         input.put("status", switch (row.getMood()) {

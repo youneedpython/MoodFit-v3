@@ -78,11 +78,30 @@ def recommendation(actual, expected):
     else:
         assert type(actual) is type(expected)
 
+def tension(value):
+    assert value is None or (type(value) is str and value in ('HIGH', 'STABLE', 'NORMAL'))
+def baseline(actual, expected):
+    assert type(actual) is dict and actual.keys() == expected.keys()
+    assert type(actual['available']) is bool
+    assert type(actual['sampleCount']) is int and actual['sampleCount'] >= 0
+    tension(actual['tension'])
+    for field in ('averages', 'deltas'):
+        value = actual[field]
+        if value is not None:
+            assert type(value) is dict and set(value) == {'heartRate', 'respiratoryRate', 'sleepScore', 'stressLevel', 'energyLevel'}
+            assert all(type(number) in (int, float) for number in value.values())
+
 def match(actual, expected):
     if isinstance(expected, dict):
         assert isinstance(actual, dict) and actual.keys() == expected.keys()
         for key, value in expected.items():
             if key == 'id': assert type(actual[key]) is int and actual[key] > 0
+            elif key == 'baseline': baseline(actual[key], value)
+            elif key == 'tension': tension(actual[key])
+            elif key == 'mood':
+                recommendation(actual[key], value)
+                assert actual[key]['code'] in ('TIRED', 'ENERGETIC', 'CALM', 'BALANCED')
+            elif key == 'summary': assert type(actual[key]) is str and actual[key].strip()
             elif key == 'recordedAt': datetime.datetime.fromisoformat(actual[key].replace('Z', '+00:00'))
             elif key in ('foods', 'music', 'foodNames', 'musicTitles'):
                 assert isinstance(actual[key], list) and len(actual[key]) == 5

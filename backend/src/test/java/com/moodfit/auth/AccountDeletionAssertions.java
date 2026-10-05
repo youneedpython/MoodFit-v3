@@ -58,6 +58,8 @@ public abstract class AccountDeletionAssertions {
         mvc.perform(withCookieCsrf(post("/api/check-ins").with(authentication(auth(user)))
                 .contentType(MediaType.APPLICATION_JSON).content(INPUT))).andExpect(status().isCreated());
         Long id = jdbc.queryForObject("SELECT id FROM wellness_checkin WHERE user_id = ?", Long.class, user.id());
+        jdbc.update("UPDATE wellness_checkin SET baseline_sample_count=5, baseline_heart_rate=68.0, baseline_respiratory_rate=18.0, baseline_sleep_score=86.0, baseline_stress_level=31.0, baseline_energy_level=74.0, tension='STABLE' WHERE id=?", id);
+        assertThat(jdbc.queryForObject("SELECT tension FROM wellness_checkin WHERE id=?", String.class, id)).isEqualTo("STABLE");
         jdbc.update("INSERT INTO checkin_insight (checkin_id, body, model_id, generated_at) VALUES (?, 'synthetic', 'test', CURRENT_TIMESTAMP)", id);
         jdbc.update("INSERT INTO weekly_report (user_id, period_start, period_end, body, record_count, model_id, generated_at) VALUES (?, CURRENT_DATE, CURRENT_DATE, 'synthetic', 1, 'test', CURRENT_TIMESTAMP)", user.id());
         jdbc.update("INSERT INTO llm_usage (user_id, kind, attempted_at) VALUES (?, 'INSIGHT', CURRENT_TIMESTAMP)", user.id());

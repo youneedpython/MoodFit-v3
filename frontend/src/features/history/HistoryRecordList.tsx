@@ -1,4 +1,5 @@
 import { Badge } from "../../components/Badge/Badge";
+import { TensionBadge } from "../dashboard/PersonalBaseline";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../../components/Button/Button";
 import { Card } from "../../components/Card/Card";
@@ -37,6 +38,7 @@ export function HistoryRecordList({ items }: HistoryRecordListProps) {
               {formatDisplayDateTimeWithWeekday(item.recordedAt)}
             </time>
             <Badge tone="accent">{item.mood.label}</Badge>
+            <TensionBadge tension={item.tension} />
             <span className="history-record__score">
               Wellness Score <strong>{item.wellnessScore}</strong>
             </span>
