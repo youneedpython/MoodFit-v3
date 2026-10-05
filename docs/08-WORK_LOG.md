@@ -1,5 +1,13 @@
 # 08. MoodFit v3 Work Log
 
+## TASK-067 — CI Path Filter (2026-10-05)
+
+- 최초 Working Tree는 clean이었다. 승인 Contract와 필수 Context를 확인하고 TASK-067만 IN_PROGRESS로 등록한 뒤 구현 완료를 DONE으로 반영했다. COMMON.md 9절에 따라 다른 Task와 Current Task는 유지했다.
+- CI에 changes Job을 추가했다. 전체 History / 인증 미보존 Checkout 뒤 PR 공통 조상 또는 main push 범위를 인자 배열의 git diff로 읽고 NUL로 경로를 구분한다. 분류 함수는 경로 규칙의 합집합을 반환하며 알 수 없는 경로나 비교 실패 / 빈 목록은 두 Job 실행을 기본값으로 한다. 자체 검사 실패는 실제 분류 전에 Step을 실패시킨다.
+- SHA는 환경변수로만 전달하고 Summary는 경로의 Markdown / HTML / 줄바꿈을 Escape해 최대 20개와 나머지 개수를 쓴다. 기존 frontend / backend에는 needs / if만 추가했고 기존 Step / 권한 / Action 종류는 유지했다. 배포 Workflow는 수정하지 않았다.
+- Workflow Python 코드의 자체 검사 통과. 같은 코드에 대한 PR / push 범위, 0 SHA / 잘못된 SHA / 지원하지 않는 Event / 빈 diff / diff 실패 / 특수 경로와 20개 제한 등 9개 검사 통과. 원본과 기존 두 Job Step의 일치도 확인했다. Windows Local 검사에서 Python subprocess의 기본 입력 인코딩으로 실패한 뒤 UTF-8을 명시해 통과했고 문서 명령에도 명시했다.
+- Contract YAML 구조 검사 시도는 Local Python의 PyYAML 부재(ModuleNotFoundError)로 실행하지 못했다. 새 Dependency 설치나 Sandbox 우회는 하지 않았다. Sandbox 밖 Orchestrator Verify가 검증 기준이다. git diff --check와 변경 문서의 UTF-8 / 연속 물음표 치환 흔적 / U+FFFD를 직접 확인한다.
+- Executor DONE은 구현 완료이며 Verify / Claude Review / Human 완료 승인이 아니다. 이 PR의 Remote CI에서 changes와 두 Job 실행, Merge 후 문서 전용 / 화면 전용 Job 생략과 배포 관계를 Claude 세션이 확인한다. 승인된 후속 Git 작업과 Human Squash Merge가 남으며 Executor는 Git 작업을 수행하지 않았다.
 ## TASK-066 — Slider 접근성 / 로그인 버튼 높이 (2026-10-05)
 
 - 최초 Working Tree는 clean이었다. Task source와 필수 Context를 확인하고 TASK-066만 IN_PROGRESS로 등록한 뒤 승인된 구현을 DONE으로 반영했다. Executor DONE은 구현 완료이며 검증 성공이나 Human 완료 승인을 대신하지 않는다. 다른 Task와 Current Task는 변경하지 않았다.

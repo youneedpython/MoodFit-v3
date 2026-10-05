@@ -16,7 +16,102 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      frontend: ${{ steps.classify.outputs.frontend }}
+      backend: ${{ steps.classify.outputs.backend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Classify changed paths
+        id: classify
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python3 - <<'PY'
+          import html
+          import os
+          import re
+          import subprocess
+
+          def classify(paths):
+              if not paths:
+                  return True, True
+              frontend = backend = False
+              for path in paths:
+                  if path.startswith('frontend/'):
+                      frontend = True
+                  elif path.startswith('backend/'):
+                      backend = True
+                  elif path.startswith(('contracts/', '.github/', 'scripts/', 'harness/')) or path in ('package.json', 'package-lock.json', '.nvmrc'):
+                      frontend = backend = True
+                  elif path.startswith(('docs/', 'prompts/', 'infra/')) or ('/' not in path and path.endswith('.md')):
+                      continue
+                  else:
+                      frontend = backend = True
+              return frontend, backend
+
+          cases = [
+              (['frontend/src/app.css'], (True, False)),
+              (['backend/src/App.java'], (False, True)),
+              (['contracts/api.json'], (True, True)),
+              *[([p], (True, True)) for p in ('.github/workflows/ci.yml', 'scripts/verify.sh', 'harness/run.mjs', 'package.json', 'package-lock.json', '.nvmrc')],
+              *[([p], (False, False)) for p in ('docs/spec.md', 'prompts/task.md', 'README.md', 'AGENTS.md', 'infra/template.yml')],
+              (['unknown/file', 'docs/spec.md'], (True, True)),
+              (['frontend/a', 'backend/b', 'docs/spec.md'], (True, True)),
+              (['frontend/a', 'infra/template.yml'], (True, False)),
+              (['backend/b', 'README.md'], (False, True)),
+              (['docs/a', 'prompts/b', 'infra/c', 'README.md'], (False, False)),
+              (['nested/readme.md'], (True, True)),
+              ([], (True, True)),
+          ]
+          for paths, expected in cases:
+              assert classify(paths) == expected, 'path classification self-check failed'
+          if os.environ.get('CI_PATH_FILTER_SELF_TEST_ONLY') == '1':
+              print('path classification self-check passed')
+              raise SystemExit(0)
+
+          event = os.environ.get('EVENT_NAME', '')
+          base = os.environ.get('BASE_SHA', '')
+          head = os.environ.get('HEAD_SHA', '')
+          paths = []
+          frontend = backend = True
+          comparison = 'unavailable'
+          reason = 'Safe default: unsupported event or missing/invalid SHA'
+          valid = lambda sha: re.fullmatch(r'[0-9a-fA-F]{40}', sha) is not None and set(sha) != {'0'}
+          if event in ('push', 'pull_request') and valid(base) and valid(head):
+              comparison = base + ('...' if event == 'pull_request' else '..') + head
+              try:
+                  result = subprocess.run(['git', 'diff', '--no-renames', '--name-only', '-z', comparison, '--'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                  paths = [os.fsdecode(p) for p in result.stdout.split(b'\0') if p]
+                  frontend, backend = classify(paths)
+                  reason = 'Union of changed path rules' if paths else 'Safe default: empty path list'
+              except (OSError, subprocess.CalledProcessError):
+                  reason = 'Safe default: git diff failed'
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'frontend={str(frontend).lower()}\nbackend={str(backend).lower()}\n')
+          def escape(value):
+              # HTML entities also neutralize Markdown and embedded line breaks.
+              return ''.join(html.escape(c, quote=True) if c.isalnum() or c in ' /.-' else f'&#{ord(c)};' for c in value)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write(f'## CI path filter\n\nComparison: {escape(comparison)}\n\nChanged paths: {len(paths)}\n\n')
+              summary.write(f'- frontend: {str(frontend).lower()}\n- backend: {str(backend).lower()}\n- Reason: {escape(reason)}\n\n')
+              for path in paths[:20]:
+                  summary.write(f'- {escape(path)}\n')
+              if len(paths) > 20:
+                  summary.write(f'- 외 {len(paths) - 20}개\n')
+          PY
+
   frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -83,6 +178,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
