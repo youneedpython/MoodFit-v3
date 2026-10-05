@@ -1,0 +1,58 @@
+{
+  "id": "TASK-064",
+  "title": "PWA Install (홈 화면 설치 / 앱 설치 버튼)",
+  "task_file": "docs/tasks/TASK-064_PWA_INSTALL.md",
+  "allowed_paths": [
+    "frontend/src/",
+    "frontend/index.html",
+    "frontend/public/app.webmanifest",
+    "frontend/public/site.webmanifest",
+    "docs/07-TASKS.md",
+    "docs/08-WORK_LOG.md",
+    "docs/09-DECISIONS.md",
+    "docs/27-PWA-INSTALL.md",
+    "docs/README.md",
+    "README.md",
+    "prompts/"
+  ],
+  "forbidden_paths": [
+    "frontend/package.json",
+    "frontend/package-lock.json",
+    "frontend/public/icon-192.png",
+    "frontend/public/icon-512.png",
+    "frontend/public/icon-32.png",
+    "frontend/public/icon-maskable-512.png",
+    "frontend/public/apple-touch-icon.png",
+    "frontend/public/favicon.svg",
+    "backend/",
+    "contracts/",
+    "infra/",
+    ".github/",
+    "harness/",
+    "scripts/",
+    "docs/tasks/",
+    "docs/05-API_SPEC.md",
+    "AGENTS.md",
+    "package.json",
+    "package-lock.json",
+    ".env.local"
+  ],
+  "verify": [
+    {
+      "command": [
+        "bash",
+        "scripts/verify.sh"
+      ],
+      "cwd": "."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "max_review_cycles": 3
+}
